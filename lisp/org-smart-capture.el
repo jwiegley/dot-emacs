@@ -27,9 +27,9 @@
 
 ;; I use: (define-key global-map [(meta ?m)] 'org-smart-capture)
 
-(require 'gnus-sum)
 (require 'org-macs)
 (require 'org-capture)
+(require 'gnus-sum)
 
 (defgroup org-smart-capture nil
   "Capture Gnus messages as tasks, with context"

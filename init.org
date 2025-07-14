@@ -200,8 +200,13 @@
 
 * Libraries
 
-** aio
+** org-constants
 
+#+begin_src emacs-lisp
+(use-package org-constants)
+#+end_src
+
+** aio
 #+begin_src emacs-lisp
 (use-package aio :defer t)
 #+end_src
@@ -219,6 +224,13 @@
   :functions (uuidgen-1))
 #+end_src
 
+** COMMENT crux
+
+#+begin_src emacs-lisp
+(use-package crux
+  :bind ("C-c e i" . crux-find-user-init-file))
+#+end_src
+
 ** dash
 
 #+begin_src emacs-lisp
@@ -231,6 +243,12 @@
 (use-package diminish :defer t)
 #+end_src
 
+** el-job
+
+#+begin_src emacs-lisp
+(use-package el-job :defer t)
+#+end_src
+
 ** s
 
 #+begin_src emacs-lisp
@@ -241,12 +259,6 @@
 
 #+begin_src emacs-lisp
 (use-package f :defer t)
-#+end_src
-
-** fsrs
-
-#+begin_src emacs-lisp
-(use-package fsrs :defer t)
 #+end_src
 
 ** parse-csv
@@ -528,12 +540,6 @@ unto itself.
             ("C-c N" . my-ctrl-c-N-map)))))
 #+end_src
 
-** org-constants
-
-#+begin_src emacs-lisp
-(use-package org-constants)
-#+end_src
-
 ** hydra
 
 #+begin_src emacs-lisp
@@ -560,6 +566,7 @@ _v_ariable       _u_ser-option
 
 #+begin_src emacs-lisp
 (use-package pretty-hydra
+  :demand t
   :functions (pretty-hydra-define))
 #+end_src
 
@@ -997,8 +1004,21 @@ old saved versions again.
   :hook (after-save . backup-each-save))
 #+end_src
 
-** biblio
+** COMMENT backup-walker
 
+#+begin_src emacs-lisp
+(use-package backup-walker
+  :commands backup-walker-start)
+#+end_src
+
+** COMMENT beacon
+#+begin_src emacs-lisp
+(use-package beacon
+  :diminish
+  :commands beacon-mode)
+#+end_src
+
+** biblio
 [[https://github.com/cpitclaudel/biblio.el][biblio.el]] makes it easy to browse and gather bibliographic references and
 publications from various sources, by keywords or by DOI. References are
 automatically fetched from well-curated sources, and formatted as BibTeX.
@@ -1078,8 +1098,14 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   (bmkp-last-as-first-bookmark-file bookmark-default-file))
 #+end_src
 
-** browse-kill-ring
+** COMMENT browse-at-remote
 
+#+begin_src emacs-lisp
+(use-package browse-at-remote
+  :bind ("C-c B" . browse-at-remote))
+#+end_src
+
+** browse-kill-ring
 #+begin_src emacs-lisp
 (use-package browse-kill-ring
   :commands browse-kill-ring)
@@ -1200,11 +1226,9 @@ should be terminated.
 
 #+begin_src emacs-lisp
 (use-package literate-calc-mode
-  :after org
+  :commands (literate-calc-minor-mode
+             literate-calc-kill-result)
   :diminish literate-calc-minor-mode
-  :bind (:map org-mode-map
-              ("C-c C-x *" . literate-calc-minor-mode)
-              ("C-c C-x C-*" . literate-calc-kill-result))
   :custom
   (literate-calc-usimplify-results t))
 #+end_src
@@ -1417,8 +1441,14 @@ The tools offered by Citre are:
    citre-auto-enable-citre-mode-modes '(prog-mode)))
 #+end_src
 
-** col-highlight
+** COMMENT cl-info
 
+#+begin_src emacs-lisp
+(use-package cl-info
+  :nix nil)
+#+end_src
+
+** col-highlight
 #+begin_src emacs-lisp
 (use-package col-highlight
   :commands column-highlight-mode)
@@ -1623,8 +1653,16 @@ to them.
   :bind ("M-s d" . deadgrep))
 #+end_src
 
-** dedicated
+** COMMENT debbugs-gnu
 
+#+begin_src emacs-lisp
+(use-package debbugs-gnu
+  :nix nil
+  :commands (debbugs-gnu debbugs-gnu-search)
+  :bind ("C-c #" . gnus-read-ephemeral-emacs-bug-group))
+#+end_src
+
+** dedicated
 #+begin_src emacs-lisp
 (use-package dedicated
   :bind ("C-c W" . dedicated-mode))
@@ -1986,8 +2024,14 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
   (doxymacs-font-lock))
 #+end_src
 
-** eager-state
+** COMMENT dumb-jump
 
+#+begin_src emacs-lisp
+(use-package dumb-jump
+  :hook ((coq-mode haskell-mode) . dumb-jump-mode))
+#+end_src
+
+** eager-state
 #+begin_src emacs-lisp
 (use-package eager-state
   :config
@@ -2062,8 +2106,15 @@ To get the most out of Eat, you should also setup shell integration.
   :commands (eat))
 #+end_src
 
-** edbi
+** COMMENT ebdb
 
+#+begin_src emacs-lisp
+(use-package ebdb-com
+  :nix ebdb
+  :commands ebdb)
+#+end_src
+
+** edbi
 #+begin_src emacs-lisp
 (use-package edbi
   :commands edbi:sql-mode)
@@ -2929,8 +2980,16 @@ up before you execute another command."
   :commands free-keys)
 #+end_src
 
-** ghub
+** COMMENT fullframe
 
+#+begin_src emacs-lisp
+(use-package fullframe
+  :defer t
+  :init
+  (autoload #'fullframe "fullframe"))
+#+end_src
+
+** ghub
 #+begin_src emacs-lisp
 (use-package ghub
   :defer t
@@ -2997,8 +3056,14 @@ up before you execute another command."
   :commands git-undo)
 #+end_src
 
-** COMMENT google-this
+** COMMENT gitpatch
 
+#+begin_src emacs-lisp
+(use-package gitpatch
+  :commands gitpatch-mail)
+#+end_src
+
+** COMMENT google-this
 #+begin_src emacs-lisp
 (use-package google-this
   :bind-keymap ("C-c /" . google-this-mode-submap)
@@ -3594,8 +3659,17 @@ requests, so you can use it alongside other tools.
                :advance (announce "Break time is over!")))))
 #+end_src
 
-** help
+** COMMENT haskell-edit
 
+#+begin_src emacs-lisp
+(use-package haskell-edit
+  :load-path "lisp/haskell-config"
+  :after haskell-mode
+  :bind (:map haskell-mode-map
+              ("C-c M-q" . haskell-edit-reformat)))
+#+end_src
+
+** help
 #+begin_src emacs-lisp
 (use-package help
   :defer t
@@ -3859,8 +3933,14 @@ minibuffer change, the region is realigned.
               (ibuffer-switch-to-saved-filter-groups "default"))))
 #+end_src
 
-** COMMENT iflipb
+** COMMENT iedit
 
+#+begin_src emacs-lisp
+(use-package iedit
+  :defer t)
+#+end_src
+
+** COMMENT iflipb
 #+begin_src emacs-lisp
 (use-package iflipb
   :bind* ("C-<backspace>" . my-iflipb-next-buffer)
@@ -4589,8 +4669,22 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   :commands memory-usage)
 #+end_src
 
-** midnight
+** COMMENT mic-paren
 
+Load [[https://github.com/emacsattic/mic-paren/blob/master/mic-paren.el][mic-paren.el]], activate it and Emacs will display highlighting on whatever
+parenthesis (and paired delimiter if you like this) matches the one before or
+after point. This is an extension to the =paren.el= file distributed with Emacs.
+The default behaviour is similar to =paren.el= but more sophisticated. Normally
+you can try all default settings to enjoy =mic-paren=.
+
+#+begin_src emacs-lisp
+(use-package mic-paren
+  :defer 5
+  :config
+  (paren-activate))
+#+end_src
+
+** midnight
 #+begin_src emacs-lisp
 (use-package midnight
   :demand t
@@ -4615,15 +4709,29 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   (midnight-mode t))
 #+end_src
 
-** moccur-edit
+** COMMENT minimap
 
+#+begin_src emacs-lisp
+(use-package minimap
+  :commands minimap-mode)
+#+end_src
+
+** moccur-edit
 #+begin_src emacs-lisp
 (use-package moccur-edit
   :after color-moccur)
 #+end_src
 
-** move-lines
+** COMMENT monitor
 
+#+begin_src emacs-lisp
+(use-package monitor
+  :defer t
+  :init
+  (autoload #'define-monitor "monitor"))
+#+end_src
+
+** move-lines
 #+begin_src emacs-lisp
 (use-package move-lines
   :no-require t
@@ -5419,6 +5527,7 @@ append it to ENTRY."
       (`3840 'dell-wide)
       (`6400 'imac)
       (`4480 'imac)
+      (`3760 'imac)
       (`2560 'imac)
       (`1920 'macbook-pro-vga)
       (`1792 'macbook-pro-16)
@@ -5515,21 +5624,20 @@ append it to ENTRY."
     (if (alist-get 'fullscreen (frame-parameters))
         (emacs-min)
       (emacs-max)))
+
+  (defun emacs-post-startup-setup ()
+    (delete-other-windows)
+    (find-file "~/org/home.org")
+    (when (quickping "imap.fastmail.com")
+      (delete-other-windows)
+      (call-interactively #'switch-to-gnus))
+    (call-interactively #'org-ext-jump-to-agenda))
   :init
   (define-key key-translation-map (kbd "s-TAB") (kbd "C-TAB"))
 
   (add-hook 'window-setup-hook #'emacs-min t)
-
   ;; Make sure this runs last
-  (add-hook 'window-setup-hook
-            (lambda ()
-              (delete-other-windows)
-              (find-file "~/org/home.org")
-              (when (quickping "imap.fastmail.com")
-                (delete-other-windows)
-                (call-interactively #'switch-to-gnus))
-              (call-interactively #'org-ext-jump-to-agenda))
-            100))
+  (add-hook 'window-setup-hook #'emacs-post-startup-setup 100))
 #+end_src
 
 ** pgmacs
@@ -5819,8 +5927,13 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (repeat-mode t))
 #+end_src
 
-** restclient
+** COMMENT repl-toggle
 
+#+begin_src emacs-lisp
+(use-package repl-toggle)
+#+end_src
+
+** restclient
 #+begin_src emacs-lisp
 (use-package restclient
   :mode ("\\.rest\\'" . restclient-mode))
@@ -6070,8 +6183,27 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
    :full-and-display-names t))
 #+end_src
 
-** smart-newline
+** COMMENT smart-mode-line
 
+#+begin_src emacs-lisp
+(use-package smart-mode-line
+  :preface
+  (defface mode-line-buffer-id
+    '((((class color) (background dark))
+       (:foreground "grey50" :italic t :strike-through t))
+      (((class color) (background light))
+       (:foreground "grey55" :italic t :strike-through t)))
+    "Face defined to avoid compiler warnings."
+    :group 'smart-mode)
+  :config
+  ;; See https://github.com/Malabarba/smart-mode-line/issues/217
+  (setq mode-line-format (delq 'mode-line-position mode-line-format))
+  (sml/setup)
+  (sml/apply-theme 'light)
+  (remove-hook 'display-time-hook 'sml/propertize-time-string))
+#+end_src
+
+** smart-newline
 #+begin_src emacs-lisp
 (use-package smart-newline
   :diminish
@@ -6087,8 +6219,17 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (sp-highlight-pair-overlay nil))
 #+end_src
 
-** smerge-mode
+** COMMENT smartscan
 
+#+begin_src emacs-lisp
+(use-package smartscan
+  :defer 5
+  :bind (:map smartscan-map
+              ("C->" . smartscan-symbol-go-forward)
+              ("C-<" . smartscan-symbol-go-backward)))
+#+end_src
+
+** smerge-mode
 #+begin_src emacs-lisp
 (use-package smerge-mode
   :commands smerge-mode)
@@ -6291,8 +6432,17 @@ A collection of paredit-like functions for editing in =html-mode=.
   (setq tramp-persistency-file-name (user-data "tramp")))
 #+end_src
 
-** transient
+*** COMMENT tramp-sh
 
+#+begin_src emacs-lisp
+(use-package tramp-sh
+  :nix nil
+  :defer t
+  :config
+  (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
+#+end_src
+
+** transient
 #+begin_src emacs-lisp
 (use-package transient
   :defer t
@@ -7140,11 +7290,11 @@ behaves /correctly/ under all circumstances. By reusing the built-in facilities
 system, Vertico achieves /full compatibility/ with built-in Emacs completion
 commands and completion tables. Vertico only provides the completion UI but
 aims to be highly flexible, extendable and modular. Additional enhancements
-are available as [[#extensions][extensions]] or [[#complementary-packages][complementary packages]]. The code base is small
+are available as extensions or complementary packages. The code base is small
 and maintainable. The main =vertico.el= package is only about 600 lines of code
 without white space and comments.
 
-- Vertical display with arrow key navigation. See the [[#extensions][extensions]] for
+- Vertical display with arrow key navigation. See the extensions for
   additional display modes.
 - Prompt shows the current candidate index and the total number of candidates.
 - The current candidate is inserted with =TAB= and selected with =RET=.
@@ -7358,8 +7508,8 @@ Furthermore Consult provides an advanced buffer switching command
 =consult-buffer= to switch between buffers, recently opened files, bookmarks and
 buffer-like candidates from other sources. Some of the Consult commands are
 enhanced versions of built-in Emacs commands. For example the command
-=consult-imenu= presents a flat list of the Imenu with [[#live-previews][live preview]], [[#narrowing-and-grouping][grouping
-and narrowing]]. Please take a look at the [[#available-commands][full list of commands]].
+=consult-imenu= presents a flat list of the Imenu with live preview, grouping
+and narrowing. Please take a look at the full list of commands.
 
 Consult is fully compatible with completion systems centered around the
 standard Emacs =completing-read= API, notably the default completion system,
@@ -7380,7 +7530,6 @@ independent components.
          ("C-c e i" . consult-info)
          ([remap Info-search] . consult-info)
 
-         ("C-*"     . consult-org-heading)
          ("C-c e l" . find-library)
          ("C-c e q" . set-variable)
          ("C-h e l" . find-library)
@@ -7790,17 +7939,6 @@ locations. The =default-directory= variable is not changed in the process.
   (yas-load-directory (emacs-path "snippets")))
 #+end_src
 
-**** yasnippet-org
-
-#+begin_src emacs-lisp
-(use-package yasnippet-org
-  :no-require t
-  :after org
-  :hook
-  (org-mode . yas-minor-mode-on)
-  (org-tab-after-check-for-cycling . yas-expand))
-#+end_src
-
 **** consult-yasnippet
 
 #+begin_src emacs-lisp
@@ -8077,7 +8215,7 @@ locations. The =default-directory= variable is not changed in the process.
 **** eglot-booster
 
 The [[https://github.com/blahgeek/emacs-lsp-booster][emacs-lsp-booster]] project provides a rust-based wrapper program which
-substantially speeds up emacs' interactions with lsp servers. [[This small package][eglot-booster]]
+substantially speeds up emacs' interactions with lsp servers. eglot-booster
 enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
 #+begin_src emacs-lisp
@@ -10374,9 +10512,10 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 
 ** Org-mode
 
+*** org
+
 #+begin_src emacs-lisp
 (use-package org
-  :nix org
   ;; :load-path "lisp/org-mode/lisp"
   :demand t
   :commands org-resolve-clocks
@@ -10850,8 +10989,20 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      (("Family")      face (:background ,palette-purple-darker  :foreground "#eeeeee")))))
 #+end_src
 
-*** org-ql
+**** org-super-agenda
 
+#+begin_src emacs-lisp
+(use-package org-super-agenda
+  :after org
+  :custom
+  (org-super-agenda-header-separator "————————————————————————————————————————————————————————————————————————————————————————————————————\n")
+  ;; (org-super-agenda-header-separator "")
+  (org-super-agenda-hide-empty-groups t)
+  :config
+  (org-super-agenda-mode))
+#+end_src
+
+*** org-ql
 #+begin_src emacs-lisp
 (use-package org-ql
   :after org
@@ -11142,7 +11293,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
         (move-marker m nil)))))
 #+end_src
 
-*** org-attach-git
+**** org-attach-git
 
 #+begin_src emacs-lisp
 (use-package org-attach-git
@@ -12290,6 +12441,12 @@ stamp to a task, which can be used to schedule a review of the task.
   (setq org-node-file-timestamp-format "%Y%m%d%H%M%S-"))
 #+end_src
 
+*** embark-org
+#+begin_src emacs-lisp
+(use-package embark-org
+  :after (embark))
+#+end_src
+
 *** org-roam
 
 #+begin_src emacs-lisp
@@ -12346,8 +12503,8 @@ stamp to a task, which can be used to schedule a review of the task.
   (setq org-roam-v2-ack t)
   :config
   ;; (org-roam-db-autosync-mode)
-  ;; (unless alternate-emacs
-  ;;   (run-with-idle-timer 300 t 'org-roam-db-sync))
+  (unless alternate-emacs
+    (run-with-idle-timer 300 t 'org-roam-db-sync))
 
   (cl-defun org-roam-node-insert-section (&key source-node point properties)
     (magit-insert-section
@@ -12380,32 +12537,7 @@ stamp to a task, which can be used to schedule a review of the task.
         (insert ?\n)))))
 #+end_src
 
-**** org-roam-dailies
-
-#+begin_src emacs-lisp
-(use-package org-roam-dailies
-  :after org-roam
-  :demand t
-  :bind
-  (:map
-   my-ctrl-c-n-map
-   ("J" . org-roam-dailies-capture-today)
-   ("d" . org-roam-dailies-map)         ; this is a keymap
-   :map
-   org-roam-dailies-map
-   ("Y" . org-roam-dailies-capture-yesterday)
-   ("T" . org-roam-dailies-capture-tomorrow))
-  :custom
-  (org-roam-dailies-directory "journal/")
-  :functions
-  (org-roam-dailies-capture-tomorrow
-   org-roam-dailies-capture-yesterday
-   org-roam-dailies-capture-today
-   org-roam-dailies--capture))
-#+end_src
-
 **** vulpea
-
 A collection of functions for note taking based on =org= and =org-roam=. This
 repository primary goal is to be a tested library for other applications and
 utilities around note taking.
@@ -12486,7 +12618,7 @@ utilities around note taking.
 
 #+begin_src emacs-lisp
 (use-package vulpea-ext
-  :after (vulpea-field)
+  :after (vulpea vulpea-field)
   :demand t
   :bind
   (:map
@@ -12509,79 +12641,28 @@ utilities around note taking.
                          )))))
 #+end_src
 
-**** consult-org-roam
+**** org-roam-dailies
 
 #+begin_src emacs-lisp
-(use-package consult-org-roam
-  :after (org-roam vertico)
+(use-package org-roam-dailies
+  :after org-roam
   :demand t
-  :diminish consult-org-roam-mode
   :bind
   (:map
    my-ctrl-c-n-map
-   ;; ("f" . consult-org-roam-file-find)
-   ("F" . consult-org-roam-forward-links)
-   ("b" . consult-org-roam-backlinks)
-   ("g" . consult-org-roam-search))
+   ("J" . org-roam-dailies-capture-today)
+   ("d" . org-roam-dailies-map)         ; this is a keymap
+   :map
+   org-roam-dailies-map
+   ("Y" . org-roam-dailies-capture-yesterday)
+   ("T" . org-roam-dailies-capture-tomorrow))
   :custom
-  (consult-org-roam-grep-func #'consult-ripgrep)
-  (consult-org-roam-buffer-enabled nil)
-  (consult-org-roam-buffer-narrow-key ?r)
-  (consult-org-roam-buffer-after-buffers t)
-  :config
-  (consult-org-roam-mode 1)
-
-  (eval-when-compile
-    (require 'vertico-multiform))
-  (add-all-to-list 'vertico-multiform-commands
-                   '(consult-org-roam-backlinks)
-                   '(consult-org-roam-forward-links)
-                   '(consult-org-roam-file-find)
-                   '(consult-org-roam-search)))
-#+end_src
-
-**** consult-org-bookmarks
-
-#+begin_src emacs-lisp
-(use-package consult-org-bookmarks
-  :bind ("C-x r B" . consult-org-bookmarks))
-#+end_src
-
-**** embark-org
-
-#+begin_src emacs-lisp
-(use-package embark-org
-  :after (embark))
-#+end_src
-
-**** embark-org-roam
-
-Use [[https://github.com/bramadams/embark-org-roam?tab=readme-ov-file][embark-select]] to select all org roam nodes of interest, then use
-embark-export, which will open a special org mode buffer containing links to
-the selected nodes.
-
-You can customize whether the exported buffer is read-only using the
-embark-org-roam-readonly variable. By default, the buffer is not read-only,
-resulting in an org-mode checklist.
-
-#+begin_src emacs-lisp
-(use-package embark-org-roam
-  :demand t
-  :after (org-roam embark))
-#+end_src
-
-**** org-roam-ui
-
-#+begin_src emacs-lisp
-(use-package org-roam-ui
-  :after org-roam
-  :commands (org-roam-ui-mode)
-  :diminish org-roam-ui-mode
-  :config
-  (setq org-roam-ui-sync-theme t
-        org-roam-ui-follow t
-        org-roam-ui-update-on-save t
-        org-roam-ui-open-on-start t))
+  (org-roam-dailies-directory "journal/")
+  :functions
+  (org-roam-dailies-capture-tomorrow
+   org-roam-dailies-capture-yesterday
+   org-roam-dailies-capture-today
+   org-roam-dailies--capture))
 #+end_src
 
 **** org-roam-ext
@@ -12624,6 +12705,73 @@ context.
   :bind* ("M-m" . org-smart-capture)
   :custom
   (org-smart-capture-use-lastname t))
+#+end_src
+
+**** consult-org-roam
+#+begin_src emacs-lisp
+(use-package consult-org-roam
+  :after (org-roam vertico)
+  :demand t
+  :diminish consult-org-roam-mode
+  :bind
+  (:map
+   my-ctrl-c-n-map
+   ;; ("f" . consult-org-roam-file-find)
+   ("F" . consult-org-roam-forward-links)
+   ("b" . consult-org-roam-backlinks)
+   ("g" . consult-org-roam-search))
+  :custom
+  (consult-org-roam-grep-func #'consult-ripgrep)
+  (consult-org-roam-buffer-enabled nil)
+  (consult-org-roam-buffer-narrow-key ?r)
+  (consult-org-roam-buffer-after-buffers t)
+  :config
+  (consult-org-roam-mode 1)
+
+  (eval-when-compile
+    (require 'vertico-multiform))
+  (add-all-to-list 'vertico-multiform-commands
+                   '(consult-org-roam-backlinks)
+                   '(consult-org-roam-forward-links)
+                   '(consult-org-roam-file-find)
+                   '(consult-org-roam-search)))
+#+end_src
+
+**** consult-org-bookmarks
+
+#+begin_src emacs-lisp
+(use-package consult-org-bookmarks
+  :bind ("C-x r B" . consult-org-bookmarks))
+#+end_src
+
+**** embark-org-roam
+
+Use [[https://github.com/bramadams/embark-org-roam?tab=readme-ov-file][embark-select]] to select all org roam nodes of interest, then use
+embark-export, which will open a special org mode buffer containing links to
+the selected nodes.
+
+You can customize whether the exported buffer is read-only using the
+embark-org-roam-readonly variable. By default, the buffer is not read-only,
+resulting in an org-mode checklist.
+
+#+begin_src emacs-lisp
+(use-package embark-org-roam
+  :demand t
+  :after (org-roam embark))
+#+end_src
+
+**** org-roam-ui
+
+#+begin_src emacs-lisp
+(use-package org-roam-ui
+  :after org-roam
+  :commands (org-roam-ui-mode)
+  :diminish org-roam-ui-mode
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
 #+end_src
 
 **** COMMENT xeft
@@ -12791,8 +12939,13 @@ this allows seeing an overview of tasks in a subtree.
                          (my/org-srs-cycle-hide-drawers 'all)))))
 #+end_src
 
-*** org-sticky-header
+**** fsrs
 
+#+begin_src emacs-lisp
+(use-package fsrs :defer t)
+#+end_src
+
+*** org-sticky-header
 This package displays in the header-line the Org heading for the node that's
 at the top of the window. This way, if the heading for the text at the top of
 the window is beyond the top of the window, you don't forget which heading the
@@ -12801,19 +12954,6 @@ text belongs to.
 #+begin_src emacs-lisp
 (use-package org-sticky-header
   :commands org-sticky-header-mode)
-#+end_src
-
-*** org-super-agenda
-
-#+begin_src emacs-lisp
-(use-package org-super-agenda
-  :after org
-  :custom
-  (org-super-agenda-header-separator "————————————————————————————————————————————————————————————————————————————————————————————————————\n")
-  ;; (org-super-agenda-header-separator "")
-  (org-super-agenda-hide-empty-groups t)
-  :config
-  (org-super-agenda-mode))
 #+end_src
 
 *** org-superstar
@@ -12999,6 +13139,9 @@ middle-click to temporarily hide it.
 (use-package org-yasnippet
   :no-require t
   :after (org yasnippet)
+  :hook
+  (org-mode . yas-minor-mode-on)
+  (org-tab-after-check-for-cycling . yas-expand)
   :preface
   (defun my/run-capture-finalize-for-org-items ()
     (save-excursion
@@ -13010,6 +13153,7 @@ middle-click to temporarily hide it.
   :config
   (add-hook 'yas-after-exit-snippet-hook
             #'my/run-capture-finalize-for-org-items))
+
 #+end_src
 
 *** orgit
@@ -13019,7 +13163,7 @@ middle-click to temporarily hide it.
   :after org)
 #+end_src
 
-*** orgit-forge
+**** orgit-forge
 
 #+begin_src emacs-lisp
 (use-package orgit-forge
@@ -13080,9 +13224,15 @@ own lines, for instance.
   :bind
   ("C-c w k"   . org-slack-export-to-clipboard-as-slack)
   ("C-c w M-w" . org-slack-export-to-clipboard-as-slack)
+  :preface
+  (defun my/org-fixup-slack-link (old-func link contents info)
+    (let ((text (funcall old-func link contents info)))
+      (if (string-match "\\*\\(.+?\\)\\* (\\(.+\\))" text)
+          (format "[%s](%s)" (match-string 1 text) (match-string 2 text))
+        text)))
   :config
-  (advice-add 'org-slack-export-to-clipboard-as-slack
-              :after (lambda () (deactivate-mark))))
+  (advice-add 'org-slack-export-to-clipboard-as-slack :after #'deactivate-mark)
+  (advice-add 'org-slack-link :around #'my/org-fixup-slack-link))
 #+end_src
 
 **** COMMENT ox-texinfo-plus
@@ -13299,13 +13449,12 @@ checkbox, and moves the cursor to the end of the previous line.
   :hook (org-mode . org-autolist-mode))
 #+end_src
 
-*** COMMENT org-margin
+*** org-margin
 
 #+begin_src emacs-lisp
 (use-package org-margin
   :after (org)
-  :config
-  (org-margin-mode 1))
+  :commands (org-margin-mode))
 #+end_src
 
 *** org-mru-clock
@@ -13317,6 +13466,16 @@ checkbox, and moves the cursor to the end of the previous line.
           ("C-c C-x C-j" . org-mru-clock-select-recent-task))
   :custom
   (org-mru-clock-how-many 100))
+#+end_src
+
+*** org-literate-calc
+
+#+begin_src emacs-lisp
+(use-package org-literate-calc
+  :no-require t
+  :bind (:map org-mode-map
+              ("C-c C-x *" . literate-calc-minor-mode)
+              ("C-c C-x C-*" . literate-calc-kill-result)))
 #+end_src
 
 ** Games
@@ -13473,186 +13632,6 @@ checkbox, and moves the cursor to the end of the previous line.
 #+begin_src emacs-lisp
 (use-package minesweeper
   :commands minesweeper)
-#+end_src
-
-** No longer used
-*** COMMENT backup-walker
-
-#+begin_src emacs-lisp
-(use-package backup-walker
-  :commands backup-walker-start)
-#+end_src
-
-*** COMMENT beacon
-
-#+begin_src emacs-lisp
-(use-package beacon
-  :diminish
-  :commands beacon-mode)
-#+end_src
-
-*** COMMENT browse-at-remote
-
-#+begin_src emacs-lisp
-(use-package browse-at-remote
-  :bind ("C-c B" . browse-at-remote))
-#+end_src
-
-*** COMMENT cl-info
-
-#+begin_src emacs-lisp
-(use-package cl-info
-  :nix nil)
-#+end_src
-
-*** COMMENT crux
-
-#+begin_src emacs-lisp
-(use-package crux
-  :bind ("C-c e i" . crux-find-user-init-file))
-#+end_src
-
-*** COMMENT debbugs-gnu
-
-#+begin_src emacs-lisp
-(use-package debbugs-gnu
-  :nix nil
-  :commands (debbugs-gnu debbugs-gnu-search)
-  :bind ("C-c #" . gnus-read-ephemeral-emacs-bug-group))
-#+end_src
-
-*** COMMENT dumb-jump
-
-#+begin_src emacs-lisp
-(use-package dumb-jump
-  :hook ((coq-mode haskell-mode) . dumb-jump-mode))
-#+end_src
-
-*** COMMENT ebdb
-
-#+begin_src emacs-lisp
-(use-package ebdb-com
-  :nix ebdb
-  :commands ebdb)
-#+end_src
-
-*** COMMENT fullframe
-
-#+begin_src emacs-lisp
-(use-package fullframe
-  :defer t
-  :init
-  (autoload #'fullframe "fullframe"))
-#+end_src
-
-*** COMMENT gitpatch
-
-#+begin_src emacs-lisp
-(use-package gitpatch
-  :commands gitpatch-mail)
-#+end_src
-
-*** COMMENT haskell-edit
-
-#+begin_src emacs-lisp
-(use-package haskell-edit
-  :load-path "lisp/haskell-config"
-  :after haskell-mode
-  :bind (:map haskell-mode-map
-              ("C-c M-q" . haskell-edit-reformat)))
-#+end_src
-
-*** COMMENT iedit
-
-#+begin_src emacs-lisp
-(use-package iedit
-  :defer t)
-#+end_src
-
-*** COMMENT mic-paren
-
-Load [[https://github.com/emacsattic/mic-paren/blob/master/mic-paren.el][mic-paren.el]], activate it and Emacs will display highlighting on whatever
-parenthesis (and paired delimiter if you like this) matches the one before or
-after point. This is an extension to the =paren.el= file distributed with Emacs.
-The default behaviour is similar to =paren.el= but more sophisticated. Normally
-you can try all default settings to enjoy =mic-paren=.
-
-#+begin_src emacs-lisp
-(use-package mic-paren
-  :defer 5
-  :config
-  (paren-activate))
-#+end_src
-
-*** COMMENT minimap
-
-#+begin_src emacs-lisp
-(use-package minimap
-  :commands minimap-mode)
-#+end_src
-
-*** COMMENT monitor
-
-#+begin_src emacs-lisp
-(use-package monitor
-  :defer t
-  :init
-  (autoload #'define-monitor "monitor"))
-#+end_src
-
-*** COMMENT repl-toggle
-
-#+begin_src emacs-lisp
-(use-package repl-toggle)
-#+end_src
-
-*** COMMENT smart-mode-line
-
-#+begin_src emacs-lisp
-(use-package smart-mode-line
-  :preface
-  (defface mode-line-buffer-id
-    '((((class color) (background dark))
-       (:foreground "grey50" :italic t :strike-through t))
-      (((class color) (background light))
-       (:foreground "grey55" :italic t :strike-through t)))
-    "Face defined to avoid compiler warnings."
-    :group 'smart-mode)
-  :config
-  ;; See https://github.com/Malabarba/smart-mode-line/issues/217
-  (setq mode-line-format (delq 'mode-line-position mode-line-format))
-  (sml/setup)
-  (sml/apply-theme 'light)
-  (remove-hook 'display-time-hook 'sml/propertize-time-string))
-#+end_src
-
-*** COMMENT smartscan
-
-#+begin_src emacs-lisp
-(use-package smartscan
-  :defer 5
-  :bind (:map smartscan-map
-              ("C->" . smartscan-symbol-go-forward)
-              ("C-<" . smartscan-symbol-go-backward)))
-#+end_src
-
-*** COMMENT tracking
-
-#+begin_src emacs-lisp
-(use-package tracking
-  :defer t
-  :config
-  (define-key tracking-mode-map [(control ?c) space] #'tracking-next-buffer))
-#+end_src
-
-*** COMMENT tramp-sh
-
-#+begin_src emacs-lisp
-(use-package tramp-sh
-  :nix nil
-  :defer t
-  :config
-  (add-to-list 'tramp-remote-path "/run/current-system/sw/bin"))
 #+end_src
 
 * Finalization
