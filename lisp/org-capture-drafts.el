@@ -52,9 +52,10 @@
 (cl-defun org-capture-drafts-change (keyword)
   (interactive)
   (goto-char (point-min))
-  (re-search-forward "^\\*+ \\(DRAFT\\) ")
+  (re-search-forward "^\\*+ \\(DRAFT\\|SCRAP\\) ")
   (replace-match keyword t t nil 1)
-  (org-capture-finalize current-prefix-arg))
+  (when org-capture-mode
+    (org-capture-finalize current-prefix-arg)))
 
 (defun org-capture-drafts-gptel ()
   (interactive)
@@ -63,9 +64,9 @@
   (let ((str (string-trim
               (buffer-substring-no-properties (point) (point-max)))))
     (org-capture-drafts-change "SCRAP")
-    (corsair-open-chat-buffer t)
-    (insert str)
-    (gptel-send)))
+    (with-current-buffer (gptel "chat_buffer_name" nil str)
+      (pop-to-buffer (current-buffer))
+      (gptel-send))))
 
 (defun org-capture-drafts-kagi ()
   (interactive)
@@ -74,9 +75,7 @@
   (let ((str (string-trim
               (buffer-substring-no-properties (point) (point-max)))))
     (org-capture-drafts-change "SCRAP")
-    (browse-url
-     (browse-url-encode-url
-      (concat "https://kagi.com/search?q=" str)))))
+    (browse-url (concat "https://kagi.com/search?q=" str))))
 
 (defun org-capture-drafts-perplexity ()
   (interactive)
@@ -86,8 +85,7 @@
               (buffer-substring-no-properties (point) (point-max)))))
     (org-capture-drafts-change "SCRAP")
     (browse-url
-     (browse-url-encode-url
-      (concat "https://www.perplexity.ai/search/?q=" str "&copilot=true")))))
+     (concat "https://www.perplexity.ai/search/?q=" str "&copilot=true"))))
 
 (pretty-hydra-define
   org-capture-drafts
@@ -111,7 +109,20 @@
       (org-capture-drafts/body)
     (org-capture-finalize arg)))
 
+(defun org-capture-drafts-act-on-existing ()
+  (save-restriction
+    (save-excursion
+      (org-back-to-heading)
+      (when (looking-at-p "^\\*+ \\(DRAFT\\|SCRAP\\) ")
+        (org-narrow-to-element)
+        (re-search-forward ":END:")
+        (forward-line)
+        (org-capture-drafts/body)
+        t))))
+
 (defun org-capture-drafts-install ()
+  (add-hook 'org-ctrl-c-ctrl-c-hook
+            #'org-capture-drafts-act-on-existing)
   (define-key org-capture-mode-map (kbd "C-c C-c")
               #'org-capture-drafts-action))
 
