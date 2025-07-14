@@ -25,7 +25,20 @@
 
 ;;; Commentary:
 
-;; I use: (define-key global-map [(meta ?m)] 'org-capture-drafts)
+;; I use the following Org-capture template:
+;;
+;;   ("d" "DRAFT" entry
+;;     "path-to-inbox-file.org"
+;;     "* DRAFT %U\n%?"
+;;     :prepend t):
+;;
+;; With the following use-package declaration:
+;;
+;;   (use-package org-capture-drafts
+;;     :after (org)
+;;     :bind* ("M-M" . (lambda () (interactive) (org-capture nil "d")))
+;;     :config
+;;     (org-capture-drafts-install))
 
 (require 'cl-lib)
 (require 'org-macs)
