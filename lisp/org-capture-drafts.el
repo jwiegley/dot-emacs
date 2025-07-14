@@ -1,11 +1,11 @@
-;;; org-capture-drafts --- Capture Gnus messages as tasks, with context -*- lexical-binding: t -*-
+;;; org-capture-drafts --- Manage drafts using Org-capture -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2011 John Wiegley
 
 ;; Author: John Wiegley <johnw@gnu.org>
-;; Created: 16 Sep 2011
+;; Created: 14 Jul 2025
 ;; Version: 1.0
-;; Keywords: gnus message org capture task todo context
+;; Keywords: org capture task todo context
 ;; X-URL: https://github.com/jwiegley/dot-emacs
 
 ;; This program is free software; you can redistribute it and/or
