@@ -168,9 +168,13 @@ differently or may not accept what another backend consider legitimate."
   :use-context 'user
   :include-reasoning 'ignore)
 
-(gptel-make-preset 'code
+(my/gptel-make-preset 'code
   :description "Best model for generating or interpreting code"
-  :parents 'opus)
+  :parents 'opus
+  :request-params '(:thinking
+                    (:type "enabled" :budget_tokens 16384)
+                    :max_tokens 24000)
+  :include-reasoning 'ignore)
 
 (gptel-make-preset 'rewrite
   :description "Model used for basic rewrites"

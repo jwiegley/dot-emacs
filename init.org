@@ -206,7 +206,8 @@
 (use-package org-constants)
 #+end_src
 
-** aio
+** COMMENT aio
+
 #+begin_src emacs-lisp
 (use-package aio :defer t)
 #+end_src
@@ -361,10 +362,11 @@ unto itself.
   (ns-function-modifier 'hyper)
 
   ;; Settings for the Emacs Mac-port
-  (mac-command-modifier 'meta)
   (mac-right-command-modifier 'meta)
-  (mac-option-modifier 'super)
   (mac-right-option-modifier 'super)
+  (mac-option-modifier 'super)
+  (mac-command-modifier 'hyper)
+  (mac-right-control-modifier 'alt)
   (mac-pass-command-to-system nil)
 
   (frame-title-format
@@ -1012,6 +1014,7 @@ old saved versions again.
 #+end_src
 
 ** COMMENT beacon
+
 #+begin_src emacs-lisp
 (use-package beacon
   :diminish
@@ -1019,6 +1022,7 @@ old saved versions again.
 #+end_src
 
 ** biblio
+
 [[https://github.com/cpitclaudel/biblio.el][biblio.el]] makes it easy to browse and gather bibliographic references and
 publications from various sources, by keywords or by DOI. References are
 automatically fetched from well-curated sources, and formatted as BibTeX.
@@ -1106,6 +1110,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
 #+end_src
 
 ** browse-kill-ring
+
 #+begin_src emacs-lisp
 (use-package browse-kill-ring
   :commands browse-kill-ring)
@@ -1449,6 +1454,7 @@ The tools offered by Citre are:
 #+end_src
 
 ** col-highlight
+
 #+begin_src emacs-lisp
 (use-package col-highlight
   :commands column-highlight-mode)
@@ -1570,9 +1576,9 @@ to them.
   :bind (("C-c w m" . copy-as-format-markdown)
          ("C-c w s" . copy-as-format-slack)
          ("C-c w o" . copy-as-format-org-mode)
-         ("C-c w r" . copy-as-format-rst)
+         ("C-c w t" . copy-as-format-telegram)
          ("C-c w g" . copy-as-format-github)
-         ("C-c w w" . copy-as-format))
+         ("C-c w w" . copy-as-format-whatsapp))
   :custom
   (copy-as-format-default "slack")
   :config
@@ -1663,6 +1669,7 @@ to them.
 #+end_src
 
 ** dedicated
+
 #+begin_src emacs-lisp
 (use-package dedicated
   :bind ("C-c W" . dedicated-mode))
@@ -1971,7 +1978,7 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
          ("C-h M-m"   . discover-my-mode)))
 #+end_src
 
-** docker
+** COMMENT docker
 
 #+begin_src emacs-lisp
 (use-package docker
@@ -1990,14 +1997,14 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
     (docker-containers-show-all nil)))
 #+end_src
 
-*** docker-compose-mode
+** docker-compose-mode
 
 #+begin_src emacs-lisp
 (use-package docker-compose-mode
   :mode "docker-compose.*\.yml\\'")
 #+end_src
 
-*** dockerfile-mode
+** dockerfile-mode
 
 #+begin_src emacs-lisp
 (use-package dockerfile-mode
@@ -2032,6 +2039,7 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
 #+end_src
 
 ** eager-state
+
 #+begin_src emacs-lisp
 (use-package eager-state
   :config
@@ -2115,6 +2123,7 @@ To get the most out of Eat, you should also setup shell integration.
 #+end_src
 
 ** edbi
+
 #+begin_src emacs-lisp
 (use-package edbi
   :commands edbi:sql-mode)
@@ -2990,6 +2999,7 @@ up before you execute another command."
 #+end_src
 
 ** ghub
+
 #+begin_src emacs-lisp
 (use-package ghub
   :defer t
@@ -3064,6 +3074,7 @@ up before you execute another command."
 #+end_src
 
 ** COMMENT google-this
+
 #+begin_src emacs-lisp
 (use-package google-this
   :bind-keymap ("C-c /" . google-this-mode-submap)
@@ -3670,6 +3681,7 @@ requests, so you can use it alongside other tools.
 #+end_src
 
 ** help
+
 #+begin_src emacs-lisp
 (use-package help
   :defer t
@@ -3941,6 +3953,7 @@ minibuffer change, the region is realigned.
 #+end_src
 
 ** COMMENT iflipb
+
 #+begin_src emacs-lisp
 (use-package iflipb
   :bind* ("C-<backspace>" . my-iflipb-next-buffer)
@@ -4685,6 +4698,7 @@ you can try all default settings to enjoy =mic-paren=.
 #+end_src
 
 ** midnight
+
 #+begin_src emacs-lisp
 (use-package midnight
   :demand t
@@ -4717,6 +4731,7 @@ you can try all default settings to enjoy =mic-paren=.
 #+end_src
 
 ** moccur-edit
+
 #+begin_src emacs-lisp
 (use-package moccur-edit
   :after color-moccur)
@@ -4732,6 +4747,7 @@ you can try all default settings to enjoy =mic-paren=.
 #+end_src
 
 ** move-lines
+
 #+begin_src emacs-lisp
 (use-package move-lines
   :no-require t
@@ -5934,6 +5950,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 #+end_src
 
 ** restclient
+
 #+begin_src emacs-lisp
 (use-package restclient
   :mode ("\\.rest\\'" . restclient-mode))
@@ -6204,6 +6221,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 #+end_src
 
 ** smart-newline
+
 #+begin_src emacs-lisp
 (use-package smart-newline
   :diminish
@@ -6230,6 +6248,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 #+end_src
 
 ** smerge-mode
+
 #+begin_src emacs-lisp
 (use-package smerge-mode
   :commands smerge-mode)
@@ -6443,6 +6462,7 @@ A collection of paredit-like functions for editing in =html-mode=.
 #+end_src
 
 ** transient
+
 #+begin_src emacs-lisp
 (use-package transient
   :defer t
@@ -6480,6 +6500,7 @@ complement Emacs’ default =C-x 8= prefix map.
 #+begin_src emacs-lisp
 (use-package typo
   :diminish
+  :commands (typo-mode)
   :bind
   (:map typo-mode-map
         ("-" . self-insert-command)
@@ -10704,13 +10725,16 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
-   '((sequence "TODO(t@/!)" "DOING(s!/!)"
+   '((sequence "DRAFT(a)" "TODO(t@/!)" "DOING(s!/!)"
                "WAIT(w@/!)" "DEFER(r!/!)"
                "TASK(g@/!)" "HABIT(h@/!)"
                "|" "DONE(d@/!)" "CANCELED(x@/!)" "PASS(p@/!)")
-     (sequence "|" "NOTE(n)" "LINK(l)" "DECISION(D)" "FEEDBACK(f)")))
+     (sequence "|" "SCRAP(A)" "NOTE(n)" "LINK(l)"
+               "DECISION(D)" "FEEDBACK(f)")))
   (org-todo-keyword-faces
    `(
+     ("DRAFT"    :foreground "grey80"                 :weight bold)
+     ("SCRAP"    :foreground "grey20"                 :weight bold)
      ("TODO"     :foreground ,palette-slate-blue      :weight bold)
      ("DOING"    :foreground ,palette-yellow          :weight bold)
      ("WAIT"     :foreground ,palette-red             :weight bold)
@@ -11003,6 +11027,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
 #+end_src
 
 *** org-ql
+
 #+begin_src emacs-lisp
 (use-package org-ql
   :after org
@@ -11226,7 +11251,12 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
       (org-id-get-create arg)
       (unless (org-entry-get (point) "CREATED")
         (org-entry-put (point) "CREATED"
-                       (format-time-string (org-time-stamp-format t t))))))
+                       (format-time-string (org-time-stamp-format t t))))
+      (cl-destructuring-bind (lat lon)
+          (split-string
+           (string-trim
+            (shell-command-to-string "CoreLocationCLI")))
+        (org-entry-put (point) "LOCATION" (concat lat "," lon)))))
 
   (defun my/org-cleanup-whitespace (&optional arg)
     (interactive)
@@ -11239,6 +11269,31 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
       (delete-blank-lines)
       (if (looking-at "^$")
           (delete-char -1)))))
+#+end_src
+
+**** org-smart-capture
+
+This wrapper around =org-capture= will also capture Gnus messages as tasks, with
+context.
+
+#+begin_src emacs-lisp
+(use-package org-smart-capture
+  :after (org)
+  :bind* ("M-m" . org-smart-capture)
+  :custom
+  (org-smart-capture-use-lastname t))
+#+end_src
+
+**** org-drafts
+
+#+begin_src emacs-lisp
+(use-package org-drafts
+  :load-path "lisp/org-drafts"
+  :after (org)
+  :bind* (("M-M" . (lambda () (interactive) (org-capture nil "d")))
+          ("H-m" . (lambda () (interactive) (org-capture nil "d"))))
+  :config
+  (org-drafts-install))
 #+end_src
 
 *** org-checklist
@@ -11993,6 +12048,18 @@ displays the priority part of a heading as your preferred string value.
   :after org)
 #+end_src
 
+*** org-reverse-datetree
+
+[[https://github.com/akirak/org-reverse-datetree][org-reverse-datetree]] provides functions for creating reverse date trees, which
+are similar to date trees as supported by built-in functions of Org mode (e.g.
+=org-capture=) but in a reversed order.
+
+#+begin_src emacs-lisp
+(use-package org-reverse-datetree
+  :after org
+  :commands (org-reverse-datetree-calendar))
+#+end_src
+
 *** org-quick-peek
 
 #+begin_src emacs-lisp
@@ -12282,10 +12349,11 @@ stamp to a task, which can be used to schedule a review of the task.
     (when (or (ignore-errors
                 (and (org-get-todo-state)
                      (not (member (org-get-todo-state)
-                                  '("NOTE" "LINK" "DECISION" "FEEDBACK")))))
+                                  '("NOTE" "LINK" "DECISION" "FEEDBACK"
+                                    "SCRAP")))))
               (save-excursion
                 (goto-char (point-min))
-                (looking-at "^\\(TODO\\|TASK\\|HABIT\\) ")))
+                (looking-at "^\\(DRAFT\\|TODO\\|TASK\\|HABIT\\) ")))
       (save-excursion
         (org-review-insert-last-review)
         (org-review-insert-date
@@ -12442,6 +12510,7 @@ stamp to a task, which can be used to schedule a review of the task.
 #+end_src
 
 *** embark-org
+
 #+begin_src emacs-lisp
 (use-package embark-org
   :after (embark))
@@ -12538,6 +12607,7 @@ stamp to a task, which can be used to schedule a review of the task.
 #+end_src
 
 **** vulpea
+
 A collection of functions for note taking based on =org= and =org-roam=. This
 repository primary goal is to be a tested library for other applications and
 utilities around note taking.
@@ -12694,20 +12764,8 @@ utilities around note taking.
     (org-roam-ext-title-slug (org-roam-node-title node))))
 #+end_src
 
-**** org-smart-capture
-
-This wrapper around =org-capture= will also capture Gnus messages as tasks, with
-context.
-
-#+begin_src emacs-lisp
-(use-package org-smart-capture
-  :after (org org-roam)
-  :bind* ("M-m" . org-smart-capture)
-  :custom
-  (org-smart-capture-use-lastname t))
-#+end_src
-
 **** consult-org-roam
+
 #+begin_src emacs-lisp
 (use-package consult-org-roam
   :after (org-roam vertico)
@@ -12946,6 +13004,7 @@ this allows seeing an overview of tasks in a subtree.
 #+end_src
 
 *** org-sticky-header
+
 This package displays in the header-line the Org heading for the node that's
 at the top of the window. This way, if the heading for the text at the top of
 the window is beyond the top of the window, you don't forget which heading the
@@ -13239,6 +13298,22 @@ own lines, for instance.
 
 #+begin_src emacs-lisp
 (use-package ox-texinfo-plus
+  :after org)
+#+end_src
+
+**** ox-whatsapp
+
+[[https://github.com/Hugo-Heagren/ox-whatsapp][ox-whatsapp]] is a simple WhatsApp markup exporter for org mode.
+
+This exporter is derived from the ASCII exporter which comes with org-mode. It
+behaves exactly like that exporter except in cases where that differs from the
+[[https://faq.whatsapp.com/539178204879377][markup supported by WhatsApp]].
+
+By default, you can access it in the export dispatcher under the =w= key, itself
+under the =t= menu.
+
+#+begin_src emacs-lisp
+(use-package ox-whatsapp
   :after org)
 #+end_src
 
