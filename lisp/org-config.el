@@ -261,7 +261,7 @@
       :prepend t)
 
      ("d" "DRAFT" entry
-      ,Inbox
+      (file+headline ,org-constants-todo-path "Drafts")
       "* DRAFT %U\n%?"
       :prepend t)
 
