@@ -121,3 +121,6 @@
 [submodule "lisp/drafts"]
 	path = lisp/drafts
 	url = git@github.com:jwiegley/drafts
+[submodule "lisp/org-drafts"]
+	path = lisp/org-drafts
+	url = git@github.com:jwiegley/org-drafts
