@@ -116,7 +116,7 @@ differently or may not accept what another backend consider legitimate."
   ;; :model 'Qwen3-235B-A22B
   :backend "LiteLLM"
   ;; :model 'hera/Qwen3-235B-A22B-Instruct-2507
-  :model 'hera/Qwen3-Coder-480B-A35B-Instruct-1M
+  :model 'hera/Qwen3-Coder-480B-A35B-Instruct
   :temperature 1.0)
 
 ;;; DeepSeek

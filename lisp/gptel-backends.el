@@ -146,7 +146,7 @@
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-Coder-480B-A35B-Instruct-1M
+              (hera/Qwen3-Coder-480B-A35B-Instruct
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))

@@ -3214,7 +3214,7 @@ up before you execute another command."
   :config
   ;; (gptel-backends-make-clio `(,@CLIO))
   ;; (gptel-backends-make-athena `(,@ATHENA))
-  (setq gptel-model 'hera/Qwen3-Coder-480B-A35B-Instruct-1M
+  (setq gptel-model 'hera/Qwen3-Coder-480B-A35B-Instruct
         ;; gptel-backend (gptel-backends-make-hera `(,@HERA))
         gptel-backend (gptel-backends-make-litellm)
         ))
