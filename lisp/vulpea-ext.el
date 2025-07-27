@@ -54,6 +54,9 @@
          (expand-file-name
           (file-name-directory buffer-file-name))))))
 
+(defconst vulpea-project-todo-re
+  "\\* \\(TODO\\|DOING\\|WAIT\\|DEFER\\|TASK\\|HABIT\\|DRAFT\\)")
+
 (defun vulpea-buffer-project-p ()
   "Return non-nil if current buffer has any todo entry.
 
@@ -63,7 +66,7 @@ tasks. The only exception is headings tagged as REFILE."
   (save-excursion
     (goto-char (point-min))
     (let (case-fold-search)
-      (re-search-forward "\\* \\(TODO\\|DOING\\|WAIT\\|DEFER\\|TASK\\|HABIT\\)" nil t)))
+      (re-search-forward vulpea-project-todo-re nil t)))
   ;; (org-element-map
   ;;     (org-element-parse-buffer 'element)
   ;;     '(headline inlinetask)

@@ -66,7 +66,11 @@
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/DeepSeek-V3-0324
+              (hera/DeepSeek-V3-0324-UD
+               :description ""
+               :capabilities (media tool json url)
+               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+              (hera/Devstral-Small-2505
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -82,7 +86,19 @@
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+              (hera/Magistral-Small-2506
+               :description ""
+               :capabilities (media tool json url)
+               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
               (hera/Mistral-Nemo-Instruct-2407
+               :description ""
+               :capabilities (media tool json url)
+               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+              (hera/Mistral-Small-3.2-24B-Instruct-2506
+               :description ""
+               :capabilities (media tool json url)
+               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+              (hera/Phi-4-reasoning
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -91,10 +107,6 @@
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
               (hera/QwQ-32B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen.Qwen3-Reranker-8B
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -110,7 +122,11 @@
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-235B-A22B
+              (hera/Qwen3-235B-A22B-Instruct-2507
+               :description ""
+               :capabilities (media tool json url)
+               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+              (hera/Qwen3-235B-A22B-Thinking-2507
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -130,7 +146,7 @@
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-Embedding-8B
+              (hera/Qwen3-Coder-480B-A35B-Instruct-1M
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -142,15 +158,11 @@
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/agentica-org/DeepCoder-1.5B-Preview
+              (hera/gemma-3-12b-it
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/agentica-org/DeepCoder-14B-Preview
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/bge-m3
+              (hera/gemma-3-1b-it
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -158,55 +170,15 @@
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/meta-llama/Llama-4-Scout-17B-16E-Instruct
+              (hera/gemma-3-4b-it
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/microsoft/phi-4
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/mistralai/Codestral-22B-v0.1
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/mistralai/Mistral-Small-Instruct-2409
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/mlx-community/Llama-4-Maverick-17B-128E-Instruct-6bit
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/mlx-community/MiMo-7B-RL-4bit
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/mlx-community/whisper-large-v3-mlx
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/nomic-embed-text-v2-moe
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/nvidia/NV-Embed-v2
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/nvidia/OpenCodeReasoning-Nemotron-32B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/open-thoughts/OpenThinker2-32B
+              (hera/gemma-3n-E4B-it
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
               (hera/r1-1776-distill-llama-70b
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/sentence-transformers/all-MiniLM-L6-v2
                :description ""
                :capabilities (media tool json url)
                :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -400,13 +372,13 @@
               )
     :header
     (lambda () (when-let* ((key (gptel--get-api-key)))
-            `(("x-api-key"         . ,key)
-              ("x-litellm-timeout" . "7200")
-              ("x-litellm-tags"    . "gptel")
-              ("anthropic-version" . "2023-06-01")
-              ("anthropic-beta"    . "pdfs-2024-09-25")
-              ("anthropic-beta"    . "output-128k-2025-02-19")
-              ("anthropic-beta"    . "prompt-caching-2024-07-31"))))))
+                 `(("x-api-key"         . ,key)
+                   ("x-litellm-timeout" . "7200")
+                   ("x-litellm-tags"    . "gptel")
+                   ("anthropic-version" . "2023-06-01")
+                   ("anthropic-beta"    . "pdfs-2024-09-25")
+                   ("anthropic-beta"    . "output-128k-2025-02-19")
+                   ("anthropic-beta"    . "prompt-caching-2024-07-31"))))))
 
 (defun gptel-backends-make-clio (&rest models)
   (gptel-make-openai "llama-swap-clio"
