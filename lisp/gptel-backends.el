@@ -53,323 +53,328 @@
     :protocol "http"
     :endpoint "/litellm/v1/chat/completions"
     :key gptel-api-key
-    :models '(
-              (hera/DeepSeek-R1-0528
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/DeepSeek-R1-0528-Qwen3-8B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/DeepSeek-R1-Distill-Qwen-32B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/DeepSeek-V3-0324-UD
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Devstral-Small-2505
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Llama-3.3-Nemotron-Super-49B-v1
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Llama-4-Maverick-17B-128E-Instruct
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Llama-4-Scout-17B-16E-Instruct
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Magistral-Small-2506
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Mistral-Nemo-Instruct-2407
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Mistral-Small-3.2-24B-Instruct-2506
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Phi-4-reasoning
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Phi-4-reasoning-plus
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/QwQ-32B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-0.6B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-1.7B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-14B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-235B-A22B-Instruct-2507
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-235B-A22B-Thinking-2507
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-30B-A3B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-32B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-4B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-8B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/Qwen3-Coder-480B-A35B-Instruct
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/WizardCoder-Python-34B-V1.0
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/WizardCoder-Python-7B-V1.0
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/gemma-3-12b-it
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/gemma-3-1b-it
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/gemma-3-27b-it
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/gemma-3-4b-it
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/gemma-3n-E4B-it
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (hera/r1-1776-distill-llama-70b
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+    :models
+    '(
+      (hera/DeepSeek-R1-0528
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/DeepSeek-R1-0528-Qwen3-8B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/DeepSeek-R1-Distill-Qwen-32B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/DeepSeek-V3-0324-UD
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Devstral-Small-2505
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Kimi-K2-Instruct
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Llama-3.3-Nemotron-Super-49B-v1
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Llama-4-Maverick-17B-128E-Instruct
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Llama-4-Scout-17B-16E-Instruct
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Magistral-Small-2506
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Mistral-Nemo-Instruct-2407
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Mistral-Small-3.2-24B-Instruct-2506
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Phi-4-reasoning
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Phi-4-reasoning-plus
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/QwQ-32B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-0.6B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-1.7B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-14B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-235B-A22B-Instruct-2507
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-235B-A22B-Thinking-2507
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-30B-A3B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-32B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-4B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-8B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/Qwen3-Coder-480B-A35B-Instruct
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/WizardCoder-Python-34B-V1.0
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/WizardCoder-Python-7B-V1.0
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/gemma-3-12b-it
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/gemma-3-1b-it
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/gemma-3-27b-it
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/gemma-3-4b-it
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/gemma-3n-E4B-it
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (hera/r1-1776-distill-llama-70b
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
 
-              (athena/Llama-3.3-Nemotron-Super-49B-v1
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (athena/Qwen/QwQ-32B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (athena/Qwen3-30B-A3B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (athena/Qwen3-32B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (athena/WizardCoder-Python-34B-V1.0
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (athena/Llama-3.3-Nemotron-Super-49B-v1
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (athena/Qwen/QwQ-32B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (athena/Qwen3-30B-A3B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (athena/Qwen3-32B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (athena/WizardCoder-Python-34B-V1.0
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
 
-              (clio/DeepSeek-R1-0528-Qwen3-8B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/Mistral-Nemo-Instruct-2407
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/Phi-4-reasoning-plus
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/Qwen3-0.6B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/Qwen3-1.7B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/Qwen3-14B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/Qwen3-30B-A3B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/Qwen3-32B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/Qwen3-4B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/Qwen3-8B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/WizardCoder-Python-7B-V1.0
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (clio/gemma-3-27b-it
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/DeepSeek-R1-0528-Qwen3-8B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/Mistral-Nemo-Instruct-2407
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/Phi-4-reasoning-plus
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/Qwen3-0.6B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/Qwen3-1.7B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/Qwen3-14B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/Qwen3-30B-A3B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/Qwen3-32B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/Qwen3-4B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/Qwen3-8B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/WizardCoder-Python-7B-V1.0
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (clio/gemma-3-27b-it
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
 
-              (openai/gpt-4.1-2025-04-14
-               :description "Flagship GPT model for complex tasks"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/gpt-4.1-mini-2025-04-14
-               :description "Balanced for intelligence, speed, and cost"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/gpt-4.1-nano-2025-04-14
-               :description "Fastest, most cost-effective GPT-4.1 model"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/gpt-4o-2024-08-06
-               :description "Fast, intelligent, flexible GPT model"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/gpt-4o-audio-preview-2024-12-17
-               :description "GPT-4o models capable of audio inputs and outputs"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/gpt-4o-mini-2024-07-18
-               :description "Fast, affordable small model for focused tasks"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/gpt-4o-mini-audio-preview-2024-12-17
-               :description "Smaller model capable of audio inputs and outputs"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/o3-2025-04-16
-               :description "Our most powerful reasoning model"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/o3-mini-2025-01-31
-               :description "A small model alternative to o3"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/o3-pro-2025-06-10
-               :description "Version of o3 with more compute for better responses"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openai/o4-mini-2025-04-16
-               :description "Faster, more affordable reasoning model"
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/gpt-4.1-2025-04-14
+       :description "Flagship GPT model for complex tasks"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/gpt-4.1-mini-2025-04-14
+       :description "Balanced for intelligence, speed, and cost"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/gpt-4.1-nano-2025-04-14
+       :description "Fastest, most cost-effective GPT-4.1 model"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/gpt-4o-2024-08-06
+       :description "Fast, intelligent, flexible GPT model"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/gpt-4o-audio-preview-2024-12-17
+       :description "GPT-4o models capable of audio inputs and outputs"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/gpt-4o-mini-2024-07-18
+       :description "Fast, affordable small model for focused tasks"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/gpt-4o-mini-audio-preview-2024-12-17
+       :description "Smaller model capable of audio inputs and outputs"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/o3-2025-04-16
+       :description "Our most powerful reasoning model"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/o3-mini-2025-01-31
+       :description "A small model alternative to o3"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/o3-pro-2025-06-10
+       :description "Version of o3 with more compute for better responses"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openai/o4-mini-2025-04-16
+       :description "Faster, more affordable reasoning model"
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
 
-              (anthropic/claude-opus-4-20250514
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (anthropic/claude-sonnet-4-20250514
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (anthropic/claude-3-5-haiku-20241022
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (anthropic/claude-opus-4-20250514
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (anthropic/claude-sonnet-4-20250514
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (anthropic/claude-3-5-haiku-20241022
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
 
-              (perplexity/sonar-pro
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (perplexity/sonar-reasoning-pro
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (perplexity/sonar-deep-research
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (perplexity/r1-1776
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (perplexity/sonar-pro
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (perplexity/sonar-reasoning-pro
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (perplexity/sonar-deep-research
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (perplexity/r1-1776
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
 
-              (groq/compound-beta
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (groq/deepseek-r1-distill-llama-70b
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (groq/llama-3.3-70b-versatile
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (groq/meta-llama/Llama-Guard-4-12B
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (groq/meta-llama/llama-4-maverick-17b-128e-instruct
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (groq/meta-llama/llama-4-scout-17b-16e-instruct
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (groq/qwen-qwq-32b
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (groq/compound-beta
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (groq/deepseek-r1-distill-llama-70b
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (groq/llama-3.3-70b-versatile
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (groq/meta-llama/Llama-Guard-4-12B
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (groq/meta-llama/llama-4-maverick-17b-128e-instruct
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (groq/meta-llama/llama-4-scout-17b-16e-instruct
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (groq/qwen-qwq-32b
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
 
-              (openrouter/deepseek/deepseek-r1-0528:free
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openrouter/meta-llama/llama-4-maverick:free
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              (openrouter/qwen/qwen3-235b-a22b:free
-               :description ""
-               :capabilities (media tool json url)
-               :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-              )
+      (openrouter/deepseek/deepseek-r1-0528:free
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openrouter/meta-llama/llama-4-maverick:free
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      (openrouter/qwen/qwen3-235b-a22b:free
+       :description ""
+       :capabilities (media tool json url)
+       :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
+      )
     :header
     (lambda () (when-let* ((key (gptel--get-api-key)))
                  `(("x-api-key"         . ,key)

@@ -656,16 +656,17 @@ It reindents after every change, making it more reliable than
   :bind
   ("C-c A" . aider-transient-menu)
   :custom
-  (aider-args `("-c" "~/.config/aider/config.yaml"
-                "--model" "openai/hera/Qwen3-Coder-480B-A35B-Instruct"
-                "--openai-api-base" "http://vulcan/litellm/v1"
-                "--api-key" ,(concat "openai="
-                                     (auth-source-pass-get 'secret "vulcan"))
-                "--no-show-model-warnings"
-                "--no-auto-accept-architect"
-                "--no-auto-commits"
-                "--no-git-ignore"))
-  :config
+  (aider-args
+   `("-c" "~/.config/aider/config.yaml"
+     "--model" ,(concat "openai/" (symbol-name gptel-model))
+     "--openai-api-base" "http://vulcan/litellm/v1"
+     "--api-key" ,(concat "openai="
+                          (auth-source-pass-get 'secret "vulcan"))
+     "--no-show-model-warnings"
+     "--no-auto-accept-architect"
+     "--no-auto-commits"
+     "--no-gitignore"))
+  ;; :config
   ;; (aider-magit-setup-transients)
   )
 #+end_src
