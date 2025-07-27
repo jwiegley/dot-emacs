@@ -261,9 +261,12 @@
       :prepend t)
 
      ("d" "DRAFT" entry
-      (file+headline ,org-constants-todo-path "Drafts")
+      (file+headline ,org-constants-drafts-path "Drafts")
       "* DRAFT %U\n%?"
-      :prepend t)
+      :prepend t
+      :hook (lambda ()
+              (setq-local auto-save-interval 8
+                          auto-save-timeout 1)))
 
      ("j" "Journal" entry
       (file ,(expand-file-name org-constants-journelly-path))
@@ -791,9 +794,7 @@ SCHEDULED: %t
 
    ("rR" "All tasks needing review" alltodo ""
     ((org-agenda-skip-function
-      '(or (org-config-agenda-skip-entry-if
-            (org-ext-subtask-p))
-           (org-agenda-skip-entry-if
+      '(or (org-agenda-skip-entry-if
             'scheduled 'deadline 'timestamp
             'todo org-done-keywords)
            (org-config-skip-if-review-not-needed)))

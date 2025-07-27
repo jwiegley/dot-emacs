@@ -1,4 +1,4 @@
-;;;  -*- lexical-binding: t -*-
+;;; -*- lexical-binding: t -*-
 
 ;;; This file should be loaded before Org-mode, or any other modules that
 ;;; loads Org.
@@ -21,6 +21,8 @@
 
 (defconst org-constants-todo-path (org-file "todo.org"))
 
+(defconst org-constants-drafts-path (org-file "drafts.org"))
+
 (defconst org-constants-work-todo-path (org-file "kadena/kadena.org"))
 
 (defconst org-constants-work-asana-path (org-file "kadena/asana.org"))
@@ -36,6 +38,7 @@
 
 (defconst org-constants-agenda-base-files
   (list org-constants-todo-path
+        org-constants-drafts-path
         org-constants-work-todo-path
         (org-file "assembly/assembly.org")
         (org-file "quantum-trades/quantum-trades.org")
@@ -43,6 +46,7 @@
 
 (defconst org-constants-protected-filenames-list
   (list (file-name-nondirectory org-constants-todo-path)
+        (file-name-nondirectory org-constants-drafts-path)
         "kadena/kadena.org"
         "assembly/assembly.org"
         "quantum-trades/quantum-trades.org"
@@ -64,9 +68,10 @@
              "bookmarks.org"
              "colors.org"
              "document-index.org"
-             "drafts.org"
              "home.org"
              "init.org"
              "writings.org"))))
 
 (provide 'org-constants)
+
+;;; org-constants.el ends here

@@ -329,11 +329,10 @@ unto itself.
   :bind*
   ;; ("<C-return>" . other-window)   ; use avy
   ("<C-tab>"    . ignore)
+  :bind ("A-y" . yank)
   :custom
   ;; C source code
   (auto-hscroll-mode 'current-line)
-  (auto-save-interval 64)
-  (auto-save-timeout 2)
   (create-lockfiles nil)
   (delete-by-moving-to-trash #'system-move-file-to-trash)
   (enable-recursive-minibuffers t)
@@ -352,22 +351,21 @@ unto itself.
   (visible-bell t)
   (x-stretch-cursor t)
 
-  ;; Settings for the Cocoa port
-  (ns-command-modifier 'meta)
-  (ns-right-command-modifier 'meta)
-  (ns-option-modifier 'super)
-  (ns-right-option-modifier 'super)
-  (ns-alternate-modifier 'super)
-  (ns-right-alternate-modifier 'super)
-  (ns-function-modifier 'hyper)
+  ;; ;; Settings for the Cocoa port
+  ;; (ns-command-modifier 'meta)
+  ;; (ns-right-command-modifier 'meta)
+  ;; (ns-option-modifier 'super)
+  ;; (ns-right-option-modifier 'super)
+  ;; (ns-function-modifier 'hyper)
 
   ;; Settings for the Emacs Mac-port
-  (mac-right-command-modifier 'meta)
-  (mac-right-option-modifier 'super)
-  (mac-option-modifier 'super)
-  (mac-command-modifier 'hyper)
-  (mac-right-control-modifier 'alt)
+  (mac-control-modifier 'alt)
+  (mac-right-control-modifier 'control)
   (mac-pass-command-to-system nil)
+  (mac-command-modifier 'meta)
+  (mac-right-command-modifier 'meta)
+  (mac-option-modifier 'super)
+  (mac-right-option-modifier 'super)
 
   (frame-title-format
    '(:eval
@@ -658,14 +656,15 @@ It reindents after every change, making it more reliable than
   :bind
   ("C-c A" . aider-transient-menu)
   :custom
-  (aider-args `("--model-settings-file" "~/.config/aider/config.yaml"
-                "--model" "openai/hera/Qwen3-235B-A22B"
+  (aider-args `("-c" "~/.config/aider/config.yaml"
+                "--model" "openai/hera/Qwen3-Coder-480B-A35B-Instruct"
                 "--openai-api-base" "http://vulcan/litellm/v1"
                 "--api-key" ,(concat "openai="
                                      (auth-source-pass-get 'secret "vulcan"))
                 "--no-show-model-warnings"
                 "--no-auto-accept-architect"
-                "--no-auto-commits"))
+                "--no-auto-commits"
+                "--no-git-ignore"))
   :config
   ;; (aider-magit-setup-transients)
   )
@@ -1188,7 +1187,9 @@ should be terminated.
 
 #+begin_src emacs-lisp
 (use-package calc
-  :nix nil)
+  :nix nil
+  :custom
+  (calc-kill-line-numbering nil))
 #+end_src
 
 *** calc-units
@@ -1200,24 +1201,12 @@ should be terminated.
   :custom
   (calc-ensure-consistent-units t)
   (math-additional-units
-   '((GiB "1024 * MiB" "Gibi Byte")
-     (MiB "1024 * KiB" "Mebi Byte")
-     (KiB "1024 * B" "Kibi Byte")
-     (Gib "1024 * Mib" "Gibi Bit")
-     (Mib "1024 * Kib" "Mebi Bit")
-     (Kib "1024 * b" "Kibi Bit")
-     (GB "1000 * MB" "Giga Byte")
-     (MB "1000 * KB" "Mega Byte")
-     (KB "1000 * B" "Kilo Byte")
-     (Gb "1000 * Mb" "Giga Bit")
-     (Mb "1000 * Kb" "Mega Bit")
-     (Kb "1000 * b" "Kilo Bit")
-     (B nil "Byte")
-     (b "B / 8" "Bit")
-     (gpm "gal / min" "Gallons per minute")
-     (ls "l / s" "Liters per second")
-     (cf "ft^3" "Cubic feet")
-     (cfm "ft^3 / min" "Cubic feet per minute")))
+   '((b    nil          "Bit")
+     (B    "8 * b"      "Byte")
+     (bps  "b / s"      "Bit per second")
+     (Bps  "B / s"      "Bytes per second")
+     (gpm  "gal / min"  "Gallons per minute")
+     (cfm  "ft^3 / min" "Cubic feet per minute")))
   (math-units-table nil)
   :config
   (setf (symbol-function 'calc-convert-units)
@@ -2553,7 +2542,7 @@ your system."
   :load-path "lisp/erc-yank"
   :after erc
   :bind (:map erc-mode-map
-              ("C-y" . erc-yank ))
+              ("C-y" . erc-yank))
   :custom
   (erc-yank-query-before-gisting nil))
 #+end_src
@@ -3225,7 +3214,7 @@ up before you execute another command."
   :config
   ;; (gptel-backends-make-clio `(,@CLIO))
   ;; (gptel-backends-make-athena `(,@ATHENA))
-  (setq gptel-model 'hera/Qwen3-235B-A22B
+  (setq gptel-model 'hera/Qwen3-Coder-480B-A35B-Instruct-1M
         ;; gptel-backend (gptel-backends-make-hera `(,@HERA))
         gptel-backend (gptel-backends-make-litellm)
         ))
@@ -5644,6 +5633,7 @@ append it to ENTRY."
   (defun emacs-post-startup-setup ()
     (delete-other-windows)
     (find-file "~/org/home.org")
+    (magit-status "~/org")
     (when (quickping "imap.fastmail.com")
       (delete-other-windows)
       (call-interactively #'switch-to-gnus))
@@ -7690,7 +7680,10 @@ independent components.
   (with-eval-after-load 'eshell
     (define-key eshell-mode-map (kbd "C-r") 'consult-history))
   (with-eval-after-load 'eshell-rebind
-    (define-key eshell-rebind-mode-map (kbd "C-r") 'consult-history))
+    (add-hook 'eshell-rebind-mode-hook
+              (lambda ()
+                (define-key eshell-rebind-mode-map (kbd "C-r")
+                            'consult-history))))
 
   (eval-when-compile
     (require 'vertico-multiform))
@@ -10729,8 +10722,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
                "WAIT(w@/!)" "DEFER(r!/!)"
                "TASK(g@/!)" "HABIT(h@/!)"
                "|" "DONE(d@/!)" "CANCELED(x@/!)" "PASS(p@/!)")
-     (sequence "|" "SCRAP(A)" "NOTE(n)" "LINK(l)"
-               "DECISION(D)" "FEEDBACK(f)")))
+     (sequence "|" "SCRAP(A)" "NOTE(n)" "LINK(l)")))
   (org-todo-keyword-faces
    `(
      ("DRAFT"    :foreground "grey80"                 :weight bold)
@@ -10746,8 +10738,6 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
      ("HABIT"    :foreground ,palette-orange          :weight bold)
      ("LINK"     :foreground ,palette-orange-dark     :weight bold)
      ("NOTE"     :foreground ,palette-red-dark        :weight bold)
-     ("DECISION" :foreground ,palette-cyan-dark       :weight bold)
-     ("FEEDBACK" :foreground ,palette-purple-dark     :weight bold)
      ))
   (org-tag-faces
    `(("Call"     :foreground "grey50")
@@ -11252,11 +11242,20 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
       (unless (org-entry-get (point) "CREATED")
         (org-entry-put (point) "CREATED"
                        (format-time-string (org-time-stamp-format t t))))
+      ;; If possible, add location info. We know the location at home always.
       (cl-destructuring-bind (lat lon)
-          (split-string
-           (string-trim
-            (shell-command-to-string "CoreLocationCLI")))
-        (org-entry-put (point) "LOCATION" (concat lat "," lon)))))
+          (if (quickping "192.168.2.2")
+              '("38.569498" "-121.388618")
+            (let ((strs
+                   (split-string
+                    (string-trim
+                     (shell-command-to-string "CoreLocationCLI")))))
+              (if (= 2 (length strs))
+                  strs
+                (message "Failed to obtain Lat/Lon!")
+                '("" ""))))
+        (unless (string= lat "")
+          (org-entry-put (point) "LOCATION" (concat lat "," lon))))))
 
   (defun my/org-cleanup-whitespace (&optional arg)
     (interactive)
@@ -12349,8 +12348,7 @@ stamp to a task, which can be used to schedule a review of the task.
     (when (or (ignore-errors
                 (and (org-get-todo-state)
                      (not (member (org-get-todo-state)
-                                  '("NOTE" "LINK" "DECISION" "FEEDBACK"
-                                    "SCRAP")))))
+                                  '("NOTE" "LINK" "SCRAP")))))
               (save-excursion
                 (goto-char (point-min))
                 (looking-at "^\\(DRAFT\\|TODO\\|TASK\\|HABIT\\) ")))
@@ -12387,6 +12385,10 @@ stamp to a task, which can be used to schedule a review of the task.
     (interactive)
     (my/org-review-next "+4d")
     (message "Next review in 4 days"))
+  (defun review-next-five-days ()
+    (interactive)
+    (my/org-review-next "+5d")
+    (message "Next review in 5 days"))
   (defun review-next-six-days ()
     (interactive)
     (my/org-review-next "+6d")
@@ -12935,18 +12937,11 @@ this allows seeing an overview of tasks in a subtree.
               ("C-<f4>"    . org-srs-review-quit)
               ("s-<right>" . org-srs-review-rate-easy)
               ("s-<up>"    . org-srs-review-rate-good)
-              ("s-<down>"  . org-srs-review-rate-hard)
-              ("s-<left>"  . org-srs-review-rate-again))
+              ("s-<left>"  . org-srs-review-rate-hard)
+              ("s-<down>"  . org-srs-review-rate-again))
   :config
   (use-package org-srs-query
-    :config
-    ;; jww (2025-06-17): Here to fix
-    ;; https://github.com/bohonghuang/org-srs/issues/35
-    (defun org-srs-query-predicate (desc)
-      (if (and (functionp desc)
-               (not (memq desc '(new))))
-          desc
-        (apply #'org-srs-query-ensure-predicate (ensure-list desc)))))
+    :demand t)
 
   (use-package org-srs-embed
     :demand t
@@ -12996,6 +12991,9 @@ this allows seeing an overview of tasks in a subtree.
                 :after (lambda (&rest _ignore)
                          (my/org-srs-cycle-hide-drawers 'all)))))
 #+end_src
+
+#+RESULTS:
+: org-srs-review-rate-again
 
 **** fsrs
 
