@@ -3215,10 +3215,12 @@ up before you execute another command."
   :config
   ;; (gptel-backends-make-clio `(,@CLIO))
   ;; (gptel-backends-make-athena `(,@ATHENA))
-  (setq gptel-model 'hera/Qwen3-Coder-480B-A35B-Instruct
-        ;; gptel-backend (gptel-backends-make-hera `(,@HERA))
-        gptel-backend (gptel-backends-make-litellm)
-        ))
+  (setq
+   ;; gptel-model 'hera/Qwen3-Coder-480B-A35B-Instruct
+   gptel-model 'hera/Kimi-K2-Instruct
+   ;; gptel-backend (gptel-backends-make-hera `(,@HERA))
+   gptel-backend (gptel-backends-make-litellm)
+   ))
 #+end_src
 
 *** gptel-presets
@@ -3461,7 +3463,7 @@ Intended to be placed in `git-commit-setup-hook'."
   :after (gptel))
 #+end_src
 
-*** gptel-got
+*** COMMENT gptel-got
 
 #+begin_src emacs-lisp
 (use-package gptel-got
@@ -7678,13 +7680,10 @@ independent components.
   (autoload 'projectile-project-root "projectile")
   (setq consult-project-function (lambda (_) (projectile-project-root)))
 
-  (with-eval-after-load 'eshell
-    (define-key eshell-mode-map (kbd "C-r") 'consult-history))
-  (with-eval-after-load 'eshell-rebind
-    (add-hook 'eshell-rebind-mode-hook
-              (lambda ()
-                (define-key eshell-rebind-mode-map (kbd "C-r")
-                            'consult-history))))
+  (add-hook 'eshell-rebind-mode-hook
+            (lambda ()
+              (define-key eshell-rebind-mode-map (kbd "C-r")
+                          'consult-history)))
 
   (eval-when-compile
     (require 'vertico-multiform))
@@ -10369,14 +10368,18 @@ variables.  This is useful for a regi `begin' frame-entry."
   (gnus-alias-identity-alist
    '(("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil ""
       "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
-http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
+http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2
+
+Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
      ("Kadena" "" "\"John Wiegley\" <john@kadena.io>" "" nil "" "")
      ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
      ("C2G" "" "\"John Wiegley\" <john.wiegley@coppertogold.org>" "" nil "" "")
      ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>"
       "New Artisans LLC" nil ""
       "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
-http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")))
+http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2
+
+Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")))
   (gnus-alias-identity-rules
    '(("Kadena Mail"
       ("To" "kadena" current)
@@ -12346,20 +12349,26 @@ stamp to a task, which can be used to schedule a review of the task.
 
   (defun my/org-reviewed-today ()
     (interactive)
-    (when (or (ignore-errors
-                (and (org-get-todo-state)
-                     (not (member (org-get-todo-state)
-                                  '("NOTE" "LINK" "SCRAP")))))
-              (save-excursion
-                (goto-char (point-min))
-                (looking-at "^\\(DRAFT\\|TODO\\|TASK\\|HABIT\\) ")))
-      (save-excursion
-        (org-review-insert-last-review)
-        (org-review-insert-date
-         org-review-next-property-name
-	 org-review-next-timestamp-format
-	 (format-time-string (car org-time-stamp-formats)
-                             (current-time))))))
+    (if (ignore-errors
+          (member (org-get-todo-state)
+                  '("NOTE" "LINK" "SCRAP")))
+        (progn
+          (org-entry-delete (point) "REVIEWS")
+          (org-entry-delete (point) "LAST_REVIEW")
+          (org-entry-delete (point) "NEXT_REVIEW")
+          (org-schedule '(4))
+          (org-deadline '(4)))
+      (when (or (ignore-errors (org-get-todo-state))
+                (save-excursion
+                  (goto-char (point-min))
+                  (looking-at "^\\(DRAFT\\|TODO\\|TASK\\|HABIT\\) ")))
+        (save-excursion
+          (org-review-insert-last-review)
+          (org-review-insert-date
+           org-review-next-property-name
+	   org-review-next-timestamp-format
+	   (format-time-string (car org-time-stamp-formats)
+                               (current-time)))))))
 
   (defun my/org-insert-last-and-set-next-review ()
     (interactive)
