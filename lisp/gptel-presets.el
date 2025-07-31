@@ -158,14 +158,23 @@ differently or may not accept what another backend consider legitimate."
   :model 'perplexity/sonar-deep-research
   :include-reasoning 'ignore)
 
+;;; Other
+
+(gptel-make-preset 'kimi
+  :description "Kimi K2"
+  :backend "LiteLLM"
+  :model 'hera/Kimi-K2-Instruct
+  :temperature 0.6)
+
 ;;; ALIASES ==============================================================
 
 (gptel-make-preset 'default
   :description "Default setup"
-  :parents 'qwen
+  ;; :parents 'qwen
+  :parents 'kimi
   :system 'default
   :confirm-tool-calls 'auto
-  :max-tokens 8192
+  :max-tokens 16384
   :use-context 'user
   :include-reasoning 'ignore)
 

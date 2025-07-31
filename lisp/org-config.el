@@ -128,21 +128,6 @@
   :type '(repeat string)
   :group 'org-config)
 
-(defcustom org-config-open-source-categories
-  '("AI"
-    "Computer"
-    "Emacs"
-    "Ledger"
-    "Nix"
-    "Org-mode"
-    "gptel"
-    "org-jw"
-    "rag-clnt"
-    "machines")
-  "Categories that cover open source work that I regularly do"
-  :type '(repeat string)
-  :group 'org-config)
-
 (defun org-config-skip-if-regularly-reviewed ()
   (org-config-agenda-skip-entry-if
    (and (null (org-entry-get nil "HIDE"))
@@ -151,8 +136,7 @@
                              :test #'string=)
             (member (org-get-category)
                     org-config-categories-regularly-reviewed)
-            (member (org-get-category)
-                    org-config-open-source-categories)))))
+            (string-match-p "OSS" (buffer-file-name))))))
 
 (defsubst org-config-skip-if-review-not-needed ()
   (org-config-agenda-skip-entry-if
@@ -742,7 +726,7 @@ SCHEDULED: %t
 
    ("go" "Open source tasks"
     ((org-ql-block
-      `(and (about ,@org-config-open-source-categories)
+      `(and (path "OSS")
             (todo "TODO" "DOING")
             (not (tags "ARCHIVE"))
             (not (scheduled))
