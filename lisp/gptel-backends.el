@@ -32,7 +32,7 @@
 ;; (require 'gptel-ollama)
 ;; (require 'gptel-gemini)
 (require 'gptel-openai)
-;; (require 'gptel-openai-extras)
+(require 'gptel-openai-extras)
 ;; (require 'gptel-anthropic)
 
 (defconst gptel-curl--common-args
@@ -48,7 +48,7 @@
   "Arguments always passed to Curl for gptel queries.")
 
 (defun gptel-backends-make-litellm ()
-  (gptel-make-openai "LiteLLM"
+  (gptel-make-deepseek "LiteLLM"
     :host "vulcan"
     :protocol "http"
     :endpoint "/litellm/v1/chat/completions"
@@ -135,7 +135,7 @@
        :description ""
        :capabilities (media tool json url)
        :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-      (hera/Qwen3-30B-A3B
+      (hera/Qwen3-30B-A3B-Thinking-2507
        :description ""
        :capabilities (media tool json url)
        :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -196,7 +196,7 @@
        :description ""
        :capabilities (media tool json url)
        :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-      (athena/Qwen3-30B-A3B
+      (athena/Qwen3-30B-A3B-Thinking-2507
        :description ""
        :capabilities (media tool json url)
        :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -233,7 +233,7 @@
        :description ""
        :capabilities (media tool json url)
        :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
-      (clio/Qwen3-30B-A3B
+      (clio/Qwen3-30B-A3B-Thinking-2507
        :description ""
        :capabilities (media tool json url)
        :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"))
@@ -377,13 +377,13 @@
       )
     :header
     (lambda () (when-let* ((key (gptel--get-api-key)))
-                 `(("x-api-key"         . ,key)
-                   ("x-litellm-timeout" . "7200")
-                   ("x-litellm-tags"    . "gptel")
-                   ("anthropic-version" . "2023-06-01")
-                   ("anthropic-beta"    . "pdfs-2024-09-25")
-                   ("anthropic-beta"    . "output-128k-2025-02-19")
-                   ("anthropic-beta"    . "prompt-caching-2024-07-31"))))))
+            `(("x-api-key"         . ,key)
+              ("x-litellm-timeout" . "7200")
+              ("x-litellm-tags"    . "gptel")
+              ("anthropic-version" . "2023-06-01")
+              ("anthropic-beta"    . "pdfs-2024-09-25")
+              ("anthropic-beta"    . "output-128k-2025-02-19")
+              ("anthropic-beta"    . "prompt-caching-2024-07-31"))))))
 
 (defun gptel-backends-make-clio (&rest models)
   (gptel-make-openai "llama-swap-clio"
@@ -571,7 +571,7 @@
 ;;   :host "127.0.0.1:8081"
 ;;   :protocol "http"
 ;;   :models '(
-;;             Qwen3-30B-A3B
+;;             Qwen3-30B-A3B-Thinking-2507
 ;;             ))
 
 ;; (gptel-make-openai "mlx-lm"

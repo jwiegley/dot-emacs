@@ -124,3 +124,6 @@
 [submodule "lisp/org-drafts"]
 	path = lisp/org-drafts
 	url = git@github.com:jwiegley/org-drafts
+[submodule "lisp/ragmacs"]
+	path = lisp/ragmacs
+	url = git@github.com:positron-solutions/ragmacs.git
