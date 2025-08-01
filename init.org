@@ -67,6 +67,14 @@
   (add-to-list 'use-package-keywords :nix))
 #+end_src
 
+** exec-path-from-shell
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :if (memq window-system '(mac ns x))
+  :config (exec-path-from-shell-initialize))
+#+end_src
+
 ** During loading of this module, clear =file-name-handler-alist=
 
 #+begin_src emacs-lisp
@@ -658,7 +666,7 @@ It reindents after every change, making it more reliable than
   :custom
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
-     "--model" ,(concat "openai/" (symbol-name gptel-model))
+     "--model" "openai/hera/Kimi-K2-Instruct"
      "--openai-api-base" "http://vulcan/litellm/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
