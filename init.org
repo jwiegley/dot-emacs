@@ -72,7 +72,10 @@
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns x))
-  :config (exec-path-from-shell-initialize))
+  :config
+  (exec-path-from-shell-initialize)
+  ;; (exec-path-from-shell-copy-env "OPENAI_API_KEY")
+  )
 #+end_src
 
 ** During loading of this module, clear =file-name-handler-alist=

@@ -239,7 +239,7 @@ differently or may not accept what another backend consider legitimate."
   :system 'emacs-aid
   :parents 'qwen
   :max-tokens 32767
-  :tools '("emacs"))
+  :tools '("emacs" "introspection"))
 
 (gptel-make-preset 'haskell
   :description "Expert Haskell coder"
