@@ -127,3 +127,6 @@
 [submodule "lisp/ragmacs"]
 	path = lisp/ragmacs
 	url = git@github.com:positron-solutions/ragmacs.git
+[submodule "lisp/macher"]
+	path = lisp/macher
+	url = git@github.com:kmontag/macher.git

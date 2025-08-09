@@ -87,10 +87,16 @@ differently or may not accept what another backend consider legitimate."
   ;; :backend "ChatGPT"
   ;; :model 'gpt-4.1
   :backend "LiteLLM"
-  :model 'openai/gpt-4.1-2025-04-14
+  :model 'openai/gpt-4.1
   :temperature 1.0)
 
 ;;; Anthropic
+
+(gptel-make-preset 'haiku
+  :description "Anthropic's Claude Haiku"
+  :backend "LiteLLM"
+  :model 'anthropic/claude-3-5-haiku-20241022
+  :temperature 1.0)
 
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
@@ -105,7 +111,7 @@ differently or may not accept what another backend consider legitimate."
   ;; :backend "Claude-thinking"
   ;; :model 'claude-opus-4-20250514
   :backend "LiteLLM"
-  :model 'anthropic/claude-opus-4-20250514
+  :model 'anthropic/claude-opus-4-1-20250805
   :temperature 1.0)
 
 ;;; Ali Baba
@@ -113,10 +119,9 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
   ;; :backend "llama-swap-hera"
-  ;; :model 'Qwen3-235B-A22B
+  ;; :model 'Qwen3-235B-A22B-Thinking-2507
   :backend "LiteLLM"
-  ;; :model 'hera/Qwen3-235B-A22B-Instruct-2507
-  :model 'hera/Qwen3-Coder-480B-A35B-Instruct
+  :model 'hera/Qwen3-235B-A22B-Thinking-2507
   :temperature 1.0)
 
 ;;; DeepSeek
@@ -170,8 +175,7 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'default
   :description "Default setup"
-  ;; :parents 'qwen
-  :parents 'kimi
+  :parents 'qwen
   :system 'default
   :confirm-tool-calls 'auto
   :max-tokens 16384
@@ -191,10 +195,9 @@ differently or may not accept what another backend consider legitimate."
   :max-tokens 8192
   :include-reasoning nil
   :tools nil
-  :parents `(quick
-             ,(if gptel-presets-rewrite-use-remote
-                  'gpt
-                'qwen)))
+  :parents (if gptel-presets-rewrite-use-remote
+               'gpt
+             '(quick qwen)))
 
 ;;; DIRECTIVES (w/ MODELS) ===============================================
 

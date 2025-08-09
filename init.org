@@ -54,7 +54,7 @@
         use-package-expand-minimally (not verbose)
         use-package-compute-statistics verbose
         debug-on-error verbose
-        debug-on-message "finalizer failed"
+        debug-on-message "buffer-local while locally let-bound"
         debug-on-quit verbose))
 
 (eval-and-compile
@@ -669,7 +669,7 @@ It reindents after every change, making it more reliable than
   :custom
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
-     "--model" "openai/hera/Kimi-K2-Instruct"
+     "--model" "openai/hera/Qwen3-235B-A22B-Thinking-2507"
      "--openai-api-base" "http://vulcan/litellm/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
@@ -3227,8 +3227,7 @@ up before you execute another command."
   ;; (gptel-backends-make-clio `(,@CLIO))
   ;; (gptel-backends-make-athena `(,@ATHENA))
   (setq
-   ;; gptel-model 'hera/Qwen3-Coder-480B-A35B-Instruct
-   gptel-model 'hera/Kimi-K2-Instruct
+   gptel-model 'hera/Qwen3-235B-A22B-Thinking-2507
    ;; gptel-backend (gptel-backends-make-hera `(,@HERA))
    gptel-backend (gptel-backends-make-litellm)
    ))
@@ -3547,9 +3546,12 @@ that supports tool use, and aims for a nonintrusive and easily-customizable
 UX. Your existing gptel configuration gets extended when making macher
 requests, so you can use it alongside other tools.
 
-#+begin_src sh
+#+begin_src emacs-lisp
 (use-package macher
- :commands (macher-implement))
+  :load-path "lisp/macher"
+  :after (gptel)
+  :config
+  (macher-install))
 #+end_src
 
 *** gptel-fn-complete
@@ -3605,6 +3607,51 @@ requests, so you can use it alongside other tools.
       :command "uvx"
       :args ("--isolated" "--from" "org-mcp" "org-mcp"
              "--org-dir" ,org-directory)))))
+#+end_src
+
+*** ragmacs
+
+#+begin_src emacs-lisp
+(use-package ragmacs
+  :load-path "lisp/ragmacs"
+  :after (gptel)
+  :defer t
+  :init
+  (gptel-make-preset 'introspect
+    :pre (lambda () (require 'ragmacs))
+    :system
+    "You are pair programming with the user in Emacs and on Emacs.
+
+Your job is to dive into Elisp code and understand the APIs and
+structure of elisp libraries and Emacs.  Use the provided tools to do
+so, but do not make duplicate tool calls for information already
+available in the chat.
+
+<tone>
+1. Be terse and to the point.  Speak directly.
+2. Explain your reasoning.
+3. Do NOT hedge or qualify.
+4. If you don't know, say you don't know.
+5. Do not offer unprompted advice or clarifications.
+6. Never apologize.
+7. Do NOT summarize your answers.
+</tone>
+
+<code_generation>
+When generating code:
+1. Always check that functions or variables you use in your code exist.
+2. Also check their calling convention and function-arity before you use them.
+3. Write code that can be tested by evaluation, and offer to evaluate
+code using the `elisp_eval` tool.
+</code_generation>
+
+<formatting>
+1. When referring to code symbols (variables, functions, tags etc) enclose them in markdown quotes.
+   Examples: `read_file`, `getResponse(url, callback)`
+   Example: `<details>...</details>`
+2. If you use LaTeX notation, enclose math in \( and \), or \[ and \] delimiters.
+</formatting>"
+    :tools '("introspection")))
 #+end_src
 
 ** grep
@@ -4388,7 +4435,7 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   (magit-diff-refine-hunk t)
   (magit-fetch-arguments nil)
   ;; This is done for the sake of performance on macOS
-  (magit-git-executable "/usr/bin/git")
+  ;; (magit-git-executable "/usr/bin/git")
   (magit-highlight-trailing-whitespace nil)
   (magit-highlight-whitespace nil)
   (magit-log-section-commit-count 10)
@@ -5253,6 +5300,25 @@ commands to search for locations by name and to open and display GPX tracks.
 (use-package osm
   :commands osm-home
   :bind ("C-c M" . osm-prefix-map))
+#+end_src
+
+** p-search
+
+#+begin_src emacs-lisp
+(use-package p-search
+  :commands p-search
+  :preface
+  (defun my/search-emacs (search-query)
+    (interactive "sSearchs Term: ")
+    (require 'p-search-x-info)
+    (p-search-setup-buffer
+     `(:group ((:prior-template p-search-prior-query
+                                :args ((query-string . ,search-query)
+                                       (importance . medium)))
+               (:candidate-generator p-search-x-info-candidate-generator
+                                     :args ((info-node . emacs)))
+               (:candidate-generator p-search-x-info-candidate-generator
+                                     :args ((info-node . elisp))))))))
 #+end_src
 
 ** package-lint
@@ -9585,7 +9651,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (subject 0)
       (from 0))
      (gnus-killed-mark
-      (subject -5)
+      (subject -150)
       (from -5))
      (gnus-catchup-mark
       (subject -150)
@@ -10733,10 +10799,10 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
-   '((sequence "DRAFT(a)" "TODO(t@/!)" "DOING(s!/!)"
-               "WAIT(w@/!)" "DEFER(r!/!)"
-               "TASK(g@/!)" "HABIT(h@/!)"
-               "|" "DONE(d@/!)" "CANCELED(x@/!)" "PASS(p@/!)")
+   '((sequence "DRAFT(a)" "TODO(t@)" "DOING(s!)"
+               "WAIT(w@)" "DEFER(r!)"
+               "TASK(g@)" "HABIT(h)"
+               "|" "DONE(d@)" "CANCELED(x@)" "PASS(p@)")
      (sequence "|" "SCRAP(A)" "NOTE(n)" "LINK(l)")))
   (org-todo-keyword-faces
    `(
@@ -12310,14 +12376,14 @@ stamp to a task, which can be used to schedule a review of the task.
   :bind
   (:map
    my-ctrl-c-n-map
-   ("R" . org-review-insert-next-review)
+   ("R" . my/org-reviewed-today)
    ("r" . my/org-insert-last-and-set-next-review)
    :map
    org-agenda-mode-map
    :prefix-map
    my/org-review-map
    :prefix "r"
-   ("R" . org-review-insert-next-review)
+   ("R" . my/org-reviewed-today)
    ("r" . my/org-insert-last-and-set-next-review)
    ("d" . review-next-day)
    ("D" . review-next-three-days)
@@ -12358,28 +12424,32 @@ stamp to a task, which can be used to schedule a review of the task.
                           (1+ (string-to-number reviews))))
         (org-entry-put where "REVIEWS" "1"))))
 
+  (defun my/org-remove-review (&optional all)
+    (org-entry-delete (point) "NEXT_REVIEW")
+    (when all
+      (org-entry-delete (point) "REVIEWS")
+      (org-entry-delete (point) "LAST_REVIEW")
+      (org-schedule '(4))
+      (org-deadline '(4))))
+
   (defun my/org-reviewed-today ()
     (interactive)
-    (if (ignore-errors
-          (member (org-get-todo-state)
-                  '("NOTE" "LINK" "SCRAP")))
-        (progn
-          (org-entry-delete (point) "REVIEWS")
-          (org-entry-delete (point) "LAST_REVIEW")
-          (org-entry-delete (point) "NEXT_REVIEW")
-          (org-schedule '(4))
-          (org-deadline '(4)))
-      (when (or (ignore-errors (org-get-todo-state))
-                (save-excursion
-                  (goto-char (point-min))
-                  (looking-at "^\\(DRAFT\\|TODO\\|TASK\\|HABIT\\) ")))
-        (save-excursion
-          (org-review-insert-last-review)
-          (org-review-insert-date
-           org-review-next-property-name
-	   org-review-next-timestamp-format
-	   (format-time-string (car org-time-stamp-formats)
-                               (current-time)))))))
+    (let ((todo-state (ignore-errors (org-get-todo-state))))
+      (cond ((or (null todo-state)
+                 (member todo-state '("SCRAP" "NOTE" "LINK")))
+             (my/org-remove-review t))
+            ((member todo-state '("DONE" "CANCELED" "PASS")))
+            ((or todo-state
+                 (save-excursion
+                   (goto-char (point-min))
+                   (looking-at "^\\(DRAFT\\|TODO\\|TASK\\|HABIT\\) ")))
+             (save-excursion
+               (org-review-insert-last-review)
+               (org-review-insert-date
+                org-review-next-property-name
+	        org-review-next-timestamp-format
+	        (format-time-string (car org-time-stamp-formats)
+                                    (current-time))))))))
 
   (defun my/org-insert-last-and-set-next-review ()
     (interactive)
