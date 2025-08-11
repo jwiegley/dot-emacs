@@ -387,15 +387,36 @@
 
 (cl-defun hf-run-mlx (model &key (port 8081))
   "Start mlx-lm with a specific MODEL on the given PORT."
-  (interactive)
-  ;; This is yet to be implemented.
-  )
+  (interactive
+   (list (read-string "Model: ")
+         :port (read-number "Port: " 8081)))
+  (let ((proc (start-process
+               "mlx-lm"
+               "*mlx-lm*"
+               "mlx-lm"
+               "--model" model
+               "--port" (format "%d" port))))
+    (set-process-query-on-exit-flag proc nil)
+    (message "Started mlx-lm with model %s on port %d" model port)))
 
 (cl-defun hf-run-llama-cpp (model &key (port 8081))
   "Start llama.cpp with a specific MODEL on the given PORT."
-  (interactive)
-  ;; This is yet to be implemented.
-  )
+  (interactive
+   (list (read-string "Model: ")
+         :port (read-number "Port: " 8081)))
+  (let ((proc (start-process
+               "llama-cpp"
+               "*llama-cpp*"
+               "llama-server"
+               "--jinja"
+               "--no-webui"
+               "--offline"
+               "--port" (format "%d" port)
+               "--model" model
+               "--threads" (format "%d" hf-threads))))
+    (set-process-query-on-exit-flag proc nil)
+    (message "Started llama.cpp with model %s on port %d using %d threads"
+             model port hf-threads)))
 
 (defun hf-run-llama-swap ()
   "Start llama-swap with generated config."

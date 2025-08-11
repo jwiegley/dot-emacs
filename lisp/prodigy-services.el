@@ -57,6 +57,26 @@
             :host "vulcan"
             ))
 
+(prodigy-define-service
+  :name "MLX-LM"
+  :command "mlx-lm"
+  :cwd "~/Models"
+  :args '("server"
+          "--model" "mlx-community/???"
+          "--port" "8082")
+  :port 8082)
+
+(let ((model-path
+       "~/Models/unsloth_gemma-3-12b-it-GGUF/gemma-3-12b-it-UD-Q8_K_XL.gguf"))
+  (prodigy-define-service
+    :name "llama-cpp"
+    :command "llama-server"
+    :cwd "~/Models"
+    :args `("--jinja"
+            "--model" ,(expand-file-name model-path)
+            "--port" "8081")
+    :port 8081))
+
 (provide 'prodigy-services)
 
 ;;; prodigy-services.el ends here
