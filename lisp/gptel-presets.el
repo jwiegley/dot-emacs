@@ -124,6 +124,12 @@ differently or may not accept what another backend consider legitimate."
   :model 'hera/Qwen3-235B-A22B-Thinking-2507
   :temperature 1.0)
 
+(gptel-make-preset 'macher-model
+  :description "Ali Baba's Qwen coder, small"
+  :backend "LiteLLM"
+  :model 'hera/Qwen3-Coder-30B-A3B-Instruct
+  :temperature 0.7)
+
 ;;; DeepSeek
 
 (gptel-make-preset 'r1
@@ -175,7 +181,7 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'default
   :description "Default setup"
-  :parents 'qwen
+  :parents 'macher-model
   :system 'default
   :confirm-tool-calls 'auto
   :max-tokens 16384
@@ -240,7 +246,7 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'emacs
   :description "Best model for generating or interpreting code"
   :system 'emacs-aid
-  :parents 'qwen
+  :parents 'macher-model
   :max-tokens 32767
   :tools '("emacs" "introspection"))
 
@@ -248,7 +254,7 @@ differently or may not accept what another backend consider legitimate."
   :description "Expert Haskell coder"
   :system 'haskell
   :parents 'opus
-  :max-tokens 1024)
+  :max-tokens 32767)
 
 ;;; REQUEST-PARAMS =======================================================
 
