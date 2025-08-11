@@ -98,6 +98,28 @@
           hf-port
           hf-prefix))
 
+(defun hf-full-model-name (directory)
+  "Based on a model DIRECTORY, return the canonical full model name."
+  (let ((name (file-name-nondirectory directory)))
+    (when (string-prefix-p "models--" name)
+      (setq name (substring name 8)))
+    (setq name (replace-regexp-in-string "--" "_" name))
+    name))
+
+;;; (hf-full-model-name "/Users/johnw/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF")
+;;; (hf-full-model-name "/Users/johnw/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF/Users/johnw/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-mlx")
+
+(defun hf-short-model-name (model-name)
+  "Given a full MODEL-NAME, return its short model name."
+  (thread-last
+    model-name
+    file-name-nondirectory
+    (replace-regexp-in-string "-gguf" "")
+    (replace-regexp-in-string "-GGUF" "")
+    (replace-regexp-in-string ".*_" "")))
+
+;;; (hf-short-model-name "TheBloke_WizardCoder-Python-7B-V1.0-GGUF")
+
 (defconst hf-gguf-min-file-size (* 100 1024 1024))
 
 (defun hf-get-gguf (model)
@@ -271,14 +293,7 @@
       (dolist (gguf-model gguf-models)
         (let ((gguf (hf-get-gguf gguf-model)))
           (if gguf
-              (let* (
-                     (model
-                      (thread-last
-                        gguf-model
-                        file-name-nondirectory
-                        (replace-regexp-in-string "-gguf" "")
-                        (replace-regexp-in-string "-GGUF" "")
-                        (replace-regexp-in-string ".*_" ""))))
+              (let ((model (hf-short-model-name gguf-model)))
                 (insert (format "
   \"%s\":
     proxy: \"http://127.0.0.1:${PORT}\"
@@ -353,7 +368,7 @@
       (message "Pulling %s..." (file-name-nondirectory dir))
       (shell-command (format "cd %s && git pull" dir)))))
 
-(defun hf-list-all-models ()
+(defun hf-installed-models ()
   "List all models from MLX and GGUF directories."
   (interactive)
   (let ((models '()))
@@ -362,11 +377,7 @@
         (dolist (item (directory-files base-dir t "^[^.]"))
           (when (and (file-directory-p item)
                      (not (string= (file-name-nondirectory item) ".locks")))
-            (let ((name (file-name-nondirectory item)))
-              (when (string-prefix-p "models--" name)
-                (setq name (substring name 8)))
-              (setq name (replace-regexp-in-string "--" "_" name))
-              (push name models))))))
+            (push name (hf-full-model-name models))))))
     (with-current-buffer (get-buffer-create "*All Models*")
       (erase-buffer)
       (dolist (model (sort models #'string<))

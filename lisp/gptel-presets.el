@@ -127,7 +127,8 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'macher-model
   :description "Ali Baba's Qwen coder, small"
   :backend "LiteLLM"
-  :model 'hera/Qwen3-Coder-30B-A3B-Instruct
+  ;; :model 'hera/Qwen3-Coder-30B-A3B-Instruct
+  :model 'hera/gpt-oss-120b
   :temperature 0.7)
 
 ;;; DeepSeek
@@ -184,7 +185,7 @@ differently or may not accept what another backend consider legitimate."
   :parents 'macher-model
   :system 'default
   :confirm-tool-calls 'auto
-  :max-tokens 16384
+  :max-tokens 32767
   :use-context 'user
   :include-reasoning 'ignore)
 
