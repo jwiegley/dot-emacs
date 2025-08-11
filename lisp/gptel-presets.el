@@ -127,8 +127,7 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'macher-model
   :description "Ali Baba's Qwen coder, small"
   :backend "LiteLLM"
-  ;; :model 'hera/Qwen3-Coder-30B-A3B-Instruct
-  :model 'hera/gpt-oss-120b
+  :model 'hera/Qwen3-Coder-480B-A35B-Instruct
   :temperature 0.7)
 
 ;;; DeepSeek
