@@ -669,7 +669,7 @@ It reindents after every change, making it more reliable than
   :custom
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
-     "--model" "openai/hera/Qwen3-235B-A22B-Thinking-2507"
+     "--model" "openai/hera/Qwen3-Coder-30B-A3B-Instruct"
      "--openai-api-base" "http://vulcan/litellm/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
@@ -3227,7 +3227,7 @@ up before you execute another command."
   ;; (gptel-backends-make-clio `(,@CLIO))
   ;; (gptel-backends-make-athena `(,@ATHENA))
   (setq
-   gptel-model 'hera/Qwen3-235B-A22B-Thinking-2507
+   gptel-model 'hera/Qwen3-Coder-30B-A3B-Instruct
    ;; gptel-backend (gptel-backends-make-hera `(,@HERA))
    gptel-backend (gptel-backends-make-litellm)
    ))
@@ -3538,13 +3538,48 @@ files. You can then apply the changes and/or send them back to the LLM for
 revision.
 
 The LLM receives contextual information about the current project and file, as
-well as tools to read additional project context.
+well as tools to read additional project context and propose changes.
 
 macher is a lightweight Emacs-native take on the editing workflows of more
 full-featured tools like [[https://aider.chat/][Aider]] or [[https://plandex.ai/][Plandex]]. It works with any gptel backend
-that supports tool use, and aims for a nonintrusive and easily-customizable
-UX. Your existing gptel configuration gets extended when making macher
-requests, so you can use it alongside other tools.
+that supports tool use.
+
+macher takes inspiration from gptel's flexibility and visibility. It aims for
+an unintrusive and easily-customizable UI — or you can simply add it to your
+existing workflow using gptel presets.
+
+*Typical workflow*
+
+1. *Navigate to a file* in your project and select a region of text describing
+   something you want to implement.
+2. *Send an implementation request* with =M-x macher-implement=.
+3. *Review the proposed patch* in the automatically-opened diff buffer.
+4. *Apply changes* using standard diff-mode commands (e.g. =C-c C-a= to apply
+   hunks).
+5. *Request revisions* if needed with =M-x macher-revise=.
+
+You can also use macher commands when editing files that aren't part of a
+project — see /[[https://github.com/kmontag/macher?tab=readme-ov-file#key-concepts][workspaces]]/.
+
+*Main commands*
+
+- =macher-implement= :: Send an implementation request based on selected text or
+  manual input.
+- =macher-revise= :: Send a revision request along with the contents of the
+  patch buffer.
+- =macher-discuss= :: Send a question about the current workspace.
+- =macher-abort= :: Cancel any running macher requests for the current
+  workspace.
+
+*Using gptel presets*
+
+After calling =(macher-install)=, you can use macher functionality in any gptel
+request:
+
+- =@macher= :: Full editing capabilities - workspace context + tools to read and
+  edit files
+- =@macher-ro= :: Read-only - workspace context + tools to read files only
+- =@macher-notools= :: Context only - workspace information without tools
 
 #+begin_src emacs-lisp
 (use-package macher
