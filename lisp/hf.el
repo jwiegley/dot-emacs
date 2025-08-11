@@ -60,8 +60,56 @@
 (defvar hf-lmstudio-models (expand-file-name "lmstudio/models" hf-xdg-local))
 (defvar hf-ollama-models (expand-file-name "ollama/models" hf-xdg-local))
 
+(defconst model-formats '(GGUF safetensors))
+
+(defconst model-engines '(llama-cpp koboldcpp mlx-lm))
+
 (cl-defstruct model-config
-  name draft context temp minp topp aliases args)
+  "Configuration data for a model, and its family of instances."
+  model-name
+  context-length
+  temperature
+  min-p
+  top-p
+  aliases)
+
+(cl-defstruct model-instance
+  "Configuration data for a model, and its family of instances."
+  model-config                          ; reference to model config
+  hostname                              ; where does the model run?
+  file-format                           ; GGUF, safetensors
+  model-path                            ; path to model directory
+  file-path                             ; (optional) path to model file
+  draft-model                           ; (optional) path to draft model file
+  engine                                ; llama.cpp, koboldcpp, etc.
+  arguments)
+
+(defvar hf-model-instances
+  (let* ((gpt-oss-120b
+          (make-model-config
+           :model-name "gpt-oss-120b"
+           :context-length 131072
+           :temperature 1.0))
+         (gpt-oss-20b
+          (make-model-config
+           :model-name "gpt-oss-20b"
+           :context-length 131072
+           :temperature 1.0))
+         (gpt-oss-20b-instance-hera
+          (make-model-instance
+           :model-config gpt-oss-20b
+           :hostname "hera"
+           :file-format 'GGUF
+           :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
+           :engine 'llama-cpp)))
+    (list gpt-oss-20b-instance-hera
+          (make-model-instance
+           :model-config gpt-oss-120b
+           :hostname "hera"
+           :file-format 'GGUF
+           :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
+           :draft-model gpt-oss-20b-instance-hera
+           :engine 'llama-cpp))))
 
 (defun hf-lookup-csv (csv-file search-key &optional key-column)
   "Look up SEARCH-KEY in CSV-FILE at KEY-COLUMN (default 0)."
@@ -80,14 +128,14 @@
                        (string= (nth key-column row) search-key))
               (throw 'found
                      (make-model-config
-                      :name (or (nth 0 row) "")
-                      :draft (or (nth 1 row) "")
-                      :context (or (nth 2 row) "")
-                      :temp (or (nth 3 row) "")
-                      :minp (or (nth 4 row) "")
-                      :topp (or (nth 5 row) "")
+                      :model-name (or (nth 0 row) "")
+                      :draft-model (or (nth 1 row) "")
+                      :context-length (or (nth 2 row) "")
+                      :temperature (or (nth 3 row) "")
+                      :min-p (or (nth 4 row) "")
+                      :top-p (or (nth 5 row) "")
                       :aliases (or (nth 6 row) "")
-                      :args (or (nth 7 row) ""))))
+                      :arguments (or (nth 7 row) ""))))
             (forward-line 1)))))))
 
 (defsubst hf-api-base ()
@@ -337,6 +385,18 @@
       (message "Generated %s" yaml-path))
     (shell-command "killall llama-swap 2>/dev/null")))
 
+(cl-defun hf-run-mlx (model &key (port 8081))
+  "Start mlx-lm with a specific MODEL on the given PORT."
+  (interactive)
+  ;; This is yet to be implemented.
+  )
+
+(cl-defun hf-run-llama-cpp (model &key (port 8081))
+  "Start llama.cpp with a specific MODEL on the given PORT."
+  (interactive)
+  ;; This is yet to be implemented.
+  )
+
 (defun hf-run-llama-swap ()
   "Start llama-swap with generated config."
   (interactive)
@@ -346,38 +406,44 @@
 (defun hf-status ()
   "Get llama-swap status."
   (interactive)
-  (let ((response (hf-http-get "/running")))
-    (with-current-buffer (get-buffer-create "*Model Status*")
-      (erase-buffer)
-      (insert (json-encode response))
-      (json-pretty-print-buffer)
-      (display-buffer (current-buffer)))))
+  (with-current-buffer (get-buffer-create "*Model Status*")
+    (erase-buffer)
+    (insert (json-encode (hf-http-get "/running")))
+    (json-pretty-print-buffer)
+    (json-mode)
+    (display-buffer (current-buffer))))
 
 (defun hf-unload ()
   "Unload current model."
   (interactive)
   (hf-http-get "/unload")
-  (message "Model unloaded"))
+  (message "Current model unloaded"))
 
 (defun hf-git-pull-all ()
-  "Pull updates for all model directories."
+  "Run git-pull in all model directories."
   (interactive)
-  (dolist (dir (directory-files hf-gguf-models t "^[^.]"))
-    (when (and (file-directory-p dir)
-               (file-exists-p (expand-file-name ".git" dir)))
-      (message "Pulling %s..." (file-name-nondirectory dir))
-      (shell-command (format "cd %s && git pull" dir)))))
+  (async-shell-command
+   (mapconcat
+    (lambda (dir)
+      (format "echo \">>> %s\" && cd \"%s\" && git pull" dir))
+    (cl-loop for dir in (directory-files hf-gguf-models t "^[^.]")
+             when (file-directory-p dir)
+             when (file-exists-p (expand-file-name ".git" dir))
+             collect dir)
+    " ; ")))
 
 (defun hf-installed-models ()
   "List all models from MLX and GGUF directories."
   (interactive)
-  (let ((models '()))
-    (dolist (base-dir (list hf-mlx-models hf-gguf-models))
-      (when (file-exists-p base-dir)
-        (dolist (item (directory-files base-dir t "^[^.]"))
-          (when (and (file-directory-p item)
-                     (not (string= (file-name-nondirectory item) ".locks")))
-            (push name (hf-full-model-name models))))))
+  (let ((models
+         (cl-loop
+          for base-dir in (list hf-mlx-models hf-gguf-models)
+          when (file-exists-p base-dir)
+          nconc (cl-loop
+                 for item in (directory-files base-dir t "^[^.]")
+                 when (file-directory-p item)
+                 unless (string= (file-name-nondirectory item) ".locks")
+                 collect (hf-full-model-name item)))))
     (with-current-buffer (get-buffer-create "*All Models*")
       (erase-buffer)
       (dolist (model (sort models #'string<))
