@@ -64,7 +64,7 @@
 
 (defconst model-engines '(llama-cpp koboldcpp mlx-lm))
 
-(cl-defstruct model-config
+(cl-defstruct hf-config
   "Configuration data for a model, and its family of instances."
   model-name
   context-length
@@ -73,7 +73,7 @@
   top-p
   aliases)
 
-(cl-defstruct model-instance
+(cl-defstruct hf-instance
   "Configuration data for a model, and its family of instances."
   model-config                          ; reference to model config
   hostname                              ; where does the model run?
@@ -84,59 +84,77 @@
   engine                                ; llama.cpp, koboldcpp, etc.
   arguments)
 
-(defvar hf-model-instances
-  (let* ((gpt-oss-120b
-          (make-model-config
-           :model-name "gpt-oss-120b"
-           :context-length 131072
-           :temperature 1.0))
-         (gpt-oss-20b
-          (make-model-config
-           :model-name "gpt-oss-20b"
-           :context-length 131072
-           :temperature 1.0))
-         (gpt-oss-20b-instance-hera
-          (make-model-instance
-           :model-config gpt-oss-20b
-           :hostname "hera"
-           :file-format 'GGUF
-           :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
-           :engine 'llama-cpp)))
-    (list gpt-oss-20b-instance-hera
-          (make-model-instance
-           :model-config gpt-oss-120b
-           :hostname "hera"
-           :file-format 'GGUF
-           :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
-           :draft-model gpt-oss-20b-instance-hera
-           :engine 'llama-cpp))))
+(defvar hf-model-configs
+  (list (make-hf-config
+         :model-name 'gpt-oss-120b
+         :context-length 131072
+         :temperature 1.0)
+        (make-hf-config
+         :model-name 'gpt-oss-20b
+         :context-length 131072
+         :temperature 1.0)))
 
-(defun hf-lookup-csv (csv-file search-key &optional key-column)
-  "Look up SEARCH-KEY in CSV-FILE at KEY-COLUMN (default 0)."
-  (setq key-column (or key-column 0))
-  (when (file-exists-p csv-file)
-    (with-temp-buffer
-      (insert-file-contents csv-file)
-      (goto-char (point-min))
-      (catch 'found
-        (while (not (eobp))
-          (let* ((line (buffer-substring-no-properties
-                        (line-beginning-position)
-                        (line-end-position)))
-                 (row (split-string line "," t)))
-            (when (and (> (length row) key-column)
-                       (string= (nth key-column row) search-key))
-              (throw 'found
-                     (make-model-config
-                      :model-name (or (nth 0 row) "")
-                      :draft-model (or (nth 1 row) "")
-                      :context-length (or (nth 2 row) "")
-                      :temperature (or (nth 3 row) "")
-                      :min-p (or (nth 4 row) "")
-                      :top-p (or (nth 5 row) "")
-                      :aliases (or (nth 6 row) "")
-                      :arguments (or (nth 7 row) ""))))
-            (forward-line 1)))))))
+(defvar hf-model-configs-hash
+  (let ((h (make-hash-table)))
+    (cl-loop for config in hf-model-configs
+             for name = (let ((name (hf-config-model-name config)))
+                          (if (symbolp name) name (intern name)))
+             do (puthash name config h)
+             finally (return h))))
+
+(defvar hf-model-instances
+  (list (make-hf-instance
+         :model-config 'gpt-oss-20b
+         :hostname "hera"
+         :file-format 'GGUF
+         :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
+         :engine 'llama-cpp)
+        (make-hf-instance
+         :model-config 'gpt-oss-120b
+         :hostname "hera"
+         :file-format 'GGUF
+         :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
+         :draft-model 'gpt-oss-20b--llama-cpp--hera
+         :engine 'llama-cpp)))
+
+(defvar hf-model-instances-hash
+  (let ((h (make-hash-table)))
+    (cl-loop for instance in hf-model-instances
+             for name =
+             (intern
+              (format "%s--%s--%s"
+                      (symbol-name (hf-instance-model-config instance))
+                      (symbol-name (hf-instance-engine instance))
+                      (hf-instance-hostname instance)))
+             do (puthash name instance h)
+             finally (return h))))
+
+;; (defun hf-lookup-csv (csv-file search-key &optional key-column)
+;;   "Look up SEARCH-KEY in CSV-FILE at KEY-COLUMN (default 0)."
+;;   (setq key-column (or key-column 0))
+;;   (when (file-exists-p csv-file)
+;;     (with-temp-buffer
+;;       (insert-file-contents csv-file)
+;;       (goto-char (point-min))
+;;       (catch 'found
+;;         (while (not (eobp))
+;;           (let* ((line (buffer-substring-no-properties
+;;                         (line-beginning-position)
+;;                         (line-end-position)))
+;;                  (row (split-string line "," t)))
+;;             (when (and (> (length row) key-column)
+;;                        (string= (nth key-column row) search-key))
+;;               (throw 'found
+;;                      (make-model-config
+;;                       :model-name (or (nth 0 row) "")
+;;                       :draft-model (or (nth 1 row) "")
+;;                       :context-length (or (nth 2 row) "")
+;;                       :temperature (or (nth 3 row) "")
+;;                       :min-p (or (nth 4 row) "")
+;;                       :top-p (or (nth 5 row) "")
+;;                       :aliases (or (nth 6 row) "")
+;;                       :arguments (or (nth 7 row) ""))))
+;;             (forward-line 1)))))))
 
 (defsubst hf-api-base ()
   "Get API base URL."
@@ -470,6 +488,24 @@
       (dolist (model (sort models #'string<))
         (insert model "\n"))
       (display-buffer (current-buffer)))))
+
+(defun hf-generate-instances-from-models-dir ()
+  "Generate model instance declarations from ~/Models subdirectories."
+  (interactive)
+  (with-current-buffer (get-buffer-create "*HF Instances*")
+    (erase-buffer)
+    (insert ";; Generated model instances from ~/Models\n")
+    (dolist (dir (cl-remove-if-not #'file-directory-p
+                                   (directory-files "~/Models" t "^[^.]")))
+      (let* ((full-model (hf-full-model-name dir))
+             (model-name (hf-short-model-name full-model)))
+        (insert "(make-hf-instance\n"
+                "  :model-config '" model-name "\n"
+                "  :hostname \"" hf-hostname "\"\n"
+                "  :file-format 'GGUF\n"
+                "  :model-path \"" dir "\"\n"
+                "  :engine 'llama-cpp)\n\n")))
+    (display-buffer (current-buffer))))
 
 (provide 'hf)
 

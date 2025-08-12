@@ -66,6 +66,8 @@
           "--port" "8082")
   :port 8082)
 
+;;; Change this definition to a service that prompts for the model directory
+;;; interactively.
 (let ((model-path
        "~/Models/unsloth_gemma-3-12b-it-GGUF/gemma-3-12b-it-UD-Q8_K_XL.gguf"))
   (prodigy-define-service
