@@ -268,7 +268,8 @@ This can come from four possible sources:
              (org-encode-time
               (org-parse-time-string (org-roam-ext-buffer-date))))
             "-"
-            (org-roam-ext-title-slug (vulpea-buffer-title-get))
+            (or (org-entry-get (point-min) "SLUG")
+                (org-roam-ext-title-slug (vulpea-buffer-title-get)))
             ".org")
            (file-name-directory old-name))))
     (unless (string= new-name old-name)
