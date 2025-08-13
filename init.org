@@ -669,7 +669,7 @@ It reindents after every change, making it more reliable than
   :custom
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
-     "--model" "openai/hera/Qwen3-Coder-30B-A3B-Instruct"
+     "--model" "openai/hera/Qwen3-Coder-480B-A35B-Instruct"
      "--openai-api-base" "http://vulcan/litellm/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
@@ -3227,7 +3227,7 @@ up before you execute another command."
   ;; (gptel-backends-make-clio `(,@CLIO))
   ;; (gptel-backends-make-athena `(,@ATHENA))
   (setq
-   gptel-model 'hera/Qwen3-Coder-30B-A3B-Instruct
+   gptel-model 'hera/Qwen3-Coder-480B-A35B-Instruct
    ;; gptel-backend (gptel-backends-make-hera `(,@HERA))
    gptel-backend (gptel-backends-make-litellm)
    ))
@@ -3355,6 +3355,17 @@ Intended to be placed in `git-commit-setup-hook'."
     :tools nil)
 
   (add-hook 'git-commit-setup-hook #'my/gptel-commit-summary 50))
+#+end_src
+
+**** gptel-rewrite-embark
+
+#+begin_src emacs-lisp
+(use-package gptel-rewrite-embark
+  :no-require t
+  :after (embark gptel gptel-quick)
+  :bind (:map embark-region-map
+              ("?" . gptel-quick)
+              ("r" . gptel-rewrite)))
 #+end_src
 
 *** gptel-context
@@ -3650,7 +3661,7 @@ request:
 (use-package ragmacs
   :load-path "lisp/ragmacs"
   :after (gptel)
-  :defer t
+  :demand t
   :init
   (gptel-make-preset 'introspect
     :pre (lambda () (require 'ragmacs))
@@ -11096,6 +11107,7 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
   (org-agenda-overlay-by-olp
    `(;; Headings in todo.org
      (("Inbox")       face (:background ,palette-fuschia        :foreground "#ffffff"))
+     (("Drafts")      face (:background ,palette-fuschia        :foreground "#ffffff"))
      (("Mobile")      face (:background ,palette-orange         :foreground "#ffffff"))
      ;; red
      (("Finances")    face (:background ,palette-red-dark       :foreground "#eeeeee"))

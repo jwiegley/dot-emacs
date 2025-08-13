@@ -52,6 +52,43 @@
   :type 'string
   :group 'hf)
 
+(defcustom hf-llama-swap-prolog "
+healthCheckTimeout: 7200
+startPort: 9200
+"
+  "Name of model host."
+  :type 'string
+  :group 'hf)
+
+(defcustom hf-llama-swap-epilog "
+groups:
+  always_running:
+    swap: false
+    exclusive: false
+    persistent: true
+    members:
+      - Qwen3-235B-A22B
+
+  small:
+    swap: true
+    exclusive: false
+    members:
+      - DeepSeek-R1-0528-Qwen3-8B
+      - Qwen3-30B-A3B
+
+  embeddings:
+    swap: true
+    exclusive: false
+    members:
+      - bge-m3
+      - Qwen3-Embedding-8B
+      - nomic-embed-text-v2-moe
+      - sentence-transformers/all-MiniLM-L6-v2
+"
+  "Name of model host."
+  :type 'string
+  :group 'hf)
+
 ;; Define paths
 (defvar hf-home (expand-file-name "~"))
 (defvar hf-xdg-local (expand-file-name ".local/share" hf-home))
@@ -62,20 +99,29 @@
 
 (defconst model-formats '(GGUF safetensors))
 
+(defconst model-kinds '(text-generation embedding reranker))
+
 (defconst model-engines '(llama-cpp koboldcpp mlx-lm))
 
-(cl-defstruct hf-config
+(cl-defstruct hf-model
   "Configuration data for a model, and its family of instances."
-  model-name
-  context-length
-  temperature
-  min-p
-  top-p
-  aliases)
+  name                                  ; name of the model
+  context-length                        ; model context length
+  max-tokens                            ; number of tokens to predict
+  temperature                           ; model temperature
+  min-p                                 ; minimum p
+  top-p                                 ; top p
+  top-k                                 ; top k
+  kind                                  ; nil, or symbol from model-kinds
+  reasoning                             ; t if model supports reasoning
+  aliases                               ; model alias names
+  inactive)                             ; t if model is not being used
 
 (cl-defstruct hf-instance
   "Configuration data for a model, and its family of instances."
-  model-config                          ; reference to model config
+  model                                 ; reference to model config
+  context-length                        ; context length to use for instance
+  max-tokens                            ; number of tokens to predict
   hostname                              ; where does the model run?
   file-format                           ; GGUF, safetensors
   model-path                            ; path to model directory
@@ -84,77 +130,674 @@
   engine                                ; llama.cpp, koboldcpp, etc.
   arguments)
 
-(defvar hf-model-configs
-  (list (make-hf-config
-         :model-name 'gpt-oss-120b
-         :context-length 131072
-         :temperature 1.0)
-        (make-hf-config
-         :model-name 'gpt-oss-20b
-         :context-length 131072
-         :temperature 1.0)))
+(defvar hf-models-list
+  (list
 
-(defvar hf-model-configs-hash
+   (make-hf-model :name 'Qwen.Qwen3-Reranker-8B
+                  :context-length 40960
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20
+                  :kind 'reranker)
+
+   (make-hf-model :name 'Qwen3-Embedding-8B
+                  :context-length 40960
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20
+                  :kind 'embedding)
+
+   (make-hf-model :name 'WizardCoder-Python-34B-V1.0
+                  :context-length 16384
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'WizardCoder-Python-7B-V1.0
+                  :context-length 16384
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Mistral-Nemo-Instruct-2407
+                  :context-length 1024000
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Llama-3.3-Nemotron-Super-49B-v1
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'r1-1776-distill-llama-70b
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'bge-m3
+                  :context-length 8192
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20
+                  :kind 'embedding)
+
+   (make-hf-model :name 'DeepSeek-R1-Distill-Qwen-32B
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'DeepSeek-R1-0528
+                  :context-length 163840
+                  :temperature 0.6
+                  :min-p 0.01
+                  :top-p 0.95
+                  :top-k 20)
+
+   (make-hf-model :name 'DeepSeek-R1-0528-Qwen3-8B
+                  :context-length 131072
+                  :temperature 0.6
+                  :min-p 0.01
+                  :top-p 0.95
+                  :top-k 20)
+
+   (make-hf-model :name 'DeepSeek-V3-0324-UD
+                  :context-length 163840
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Devstral-Small-2505
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Kimi-K2-Instruct
+                  :context-length 131072
+                  :temperature 0.6
+                  :min-p 0.01
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Llama-4-Maverick-17B-128E-Instruct
+                  :context-length 1048576
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Llama-4-Scout-17B-16E-Instruct
+                  :context-length 10485760
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Magistral-Small-2506
+                  :context-length 40960
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Mistral-Small-3.2-24B-Instruct-2506
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'nomic-embed-text-v2-moe
+                  :context-length 512
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20
+                  :kind 'embedding)
+
+   (make-hf-model :name 'Phi-4-reasoning-plus
+                  :context-length 32768
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-0.6B
+                  :context-length 40960
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-1.7B
+                  :context-length 40960
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-4B
+                  :context-length 40960
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-8B
+                  :context-length 40960
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-14B
+                  :context-length 40960
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-32B
+                  :context-length 40960
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-30B-A3B-Thinking-2507
+                  :context-length 262144
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-235B-A22B-Instruct-2507
+                  :context-length 262144
+                  :temperature 0.7
+                  :min-p 0.01
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-235B-A22B-Thinking-2507
+                  :context-length 262144
+                  :temperature 0.6
+                  :min-p 0.01
+                  :top-p 0.95
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-Coder-30B-A3B-Instruct
+                  :context-length 262144
+                  :temperature 0.7
+                  :min-p 0.01
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'Qwen3-Coder-480B-A35B-Instruct
+                  :context-length 262144
+                  :temperature 0.7
+                  :min-p 0.01
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'gemma-3-1b-it
+                  :context-length 32768
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'gemma-3-4b-it
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'gemma-3-12b-it
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'gemma-3-27b-it
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'gemma-3n-E4B-it
+                  :context-length 32768
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'gpt-oss-20b
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'gpt-oss-120b
+                  :context-length 131072
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'BAAI/bge-base-en-v1.5
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'BAAI/bge-large-en-v1.5
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'mlx-community/whisper-large-v3-mlx
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'nvidia/NV-Embed-v2
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   (make-hf-model :name 'sentence-transformers/all-MiniLM-L6-v2
+                  :temperature 1.0
+                  :min-p 0.05
+                  :top-p 0.8
+                  :top-k 20)
+
+   ))
+
+(defvar hf-models-hash
   (let ((h (make-hash-table)))
-    (cl-loop for config in hf-model-configs
-             for name = (let ((name (hf-config-model-name config)))
+    (cl-loop for model in hf-models-list
+             for name = (let ((name (hf-model-name model)))
                           (if (symbolp name) name (intern name)))
-             do (puthash name config h)
+             unless (hf-model-inactive model)
+             do (puthash name model h)
              finally (return h))))
 
-(defvar hf-model-instances
-  (list (make-hf-instance
-         :model-config 'gpt-oss-20b
-         :hostname "hera"
-         :file-format 'GGUF
-         :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
-         :engine 'llama-cpp)
-        (make-hf-instance
-         :model-config 'gpt-oss-120b
-         :hostname "hera"
-         :file-format 'GGUF
-         :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
-         :draft-model 'gpt-oss-20b--llama-cpp--hera
-         :engine 'llama-cpp)))
+(defvar hf-instances-list
+  (list
 
-(defvar hf-model-instances-hash
-  (let ((h (make-hash-table)))
-    (cl-loop for instance in hf-model-instances
-             for name =
-             (intern
-              (format "%s--%s--%s"
-                      (symbol-name (hf-instance-model-config instance))
-                      (symbol-name (hf-instance-engine instance))
-                      (hf-instance-hostname instance)))
-             do (puthash name instance h)
-             finally (return h))))
+   (make-hf-instance
+    :model 'Qwen.Qwen3-Reranker-8B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
+    :engine 'llama-cpp)
 
-;; (defun hf-lookup-csv (csv-file search-key &optional key-column)
-;;   "Look up SEARCH-KEY in CSV-FILE at KEY-COLUMN (default 0)."
-;;   (setq key-column (or key-column 0))
-;;   (when (file-exists-p csv-file)
-;;     (with-temp-buffer
-;;       (insert-file-contents csv-file)
-;;       (goto-char (point-min))
-;;       (catch 'found
-;;         (while (not (eobp))
-;;           (let* ((line (buffer-substring-no-properties
-;;                         (line-beginning-position)
-;;                         (line-end-position)))
-;;                  (row (split-string line "," t)))
-;;             (when (and (> (length row) key-column)
-;;                        (string= (nth key-column row) search-key))
-;;               (throw 'found
-;;                      (make-model-config
-;;                       :model-name (or (nth 0 row) "")
-;;                       :draft-model (or (nth 1 row) "")
-;;                       :context-length (or (nth 2 row) "")
-;;                       :temperature (or (nth 3 row) "")
-;;                       :min-p (or (nth 4 row) "")
-;;                       :top-p (or (nth 5 row) "")
-;;                       :aliases (or (nth 6 row) "")
-;;                       :arguments (or (nth 7 row) ""))))
-;;             (forward-line 1)))))))
+   (make-hf-instance
+    :model 'Qwen3-Embedding-8B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/Qwen_Qwen3-Embedding-8B-GGUF"
+    :engine 'llama-cpp
+    :arguments '("--embedding"
+                 "--pooling" "last"
+                 "--ubatch-size" "8192"
+                 "--batch-size" "2048"))
+
+   (make-hf-instance
+    :model 'WizardCoder-Python-34B-V1.0
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/TheBloke_WizardCoder-Python-34B-V1.0-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'WizardCoder-Python-7B-V1.0
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Mistral-Nemo-Instruct-2407
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/bartowski_Mistral-Nemo-Instruct-2407-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Llama-3.3-Nemotron-Super-49B-v1
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/bartowski_nvidia_Llama-3.3-Nemotron-Super-49B-v1-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'r1-1776-distill-llama-70b
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/bartowski_perplexity-ai_r1-1776-distill-llama-70b-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'bge-m3
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/gpustack_bge-m3-GGUF"
+    :engine 'llama-cpp
+    :arguments '("--embedding"
+                 "--pooling" "mean"
+                 "--ubatch-size" "8192"
+                 "--batch-size" "4096"))
+
+   (make-hf-instance
+    :model 'DeepSeek-R1-Distill-Qwen-32B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/lmstudio-community_DeepSeek-R1-Distill-Qwen-32B-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'nomic-embed-text-v2-moe
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/nomic-ai_nomic-embed-text-v2-moe-GGUF"
+    :engine 'llama-cpp
+    :arguments '("--embedding"
+                 "--ubatch-size" "8192"))
+
+   (make-hf-instance
+    :model 'DeepSeek-R1-0528
+    :context-length 16384
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_DeepSeek-R1-0528-GGUF"
+    :engine 'llama-cpp
+    :arguments '("--cache-type-k" "q4_1"
+                 "--seed" "3407"))
+
+   (make-hf-instance
+    :model 'DeepSeek-R1-0528-Qwen3-8B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_DeepSeek-R1-0528-Qwen3-8B-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'DeepSeek-V3-0324-UD
+    :context-length 12000
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_DeepSeek-V3-0324-GGUF-UD"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Devstral-Small-2505
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Devstral-Small-2505-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Kimi-K2-Instruct
+    :context-length 32768
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Kimi-K2-Instruct-GGUF"
+    :engine 'llama-cpp
+    :arguments '("--cache-type-k" "q4_1"
+                 "-n" "32768"
+                 "--seed" "3407"))
+
+   (make-hf-instance
+    :model 'Llama-4-Maverick-17B-128E-Instruct
+    :context-length 65536
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Llama-4-Maverick-17B-128E-Instruct-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Llama-4-Scout-17B-16E-Instruct
+    :context-length 1048576
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Llama-4-Scout-17B-16E-Instruct-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Magistral-Small-2506
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Magistral-Small-2506-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Mistral-Small-3.2-24B-Instruct-2506
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Mistral-Small-3.2-24B-Instruct-2506-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Phi-4-reasoning-plus
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Phi-4-reasoning-plus-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Qwen3-0.6B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-0.6B-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Qwen3-1.7B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-1.7B-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Qwen3-14B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-14B-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Qwen3-235B-A22B-Instruct-2507
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-235B-A22B-Instruct-2507-GGUF"
+    :engine 'llama-cpp
+    :arguments '("--repeat-penalty" "1.05"
+                 "--cache-type-k" "q8_0"
+                 "--top-k" "20"
+                 "--flash-attn"
+                 "--cache-type-v" "q8_0"
+                 "-n" "81920"))
+
+   (make-hf-instance
+    :model 'Qwen3-235B-A22B-Thinking-2507
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-235B-A22B-Thinking-2507-GGUF"
+    :engine 'llama-cpp
+    :arguments '("--repeat-penalty" "1.05"
+                 "--cache-type-k" "q8_0"
+                 "--top-k" "20"
+                 "--flash-attn"
+                 "--cache-type-v" "q8_0"
+                 "-n" "32768"))
+
+   (make-hf-instance
+    :model 'Qwen3-30B-A3B-Thinking-2507
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-30B-A3B-Thinking-2507-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Qwen3-32B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-32B-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Qwen3-4B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-4B-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Qwen3-8B
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-8B-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'Qwen3-Coder-30B-A3B-Instruct
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
+    :engine 'llama-cpp
+    :arguments '("--repeat-penalty" "1.05"
+                 "--cache-type-k" "q8_0"
+                 "--top-k" "20"
+                 "--flash-attn"
+                 "--cache-type-v" "q8_0"
+                 "--rope-scaling" "yarn"
+                 "--rope-scale" "4"
+                 "--yarn-orig-ctx" "262144"
+                 "-n" "65536"))
+
+   (make-hf-instance
+    :model 'Qwen3-Coder-480B-A35B-Instruct
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF"
+    :file-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/UD-Q4_K_XL/Qwen3-Coder-480B-A35B-Instruct-UD-Q4_K_XL-00001-of-00006.gguf"
+    :engine 'llama-cpp
+    :arguments '("--repeat-penalty" "1.05"
+                 "--cache-type-k" "q4_1"
+                 "--top-k" "20"
+                 "--flash-attn"
+                 "--cache-type-v" "q4_1"
+                 "--rope-scaling" "yarn"
+                 "--rope-scale" "4"
+                 "--yarn-orig-ctx" "262144"
+                 "-n" "65536"
+                 "--chat-template-file" "/Users/johnw/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/chat_template.jinja"))
+
+   (make-hf-instance
+    :model 'gemma-3-1b-it
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_gemma-3-1b-it-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'gemma-3-4b-it
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_gemma-3-4b-it-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'gemma-3-12b-it
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_gemma-3-12b-it-GGUF"
+    :draft-model 'gemma-3-1b-it
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'gemma-3-27b-it
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_gemma-3-27b-it-GGUF"
+    :draft-model 'gemma-3-4b-it
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'gemma-3n-E4B-it
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_gemma-3n-E4B-it-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'gpt-oss-20b
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'gpt-oss-120b
+    :hostname "hera"
+    :file-format 'GGUF
+    :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
+    :engine 'llama-cpp)
+
+   (make-hf-instance
+    :model 'BAAI/bge-base-en-v1.5
+    :hostname "hera"
+    :file-format 'safetensors
+    :engine 'mlx-lm)
+
+   (make-hf-instance
+    :model 'BAAI/bge-large-en-v1.5
+    :hostname "hera"
+    :file-format 'safetensors
+    :engine 'mlx-lm)
+
+   (make-hf-instance
+    :model 'mlx-community/whisper-large-v3-mlx
+    :hostname "hera"
+    :file-format 'safetensors
+    :engine 'mlx-lm)
+
+   (make-hf-instance
+    :model 'nvidia/NV-Embed-v2
+    :hostname "hera"
+    :file-format 'safetensors
+    :engine 'mlx-lm)
+
+   (make-hf-instance
+    :model 'sentence-transformers/all-MiniLM-L6-v2
+    :hostname "hera"
+    :file-format 'safetensors
+    :engine 'mlx-lm)
+
+   ))
 
 (defsubst hf-api-base ()
   "Get API base URL."
@@ -169,11 +812,10 @@
   (let ((name (file-name-nondirectory directory)))
     (when (string-prefix-p "models--" name)
       (setq name (substring name 8)))
-    (setq name (replace-regexp-in-string "--" "_" name))
-    name))
+    (replace-regexp-in-string "--" "/" name)))
 
-;;; (hf-full-model-name "/Users/johnw/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF")
-;;; (hf-full-model-name "/Users/johnw/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF/Users/johnw/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-mlx")
+;;; (hf-full-model-name "~/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF")
+;;; (hf-full-model-name "~/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF/Users/johnw/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-mlx")
 
 (defun hf-short-model-name (model-name)
   "Given a full MODEL-NAME, return its short model name."
@@ -188,7 +830,7 @@
 
 (defconst hf-gguf-min-file-size (* 100 1024 1024))
 
-(defun hf-get-gguf (model)
+(defun hf-get-gguf-path (model)
   "Find the best GGUF file for MODEL."
   (car
    (delete-dups
@@ -204,26 +846,20 @@
                     hf-gguf-min-file-size)
             collect gguf)))))
 
-;; (inspect (hf-get-gguf "/Users/johnw/Models/TheBloke_WizardCoder-Python-34B-V1.0-GGUF"))
+;; (inspect (hf-get-gguf-path "~/Models/TheBloke_WizardCoder-Python-34B-V1.0-GGUF"))
 
-(defun hf-get-ctx-size (model)
-  "Get context size of MODEL."
-  (let ((gguf (hf-get-gguf model)))
-    (when gguf
-      (with-temp-buffer
-        (when (zerop (call-process "gguf-tools" nil t nil "show" gguf))
-          (goto-char (point-min))
-          (when (search-forward ".context_length" nil t)
-            (when (re-search-forward "\\[uint32\\] \\([0-9]+\\)" nil t)
-              (string-to-number (match-string 1)))))))))
+(defun hf-get-context-length (model)
+  "Get maximum context length of MODEL."
+  (when-let* ((gguf (expand-file-name (hf-get-gguf-path model))))
+    (with-temp-buffer
+      (when (zerop (call-process "gguf-tools" nil t nil "show" gguf))
+        (goto-char (point-min))
+        (when (search-forward ".context_length" nil t)
+          (when (re-search-forward "\\[uint32\\] \\([0-9]+\\)" nil t)
+            (string-to-number (match-string 1))))))))
 
-;; (inspect (hf-get-ctx-size "/Users/johnw/Models/unsloth_gemma-3-27b-it-GGUF"))
-
-(defun hf-run-process (program &rest args)
-  "Run PROGRAM with ARGS and return output."
-  (with-temp-buffer
-    (when (zerop (apply #'call-process program nil t nil args))
-      (buffer-string))))
+;; (inspect (hf-get-context-length "~/Models/unsloth_gemma-3-27b-it-GGUF"))
+;; (inspect (hf-get-context-length "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF"))
 
 (defun hf-http-get (endpoint)
   "GET request to ENDPOINT."
@@ -302,13 +938,14 @@
              (model-name (replace-regexp-in-string "\\.gguf$" "" base-name)))
         (with-temp-file modelfile-name
           (insert (format "FROM %s\n" file-path)))
-        (shell-command (format "ollama create %s -f %s" model-name modelfile-name))
+        (shell-command (format "ollama create %s -f %s"
+                               model-name modelfile-name))
         (delete-file modelfile-name)))))
 
 (defun hf-show (model)
   "Show MODEL details."
   (interactive "sModel directory: ")
-  (let ((gguf (hf-get-gguf model)))
+  (let ((gguf (hf-get-gguf-path model)))
     (when gguf
       (shell-command (format "gguf-tools show %s" gguf)))))
 
@@ -344,63 +981,85 @@
                       model-list))
       (display-buffer (current-buffer)))))
 
+(defsubst hf-get-instance-model (instance)
+  (gethash (hf-instance-model instance) hf-models-hash))
+
+(defun hf-get-instance-context-length (instance)
+  (or (hf-instance-context-length instance)
+      (hf-model-context-length (hf-get-instance-model instance))))
+
+;;; (hf-get-instance-context-length (gethash 'Qwen3-235B-A22B-Thinking-2507--llama-cpp--hera hf-instances-hash))
+
+(defun hf-get-instance-max-tokens (instance)
+  (or (hf-instance-max-tokens instance)
+      (hf-model-max-tokens (hf-get-instance-model instance))))
+
+(defun hf-get-instance-path (instance)
+  (or (hf-instance-file-path instance)
+      (hf-get-gguf-path
+       (hf-instance-model-path instance))))
+
+;;; (hf-get-instance-path (gethash 'Qwen3-Coder-480B-A35B-Instruct--llama-cpp--hera hf-instances-hash))
+
 (defun hf-generate-build-yaml ()
   "Build llama-swap.yaml configuration."
   (interactive)
-  (let ((gguf-models
-         (sort (cl-remove-if-not
-                (lambda (x) (file-directory-p x))
-                (directory-files hf-gguf-models t "^[^.]"))
-               #'string<)))
-    (with-current-buffer (get-buffer-create "*llama-swap.yaml*")
-      (insert "healthCheckTimeout: 7200\n")
-      (insert "startPort: 9200\n\n")
-      (insert "models:")
-      (dolist (gguf-model gguf-models)
-        (let ((gguf (hf-get-gguf gguf-model)))
-          (if gguf
-              (let ((model (hf-short-model-name gguf-model)))
-                (insert (format "
+  (with-current-buffer (get-buffer-create "*llama-swap.yaml*")
+    (erase-buffer)
+    (insert hf-llama-swap-prolog)
+    (insert "\nmodels:")
+    (dolist (instance hf-instances-list)
+      (let* ((model (hf-instance-model instance))
+             (max-tokens (hf-get-instance-max-tokens instance))
+             (context-length (hf-get-instance-context-length instance))
+             (args
+              (mapconcat
+               #'identity
+               (append
+                (hf-instance-arguments instance)
+                (and context-length
+                     (cl-case (hf-instance-engine instance)
+                       ('llama-cpp (list "--ctx-size"
+                                         (number-to-string context-length)))))
+                (and max-tokens
+                     (list (cl-case (hf-instance-engine instance)
+                             ('llama-cpp "--predict")
+                             ('mlx-lm "--max-tokens"))
+                           (number-to-string max-tokens))))
+               " ")))
+        (insert (format "
   \"%s\":
     proxy: \"http://127.0.0.1:${PORT}\"
-    cmd: >
+    cmd: >" model))
+        (cl-case (hf-instance-engine instance)
+          ('llama-cpp
+           (let ((path (expand-file-name (hf-get-instance-path instance))))
+             (insert (format "
       /etc/profiles/per-user/johnw/bin/llama-server
-        --jinja
-        --no-webui
-        --offline
-        --port ${PORT}
-        --model %s%s
+        --host 127.0.0.1 --port ${PORT} --offline --jinja
+        --model %s %s" path args))))
+          ('mlx-lm
+           (insert (format "
+      /etc/profiles/per-user/johnw/bin/mlx-lm server
+        --host 127.0.0.1 --port ${PORT}
+        --model %s %s" model args))))
+        (insert "
     checkEndpoint: /health
-" model gguf "")))
-            (error "No GGUF file in %s" gguf-model))))
-      (current-buffer))))
+")))
+    (insert hf-llama-swap-epilog)
+    (yaml-mode)
+    (current-buffer)))
 
 ;;; (display-buffer (hf-generate-build-yaml))
 
 (defun hf-build-yaml ()
   "Build llama-swap.yaml configuration."
   (interactive)
-  (let ((yaml-path (expand-file-name "llama-swap.yaml" hf-gguf-models))
-        )
-    (with-temp-file yaml-path
-      (insert "healthCheckTimeout: 7200\n")
-      (insert "startPort: 9200\n\n")
-      (insert "models:\n")
-      (dolist (model gguf-models)
-        (let ((gguf (hf-get-gguf model)))
-          (insert "
-  \"Qwen3-14B\":
-    proxy: \"http://127.0.0.1:${PORT}\"
-    cmd: >
-      /etc/profiles/per-user/johnw/bin/llama-server
-        --jinja
-        --no-webui
-        --offline
-        --port ${PORT}
-        --model %s%s
-    checkEndpoint: /health
-" gguf gguf "")))
-      (message "Generated %s" yaml-path))
+  (let ((yaml-path (expand-file-name "llama-swap.yaml" hf-gguf-models)))
+    (with-temp-buffer
+      (insert (with-current-buffer (hf-generate-build-yaml)
+                (buffer-string)))
+      (write-file yaml-path))
     (shell-command "killall llama-swap 2>/dev/null")))
 
 (cl-defun hf-run-mlx (model &key (port 8081))
@@ -489,23 +1148,42 @@
         (insert model "\n"))
       (display-buffer (current-buffer)))))
 
-(defun hf-generate-instances-from-models-dir ()
-  "Generate model instance declarations from ~/Models subdirectories."
+(cl-defun hf-generate-instances-from-models-dir (&key (directory "~/Models"))
+  "Generate model declarations from DIRECTORY's subdirectories."
   (interactive)
-  (with-current-buffer (get-buffer-create "*HF Instances*")
-    (erase-buffer)
-    (insert ";; Generated model instances from ~/Models\n")
-    (dolist (dir (cl-remove-if-not #'file-directory-p
-                                   (directory-files "~/Models" t "^[^.]")))
-      (let* ((full-model (hf-full-model-name dir))
-             (model-name (hf-short-model-name full-model)))
-        (insert "(make-hf-instance\n"
-                "  :model-config '" model-name "\n"
-                "  :hostname \"" hf-hostname "\"\n"
-                "  :file-format 'GGUF\n"
-                "  :model-path \"" dir "\"\n"
-                "  :engine 'llama-cpp)\n\n")))
-    (display-buffer (current-buffer))))
+  (let ((dirs (cl-remove-if-not #'file-directory-p
+                                (directory-files "~/Models" t "^[^.]"))))
+    (with-current-buffer (get-buffer-create "*HF Instances*")
+      (erase-buffer)
+      (insert ";; Generated model configs from ~/Models\n")
+      (dolist (dir dirs)
+        (let* ((full-model (hf-full-model-name dir))
+               (model-name (hf-short-model-name full-model))
+               (context-length (hf-get-context-length dir)))
+          (insert "(make-hf-model\n"
+                  "  :name '" model-name "\n"
+                  "  :context-length " (if (null context-length)
+                                           "nil"
+                                         (number-to-string context-length))
+                  "\n"
+                  "  :temperature 1.0\n"
+                  "  :min-p 0.05\n"
+                  "  :top-p 0.8\n"
+                  "  :top-k 20\n"
+                  "  :kind nil\n"
+                  "  :aliases '())\n\n")))
+      (insert "\n;; Generated model instances from ~/Models\n")
+      (dolist (dir dirs)
+        (let* ((full-model (hf-full-model-name dir))
+               (model-name (hf-short-model-name full-model)))
+          (insert "(make-hf-instance\n"
+                  "  :model '" model-name "\n"
+                  "  :hostname \"" hf-hostname "\"\n"
+                  "  :file-format 'GGUF\n"
+                  "  :model-path \"" dir "\"\n"
+                  "  :engine 'llama-cpp\n"
+                  "  :arguments '())\n\n")))
+      (display-buffer (current-buffer)))))
 
 (provide 'hf)
 
