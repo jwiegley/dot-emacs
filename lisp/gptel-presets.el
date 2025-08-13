@@ -30,6 +30,7 @@
 (require 'cl-lib)
 (require 'solar)
 (require 'gptel)
+(require 'hf)
 
 (defconst gptel-presets-rewrite-use-remote t
   "Non-nil if we should use remote models (local is unavailable?).")
@@ -124,11 +125,11 @@ differently or may not accept what another backend consider legitimate."
   :model 'hera/Qwen3-235B-A22B-Thinking-2507
   :temperature 1.0)
 
-(gptel-make-preset 'macher-model
+(gptel-make-preset 'coding-model
   :description "Ali Baba's Qwen coder, small"
   :backend "LiteLLM"
-  :model 'hera/Qwen3-Coder-480B-A35B-Instruct
-  :temperature 0.7)
+  :model hf-default-instance
+  :temperature (hf-model-temperature (hf-get-model hf-default-model)))
 
 ;;; DeepSeek
 
@@ -181,7 +182,7 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'default
   :description "Default setup"
-  :parents 'macher-model
+  :parents 'coding-model
   :system 'default
   :confirm-tool-calls 'auto
   :max-tokens 32767
@@ -246,7 +247,7 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'emacs
   :description "Best model for generating or interpreting code"
   :system 'emacs-aid
-  :parents 'macher-model
+  :parents 'coding-model
   :max-tokens 32767
   :tools '("emacs" "introspection"))
 

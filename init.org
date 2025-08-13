@@ -589,6 +589,19 @@ _v_ariable       _u_ser-option
   :functions (major-mode-hydra-define))
 #+end_src
 
+** hf
+
+#+begin_src emacs-lisp
+(use-package hf
+  :defines (hf-default-model hf-default-instance)
+  :functions (hf-gptel-backends)
+  :commands (hf-build-yaml
+             hf-status
+             hf-unload
+             hf-installed-models
+             hf-check-instances))
+#+end_src
+
 * Packages
 
 ** abbrev
@@ -669,7 +682,7 @@ It reindents after every change, making it more reliable than
   :custom
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
-     "--model" "openai/hera/Qwen3-Coder-480B-A35B-Instruct"
+     "--model" ,(format "openai/%s" hf-default-instance)
      "--openai-api-base" "http://vulcan/litellm/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
@@ -3182,55 +3195,14 @@ up before you execute another command."
 
 *** gptel-backends
 
-#+name: gptel-define
-#+begin_src emacs-lisp :tangle no :exports none
-(defun my/gptel-hf-models (server)
-    "Return a list of Lisp symbols representing every HF model installed."
-    (with-temp-buffer
-      (shell-command (format "hf --server %s models" server)
-                     (current-buffer))
-      (goto-char (point-min))
-      (while (re-search-forward "\\(BAAI/\\|sentence-transformers/\\|Warning:\\)" nil t)
-        (delete-region (line-beginning-position) (1+ (line-end-position))))
-      (sort-lines nil (point-min) (point-max))
-      (goto-char (point-max))
-      (insert ")")
-      (goto-char (point-min))
-      (insert "(")
-      (forward-char -1)
-      (read (current-buffer))))
-#+end_src
-
-#+name: models-clio
-#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
-(my/gptel-hf-models "192.168.50.112")
-#+end_src
-
-#+name: models-hera
-#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
-(my/gptel-hf-models "192.168.50.5")
-#+end_src
-
-#+name: models-athena
-#+begin_src emacs-lisp :tangle no :exports none :var DEFUN=gptel-define
-(my/gptel-hf-models "192.168.50.235")
-#+end_src
-
-#+begin_comment
-,#+begin_src emacs-lisp :var CLIO=models-clio :var HERA=models-hera :var ATHENA=models-athena
-#+end_comment
-
 #+begin_src emacs-lisp
 (use-package gptel-backends
   :after (gptel)
   :config
-  ;; (gptel-backends-make-clio `(,@CLIO))
-  ;; (gptel-backends-make-athena `(,@ATHENA))
-  (setq
-   gptel-model 'hera/Qwen3-Coder-480B-A35B-Instruct
-   ;; gptel-backend (gptel-backends-make-hera `(,@HERA))
-   gptel-backend (gptel-backends-make-litellm)
-   ))
+  (setq gptel-model hf-default-instance
+        gptel-backend (if (string-match-p "clio" (system-name))
+                          (gptel-backends-make-clio)
+                        (gptel-backends-make-litellm))))
 #+end_src
 
 *** gptel-presets
