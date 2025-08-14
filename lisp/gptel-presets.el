@@ -184,8 +184,8 @@ differently or may not accept what another backend consider legitimate."
   :description "Default setup"
   :parents 'coding-model
   :system 'default
-  :confirm-tool-calls 'auto
-  :max-tokens 32767
+  :confirm-tool-calls nil ; 'auto
+  :max-tokens 16384
   :use-context 'user
   :include-reasoning 'ignore)
 
