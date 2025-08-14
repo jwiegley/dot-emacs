@@ -3200,9 +3200,9 @@ up before you execute another command."
   :after (gptel)
   :config
   (setq gptel-model hf-default-instance
-        gptel-backend (if (string-match-p "clio" (system-name))
-                          (gptel-backends-make-clio)
-                        (gptel-backends-make-litellm))))
+        gptel-backend (gptel-backends-make-litellm))
+  (when (string-match-p "clio" (system-name))
+    (gptel-backends-make-clio)))
 #+end_src
 
 *** gptel-presets
