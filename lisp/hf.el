@@ -77,7 +77,7 @@
 healthCheckTimeout: 7200
 startPort: 9200
 "
-  "Name of model host."
+  "Prolog for beginning of llama-swap.yaml file."
   :type 'string
   :group 'hf)
 
@@ -106,9 +106,109 @@ groups:
       - nomic-embed-text-v2-moe
       - sentence-transformers/all-MiniLM-L6-v2
 "
-  "Name of model host."
+  "Epilog for beginning of llama-swap.yaml file."
   :type 'string
   :group 'hf)
+
+(defcustom hf-litellm-path "/ssh:root@vulcan:/etc/litellm/config.yaml"
+  "Pathname to LiteLLM's config.yaml file."
+  :type 'file
+  :group 'hf)
+
+(defcustom hf-litellm-prolog ""
+  "Prolog for beginning of LiteLLM's config.yaml file."
+  :type 'string
+  :group 'hf)
+
+(defcustom hf-litellm-credentials-function
+  (lambda ()
+    (format "
+credential_list:
+  - credential_name: hera_llama_swap_credential
+    credential_values:
+      api_base: http://192.168.50.5:8080/v1
+      api_key: \"fake\"
+    credential_info:
+      description: \"API Key for llama-swap on Hera\"
+
+  - credential_name: athena_llama_swap_credential
+    credential_values:
+      api_base: http://192.168.50.235:8080/v1
+      api_key: \"fake\"
+    credential_info:
+      description: \"API Key for llama-swap on Athena\"
+
+  - credential_name: clio_llama_swap_credential
+    credential_values:
+      api_base: http://192.168.50.112:8080/v1
+      api_key: \"fake\"
+    credential_info:
+      description: \"API Key for llama-swap on Clio\"
+
+  - credential_name: openai_credential
+    credential_values:
+      api_key: \"%s\"
+    credential_info:
+      description: \"API Key for OpenAI\"
+
+  - credential_name: anthropic_credential
+    credential_values:
+      api_key: \"%s\"
+    credential_info:
+      description: \"API Key for Anthropic\"
+
+  - credential_name: perplexity_credential
+    credential_values:
+      api_key: \"%s\"
+    credential_info:
+      description: \"API Key for Perplexity\"
+
+  - credential_name: groq_credential
+    credential_values:
+      api_key: \"%s\"
+    credential_info:
+      description: \"API Key for Groq\"
+
+  - credential_name: openrouter_credential
+    credential_values:
+      api_key: \"%s\"
+    credential_info:
+      description: \"API Key for OpenRouter\"
+"
+            (lookup-password "api.openai.com" "johnw" 443)
+            (lookup-password "api.anthropic.com" "johnw" 443)
+            (lookup-password "api.perplexity.ai" "johnw" 443)
+            (lookup-password "api.groq.com" "johnw" 443)
+            (lookup-password "openrouter.ai" "johnw" 443)
+            ))
+  "Function for generating credentials for LiteLLM's config.yaml file."
+  :type 'function
+  :group 'hf)
+
+(defcustom hf-litellm-epilog "
+litellm_settings:
+  request_timeout: 7200
+  ssl_verify: false
+  # set_verbose: True
+  # cache: True
+
+# router_settings:
+#   provider_budget_config:
+#     perplexity:
+#       budget_limit: 5
+#       time_period: 1mo
+
+general_settings:
+  store_model_in_db: true
+  store_prompts_in_spend_logs: true
+"
+  "Epilog for beginning of LiteLLM's config.yaml file."
+  :type 'string
+  :group 'hf)
+
+(defsubst hf-api-base ()
+  "Get API base URL."
+  (format "%s://%s:%d%s" hf-protocol hf-server hf-port hf-prefix))
 
 ;; Define paths
 (defvar hf-home (expand-file-name "~"))
@@ -118,19 +218,20 @@ groups:
 (defvar hf-lmstudio-models (expand-file-name "lmstudio/models" hf-xdg-local))
 (defvar hf-ollama-models (expand-file-name "ollama/models" hf-xdg-local))
 
-(defconst hf-all-model-capabilities '(media tool json url))
+(defconst hf-all-model-capabilities
+  '(media tool json url))
 
-(defconst hf-all-model-mime-types '("image/jpeg"
-                                    "image/png"
-                                    "image/gif"
-                                    "image/webp"))
+(defconst hf-all-model-mime-types
+  '("image/jpeg" "image/png" "image/gif" "image/webp"))
 
-(defconst hf-all-model-kinds '(text-generation embedding reranker))
+(defconst hf-all-model-kinds
+  '(text-generation embedding reranker))
 
-(defconst hf-all-model-providers '(local openai anthropic perplexity groq
-                                         openrouter))
+(defconst hf-all-model-providers
+  '(local openai anthropic perplexity groq openrouter))
 
-(defconst hf-all-model-engines '(llama-cpp koboldcpp mlx-lm))
+(defconst hf-all-model-engines
+  '(llama-cpp koboldcpp mlx-lm))
 
 (cl-defstruct hf-model
   "Configuration data for a model, and its family of instances."
@@ -150,13 +251,13 @@ groups:
   (top-p 0.8)                           ; top p
   (top-k 20)                            ; top k
   (kind 'text-generation)               ; nil, or symbol from model-kinds
-  (reasoning nil)                       ; t if model supports reasoning
+  (supports-system-message t)           ; t if model supports system messages
+  (supports-reasoning nil)              ; t if model supports reasoning
   aliases                               ; model alias names
-  inactive)                             ; t if model is not being used
+  instances)                            ; model instances
 
 (cl-defstruct hf-instance
   "Configuration data for a model, and its family of instances."
-  model                                 ; reference to model config
   name                                  ; alternate name to use with provider
   context-length                        ; context length to use for instance
   max-tokens                            ; number of tokens to predict
@@ -172,668 +273,716 @@ groups:
 (defvar hf-models-list
   (list
 
-   (make-hf-model :name 'Qwen.Qwen3-Reranker-8B
-                  :context-length 40960
-                  :kind 'reranker)
-
-   (make-hf-model :name 'Qwen3-Embedding-8B
-                  :context-length 40960
-                  :kind 'embedding)
-
-   (make-hf-model :name 'WizardCoder-Python-34B-V1.0
-                  :context-length 16384)
-
-   (make-hf-model :name 'WizardCoder-Python-7B-V1.0
-                  :context-length 16384)
-
-   (make-hf-model :name 'Mistral-Nemo-Instruct-2407
-                  :context-length 1024000)
-
-   (make-hf-model :name 'Llama-3.3-Nemotron-Super-49B-v1
-                  :context-length 131072)
-
-   (make-hf-model :name 'r1-1776-distill-llama-70b
-                  :context-length 131072)
-
-   (make-hf-model :name 'bge-m3
-                  :context-length 8192
-                  :kind 'embedding)
-
-   (make-hf-model :name 'DeepSeek-R1-Distill-Qwen-32B
-                  :context-length 131072
-                  :reasoning t)
-
-   (make-hf-model :name 'DeepSeek-R1-0528
-                  :context-length 163840
-                  :temperature 0.6
-                  :min-p 0.01
-                  :top-p 0.95
-                  :top-k 20
-                  :reasoning t)
-
-   (make-hf-model :name 'DeepSeek-R1-0528-Qwen3-8B
-                  :context-length 131072
-                  :temperature 0.6
-                  :min-p 0.01
-                  :top-p 0.95
-                  :top-k 20
-                  :reasoning t)
-
-   (make-hf-model :name 'DeepSeek-V3-0324-UD
-                  :context-length 163840)
-
-   (make-hf-model :name 'Devstral-Small-2505
-                  :context-length 131072)
-
-   (make-hf-model :name 'Kimi-K2-Instruct
-                  :context-length 131072
-                  :temperature 0.6
-                  :min-p 0.01
-                  :top-p 0.8
-                  :top-k 20)
-
-   (make-hf-model :name 'Llama-4-Maverick-17B-128E-Instruct
-                  :context-length 1048576)
-
-   (make-hf-model :name 'Llama-4-Scout-17B-16E-Instruct
-                  :context-length 10485760)
-
-   (make-hf-model :name 'Magistral-Small-2506
-                  :context-length 40960)
-
-   (make-hf-model :name 'Mistral-Small-3.2-24B-Instruct-2506
-                  :context-length 131072)
-
-   (make-hf-model :name 'nomic-embed-text-v2-moe
-                  :context-length 512
-                  :kind 'embedding)
-
-   (make-hf-model :name 'Phi-4-reasoning-plus
-                  :context-length 32768
-                  :reasoning t)
-
-   (make-hf-model :name 'Qwen3-0.6B
-                  :context-length 40960
-                  :reasoning t)
-
-   (make-hf-model :name 'Qwen3-1.7B
-                  :context-length 40960
-                  :reasoning t)
-
-   (make-hf-model :name 'Qwen3-4B
-                  :context-length 40960
-                  :reasoning t)
-
-   (make-hf-model :name 'Qwen3-8B
-                  :context-length 40960
-                  :reasoning t)
-
-   (make-hf-model :name 'Qwen3-14B
-                  :context-length 40960
-                  :reasoning t)
-
-   (make-hf-model :name 'Qwen3-32B
-                  :context-length 40960
-                  :reasoning t)
-
-   (make-hf-model :name 'Qwen3-30B-A3B-Thinking-2507
-                  :context-length 262144
-                  :reasoning t)
-
-   (make-hf-model :name 'Qwen3-235B-A22B-Instruct-2507
-                  :context-length 262144
-                  :temperature 0.7
-                  :min-p 0.01
-                  :top-p 0.8
-                  :top-k 20)
-
-   (make-hf-model :name 'Qwen3-235B-A22B-Thinking-2507
-                  :context-length 262144
-                  :temperature 0.6
-                  :min-p 0.01
-                  :top-p 0.95
-                  :top-k 20
-                  :reasoning t)
-
-   (make-hf-model :name 'Qwen3-Coder-30B-A3B-Instruct
-                  :context-length 262144
-                  :temperature 0.7
-                  :min-p 0.01
-                  :top-p 0.8
-                  :top-k 20)
-
-   (make-hf-model :name 'Qwen3-Coder-480B-A35B-Instruct
-                  :context-length 262144
-                  :temperature 0.7
-                  :min-p 0.01
-                  :top-p 0.8
-                  :top-k 20)
-
-   (make-hf-model :name 'gemma-3-1b-it
-                  :context-length 32768)
-
-   (make-hf-model :name 'gemma-3-4b-it
-                  :context-length 131072)
-
-   (make-hf-model :name 'gemma-3-12b-it
-                  :context-length 131072)
-
-   (make-hf-model :name 'gemma-3-27b-it
-                  :context-length 131072)
-
-   (make-hf-model :name 'gemma-3n-E4B-it
-                  :context-length 32768)
-
-   (make-hf-model :name 'gpt-oss-20b
-                  :context-length 131072
-                  :reasoning t)
-
-   (make-hf-model :name 'gpt-oss-120b
-                  :context-length 131072
-                  :reasoning t)
-
-   (make-hf-model :name 'bge-base-en-v1.5
-                  :kind 'embedding)
-
-   (make-hf-model :name 'bge-large-en-v1.5
-                  :kind 'embedding)
-
-   (make-hf-model :name 'whisper-large-v3-mlx)
-
-   (make-hf-model :name 'NV-Embed-v2
-                  :kind 'embedding)
-
-   (make-hf-model :name 'all-MiniLM-L6-v2
-                  :kind 'embedding)
-
-   (make-hf-model :name 'gpt-4.1
-                  :description "Flagship GPT model for complex tasks")
-
-   (make-hf-model :name 'gpt-4.1-mini
-                  :description "Balanced for intelligence, speed, and cost")
-
-   (make-hf-model :name 'gpt-4.1-nano
-                  :description "Fastest, most cost-effective GPT-4.1 model")
-
-   (make-hf-model :name 'gpt-4o
-                  :description "Fast, intelligent, flexible GPT model")
-
-   (make-hf-model :name 'gpt-4o-mini
-                  :description "Fast, affordable small model for focused tasks")
-
-   (make-hf-model :name 'o1
-                  :description "Our most powerful reasoning model"
-                  :reasoning t)
-
-   (make-hf-model :name 'o1-pro
-                  :description "Our most powerful reasoning model"
-                  :reasoning t)
-
-   (make-hf-model :name 'o3
-                  :description "Our most powerful reasoning model"
-                  :reasoning t)
-
-   (make-hf-model :name 'o3-deep-research
-                  :description "Our most powerful reasoning model"
-                  :reasoning t)
-
-   (make-hf-model :name 'o3-mini
-                  :description "A small model alternative to o3"
-                  :reasoning t)
-
-   (make-hf-model :name 'o3-pro
-                  :description "Version of o3 with more compute for better responses"
-                  :reasoning t)
-
-   (make-hf-model :name 'o4-mini
-                  :description "Faster, more affordable reasoning model"
-                  :reasoning t)
-
-   (make-hf-model :name 'o4-mini-deep-research
-                  :description "Faster, more affordable reasoning model"
-                  :reasoning t)
-
-   (make-hf-model :name 'claude-haiku
-                  :description "")
-
-   (make-hf-model :name 'claude-opus
-                  :description "")
-
-   (make-hf-model :name 'claude-sonnet
-                  :description "")
-
-   (make-hf-model :name 'r1-1776
-                  :description ""
-                  :reasoning t)
-
-   (make-hf-model :name 'sonar-deep-research
-                  :description "")
-
-   (make-hf-model :name 'sonar-pro
-                  :description "")
-
-   (make-hf-model :name 'sonar-reasoning-pro
-                  :description ""
-                  :reasoning t)
-
-   (make-hf-model :name 'compound-beta
-                  :description "")
-
-   (make-hf-model :name 'deepseek-r1-distill-llama-70b
-                  :description "")
-
-   (make-hf-model :name 'llama-3.3-70b-versatile
-                  :description "")
-
-   (make-hf-model :name 'Llama-Guard-4-12B
-                  :description "")
-
+   (make-hf-model
+    :name 'Qwen.Qwen3-Reranker-8B
+    :context-length 40960
+    :kind 'reranker
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-Embedding-8B
+    :context-length 40960
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/Qwen_Qwen3-Embedding-8B-GGUF"
+      :hostnames '("hera" "clio")
+      :arguments '("--embedding"
+                   "--pooling" "last"
+                   "--ubatch-size" "8192"
+                   "--batch-size" "2048"))))
+
+   (make-hf-model
+    :name 'WizardCoder-Python-7B-V1.0
+    :context-length 16384
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'WizardCoder-Python-34B-V1.0
+    :context-length 16384
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/TheBloke_WizardCoder-Python-34B-V1.0-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Llama-3.3-Nemotron-Super-49B-v1
+    :context-length 131072
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/bartowski_nvidia_Llama-3.3-Nemotron-Super-49B-v1-GGUF")))
+
+   (make-hf-model
+    :name 'r1-1776-distill-llama-70b
+    :context-length 131072
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/bartowski_perplexity-ai_r1-1776-distill-llama-70b-GGUF")))
+
+   (make-hf-model
+    :name 'bge-m3
+    :context-length 8192
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/gpustack_bge-m3-GGUF"
+      :hostnames '("hera" "clio")
+      :arguments '("--embedding"
+                   "--pooling" "mean"
+                   "--ubatch-size" "8192"
+                   "--batch-size" "4096"))))
+
+   (make-hf-model
+    :name 'DeepSeek-R1-Distill-Qwen-32B
+    :context-length 131072
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/lmstudio-community_DeepSeek-R1-Distill-Qwen-32B-GGUF"
+      :hostnames '("hera" "athena" "clio"))))
+
+   (make-hf-model
+    :name 'DeepSeek-R1-0528
+    :context-length 163840
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.95
+    :top-k 20
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :context-length 16384
+      :model-path "~/Models/unsloth_DeepSeek-R1-0528-GGUF"
+      :arguments '("--cache-type-k" "q4_1"
+                   "--seed" "3407"))
+
+     (make-hf-instance
+      :name 'deepseek/deepseek-r1-0528:free
+      :provider 'openrouter)))
+
+   (make-hf-model
+    :name 'DeepSeek-R1-0528-Qwen3-8B
+    :context-length 131072
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.95
+    :top-k 20
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_DeepSeek-R1-0528-Qwen3-8B-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'DeepSeek-V3-0324-UD
+    :context-length 163840
+    :instances
+    (list
+     (make-hf-instance
+      :context-length 12000
+      :model-path "~/Models/unsloth_DeepSeek-V3-0324-GGUF-UD")))
+
+   (make-hf-model
+    :name 'Kimi-K2-Instruct
+    :context-length 131072
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.8
+    :top-k 20
+    :instances
+    (list
+     (make-hf-instance
+      :context-length 32768
+      :max-tokens 32768
+      :model-path "~/Models/unsloth_Kimi-K2-Instruct-GGUF"
+      :arguments '("--cache-type-k" "q4_1"
+                   "--seed" "3407"))))
+
+   (make-hf-model
+    :name 'Llama-4-Scout-17B-16E-Instruct
+    :context-length 10485760
+    :instances
+    (list
+     (make-hf-instance
+      :context-length 1048576
+      :model-path "~/Models/unsloth_Llama-4-Scout-17B-16E-Instruct-GGUF")
+
+     (make-hf-instance
+      :name 'meta-llama/llama-4-scout-17b-16e-instruct
+      :provider 'groq)))
+
+   (make-hf-model
+    :name 'Llama-4-Maverick-17B-128E-Instruct
+    :context-length 1048576
+    :instances
+    (list
+     (make-hf-instance
+      :context-length 65536
+      :model-path "~/Models/unsloth_Llama-4-Maverick-17B-128E-Instruct-GGUF")
+
+     (make-hf-instance
+      :name 'meta-llama/llama-4-maverick-17b-128e-instruct
+      :provider 'groq)
+
+     (make-hf-instance
+      :name 'meta-llama/llama-4-maverick:free
+      :provider 'openrouter)))
+
+   (make-hf-model
+    :name 'Magistral-Small-2506
+    :context-length 40960
+    :supports-system-message nil
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Magistral-Small-2506-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Mistral-Small-3.2-24B-Instruct-2506
+    :context-length 131072
+    :supports-system-message nil
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Mistral-Small-3.2-24B-Instruct-2506-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Mistral-Nemo-Instruct-2407
+    :context-length 1024000
+    :supports-system-message nil
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/bartowski_Mistral-Nemo-Instruct-2407-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Devstral-Small-2505
+    :context-length 131072
+    :supports-system-message nil
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Devstral-Small-2505-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'nomic-embed-text-v2-moe
+    :context-length 512
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/nomic-ai_nomic-embed-text-v2-moe-GGUF"
+      :hostnames '("hera" "clio")
+      :arguments '("--embedding"
+                   "--ubatch-size" "8192"))))
+
+   (make-hf-model
+    :name 'Phi-4-reasoning-plus
+    :context-length 32768
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Phi-4-reasoning-plus-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-0.6B
+    :context-length 40960
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Qwen3-0.6B-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-1.7B
+    :context-length 40960
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Qwen3-1.7B-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-4B
+    :context-length 40960
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Qwen3-4B-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-8B
+    :context-length 40960
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Qwen3-8B-GGUF"
+      :hostnames '("hera" "clio")) ))
+
+   (make-hf-model
+    :name 'Qwen3-14B
+    :context-length 40960
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Qwen3-14B-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-32B
+    :context-length 40960
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Qwen3-32B-GGUF"
+      :hostnames '("hera" "athena" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-30B-A3B-Thinking-2507
+    :context-length 262144
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Qwen3-30B-A3B-Thinking-2507-GGUF"
+      :hostnames '("hera" "athena" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-235B-A22B-Instruct-2507
+    :context-length 262144
+    :temperature 0.7
+    :min-p 0.01
+    :top-p 0.8
+    :top-k 20
+    :instances
+    (list
+     (make-hf-instance
+      :max-tokens 81920
+      :model-path "~/Models/unsloth_Qwen3-235B-A22B-Instruct-2507-GGUF"
+      :arguments '("--repeat-penalty" "1.05"
+                   "--cache-type-k" "q8_0"
+                   "--top-k" "20"
+                   "--flash-attn"
+                   "--cache-type-v" "q8_0"))))
+
+   (make-hf-model
+    :name 'Qwen3-235B-A22B-Thinking-2507
+    :context-length 262144
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.95
+    :top-k 20
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :max-tokens 32768
+      :model-path "~/Models/unsloth_Qwen3-235B-A22B-Thinking-2507-GGUF"
+      :arguments '("--repeat-penalty" "1.05"
+                   "--cache-type-k" "q8_0"
+                   "--top-k" "20"
+                   "--flash-attn"
+                   "--cache-type-v" "q8_0"))))
+
+   (make-hf-model
+    :name 'Qwen3-Coder-30B-A3B-Instruct
+    :context-length 262144
+    :temperature 0.7
+    :min-p 0.01
+    :top-p 0.8
+    :top-k 20
+    :instances
+    (list
+     (make-hf-instance
+      :max-tokens 65536
+      :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
+      :hostnames '("hera" "athena" "clio")
+      :arguments '("--repeat-penalty" "1.05"
+                   "--cache-type-k" "q8_0"
+                   "--top-k" "20"
+                   "--flash-attn"
+                   "--cache-type-v" "q8_0"
+                   "--rope-scaling" "yarn"
+                   "--rope-scale" "4"
+                   "--yarn-orig-ctx" "262144"))))
+
+   (make-hf-model
+    :name 'Qwen3-Coder-480B-A35B-Instruct
+    :context-length 262144
+    :temperature 0.7
+    :min-p 0.01
+    :top-p 0.8
+    :top-k 20
+    :instances
+    (list
+     (make-hf-instance
+      :max-tokens 65536
+      :model-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF"
+      :file-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/UD-Q4_K_XL/Qwen3-Coder-480B-A35B-Instruct-UD-Q4_K_XL-00001-of-00006.gguf"
+      :arguments '("--repeat-penalty" "1.05"
+                   "--cache-type-k" "q4_1"
+                   "--top-k" "20"
+                   "--flash-attn"
+                   "--cache-type-v" "q4_1"
+                   "--rope-scaling" "yarn"
+                   "--rope-scale" "4"
+                   "--yarn-orig-ctx" "262144"
+                   "--chat-template-file" "/Users/johnw/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/chat_template.jinja"))))
+
+   (make-hf-model
+    :name 'gemma-3-1b-it
+    :context-length 32768
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_gemma-3-1b-it-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'gemma-3-4b-it
+    :context-length 131072
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_gemma-3-4b-it-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'gemma-3-12b-it
+    :context-length 131072
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_gemma-3-12b-it-GGUF"
+      :draft-model 'gemma-3-1b-it
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'gemma-3-27b-it
+    :context-length 131072
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_gemma-3-27b-it-GGUF"
+      :draft-model 'gemma-3-4b-it
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'gemma-3n-E4B-it
+    :context-length 32768
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_gemma-3n-E4B-it-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'gpt-oss-20b
+    :context-length 131072
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
+      :hostnames '("hera" "athena" "clio"))))
+
+   (make-hf-model
+    :name 'gpt-oss-120b
+    :context-length 131072
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_gpt-oss-120b-GGUF")))
+
+   (make-hf-model
+    :name 'bge-base-en-v1.5
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :name 'BAAI/bge-base-en-v1.5
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'bge-large-en-v1.5
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :name 'BAAI/bge-large-en-v1.5
+      :engine 'mlx-lm
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'whisper-large-v3-mlx
+    :instances
+    (list
+     (make-hf-instance
+      :name 'mlx-community/whisper-large-v3-mlx
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'NV-Embed-v2
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :name 'nvidia/NV-Embed-v2
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'all-MiniLM-L6-v2
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :name 'sentence-transformers/all-MiniLM-L6-v2
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'gpt-4.1
+    :description "Flagship GPT model for complex tasks"
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'gpt-4.1-mini
+    :description "Balanced for intelligence, speed, and cost"
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'gpt-4.1-nano
+    :description "Fastest, most cost-effective GPT-4.1 model"
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'gpt-4o
+    :description "Fast, intelligent, flexible GPT model"
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'gpt-4o-mini
+    :description "Fast, affordable small model for focused tasks"
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'o1
+    :description "Our most powerful reasoning model"
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'o1-pro
+    :description "Our most powerful reasoning model"
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'o3
+    :description "Our most powerful reasoning model"
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'o3-deep-research
+    :description "Our most powerful reasoning model"
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'o3-mini
+    :description "A small model alternative to o3"
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'o3-pro
+    :description "Version of o3 with more compute for better responses"
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'o4-mini
+    :description "Faster, more affordable reasoning model"
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'o4-mini-deep-research
+    :description "Faster, more affordable reasoning model"
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'openai)))
+
+   (make-hf-model
+    :name 'claude-haiku
+    :instances
+    (list
+     (make-hf-instance
+      :name 'claude-3-5-haiku-20241022
+      :provider 'anthropic)))
+
+   (make-hf-model
+    :name 'claude-opus
+    :instances
+    (list
+     (make-hf-instance
+      :name 'claude-opus-4-1-20250805
+      :provider 'anthropic)))
+
+   (make-hf-model
+    :name 'claude-sonnet
+    :instances
+    (list
+     (make-hf-instance
+      :name 'claude-sonnet-4-20250514
+      :provider 'anthropic)))
+
+   (make-hf-model
+    :name 'r1-1776
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'perplexity)))
+
+   (make-hf-model
+    :name 'sonar-deep-research
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'perplexity)))
+
+   (make-hf-model
+    :name 'sonar-pro
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'perplexity)))
+
+   (make-hf-model
+    :name 'sonar-reasoning-pro
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'perplexity)))
+
+   (make-hf-model
+    :name 'compound-beta
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'groq)))
+
+   (make-hf-model
+    :name 'deepseek-r1-distill-llama-70b
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'groq)))
+
+   (make-hf-model
+    :name 'llama-3.3-70b-versatile
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'groq)))
+
+   (make-hf-model
+    :name 'Llama-Guard-4-12B
+    :instances
+    (list
+     (make-hf-instance
+      :name 'meta-llama/Llama-Guard-4-12B
+      :provider 'groq)))
    ))
 
 (defun hf-make-models-hash ()
   "Build a hashtable from NAME to MODEL for `hf-models-list'."
   (let ((h (make-hash-table)))
     (cl-loop for model in hf-models-list
-             for name = (let ((name (hf-model-name model)))
-                          (if (symbolp name) name (intern name)))
-             unless (hf-model-inactive model)
+             for name = (hf-model-name model)
              do (puthash name model h)
              finally (return h))))
 
-(defvar hf-instances-list
-  (list
-
-   (make-hf-instance
-    :model 'Qwen.Qwen3-Reranker-8B
-    :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF")
-
-   (make-hf-instance
-    :model 'Qwen3-Embedding-8B
-    :model-path "~/Models/Qwen_Qwen3-Embedding-8B-GGUF"
-    :arguments '("--embedding"
-                 "--pooling" "last"
-                 "--ubatch-size" "8192"
-                 "--batch-size" "2048"))
-
-   (make-hf-instance
-    :model 'WizardCoder-Python-34B-V1.0
-    :model-path "~/Models/TheBloke_WizardCoder-Python-34B-V1.0-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'WizardCoder-Python-7B-V1.0
-    :model-path "~/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Mistral-Nemo-Instruct-2407
-    :model-path "~/Models/bartowski_Mistral-Nemo-Instruct-2407-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Llama-3.3-Nemotron-Super-49B-v1
-    :model-path "~/Models/bartowski_nvidia_Llama-3.3-Nemotron-Super-49B-v1-GGUF")
-
-   (make-hf-instance
-    :model 'r1-1776-distill-llama-70b
-    :model-path "~/Models/bartowski_perplexity-ai_r1-1776-distill-llama-70b-GGUF")
-
-   (make-hf-instance
-    :model 'bge-m3
-    :model-path "~/Models/gpustack_bge-m3-GGUF"
-    :arguments '("--embedding"
-                 "--pooling" "mean"
-                 "--ubatch-size" "8192"
-                 "--batch-size" "4096"))
-
-   (make-hf-instance
-    :model 'DeepSeek-R1-Distill-Qwen-32B
-    :model-path "~/Models/lmstudio-community_DeepSeek-R1-Distill-Qwen-32B-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'nomic-embed-text-v2-moe
-    :model-path "~/Models/nomic-ai_nomic-embed-text-v2-moe-GGUF"
-    :arguments '("--embedding"
-                 "--ubatch-size" "8192"))
-
-   (make-hf-instance
-    :model 'DeepSeek-R1-0528
-    :context-length 16384
-    :model-path "~/Models/unsloth_DeepSeek-R1-0528-GGUF"
-    :arguments '("--cache-type-k" "q4_1"
-                 "--seed" "3407"))
-
-   (make-hf-instance
-    :model 'DeepSeek-R1-0528-Qwen3-8B
-    :model-path "~/Models/unsloth_DeepSeek-R1-0528-Qwen3-8B-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'DeepSeek-V3-0324-UD
-    :context-length 12000
-    :model-path "~/Models/unsloth_DeepSeek-V3-0324-GGUF-UD")
-
-   (make-hf-instance
-    :model 'Devstral-Small-2505
-    :model-path "~/Models/unsloth_Devstral-Small-2505-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Kimi-K2-Instruct
-    :context-length 32768
-    :max-tokens 32768
-    :model-path "~/Models/unsloth_Kimi-K2-Instruct-GGUF"
-    :arguments '("--cache-type-k" "q4_1"
-                 "--seed" "3407"))
-
-   (make-hf-instance
-    :model 'Llama-4-Maverick-17B-128E-Instruct
-    :context-length 65536
-    :model-path "~/Models/unsloth_Llama-4-Maverick-17B-128E-Instruct-GGUF")
-
-   (make-hf-instance
-    :model 'Llama-4-Scout-17B-16E-Instruct
-    :context-length 1048576
-    :model-path "~/Models/unsloth_Llama-4-Scout-17B-16E-Instruct-GGUF")
-
-   (make-hf-instance
-    :model 'Magistral-Small-2506
-    :model-path "~/Models/unsloth_Magistral-Small-2506-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Mistral-Small-3.2-24B-Instruct-2506
-    :model-path "~/Models/unsloth_Mistral-Small-3.2-24B-Instruct-2506-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Phi-4-reasoning-plus
-    :model-path "~/Models/unsloth_Phi-4-reasoning-plus-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Qwen3-0.6B
-    :model-path "~/Models/unsloth_Qwen3-0.6B-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Qwen3-1.7B
-    :model-path "~/Models/unsloth_Qwen3-1.7B-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Qwen3-4B
-    :model-path "~/Models/unsloth_Qwen3-4B-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Qwen3-8B
-    :model-path "~/Models/unsloth_Qwen3-8B-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Qwen3-14B
-    :model-path "~/Models/unsloth_Qwen3-14B-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'Qwen3-32B
-    :model-path "~/Models/unsloth_Qwen3-32B-GGUF"
-    :hostnames '("hera" "athena" "clio"))
-
-   (make-hf-instance
-    :model 'Qwen3-30B-A3B-Thinking-2507
-    :model-path "~/Models/unsloth_Qwen3-30B-A3B-Thinking-2507-GGUF"
-    :hostnames '("hera" "athena" "clio"))
-
-   (make-hf-instance
-    :model 'Qwen3-235B-A22B-Instruct-2507
-    :max-tokens 81920
-    :model-path "~/Models/unsloth_Qwen3-235B-A22B-Instruct-2507-GGUF"
-    :arguments '("--repeat-penalty" "1.05"
-                 "--cache-type-k" "q8_0"
-                 "--top-k" "20"
-                 "--flash-attn"
-                 "--cache-type-v" "q8_0"))
-
-   (make-hf-instance
-    :model 'Qwen3-235B-A22B-Thinking-2507
-    :max-tokens 32768
-    :model-path "~/Models/unsloth_Qwen3-235B-A22B-Thinking-2507-GGUF"
-    :arguments '("--repeat-penalty" "1.05"
-                 "--cache-type-k" "q8_0"
-                 "--top-k" "20"
-                 "--flash-attn"
-                 "--cache-type-v" "q8_0"))
-
-   (make-hf-instance
-    :model 'Qwen3-Coder-30B-A3B-Instruct
-    :max-tokens 65536
-    :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
-    :hostnames '("hera" "athena" "clio")
-    :arguments '("--repeat-penalty" "1.05"
-                 "--cache-type-k" "q8_0"
-                 "--top-k" "20"
-                 "--flash-attn"
-                 "--cache-type-v" "q8_0"
-                 "--rope-scaling" "yarn"
-                 "--rope-scale" "4"
-                 "--yarn-orig-ctx" "262144"))
-
-   (make-hf-instance
-    :model 'Qwen3-Coder-480B-A35B-Instruct
-    :max-tokens 65536
-    :model-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF"
-    :file-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/UD-Q4_K_XL/Qwen3-Coder-480B-A35B-Instruct-UD-Q4_K_XL-00001-of-00006.gguf"
-    :arguments '("--repeat-penalty" "1.05"
-                 "--cache-type-k" "q4_1"
-                 "--top-k" "20"
-                 "--flash-attn"
-                 "--cache-type-v" "q4_1"
-                 "--rope-scaling" "yarn"
-                 "--rope-scale" "4"
-                 "--yarn-orig-ctx" "262144"
-                 "--chat-template-file" "/Users/johnw/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/chat_template.jinja"))
-
-   (make-hf-instance
-    :model 'gemma-3-1b-it
-    :model-path "~/Models/unsloth_gemma-3-1b-it-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'gemma-3-4b-it
-    :model-path "~/Models/unsloth_gemma-3-4b-it-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'gemma-3-12b-it
-    :model-path "~/Models/unsloth_gemma-3-12b-it-GGUF"
-    :draft-model 'gemma-3-1b-it
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'gemma-3-27b-it
-    :model-path "~/Models/unsloth_gemma-3-27b-it-GGUF"
-    :draft-model 'gemma-3-4b-it
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'gemma-3n-E4B-it
-    :model-path "~/Models/unsloth_gemma-3n-E4B-it-GGUF"
-    :hostnames '("hera" "clio"))
-
-   (make-hf-instance
-    :model 'gpt-oss-20b
-    :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
-    :hostnames '("hera" "athena" "clio"))
-
-   (make-hf-instance
-    :model 'gpt-oss-120b
-    :model-path "~/Models/unsloth_gpt-oss-120b-GGUF")
-
-   (make-hf-instance
-    :model 'bge-base-en-v1.5
-    :name 'BAAI/bge-base-en-v1.5
-    :engine 'mlx-lm)
-
-   (make-hf-instance
-    :model 'bge-large-en-v1.5
-    :name 'BAAI/bge-large-en-v1.5
-    :engine 'mlx-lm)
-
-   (make-hf-instance
-    :model 'whisper-large-v3-mlx
-    :name 'mlx-community/whisper-large-v3-mlx
-    :engine 'mlx-lm)
-
-   (make-hf-instance
-    :model 'NV-Embed-v2
-    :name 'nvidia/NV-Embed-v2
-    :engine 'mlx-lm)
-
-   (make-hf-instance
-    :model 'all-MiniLM-L6-v2
-    :name 'sentence-transformers/all-MiniLM-L6-v2
-    :engine 'mlx-lm)
-
-   (make-hf-instance
-    :model 'gpt-4.1
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'gpt-4.1-mini
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'gpt-4.1-nano
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'gpt-4o
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'gpt-4o-mini
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'o1
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'o1-pro
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'o3
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'o3-deep-research
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'o3-mini
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'o3-pro
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'o4-mini
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'o4-mini-deep-research
-    :provider 'openai)
-
-   (make-hf-instance
-    :model 'claude-haiku
-    :name 'claude-3-5-haiku-20241022
-    :provider 'anthropic)
-
-   (make-hf-instance
-    :model 'claude-opus
-    :name 'claude-opus-4-1-20250805
-    :provider 'anthropic)
-
-   (make-hf-instance
-    :model 'claude-sonnet
-    :name 'claude-sonnet-4-20250514
-    :provider 'anthropic)
-
-   (make-hf-instance
-    :model 'r1-1776
-    :provider 'perplexity)
-
-   (make-hf-instance
-    :model 'sonar-deep-research
-    :provider 'perplexity)
-
-   (make-hf-instance
-    :model 'sonar-pro
-    :provider 'perplexity)
-
-   (make-hf-instance
-    :model 'sonar-reasoning-pro
-    :provider 'perplexity)
-
-   (make-hf-instance
-    :model 'compound-beta
-    :provider 'groq)
-
-   (make-hf-instance
-    :model 'deepseek-r1-distill-llama-70b
-    :provider 'groq)
-
-   (make-hf-instance
-    :model 'llama-3.3-70b-versatile
-    :provider 'groq)
-
-   (make-hf-instance
-    :model 'Llama-Guard-4-12B
-    :name 'meta-llama/Llama-Guard-4-12B
-    :provider 'groq)
-
-   (make-hf-instance
-    :model 'Llama-4-Maverick-17B-128E-Instruct
-    :name 'meta-llama/llama-4-maverick-17b-128e-instruct
-    :provider 'groq)
-
-   (make-hf-instance
-    :model 'Llama-4-Scout-17B-16E-Instruct
-    :name 'meta-llama/llama-4-scout-17b-16e-instruct
-    :provider 'groq)
-
-   (make-hf-instance
-    :model 'DeepSeek-R1-0528
-    :name 'deepseek/deepseek-r1-0528:free
-    :provider 'openrouter)
-
-   (make-hf-instance
-    :model 'Llama-4-Maverick-17B-128E-Instruct
-    :name 'meta-llama/llama-4-maverick:free
-    :provider 'openrouter)
-
-   ))
-
-(defun hf-instances-for-model (name)
-  "Return all instances that match the given model NAME."
-  (cl-loop for instance in hf-instances-list
-           when (eq (hf-instance-model instance) name)
-           collect instance))
-
-;;; (inspect (hf-instances-for-model 'gemma-3-1b-it))
-
-(defsubst hf-api-base ()
-  "Get API base URL."
-  (format "%s://%s:%d%s"
-          hf-protocol
-          hf-server
-          hf-port
-          hf-prefix))
+(defun hf-get-model (model-name &optional models-hash)
+  "Using MODELS-HASH, find the model with the given MODEL-NAME."
+  (let ((models-hash (or models-hash (hf-make-models-hash))))
+    (gethash model-name models-hash)))
+
+(defun hf-instances-list ()
+  "Return list of all current instances."
+  (cl-loop for model in hf-models-list
+           nconc (cl-loop for instance in (hf-model-instances model)
+                          collect (cons model instance))))
 
 (defun hf-full-model-name (directory)
   "Based on a model DIRECTORY, return the canonical full model name."
@@ -841,9 +990,6 @@ groups:
     (when (string-prefix-p "models--" name)
       (setq name (substring name 8)))
     (replace-regexp-in-string "--" "/" name)))
-
-;;; (hf-full-model-name "~/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF")
-;;; (hf-full-model-name "~/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF/Users/johnw/.cache/huggingface/hub/models--mlx-community--whisper-large-v3-mlx")
 
 (defun hf-short-model-name (model-name)
   "Given a full MODEL-NAME, return its short model name."
@@ -853,8 +999,6 @@ groups:
     (replace-regexp-in-string "-gguf" "")
     (replace-regexp-in-string "-GGUF" "")
     (replace-regexp-in-string ".*_" "")))
-
-;;; (hf-short-model-name "TheBloke_WizardCoder-Python-7B-V1.0-GGUF")
 
 (defconst hf-gguf-min-file-size (* 100 1024 1024))
 
@@ -874,8 +1018,6 @@ groups:
                     hf-gguf-min-file-size)
             collect gguf)))))
 
-;; (inspect (hf-get-gguf-path "~/Models/TheBloke_WizardCoder-Python-34B-V1.0-GGUF"))
-
 (defun hf-get-context-length (model)
   "Get maximum context length of MODEL."
   (when-let* ((gguf (expand-file-name (hf-get-gguf-path model))))
@@ -885,9 +1027,6 @@ groups:
         (when (search-forward ".context_length" nil t)
           (when (re-search-forward "\\[uint32\\] \\([0-9]+\\)" nil t)
             (string-to-number (match-string 1))))))))
-
-;; (inspect (hf-get-context-length "~/Models/unsloth_gemma-3-27b-it-GGUF"))
-;; (inspect (hf-get-context-length "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF"))
 
 (defun hf-http-get (endpoint)
   "GET request to ENDPOINT."
@@ -977,52 +1116,52 @@ groups:
     (when gguf
       (shell-command (format "gguf-tools show %s" gguf)))))
 
-(defun hf-get-model (model-name &optional models-hash)
-  "Using MODELS-HASH, find the model with the given MODEL-NAME."
-  (let ((models-hash (or models-hash (hf-make-models-hash))))
-    (gethash model-name models-hash)))
-
-(defsubst hf-get-instance-model (models-hash instance)
-  "Using MODELS-HASH, find the model for the given INSTANCE."
-  (gethash (hf-instance-model instance) models-hash))
-
-(defun hf-get-instance-model-name (instance)
-  "Using MODELS-HASH, find the model name for the given INSTANCE."
+(defun hf-get-instance-model-name (model instance)
+  "Return the model name for the given MODEL and INSTANCE."
   (or (hf-instance-name instance)
-      (hf-instance-model instance)))
+      (hf-model-name model)))
 
-(defun hf-get-instance-context-length (models-hash instance)
-  "Find maximum context-length for the given INSTANCE.
-If the instance does not specify its own context-length, lookup the
-model in MODELS-HASH and use that value."
+(defun hf-get-instance-context-length (model instance)
+  "Find maximum context-length for the given MODEL and INSTANCE."
   (or (hf-instance-context-length instance)
-      (hf-model-context-length (hf-get-instance-model models-hash instance))))
+      (hf-model-context-length model)))
 
-;;; (hf-get-instance-context-length (gethash 'Qwen3-235B-A22B-Thinking-2507--llama-cpp--hera hf-instances-hash))
-
-(defun hf-get-instance-max-tokens (models-hash instance)
-  "Find maximum output tokens for the given INSTANCE.
-If the instance does not specify its own maximum output tokens lookup
-the model in MODELS-HASH and use that value."
+(defun hf-get-instance-max-tokens (model instance)
+  "Find maximum output tokens for the given MODEL and INSTANCE."
   (or (hf-instance-max-tokens instance)
-      (hf-model-max-tokens (hf-get-instance-model models-hash instance))))
+      (hf-model-max-tokens model)))
 
-(defun hf-get-instance-gguf-path (instance)
-  "Return file path for the GGUF file related to INSTANCE."
+(defsubst hf-remote-hostname-p (hostname)
+  "Return non-nil if HOSTNAME is both non-nil and a remote host.
+Remote is defined by any hostname that does not match `hf-default-hostname'."
+  (and hostname
+       (not (string= hostname hf-default-hostname))))
+
+(defsubst hf-remote-path (path hostname)
+  "Given a possibly remote HOSTNAME, return the correct PATH to reference it."
+  (if (hf-remote-hostname-p hostname)
+      (concat "/ssh:" hostname ":" path)
+    path))
+
+(defun hf-get-instance-gguf-path (instance &optional hostname)
+  "Return file path for the GGUF file related to INSTANCE.
+Optionally read the path on the given HOSTNAME."
   (or (hf-instance-file-path instance)
-      (hf-get-gguf-path (hf-instance-model-path instance))))
+      (when-let* ((path (hf-instance-model-path instance)))
+        (hf-get-gguf-path (hf-remote-path path hostname)))))
 
-;;; (hf-get-instance-gguf-path (gethash 'Qwen3-Coder-480B-A35B-Instruct--llama-cpp--hera hf-instances-hash))
+(defun hf-strip-tramp-prefix (path)
+  "Remove TRAMP protocol/host info from PATH, leaving only the remote part."
+  (if (file-remote-p path)
+      (file-remote-p path 'localname)
+    path))
 
-(defun hf-insert-instance-llama-swap (instance &optional models-hash)
-  "Instance the llama-swap.yaml config for INSTANCE given MODELS-HASH."
-  (interactive)
-  (let* ((models-hash (or models-hash (hf-make-models-hash)))
-         (max-tokens
-          (hf-get-instance-max-tokens models-hash instance))
-         (context-length
-          (hf-get-instance-context-length models-hash instance))
-         (model (hf-instance-model instance))
+(defun hf-insert-instance-llama-swap (model instance &optional hostname)
+  "Instance the llama-swap.yaml config for MODEL and INSTANCE.
+Optionally generate for the given HOSTNAME."
+  (let* ((max-tokens (hf-get-instance-max-tokens model instance))
+         (context-length (hf-get-instance-context-length model instance))
+         ;; jww (2025-08-14): Add support for draft models
          (args
           (mapconcat
            #'identity
@@ -1030,83 +1169,152 @@ the model in MODELS-HASH and use that value."
             (hf-instance-arguments instance)
             (and context-length
                  (cl-case (hf-instance-engine instance)
-                   ('llama-cpp (list "--ctx-size"
-                                     (number-to-string context-length)))))
+                   (llama-cpp (list "--ctx-size"
+                                    (number-to-string context-length)))))
             (and max-tokens
                  (list (cl-case (hf-instance-engine instance)
-                         ('llama-cpp "--predict")
-                         ('mlx-lm "--max-tokens"))
+                         (llama-cpp "--predict")
+                         (mlx-lm "--max-tokens"))
                        (number-to-string max-tokens))))
            " "))
          (leader (format "
   \"%s\":
     proxy: \"http://127.0.0.1:${PORT}\"
-    cmd: >" model))
+    cmd: >" (hf-model-name model)))
          (footer "
     checkEndpoint: /health
 "))
     (cl-case (hf-instance-engine instance)
-      ('llama-cpp
-       (when-let* ((path (hf-get-instance-gguf-path instance)))
+      (llama-cpp
+       (when-let* ((path (hf-get-instance-gguf-path instance hostname)))
          (insert
           leader
           (format "
       /etc/profiles/per-user/johnw/bin/llama-server
         --host 127.0.0.1 --port ${PORT} --offline --jinja
-        --model %s %s" (expand-file-name path) args)
+        --model %s %s" (hf-strip-tramp-prefix (expand-file-name path)) args)
           footer)))
-      ('mlx-lm
+      (mlx-lm
        (insert
         leader
         (format "
       /etc/profiles/per-user/johnw/bin/mlx-lm server
         --host 127.0.0.1 --port ${PORT}
-        --model %s %s" model args)
+        --model %s %s" (hf-model-name model) args)
         footer)))))
 
-(defun hf-generate-build-yaml (hostname &optional models-hash)
-  "Build llama-swap.yaml configuration for HOSTNAME.
-If MODELS-HASH is provided, use that instead of recomputing it."
-  (interactive)
-  (let ((models-hash (or models-hash (hf-make-models-hash))))
-    (with-current-buffer (get-buffer-create "*llama-swap.yaml*")
-      (erase-buffer)
-      (insert hf-llama-swap-prolog)
-      (insert "\nmodels:")
-      (dolist (instance hf-instances-list)
+(defun hf-generate-llama-swap-yaml (hostname)
+  "Build llama-swap.yaml configuration for HOSTNAME."
+  (with-current-buffer (get-buffer-create "*llama-swap.yaml*")
+    (erase-buffer)
+    (insert hf-llama-swap-prolog)
+    (insert "\nmodels:")
+    (dolist (mi (hf-instances-list))
+      (cl-destructuring-bind (model . instance) mi
         (when (and (eq 'local (hf-instance-provider instance))
                    (member hostname (hf-instance-hostnames instance)))
-          (hf-insert-instance-llama-swap instance models-hash)))
-      (insert hf-llama-swap-epilog)
-      (yaml-mode)
-      (current-buffer))))
+          (hf-insert-instance-llama-swap model instance hostname))))
+    (insert hf-llama-swap-epilog)
+    (yaml-mode)
+    (current-buffer)))
 
-;;; (display-buffer (hf-generate-build-yaml "hera"))
+;; (display-buffer (hf-generate-llama-swap-yaml "hera"))
 
-(defun hf-build-yaml ()
-  "Build llama-swap.yaml configuration."
-  (interactive)
-  (let ((models-hash (hf-make-models-hash)))
-    (hf-check-instances models-hash)
-    (let ((yaml-path (expand-file-name "llama-swap.yaml" hf-gguf-models)))
-      (with-temp-buffer
-        (insert (with-current-buffer
-                    (hf-generate-build-yaml hf-default-hostname models-hash)
-                  (buffer-string)))
-        (write-file yaml-path))
+(defun hf-build-llama-swap-yaml (&optional hostname)
+  "Build llama-swap.yaml configuration, optionally for HOSTNAME."
+  (let ((yaml-path (expand-file-name "llama-swap.yaml" hf-gguf-models)))
+    (with-temp-buffer
+      (insert (with-current-buffer
+                  (hf-generate-llama-swap-yaml (or hostname hf-default-hostname))
+                (buffer-string)))
+      (write-file (hf-remote-path yaml-path hostname)))
+    (if (and hostname
+             (not (string= hostname hf-default-hostname)))
+        (shell-command
+         (format "ssh %s killall llama-swap 2>/dev/null" hostname))
       (shell-command "killall llama-swap 2>/dev/null"))))
 
-(defun hf-get-instance-gptel-backend (instance &optional hostname models-hash)
-  "Instance the llama-swap.yaml config for INSTANCE given MODELS-HASH.
-If HOSTNAME is non-nil, only generate definitions for that host."
+(defun hf-insert-instance-litellm (model instance)
+  "Instance the LiteLLM config for MODEL and INSTANCE."
+  (let* ((hostnames (hf-instance-hostnames instance))
+         (provider (hf-instance-provider instance))
+         (max-tokens (hf-get-instance-max-tokens model instance))
+         (context-length (hf-get-instance-context-length model instance))
+         (name (hf-get-instance-model-name model instance))
+         (description (hf-model-description model))
+         (supports-system-message (hf-model-supports-system-message model))
+         (supports-reasoning (hf-model-supports-reasoning model)))
+    (dolist (host (if (eq 'local provider)
+                      hostnames
+                    (list provider)))
+      (insert (format "
+  - model_name: %s/%s
+    litellm_params:
+      model: %s/%s
+      litellm_credential_name: %s_credential
+      supports_system_message: %s
+    model_info:
+      description: %S
+      supports_reasoning: %s
+"
+                      host name
+                      (if (eq 'local provider)
+                          "openai"
+                        provider)
+                      name
+                      (if (eq 'local provider)
+                          (concat host "_llama_swap")
+                        provider)
+                      (if supports-system-message "true" "false")
+                      (or description "")
+                      (if supports-reasoning "true" "false"))))))
+
+(defun hf-generate-litellm-yaml ()
+  "Build llama-swap.yaml configuration for HOSTNAME."
+  (with-current-buffer (get-buffer-create "*litellm-config.yaml*")
+    (erase-buffer)
+    (insert hf-litellm-prolog)
+    (insert "model_list:")
+    (dolist (mi (hf-instances-list))
+      (cl-destructuring-bind (model . instance) mi
+        (hf-insert-instance-litellm model instance)))
+    (insert (funcall hf-litellm-credentials-function))
+    (insert hf-litellm-epilog)
+    (yaml-mode)
+    (current-buffer)))
+
+;; (display-buffer (hf-generate-litellm-yaml))
+
+(defun hf-build-litellm-yaml ()
+  "Build LiteLLM config.yaml configuration."
+  (with-temp-buffer
+    (insert (with-current-buffer (hf-generate-litellm-yaml)
+              (buffer-string)))
+    (write-file hf-litellm-path))
+  (shell-command "ssh vulcan sudo systemctl restart podman-litellm.service"))
+
+(defun hf-reset ()
+  "Reset all of the configuration files related to LLMs."
   (interactive)
-  (let* ((models-hash (or models-hash (hf-make-models-hash)))
-         (max-tokens (hf-get-instance-max-tokens models-hash instance))
-         (context-length (hf-get-instance-context-length models-hash instance))
-         (model (hf-get-instance-model models-hash instance))
-         (model-name (hf-get-instance-model-name instance)))
-    (when (null model)
-      (error "Unknown model: %S" (hf-instance-model instance)))
+  ;; First check that everything is sane
+  (unless (= 0 (hf-check-instances))
+    (error "Failed to check installed and defined instances"))
+  ;; Update llama-swap configurations on all machines that run models
+  (hf-build-llama-swap-yaml)
+  (hf-build-llama-swap-yaml "clio")
+  (hf-build-llama-swap-yaml "athena")
+  ;; Update LiteLLM to refer to all local and remote models
+  (hf-build-litellm-yaml)
+  ;; Update GPTel with instance list, to remain in sync with LiteLLM
+  (setq gptel-model hf-default-instance
+        gptel-backend (gptel-backends-make-litellm)))
+
+(defun hf-get-instance-gptel-backend (model instance &optional hostname)
+  "Instance the llama-swap.yaml config for MODEL and INSTANCE.
+If HOSTNAME is non-nil, only generate definitions for that host."
+  (let* ((max-tokens (hf-get-instance-max-tokens model instance))
+         (context-length (hf-get-instance-context-length model instance))
+         (model-name (hf-get-instance-model-name model instance)))
     (unless (memq (hf-model-kind model) '(embedding reranker))
       (cl-loop for server in (let ((provider (hf-instance-provider instance)))
                                (if (or (null provider)
@@ -1124,65 +1332,85 @@ If HOSTNAME is non-nil, only generate definitions for that host."
 (defun hf-gptel-backends (&optional hostname)
   "Return the GPTel backends for all defined instances.
 If HOSTNAME is non-nil, only generate definitions for that host."
-  (cl-loop for models-hash = (hf-make-models-hash)
-           for instance in hf-instances-list
-           for backends = (hf-get-instance-gptel-backend instance hostname)
+  (cl-loop for (model . instance) in (hf-instances-list)
+           for backends =
+           (hf-get-instance-gptel-backend model instance hostname)
            when backends
            nconc backends))
 
-;;; (inspect (hf-gptel-backends))
+;; (inspect (hf-gptel-backends))
 
 (defun hf-lookup-instance (model)
   "Return the instance whole model matches the symbol MODEL."
-  (cl-loop for instance in hf-instances-list
-           when (eq model (hf-instance-model instance))
+  (cl-loop for (m . instance) in (hf-instances-list)
+           when (eq model m)
            return instance))
 
-;;; (hf-get-instance-gptel-backend (hf-lookup-instance 'Qwen3-Coder-480B-A35B-Instruct))
-
-(defun hf-check-instances (&optional models-hash)
-  "Check all model and instances definitions.
-If MODELS-HASH is provided, use that instead of recomputing it."
+(defun hf-check-instances ()
+  "Check all model and instances definitions."
   (interactive)
-  (let ((models-hash (or models-hash (hf-make-models-hash))))
+  (let ((models-hash (hf-make-models-hash))
+        (warnings 0))
+    (dolist (host hf-valid-hostnames)
+      (dolist (installed (hf-installed-models host))
+        (unless (hf-get-model installed models-hash)
+          (warn "Missing model for host %s: %s" host installed)
+          (cl-incf warnings))
+        (unless
+            (catch 'found
+              (dolist (mi (hf-instances-list))
+                (cl-destructuring-bind (model . instance) mi
+                  (when (and (member host (hf-instance-hostnames instance))
+                             (eq installed (hf-model-name model)))
+                    (throw 'found instance)))))
+          (warn "Missing instance for host %s: %s" host installed)
+          (cl-incf warnings))))
     (dolist (model hf-models-list)
       (let ((capabilities (hf-model-capabilities model))
             (mime-types (hf-model-mime-types model))
             (kind (hf-model-kind model)))
         (dolist (cap capabilities)
           (unless (member cap hf-all-model-capabilities)
-            (error "Unknown capability: %S" cap)))
+            (warn "Unknown capability: %S" cap)
+            (cl-incf warnings)))
         (dolist (mime mime-types)
           (unless (member mime hf-all-model-mime-types)
-            (error "Unknown mime-type: %S" mime)))
+            (warn "Unknown mime-type: %S" mime)
+            (cl-incf warnings)))
         (unless (member kind hf-all-model-kinds)
-          (error "Unknown kind: %S" kind))))
-    (dolist (instance hf-instances-list)
-      (let ((model (hf-get-instance-model models-hash instance))
-            (model-path (hf-instance-model-path instance))
-            (file-path (hf-instance-file-path instance))
-            (hostnames (hf-instance-hostnames instance))
-            (provider (hf-instance-provider instance))
-            (engine (hf-instance-engine instance))
-            (draft-model (hf-instance-draft-model instance)))
-        (unless model
-          (error "Unknown model: %S" (hf-instance-model instance)))
-        (unless (or (null model-path)
-                    (file-directory-p model-path))
-          (error "Unknown model-path: %s" model-path))
-        (unless (or (null file-path)
-                    (file-regular-p file-path))
-          (error "Unknown file-path: %s" file-path))
-        (dolist (host hostnames)
-          (unless (member host hf-valid-hostnames)
-            (error "Unknown hostname: %s" host)))
-        (unless (member provider hf-all-model-providers)
-          (error "Unknown provider: %s" provider))
-        (unless (member engine hf-all-model-engines)
-          (error "Unknown engine: %s" engine))
-        (unless (or (null draft-model)
-                    (gethash draft-model models-hash))
-          (error "Unknown draft-model: %S" draft-model))))))
+          (warn "Unknown kind: %S" kind)
+          (cl-incf warnings))))
+    (dolist (mi (hf-instances-list))
+      (cl-destructuring-bind (model . instance) mi
+        (let ((model-path (hf-instance-model-path instance))
+              (file-path (hf-instance-file-path instance))
+              (hostnames (hf-instance-hostnames instance))
+              (provider (hf-instance-provider instance))
+              (engine (hf-instance-engine instance))
+              (draft-model (hf-instance-draft-model instance)))
+          (unless (or (null model-path)
+                      (file-directory-p model-path))
+            (warn "Unknown model-path: %s" model-path)
+            (cl-incf warnings))
+          (unless (or (null file-path)
+                      (file-regular-p file-path))
+            (warn "Unknown file-path: %s" file-path)
+            (cl-incf warnings))
+          (dolist (host hostnames)
+            (unless (member host hf-valid-hostnames)
+              (warn "Unknown hostname: %s" host)
+              (cl-incf warnings)))
+          (unless (member provider hf-all-model-providers)
+            (warn "Unknown provider: %s" provider)
+            (cl-incf warnings))
+          (unless (member engine hf-all-model-engines)
+            (warn "Unknown engine: %s" engine)
+            (cl-incf warnings))
+          (unless (or (null draft-model)
+                      (hf-get-model draft-model models-hash))
+            (warn "Unknown draft-model: %S" draft-model)
+            (cl-incf warnings)))))
+    warnings))
 
 (cl-defun hf-run-mlx (model &key (port 8081))
   "Start mlx-lm with a specific MODEL on the given PORT."
@@ -1245,30 +1473,27 @@ If MODELS-HASH is provided, use that instead of recomputing it."
   (async-shell-command
    (mapconcat
     (lambda (dir)
-      (format "echo \">>> %s\" && cd \"%s\" && git pull" dir))
+      (format "echo \">>> %s\" && cd \"%s\" && git pull" dir dir))
     (cl-loop for dir in (directory-files hf-gguf-models t "^[^.]")
              when (file-directory-p dir)
              when (file-exists-p (expand-file-name ".git" dir))
              collect dir)
     " ; ")))
 
-(defun hf-installed-models ()
-  "List all models from MLX and GGUF directories."
+(defun hf-installed-models (&optional hostname)
+  "List all models from MLX and GGUF directories, optionally for HOSTNAME."
   (interactive)
-  (let ((models
-         (cl-loop
-          for base-dir in (list hf-mlx-models hf-gguf-models)
-          when (file-exists-p base-dir)
-          nconc (cl-loop
-                 for item in (directory-files base-dir t "^[^.]")
-                 when (file-directory-p item)
-                 unless (string= (file-name-nondirectory item) ".locks")
-                 collect (hf-full-model-name item)))))
-    (with-current-buffer (get-buffer-create "*All Models*")
-      (erase-buffer)
-      (dolist (model (sort models #'string<))
-        (insert model "\n"))
-      (display-buffer (current-buffer)))))
+  (cl-loop
+   for base-dir in (list (hf-remote-path hf-mlx-models hostname)
+                         (hf-remote-path hf-gguf-models hostname))
+   when (file-exists-p base-dir)
+   nconc (cl-loop
+          for item in (directory-files base-dir t "^[^.]")
+          when (file-directory-p item)
+          unless (string= (file-name-nondirectory item) ".locks")
+          collect (intern (hf-short-model-name (hf-full-model-name item))))))
+
+;; (hf-installed-models "athena")
 
 (cl-defun hf-generate-instance-declarations
     (&key (hostname hf-default-hostname)
