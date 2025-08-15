@@ -73,6 +73,16 @@
   :type '(repeat string)
   :group 'hf)
 
+(defcustom hf-llama-server-executable "llama-server"
+  "Path to the llama-server executable."
+  :type 'file
+  :group 'hf)
+
+(defcustom hf-mlx-lm-executable "mlx-lm"
+  "Path to the mlx-lm executable."
+  :type 'file
+  :group 'hf)
+
 (defcustom hf-llama-swap-prolog "
 healthCheckTimeout: 7200
 startPort: 9200
@@ -238,18 +248,15 @@ general_settings:
   name                                  ; name of the model
   description                           ; description of the model
   (capabilities
-   '(media tool json url))              ; capabilities of the model
+   hf-all-model-capabilities)           ; capabilities of the model
   (mime-types
-   '("image/jpeg"
-     "image/png"
-     "image/gif"
-     "image/webp"))                     ; MIME types that can be sent
+   hf-all-model-mime-types)             ; MIME types that can be sent
   context-length                        ; model context length
-  (max-tokens 32767)                    ; number of tokens to predict
-  (temperature 1.0)                     ; model temperature
-  (min-p 0.05)                          ; minimum p
-  (top-p 0.8)                           ; top p
-  (top-k 20)                            ; top k
+  max-tokens                            ; number of tokens to predict
+  temperature                           ; model temperature
+  min-p                                 ; minimum p
+  top-p                                 ; top p
+  top-k                                 ; top k
   (kind 'text-generation)               ; nil, or symbol from model-kinds
   (supports-system-message t)           ; t if model supports system messages
   (supports-reasoning nil)              ; t if model supports reasoning
@@ -270,32 +277,169 @@ general_settings:
   draft-model                           ; if local: (optional) path to draft model
   arguments)                            ; if local: arguments to engine
 
-(defvar hf-models-list
+(define-widget 'hf-instance-widget 'group
+  "Widget for editing an hf-instance structure."
+  :tag "HF Instance"
+  :format "%t:\n%v"
+  :value-to-internal (lambda (_widget value)
+                       (if (hf-instance-p value)
+                           (list (hf-instance-name value)
+                                 (hf-instance-context-length value)
+                                 (hf-instance-max-tokens value)
+                                 (hf-instance-provider value)
+                                 (hf-instance-engine value)
+                                 (hf-instance-hostnames value)
+                                 (hf-instance-model-path value)
+                                 (hf-instance-file-path value)
+                                 (hf-instance-draft-model value)
+                                 (hf-instance-arguments value))
+                         (list nil nil nil 'local 'llama-cpp
+                               (list hf-default-hostname) nil nil nil nil)))
+  :value-to-external (lambda (_widget value)
+                       (make-hf-instance
+                        :name (nth 0 value)
+                        :context-length (nth 1 value)
+                        :max-tokens (nth 2 value)
+                        :provider (nth 3 value)
+                        :engine (nth 4 value)
+                        :hostnames (nth 5 value)
+                        :model-path (nth 6 value)
+                        :file-path (nth 7 value)
+                        :draft-model (nth 8 value)
+                        :arguments (nth 9 value)))
+  :args '((choice :tag "Name"
+                  (const :tag "Unspecified" nil)
+                  (symbol :tag "Name"))
+          (choice :tag "Context Length"
+                  (const :tag "Unspecified" nil)
+                  (integer :tag "Tokens"))
+          (choice :tag "Max Tokens"
+                  (const :tag "Unspecified" nil)
+                  (integer :tag "Tokens"))
+          (choice :tag "Provider"
+                  (const :tag "Local" local)
+                  (const :tag "OpenAI" openai)
+                  (const :tag "Anthropic" anthropic)
+                  (const :tag "Perplexity" perplexity)
+                  (const :tag "Groq" groq)
+                  (const :tag "OpenRouter" openrouter))
+          (choice :tag "Engine"
+                  (const :tag "llama.cpp" llama-cpp)
+                  (const :tag "koboldcpp" koboldcpp)
+                  (const :tag "MLX-LM" mlx-lm))
+          (repeat :tag "Hostnames"
+                  (string :tag "Hostname"))
+          (choice :tag "Model Path"
+                  (const :tag "None" nil)
+                  (directory :tag "Directory"))
+          (choice :tag "File Path"
+                  (const :tag "None" nil)
+                  (file :tag "File"))
+          (choice :tag "Draft Model"
+                  (const :tag "None" nil)
+                  (symbol :tag "Model"))
+          (repeat :tag "Arguments"
+                  (string :tag "Argument"))))
+
+(define-widget 'hf-model-widget 'group
+  "Widget for editing an hf-model structure."
+  :tag "HF Model"
+  :format "%t:\n%v"
+  :value-to-internal (lambda (_widget value)
+                       (if (hf-model-p value)
+                           (list (hf-model-name value)
+                                 (hf-model-description value)
+                                 (hf-model-capabilities value)
+                                 (hf-model-mime-types value)
+                                 (hf-model-context-length value)
+                                 (hf-model-max-tokens value)
+                                 (hf-model-temperature value)
+                                 (hf-model-min-p value)
+                                 (hf-model-top-p value)
+                                 (hf-model-top-k value)
+                                 (hf-model-kind value)
+                                 (hf-model-supports-system-message value)
+                                 (hf-model-supports-reasoning value)
+                                 (hf-model-aliases value)
+                                 (hf-model-instances value))
+                         (list nil nil '(media tool json url)
+                               '("image/jpeg" "image/png" "image/gif" "image/webp")
+                               nil 16384 1.0 0.05 0.8 20 'text-generation t nil nil nil)))
+  :value-to-external (lambda (_widget value)
+                       (make-hf-model
+                        :name (nth 0 value)
+                        :description (nth 1 value)
+                        :capabilities (nth 2 value)
+                        :mime-types (nth 3 value)
+                        :context-length (nth 4 value)
+                        :max-tokens (nth 5 value)
+                        :temperature (nth 6 value)
+                        :min-p (nth 7 value)
+                        :top-p (nth 8 value)
+                        :top-k (nth 9 value)
+                        :kind (nth 10 value)
+                        :supports-system-message (nth 11 value)
+                        :supports-reasoning (nth 12 value)
+                        :aliases (nth 13 value)
+                        :instances (nth 14 value)))
+  :args '((symbol :tag "Name")
+          (choice :tag "Description"
+                  (const :tag "Unspecified" nil)
+                  (string :tag "Description"))
+          (choice :tag "Capabilities"
+                  (const :tag "Unspecified" nil)
+                  (set (const :tag "Media" media)
+                       (const :tag "Tool" tool)
+                       (const :tag "JSON" json)
+                       (const :tag "URL" url)))
+          (choice :tag "MIME Types"
+                  (const :tag "Unspecified" nil)
+                  (repeat (string :tag "MIME Type")))
+          (choice :tag "Context Length"
+                  (const :tag "Unspecified" nil)
+                  (integer :tag "Tokens"))
+          (choice :tag "Max Tokens"
+                  (const :tag "Unspecified" nil)
+                  (integer :tag "Max Tokens"))
+          (float :tag "Temperature" :value 1.0)
+          (float :tag "Min P" :value 0.05)
+          (float :tag "Top P" :value 0.8)
+          (integer :tag "Top K" :value 20)
+          (choice :tag "Kind"
+                  (const :tag "Text Generation" text-generation)
+                  (const :tag "Embedding" embedding)
+                  (const :tag "Reranker" reranker))
+          (boolean :tag "Supports System Message" :value t)
+          (boolean :tag "Supports Reasoning" :value nil)
+          (repeat :tag "Aliases"
+                  (symbol :tag "Alias"))
+          (repeat :tag "Instances"
+                  hf-instance-widget)))
+
+(defcustom hf-instance-example
+  (make-hf-instance
+   :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
+   :hostnames '("hera" "clio"))
+  "Example instance."
+  :type 'hf-instance-widget
+  :group 'hf)
+
+(defcustom hf-model-example
+  (make-hf-model
+   :name 'Qwen.Qwen3-Reranker-8B
+   :context-length 40960
+   :kind 'reranker
+   :instances
+   (list
+    (make-hf-instance
+     :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
+     :hostnames '("hera" "clio"))))
+  "Example model."
+  :type 'hf-model-widget
+  :group 'hf)
+
+(defcustom hf-models-list
   (list
-
-   (make-hf-model
-    :name 'Qwen.Qwen3-Reranker-8B
-    :context-length 40960
-    :kind 'reranker
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'Qwen3-Embedding-8B
-    :context-length 40960
-    :kind 'embedding
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/Qwen_Qwen3-Embedding-8B-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--embedding"
-                   "--pooling" "last"
-                   "--ubatch-size" "8192"
-                   "--batch-size" "2048"))))
 
    (make-hf-model
     :name 'WizardCoder-Python-7B-V1.0
@@ -330,20 +474,6 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/bartowski_perplexity-ai_r1-1776-distill-llama-70b-GGUF")))
-
-   (make-hf-model
-    :name 'bge-m3
-    :context-length 8192
-    :kind 'embedding
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/gpustack_bge-m3-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--embedding"
-                   "--pooling" "mean"
-                   "--ubatch-size" "8192"
-                   "--batch-size" "4096"))))
 
    (make-hf-model
     :name 'DeepSeek-R1-Distill-Qwen-32B
@@ -483,18 +613,6 @@ general_settings:
      (make-hf-instance
       :model-path "~/Models/unsloth_Devstral-Small-2505-GGUF"
       :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'nomic-embed-text-v2-moe
-    :context-length 512
-    :kind 'embedding
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/nomic-ai_nomic-embed-text-v2-moe-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--embedding"
-                   "--ubatch-size" "8192"))))
 
    (make-hf-model
     :name 'Phi-4-reasoning-plus
@@ -683,7 +801,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gemma-3-12b-it-GGUF"
-      :draft-model 'gemma-3-1b-it
+      :draft-model "~/Models/unsloth_gemma-3-1b-it-GGUF/gemma-3-1b-it-UD-Q8_K_XL.gguf"
       :hostnames '("hera" "clio"))))
 
    (make-hf-model
@@ -693,7 +811,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gemma-3-27b-it-GGUF"
-      :draft-model 'gemma-3-4b-it
+      :draft-model "~/Models/unsloth_gemma-3-4b-it-GGUF/gemma-3-4b-it-UD-Q8_K_XL.gguf"
       :hostnames '("hera" "clio"))))
 
    (make-hf-model
@@ -723,6 +841,54 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-120b-GGUF")))
+
+   (make-hf-model
+    :name 'Qwen.Qwen3-Reranker-8B
+    :kind 'reranker
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-Embedding-8B
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/Qwen_Qwen3-Embedding-8B-GGUF"
+      :hostnames '("hera" "clio")
+      :arguments '("--embedding"
+                   "--pooling" "last"
+                   "--ubatch-size" "8192"
+                   "--batch-size" "2048"))))
+
+   (make-hf-model
+    :name 'bge-m3
+    :context-length 8192
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/gpustack_bge-m3-GGUF"
+      :hostnames '("hera" "clio")
+      :arguments '("--embedding"
+                   "--pooling" "mean"
+                   "--ubatch-size" "8192"
+                   "--batch-size" "4096"))))
+
+   (make-hf-model
+    :name 'nomic-embed-text-v2-moe
+    :context-length 512
+    :kind 'embedding
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/nomic-ai_nomic-embed-text-v2-moe-GGUF"
+      :hostnames '("hera" "clio")
+      :arguments '("--embedding"
+                   "--ubatch-size" "8192"))))
 
    (make-hf-model
     :name 'bge-base-en-v1.5
@@ -963,7 +1129,10 @@ general_settings:
      (make-hf-instance
       :name 'meta-llama/Llama-Guard-4-12B
       :provider 'groq)))
-   ))
+   )
+  "List of configured models."
+  :type '(repeat hf-model-widget)
+  :group 'hf)
 
 (defun hf-make-models-hash ()
   "Build a hashtable from NAME to MODEL for `hf-models-list'."
@@ -1161,14 +1330,32 @@ Optionally read the path on the given HOSTNAME."
 Optionally generate for the given HOSTNAME."
   (let* ((max-tokens (hf-get-instance-max-tokens model instance))
          (context-length (hf-get-instance-context-length model instance))
-         ;; jww (2025-08-14): Add support for draft models
+         (temperature (hf-model-temperature model))
+         (min-p (hf-model-min-p model))
+         (top-p (hf-model-top-p model))
+         (top-k (hf-model-top-k model))
          (args
           (mapconcat
            #'identity
            (append
             (hf-instance-arguments instance)
+            (and temperature
+                 (list "--temp" (number-to-string temperature)))
+            (and min-p
+                 (list "--min-p" (number-to-string min-p)))
+            (and top-p
+                 (list "--top-p" (number-to-string top-p)))
+            (and top-k
+                 (list "--top-k" (number-to-string top-k)))
+            (and-let* ((draft-model (hf-instance-draft-model instance)))
+              (and (file-exists-p draft-model)
+                   (cl-case (hf-instance-engine instance)
+                     (llama-cpp (list "--model-draft" draft-model))
+                     (mlx-lm (list "--draft-model" draft-model)))))
             (and context-length
                  (cl-case (hf-instance-engine instance)
+                   ;; mlx-lm does not specify the context size, but grows the
+                   ;; context dynamically based on usage.
                    (llama-cpp (list "--ctx-size"
                                     (number-to-string context-length)))))
             (and max-tokens
@@ -1186,22 +1373,27 @@ Optionally generate for the given HOSTNAME."
 "))
     (cl-case (hf-instance-engine instance)
       (llama-cpp
-       (when-let* ((path (hf-get-instance-gguf-path instance hostname)))
+       (when-let* ((path (hf-get-instance-gguf-path instance hostname))
+                   (exe (executable-find hf-llama-server-executable)))
          (insert
           leader
           (format "
-      /etc/profiles/per-user/johnw/bin/llama-server
-        --host 127.0.0.1 --port ${PORT} --offline --jinja
-        --model %s %s" (hf-strip-tramp-prefix (expand-file-name path)) args)
+      %s
+        --host 127.0.0.1 --port ${PORT}
+        --offline --jinja
+        --model %s %s"
+                  exe (hf-strip-tramp-prefix (expand-file-name path)) args)
           footer)))
       (mlx-lm
-       (insert
-        leader
-        (format "
-      /etc/profiles/per-user/johnw/bin/mlx-lm server
+       (when-let* ((exe (executable-find hf-mlx-lm-executable)))
+         (insert
+          leader
+          (format "
+      %s
         --host 127.0.0.1 --port ${PORT}
-        --model %s %s" (hf-model-name model) args)
-        footer)))))
+        --model %s %s"
+                  exe (hf-get-instance-model-name model instance) args)
+          footer))))))
 
 (defun hf-generate-llama-swap-yaml (hostname)
   "Build llama-swap.yaml configuration for HOSTNAME."
@@ -1407,7 +1599,7 @@ If HOSTNAME is non-nil, only generate definitions for that host."
             (warn "Unknown engine: %s" engine)
             (cl-incf warnings))
           (unless (or (null draft-model)
-                      (hf-get-model draft-model models-hash))
+                      (file-regular-p draft-model))
             (warn "Unknown draft-model: %S" draft-model)
             (cl-incf warnings)))))
     warnings))
