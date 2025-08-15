@@ -330,7 +330,6 @@ tasks."
             (org-element-property :todo-type h))))))
 
 ;; https://magnus.therning.org/2021-03-14-keeping-todo-items-in-org-roam.html
-;; jww (2025-07-08): Not currently being used
 (defun org-roam-ext-update-todo-tag ()
   "Update TODO tag in the current buffer."
   (when (and (not (active-minibuffer-window))
