@@ -279,8 +279,7 @@ general_settings:
 
 (define-widget 'hf-instance-widget 'group
   "Widget for editing an hf-instance structure."
-  :tag "HF Instance"
-  :format "%t:\n%v"
+  :tag "hf-Instance"
   :value-to-internal (lambda (_widget value)
                        (if (hf-instance-p value)
                            (list (hf-instance-name value)
@@ -343,8 +342,7 @@ general_settings:
 
 (define-widget 'hf-model-widget 'group
   "Widget for editing an hf-model structure."
-  :tag "HF Model"
-  :format "%t:\n%v"
+  :tag "hf-Model"
   :value-to-internal (lambda (_widget value)
                        (if (hf-model-p value)
                            (list (hf-model-name value)
@@ -1430,8 +1428,6 @@ Optionally generate for the given HOSTNAME."
   "Instance the LiteLLM config for MODEL and INSTANCE."
   (let* ((hostnames (hf-instance-hostnames instance))
          (provider (hf-instance-provider instance))
-         (max-tokens (hf-get-instance-max-tokens model instance))
-         (context-length (hf-get-instance-context-length model instance))
          (name (hf-get-instance-model-name model instance))
          (description (hf-model-description model))
          (supports-system-message (hf-model-supports-system-message model))
@@ -1504,9 +1500,7 @@ Optionally generate for the given HOSTNAME."
 (defun hf-get-instance-gptel-backend (model instance &optional hostname)
   "Instance the llama-swap.yaml config for MODEL and INSTANCE.
 If HOSTNAME is non-nil, only generate definitions for that host."
-  (let* ((max-tokens (hf-get-instance-max-tokens model instance))
-         (context-length (hf-get-instance-context-length model instance))
-         (model-name (hf-get-instance-model-name model instance)))
+  (let* ((model-name (hf-get-instance-model-name model instance)))
     (unless (memq (hf-model-kind model) '(embedding reranker))
       (cl-loop for server in (let ((provider (hf-instance-provider instance)))
                                (if (or (null provider)
@@ -1573,7 +1567,7 @@ If HOSTNAME is non-nil, only generate definitions for that host."
           (warn "Unknown kind: %S" kind)
           (cl-incf warnings))))
     (dolist (mi (hf-instances-list))
-      (cl-destructuring-bind (model . instance) mi
+      (cl-destructuring-bind (_model . instance) mi
         (let ((model-path (hf-instance-model-path instance))
               (file-path (hf-instance-file-path instance))
               (hostnames (hf-instance-hostnames instance))
@@ -1688,8 +1682,7 @@ If HOSTNAME is non-nil, only generate definitions for that host."
 ;; (hf-installed-models "athena")
 
 (cl-defun hf-generate-instance-declarations
-    (&key (hostname hf-default-hostname)
-          (directory "~/Models"))
+    (&key (hostname hf-default-hostname))
   "Generate model declarations from DIRECTORY's subdirectories.
 These declarations are for HOSTNAME."
   (interactive)
