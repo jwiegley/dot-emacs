@@ -501,7 +501,8 @@ unto itself.
   (switch-to-buffer-preserve-window-point t)
 
   ;; warnings.el
-  (warning-minimum-log-level :error)
+  ;; (warning-minimum-log-level :error)
+  (warning-suppress-types '((uuid network-interface-info)))
 
   ;; frame.el
   (window-divider-default-bottom-width 1)
@@ -3016,9 +3017,10 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package ghub
-  :defer t
+  :after (forge)
   :config
   (require 'auth-source-pass)
+  (defconst ghub-default-host "api.github.com")
   (defvar my-ghub-token-cache nil)
   (advice-add
    'ghub--token :around
@@ -3199,10 +3201,9 @@ up before you execute another command."
 (use-package gptel-backends
   :after (gptel)
   :config
-  (setq gptel-model hf-default-instance
-        gptel-backend (gptel-backends-make-litellm))
   (when (string-match-p "clio" (system-name))
-    (gptel-backends-make-clio)))
+    (gptel-backends-make-clio))
+  (setq gptel-backend (gptel-backends-make-litellm)))
 #+end_src
 
 *** gptel-presets
@@ -4452,6 +4453,7 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   (magit-diff-options nil)
   (magit-diff-refine-hunk t)
   (magit-fetch-arguments nil)
+  (magit-pull-or-fetch t)
   ;; This is done for the sake of performance on macOS
   ;; (magit-git-executable "/usr/bin/git")
   (magit-highlight-trailing-whitespace nil)
@@ -4653,7 +4655,8 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
 (use-package forge
   :after magit
   :bind (:map forge-common-map
-              ("C-<return>"))
+              ("C-<return>")
+              ("C-," . forge-topic-menu))
   :custom
   (forge-database-file "~/.config/forge/database.sqlite")
   (forge-owned-accounts '(("jwiegley")))
@@ -12684,8 +12687,8 @@ stamp to a task, which can be used to schedule a review of the task.
   (setq org-roam-v2-ack t)
   :config
   ;; (org-roam-db-autosync-mode)
-  (unless alternate-emacs
-    (run-with-idle-timer 300 t 'org-roam-db-sync))
+  ;; (unless alternate-emacs
+  ;;   (run-with-idle-timer 300 t 'org-roam-db-sync))
 
   (cl-defun org-roam-node-insert-section (&key source-node point properties)
     (magit-insert-section
@@ -12784,7 +12787,7 @@ utilities around note taking.
 
   (defsubst vulpea-buffer-meta-get (prop)
     "Get all values of metadata PROP from buffer."
-    (vulpea-buffer-meta-get! (vulpea-buffer-meta) name)))
+    (vulpea-buffer-meta-get! (vulpea-buffer-meta) prop)))
 #+end_src
 
 ***** vulpea-field
