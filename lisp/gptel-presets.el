@@ -303,6 +303,9 @@ differently or may not accept what another backend consider legitimate."
   :rag-top-k 3
   :prompt-transforms '(gptel-rag-transform))
 
+(gptel-make-preset 'cache
+  :cache t)
+
 ;;; REWRITES =============================================================
 
 (gptel-make-preset 'shorten
