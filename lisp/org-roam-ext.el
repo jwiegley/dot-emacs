@@ -554,8 +554,7 @@ tasks."
     (goto-char (point-min))
     (when (re-search-forward "^\\* Transcript\n")
       (insert ?\n)
-      (let ((beg (point))
-            (buf (current-buffer)))
+      (let ((buf (current-buffer)))
         (with-temp-buffer
           (insert-file-contents-literally transcript)
           (goto-char (point-min))
@@ -655,7 +654,7 @@ tasks."
             (cons 1 mp4-file)
           (error "Could not find audio file %s" mp3-file))))))
 
-(defun org-roam-ext-meeting-audio (&optional arg)
+(defun org-roam-ext-meeting-audio (&optional _arg)
   (interactive "P")
   (when org-roam-ext-listen-player
     (delete-process (listen-player-process org-roam-ext-listen-player)))
