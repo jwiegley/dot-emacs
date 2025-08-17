@@ -266,8 +266,10 @@ general_settings:
 (cl-defstruct hf-instance
   "Configuration data for a model, and its family of instances."
   name                                  ; alternate name to use with provider
+  model-name                            ; alternate model-name to use
   context-length                        ; context length to use for instance
   max-tokens                            ; number of tokens to predict
+  cache-control                         ; supports auto-caching?
   (provider 'local)                     ; where does the model run?
   (engine 'llama-cpp)                   ; if local: llama.cpp, koboldcpp, etc.
   (hostnames
@@ -1059,7 +1061,13 @@ general_settings:
     (list
      (make-hf-instance
       :name 'claude-opus-4-1-20250805
-      :provider 'anthropic)))
+      :provider 'anthropic)
+
+     (make-hf-instance
+      :model-name 'claude-opus-cached
+      :name 'claude-opus-4-1-20250805
+      :provider 'anthropic
+      :cache-control t)))
 
    (make-hf-model
     :name 'claude-sonnet
@@ -1067,7 +1075,13 @@ general_settings:
     (list
      (make-hf-instance
       :name 'claude-sonnet-4-20250514
-      :provider 'anthropic)))
+      :provider 'anthropic)
+
+     (make-hf-instance
+      :model-name 'claude-sonnet-cached
+      :name 'claude-sonnet-4-20250514
+      :provider 'anthropic
+      :cache-control t)))
 
    (make-hf-model
     :name 'r1-1776
@@ -1285,6 +1299,11 @@ general_settings:
 
 (defun hf-get-instance-model-name (model instance)
   "Return the model name for the given MODEL and INSTANCE."
+  (or (hf-instance-model-name instance)
+      (hf-model-name model)))
+
+(defun hf-get-instance-name (model instance)
+  "Return the model name for the given MODEL and INSTANCE."
   (or (hf-instance-name instance)
       (hf-model-name model)))
 
@@ -1428,7 +1447,9 @@ Optionally generate for the given HOSTNAME."
   "Instance the LiteLLM config for MODEL and INSTANCE."
   (let* ((hostnames (hf-instance-hostnames instance))
          (provider (hf-instance-provider instance))
-         (name (hf-get-instance-model-name model instance))
+         (cache-control (hf-instance-cache-control instance))
+         (model-name (hf-get-instance-model-name model instance))
+         (name (hf-get-instance-name model instance))
          (description (hf-model-description model))
          (supports-system-message (hf-model-supports-system-message model))
          (supports-reasoning (hf-model-supports-reasoning model)))
@@ -1445,7 +1466,7 @@ Optionally generate for the given HOSTNAME."
       description: %S
       supports_reasoning: %s
 "
-                      host name
+                      host model-name
                       (if (eq 'local provider)
                           "openai"
                         provider)
@@ -1453,7 +1474,13 @@ Optionally generate for the given HOSTNAME."
                       (if (eq 'local provider)
                           (concat host "_llama_swap")
                         provider)
-                      (if supports-system-message "true" "false")
+                      (concat
+                       (if supports-system-message "true" "false")
+                       (when cache-control
+                         "
+      cache_control_injection_points:
+        - location: message
+          role: system"))
                       (or description "")
                       (if supports-reasoning "true" "false"))))))
 
