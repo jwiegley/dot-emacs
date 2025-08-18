@@ -200,7 +200,9 @@ litellm_settings:
   request_timeout: 7200
   ssl_verify: false
   # set_verbose: True
-  # cache: True
+  cache: True
+  cache_params:
+    type: local
 
 # router_settings:
 #   provider_budget_config:
@@ -252,13 +254,15 @@ general_settings:
   (mime-types
    hf-all-model-mime-types)             ; MIME types that can be sent
   context-length                        ; model context length
-  max-tokens                            ; number of tokens to predict
+  max-input-tokens                      ; number of tokens to accept
+  max-output-tokens                     ; number of tokens to predict
   temperature                           ; model temperature
   min-p                                 ; minimum p
   top-p                                 ; top p
   top-k                                 ; top k
   (kind 'text-generation)               ; nil, or symbol from model-kinds
   (supports-system-message t)           ; t if model supports system messages
+  (supports-function-calling nil)       ; t if model supports function calling
   (supports-reasoning nil)              ; t if model supports reasoning
   aliases                               ; model alias names
   instances)                            ; model instances
@@ -268,7 +272,8 @@ general_settings:
   name                                  ; alternate name to use with provider
   model-name                            ; alternate model-name to use
   context-length                        ; context length to use for instance
-  max-tokens                            ; number of tokens to predict
+  max-input-tokens                      ; number of tokens to accept
+  max-output-tokens                     ; number of tokens to predict
   cache-control                         ; supports auto-caching?
   (provider 'local)                     ; where does the model run?
   (engine 'llama-cpp)                   ; if local: llama.cpp, koboldcpp, etc.
@@ -278,165 +283,6 @@ general_settings:
   file-path                             ; if local: (optional) path to model file
   draft-model                           ; if local: (optional) path to draft model
   arguments)                            ; if local: arguments to engine
-
-(define-widget 'hf-instance-widget 'group
-  "Widget for editing an hf-instance structure."
-  :tag "hf-Instance"
-  :value-to-internal (lambda (_widget value)
-                       (if (hf-instance-p value)
-                           (list (hf-instance-name value)
-                                 (hf-instance-context-length value)
-                                 (hf-instance-max-tokens value)
-                                 (hf-instance-provider value)
-                                 (hf-instance-engine value)
-                                 (hf-instance-hostnames value)
-                                 (hf-instance-model-path value)
-                                 (hf-instance-file-path value)
-                                 (hf-instance-draft-model value)
-                                 (hf-instance-arguments value))
-                         (list nil nil nil 'local 'llama-cpp
-                               (list hf-default-hostname) nil nil nil nil)))
-  :value-to-external (lambda (_widget value)
-                       (make-hf-instance
-                        :name (nth 0 value)
-                        :context-length (nth 1 value)
-                        :max-tokens (nth 2 value)
-                        :provider (nth 3 value)
-                        :engine (nth 4 value)
-                        :hostnames (nth 5 value)
-                        :model-path (nth 6 value)
-                        :file-path (nth 7 value)
-                        :draft-model (nth 8 value)
-                        :arguments (nth 9 value)))
-  :args '((choice :tag "Name"
-                  (const :tag "Unspecified" nil)
-                  (symbol :tag "Name"))
-          (choice :tag "Context Length"
-                  (const :tag "Unspecified" nil)
-                  (integer :tag "Tokens"))
-          (choice :tag "Max Tokens"
-                  (const :tag "Unspecified" nil)
-                  (integer :tag "Tokens"))
-          (choice :tag "Provider"
-                  (const :tag "Local" local)
-                  (const :tag "OpenAI" openai)
-                  (const :tag "Anthropic" anthropic)
-                  (const :tag "Perplexity" perplexity)
-                  (const :tag "Groq" groq)
-                  (const :tag "OpenRouter" openrouter))
-          (choice :tag "Engine"
-                  (const :tag "llama.cpp" llama-cpp)
-                  (const :tag "koboldcpp" koboldcpp)
-                  (const :tag "MLX-LM" mlx-lm))
-          (repeat :tag "Hostnames"
-                  (string :tag "Hostname"))
-          (choice :tag "Model Path"
-                  (const :tag "None" nil)
-                  (directory :tag "Directory"))
-          (choice :tag "File Path"
-                  (const :tag "None" nil)
-                  (file :tag "File"))
-          (choice :tag "Draft Model"
-                  (const :tag "None" nil)
-                  (symbol :tag "Model"))
-          (repeat :tag "Arguments"
-                  (string :tag "Argument"))))
-
-(define-widget 'hf-model-widget 'group
-  "Widget for editing an hf-model structure."
-  :tag "hf-Model"
-  :value-to-internal (lambda (_widget value)
-                       (if (hf-model-p value)
-                           (list (hf-model-name value)
-                                 (hf-model-description value)
-                                 (hf-model-capabilities value)
-                                 (hf-model-mime-types value)
-                                 (hf-model-context-length value)
-                                 (hf-model-max-tokens value)
-                                 (hf-model-temperature value)
-                                 (hf-model-min-p value)
-                                 (hf-model-top-p value)
-                                 (hf-model-top-k value)
-                                 (hf-model-kind value)
-                                 (hf-model-supports-system-message value)
-                                 (hf-model-supports-reasoning value)
-                                 (hf-model-aliases value)
-                                 (hf-model-instances value))
-                         (list nil nil '(media tool json url)
-                               '("image/jpeg" "image/png" "image/gif" "image/webp")
-                               nil 16384 1.0 0.05 0.8 20 'text-generation t nil nil nil)))
-  :value-to-external (lambda (_widget value)
-                       (make-hf-model
-                        :name (nth 0 value)
-                        :description (nth 1 value)
-                        :capabilities (nth 2 value)
-                        :mime-types (nth 3 value)
-                        :context-length (nth 4 value)
-                        :max-tokens (nth 5 value)
-                        :temperature (nth 6 value)
-                        :min-p (nth 7 value)
-                        :top-p (nth 8 value)
-                        :top-k (nth 9 value)
-                        :kind (nth 10 value)
-                        :supports-system-message (nth 11 value)
-                        :supports-reasoning (nth 12 value)
-                        :aliases (nth 13 value)
-                        :instances (nth 14 value)))
-  :args '((symbol :tag "Name")
-          (choice :tag "Description"
-                  (const :tag "Unspecified" nil)
-                  (string :tag "Description"))
-          (choice :tag "Capabilities"
-                  (const :tag "Unspecified" nil)
-                  (set (const :tag "Media" media)
-                       (const :tag "Tool" tool)
-                       (const :tag "JSON" json)
-                       (const :tag "URL" url)))
-          (choice :tag "MIME Types"
-                  (const :tag "Unspecified" nil)
-                  (repeat (string :tag "MIME Type")))
-          (choice :tag "Context Length"
-                  (const :tag "Unspecified" nil)
-                  (integer :tag "Tokens"))
-          (choice :tag "Max Tokens"
-                  (const :tag "Unspecified" nil)
-                  (integer :tag "Max Tokens"))
-          (float :tag "Temperature" :value 1.0)
-          (float :tag "Min P" :value 0.05)
-          (float :tag "Top P" :value 0.8)
-          (integer :tag "Top K" :value 20)
-          (choice :tag "Kind"
-                  (const :tag "Text Generation" text-generation)
-                  (const :tag "Embedding" embedding)
-                  (const :tag "Reranker" reranker))
-          (boolean :tag "Supports System Message" :value t)
-          (boolean :tag "Supports Reasoning" :value nil)
-          (repeat :tag "Aliases"
-                  (symbol :tag "Alias"))
-          (repeat :tag "Instances"
-                  hf-instance-widget)))
-
-(defcustom hf-instance-example
-  (make-hf-instance
-   :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
-   :hostnames '("hera" "clio"))
-  "Example instance."
-  :type 'hf-instance-widget
-  :group 'hf)
-
-(defcustom hf-model-example
-  (make-hf-model
-   :name 'Qwen.Qwen3-Reranker-8B
-   :context-length 40960
-   :kind 'reranker
-   :instances
-   (list
-    (make-hf-instance
-     :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
-     :hostnames '("hera" "clio"))))
-  "Example model."
-  :type 'hf-model-widget
-  :group 'hf)
 
 (defcustom hf-models-list
   (list
@@ -512,6 +358,7 @@ general_settings:
     :min-p 0.01
     :top-p 0.95
     :top-k 20
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -535,11 +382,12 @@ general_settings:
     :min-p 0.01
     :top-p 0.8
     :top-k 20
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
       :context-length 32768
-      :max-tokens 32768
+      :max-output-tokens 32768
       :model-path "~/Models/unsloth_Kimi-K2-Instruct-GGUF"
       :arguments '("--cache-type-k" "q4_1"
                    "--seed" "3407"))))
@@ -547,6 +395,7 @@ general_settings:
    (make-hf-model
     :name 'Llama-4-Scout-17B-16E-Instruct
     :context-length 10485760
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -560,6 +409,7 @@ general_settings:
    (make-hf-model
     :name 'Llama-4-Maverick-17B-128E-Instruct
     :context-length 1048576
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -627,6 +477,7 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-0.6B
     :context-length 40960
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -637,6 +488,7 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-1.7B
     :context-length 40960
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -647,6 +499,7 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-4B
     :context-length 40960
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -657,6 +510,7 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-8B
     :context-length 40960
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -667,6 +521,7 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-14B
     :context-length 40960
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -677,6 +532,7 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-32B
     :context-length 40960
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -687,6 +543,7 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-30B-A3B-Thinking-2507
     :context-length 262144
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -701,10 +558,11 @@ general_settings:
     :min-p 0.01
     :top-p 0.8
     :top-k 20
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
-      :max-tokens 81920
+      :max-output-tokens 81920
       :model-path "~/Models/unsloth_Qwen3-235B-A22B-Instruct-2507-GGUF"
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
@@ -719,11 +577,12 @@ general_settings:
     :min-p 0.01
     :top-p 0.95
     :top-k 20
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :max-tokens 32768
+      :max-output-tokens 32768
       :model-path "~/Models/unsloth_Qwen3-235B-A22B-Thinking-2507-GGUF"
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
@@ -738,10 +597,11 @@ general_settings:
     :min-p 0.01
     :top-p 0.8
     :top-k 20
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
-      :max-tokens 65536
+      :max-output-tokens 65536
       :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
       :hostnames '("hera" "athena" "clio")
       :arguments '("--repeat-penalty" "1.05"
@@ -754,16 +614,55 @@ general_settings:
                    "--yarn-orig-ctx" "262144"))))
 
    (make-hf-model
+    :name 'qwen3-coder-30b-a3b-instruct-480b-distill-v2
+    :context-length 262144
+    :temperature 0.7
+    :min-p 0.01
+    :top-p 0.8
+    :top-k 20
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 65536
+      :model-path "~/Models/BasedBase_Qwen3-Coder-30B-A3B-Instruct-480B-Distill-V2"
+      :hostnames '("hera")
+      :arguments '("--repeat-penalty" "1.05"
+                   "--cache-type-k" "q8_0"
+                   "--top-k" "20"
+                   "--flash-attn"
+                   "--cache-type-v" "q8_0"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "8192"
+                   "--rope-scaling" "yarn"
+                   "--rope-scale" "4"
+                   "--yarn-orig-ctx" "262144"))
+
+     (make-hf-instance
+      :max-output-tokens 65536
+      :model-path "~/Models/BasedBase_Qwen3-Coder-30B-A3B-Instruct-480B-Distill-V2"
+      :hostnames '("clio")
+      :arguments '("--repeat-penalty" "1.05"
+                   "--cache-type-k" "q4_1"
+                   "--top-k" "20"
+                   "--flash-attn"
+                   "--cache-type-v" "q4_1"
+                   "--rope-scaling" "yarn"
+                   "--rope-scale" "4"
+                   "--yarn-orig-ctx" "262144"))))
+
+   (make-hf-model
     :name 'Qwen3-Coder-480B-A35B-Instruct
     :context-length 262144
     :temperature 0.7
     :min-p 0.01
     :top-p 0.8
     :top-k 20
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
-      :max-tokens 65536
+      :max-output-tokens 65536
       :model-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF"
       :file-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/UD-Q4_K_XL/Qwen3-Coder-480B-A35B-Instruct-UD-Q4_K_XL-00001-of-00006.gguf"
       :arguments '("--repeat-penalty" "1.05"
@@ -826,6 +725,7 @@ general_settings:
    (make-hf-model
     :name 'gpt-oss-20b
     :context-length 131072
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -836,6 +736,7 @@ general_settings:
    (make-hf-model
     :name 'gpt-oss-120b
     :context-length 131072
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -938,6 +839,7 @@ general_settings:
    (make-hf-model
     :name 'gpt-4.1
     :description "Flagship GPT model for complex tasks"
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -946,6 +848,7 @@ general_settings:
    (make-hf-model
     :name 'gpt-4.1-mini
     :description "Balanced for intelligence, speed, and cost"
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -954,6 +857,7 @@ general_settings:
    (make-hf-model
     :name 'gpt-4.1-nano
     :description "Fastest, most cost-effective GPT-4.1 model"
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -962,6 +866,7 @@ general_settings:
    (make-hf-model
     :name 'gpt-4o
     :description "Fast, intelligent, flexible GPT model"
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -970,6 +875,7 @@ general_settings:
    (make-hf-model
     :name 'gpt-4o-mini
     :description "Fast, affordable small model for focused tasks"
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -978,6 +884,7 @@ general_settings:
    (make-hf-model
     :name 'o1
     :description "Our most powerful reasoning model"
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -987,6 +894,7 @@ general_settings:
    (make-hf-model
     :name 'o1-pro
     :description "Our most powerful reasoning model"
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -996,6 +904,7 @@ general_settings:
    (make-hf-model
     :name 'o3
     :description "Our most powerful reasoning model"
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -1005,6 +914,7 @@ general_settings:
    (make-hf-model
     :name 'o3-deep-research
     :description "Our most powerful reasoning model"
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -1014,6 +924,7 @@ general_settings:
    (make-hf-model
     :name 'o3-mini
     :description "A small model alternative to o3"
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -1023,6 +934,7 @@ general_settings:
    (make-hf-model
     :name 'o3-pro
     :description "Version of o3 with more compute for better responses"
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -1032,6 +944,7 @@ general_settings:
    (make-hf-model
     :name 'o4-mini
     :description "Faster, more affordable reasoning model"
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -1041,6 +954,7 @@ general_settings:
    (make-hf-model
     :name 'o4-mini-deep-research
     :description "Faster, more affordable reasoning model"
+    :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
@@ -1049,6 +963,7 @@ general_settings:
 
    (make-hf-model
     :name 'claude-haiku
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -1057,6 +972,7 @@ general_settings:
 
    (make-hf-model
     :name 'claude-opus
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -1071,6 +987,7 @@ general_settings:
 
    (make-hf-model
     :name 'claude-sonnet
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
@@ -1312,10 +1229,15 @@ general_settings:
   (or (hf-instance-context-length instance)
       (hf-model-context-length model)))
 
-(defun hf-get-instance-max-tokens (model instance)
+(defun hf-get-instance-max-input-tokens (model instance)
   "Find maximum output tokens for the given MODEL and INSTANCE."
-  (or (hf-instance-max-tokens instance)
-      (hf-model-max-tokens model)))
+  (or (hf-instance-max-input-tokens instance)
+      (hf-model-max-input-tokens model)))
+
+(defun hf-get-instance-max-output-tokens (model instance)
+  "Find maximum output tokens for the given MODEL and INSTANCE."
+  (or (hf-instance-max-output-tokens instance)
+      (hf-model-max-output-tokens model)))
 
 (defsubst hf-remote-hostname-p (hostname)
   "Return non-nil if HOSTNAME is both non-nil and a remote host.
@@ -1345,7 +1267,7 @@ Optionally read the path on the given HOSTNAME."
 (defun hf-insert-instance-llama-swap (model instance &optional hostname)
   "Instance the llama-swap.yaml config for MODEL and INSTANCE.
 Optionally generate for the given HOSTNAME."
-  (let* ((max-tokens (hf-get-instance-max-tokens model instance))
+  (let* ((max-output-tokens (hf-get-instance-max-output-tokens model instance))
          (context-length (hf-get-instance-context-length model instance))
          (temperature (hf-model-temperature model))
          (min-p (hf-model-min-p model))
@@ -1375,11 +1297,11 @@ Optionally generate for the given HOSTNAME."
                    ;; context dynamically based on usage.
                    (llama-cpp (list "--ctx-size"
                                     (number-to-string context-length)))))
-            (and max-tokens
+            (and max-output-tokens
                  (list (cl-case (hf-instance-engine instance)
                          (llama-cpp "--predict")
                          (mlx-lm "--max-tokens"))
-                       (number-to-string max-tokens))))
+                       (number-to-string max-output-tokens))))
            " "))
          (leader (format "
   \"%s\":
@@ -1451,7 +1373,10 @@ Optionally generate for the given HOSTNAME."
          (model-name (hf-get-instance-model-name model instance))
          (name (hf-get-instance-name model instance))
          (description (hf-model-description model))
+         (max-input-tokens (hf-get-instance-max-input-tokens model instance))
+         (max-output-tokens (hf-get-instance-max-output-tokens model instance))
          (supports-system-message (hf-model-supports-system-message model))
+         (supports-function-calling (hf-model-supports-function-calling model))
          (supports-reasoning (hf-model-supports-reasoning model)))
     (dolist (host (if (eq 'local provider)
                       hostnames
@@ -1463,7 +1388,8 @@ Optionally generate for the given HOSTNAME."
       litellm_credential_name: %s_credential
       supports_system_message: %s
     model_info:
-      description: %S
+      description: %S%s%s
+      supports_function_calling: %s
       supports_reasoning: %s
 "
                       host model-name
@@ -1482,6 +1408,13 @@ Optionally generate for the given HOSTNAME."
         - location: message
           role: system"))
                       (or description "")
+                      (if max-input-tokens
+                          (format "\n      max_input_tokens: %s" max-input-tokens)
+                        "")
+                      (if max-output-tokens
+                          (format "\n      max_output_tokens: %s" max-output-tokens)
+                        "")
+                      (if supports-function-calling "true" "false")
                       (if supports-reasoning "true" "false"))))))
 
 (defun hf-generate-litellm-yaml ()
