@@ -304,7 +304,19 @@ differently or may not accept what another backend consider legitimate."
   :prompt-transforms '(gptel-rag-transform))
 
 (gptel-make-preset 'cache
+  :pre
+  (lambda ()
+    (save-excursion
+      (while (re-search-backward "\b@cache\b" nil t)
+        (delete-region (match-beginning 0) (match-end 0)))))
   :cache t)
+
+(gptel-make-preset 'json
+  :pre (lambda ()
+         (setq-local gptel--schema
+                     (buffer-substring-no-properties
+                      (point) (point-max)))
+         (delete-region (point) (point-max))))
 
 ;;; REWRITES =============================================================
 
