@@ -3673,6 +3673,18 @@ code using the `elisp_eval` tool.
     :tools '("introspection")))
 #+end_src
 
+*** claude-code-ide
+
+#+begin_src emacs-lisp
+(use-package claude-code-ide
+  :load-path "lisp/claude-code-ide"
+  :bind ("C-x c c" . claude-code-ide-menu)
+  :custom
+  (claude-code-ide-cli-extra-flags "--model opus")
+  :config
+  (claude-code-ide-emacs-tools-setup))
+#+end_src
+
 ** grep
 
 #+begin_src emacs-lisp
