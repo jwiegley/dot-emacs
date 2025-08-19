@@ -130,3 +130,6 @@
 [submodule "lisp/macher"]
 	path = lisp/macher
 	url = git@github.com:kmontag/macher.git
+[submodule "lisp/claude-code-ide"]
+	path = lisp/claude-code-ide
+	url = git@github.com:manzaltu/claude-code-ide.el

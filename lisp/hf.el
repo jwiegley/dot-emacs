@@ -49,8 +49,8 @@
 
 (defcustom hf-default-model
   (if (string-match-p "clio" (system-name))
-      'Qwen3-Coder-30B-A3B-Instruct
-    'Qwen3-Coder-480B-A35B-Instruct)
+      'Qwen3-30B-A3B-Thinking-2507
+    'Qwen3-235B-A22B-Thinking-2507)
   "Name of default model."
   :type 'symbol
   :group 'hf)
@@ -604,17 +604,20 @@ general_settings:
       :max-output-tokens 65536
       :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
       :hostnames '("hera" "athena" "clio")
+      :cache-control t
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
                    "--top-k" "20"
                    "--flash-attn"
                    "--cache-type-v" "q8_0"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "8192"
                    "--rope-scaling" "yarn"
                    "--rope-scale" "4"
                    "--yarn-orig-ctx" "262144"))))
 
    (make-hf-model
-    :name 'qwen3-coder-30b-a3b-instruct-480b-distill-v2
+    :name 'Qwen3-Coder-30B-A3B-Instruct-480B-Distill-V2
     :context-length 262144
     :temperature 0.7
     :min-p 0.01
@@ -627,6 +630,7 @@ general_settings:
       :max-output-tokens 65536
       :model-path "~/Models/BasedBase_Qwen3-Coder-30B-A3B-Instruct-480B-Distill-V2"
       :hostnames '("hera")
+      :cache-control t
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
                    "--top-k" "20"
@@ -641,7 +645,8 @@ general_settings:
      (make-hf-instance
       :max-output-tokens 65536
       :model-path "~/Models/BasedBase_Qwen3-Coder-30B-A3B-Instruct-480B-Distill-V2"
-      :hostnames '("clio")
+      :hostnames '("clio" "athena")
+      :cache-control t
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q4_1"
                    "--top-k" "20"
@@ -665,6 +670,7 @@ general_settings:
       :max-output-tokens 65536
       :model-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF"
       :file-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/UD-Q4_K_XL/Qwen3-Coder-480B-A35B-Instruct-UD-Q4_K_XL-00001-of-00006.gguf"
+      :cache-control t
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q4_1"
                    "--top-k" "20"
@@ -731,7 +737,8 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
-      :hostnames '("hera" "athena" "clio"))))
+      :hostnames '("hera" "athena" "clio")
+      :cache-control t)))
 
    (make-hf-model
     :name 'gpt-oss-120b
@@ -741,7 +748,8 @@ general_settings:
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/unsloth_gpt-oss-120b-GGUF")))
+      :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
+      :cache-control t)))
 
    (make-hf-model
     :name 'Qwen.Qwen3-Reranker-8B
@@ -1425,7 +1433,10 @@ Optionally generate for the given HOSTNAME."
     (insert "model_list:")
     (dolist (mi (hf-instances-list))
       (cl-destructuring-bind (model . instance) mi
-        (hf-insert-instance-litellm model instance)))
+        (hf-insert-instance-litellm model instance)
+        ;; (unless (string= model (downcase model))
+        ;;   (hf-insert-instance-litellm (downcase model) instance))
+        ))
     (insert (funcall hf-litellm-credentials-function))
     (insert hf-litellm-epilog)
     (yaml-mode)
