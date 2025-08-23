@@ -341,11 +341,11 @@ general_settings:
     :supports-reasoning t
     :instances
     (list
-     (make-hf-instance
-      :context-length 16384
-      :model-path "~/Models/unsloth_DeepSeek-R1-0528-GGUF"
-      :arguments '("--cache-type-k" "q4_1"
-                   "--seed" "3407"))
+     ;; (make-hf-instance
+     ;;  :context-length 16384
+     ;;  :model-path "~/Models/unsloth_DeepSeek-R1-0528-GGUF"
+     ;;  :arguments '("--cache-type-k" "q4_1"
+     ;;               "--seed" "3407"))
 
      (make-hf-instance
       :name 'deepseek/deepseek-r1-0528:free
@@ -367,13 +367,27 @@ general_settings:
       :hostnames '("hera" "clio"))))
 
    (make-hf-model
+    :name 'DeepSeek-V3.1
+    :context-length 131072
+    :instances
+    (list
+     (make-hf-instance
+      :context-length 16384
+      :model-path "~/Models/unsloth_DeepSeek-V3.1-GGUF"
+      :arguments '("--cache-type-k" "q4_1"
+                   ;; "--flash-attn"
+                   ;; "--cache-type-v" "q4_1"
+                   "--seed" "3407"))))
+
+   (make-hf-model
     :name 'DeepSeek-V3-0324-UD
     :context-length 163840
     :instances
     (list
-     (make-hf-instance
-      :context-length 12000
-      :model-path "~/Models/unsloth_DeepSeek-V3-0324-GGUF-UD")))
+     ;; (make-hf-instance
+     ;;  :context-length 12000
+     ;;  :model-path "~/Models/unsloth_DeepSeek-V3-0324-GGUF-UD")
+     ))
 
    (make-hf-model
     :name 'Kimi-K2-Instruct
@@ -538,6 +552,17 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-32B-GGUF"
+      :hostnames '("hera" "athena" "clio"))))
+
+   (make-hf-model
+    :name 'Qwen3-30B-A3B-Instruct-2507
+    :context-length 262144
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Qwen3-30B-A3B-Instruct-2507-GGUF"
       :hostnames '("hera" "athena" "clio"))))
 
    (make-hf-model
@@ -1380,6 +1405,7 @@ Optionally generate for the given HOSTNAME."
          (cache-control (hf-instance-cache-control instance))
          (model-name (hf-get-instance-model-name model instance))
          (name (hf-get-instance-name model instance))
+         (kind (hf-model-kind model))
          (description (hf-model-description model))
          (max-input-tokens (hf-get-instance-max-input-tokens model instance))
          (max-output-tokens (hf-get-instance-max-output-tokens model instance))
@@ -1396,6 +1422,7 @@ Optionally generate for the given HOSTNAME."
       litellm_credential_name: %s_credential
       supports_system_message: %s
     model_info:
+      mode: %S
       description: %S%s%s
       supports_function_calling: %s
       supports_reasoning: %s
@@ -1415,6 +1442,9 @@ Optionally generate for the given HOSTNAME."
       cache_control_injection_points:
         - location: message
           role: system"))
+                      (if (or (null kind) (eq kind 'text-generation))
+                          "chat"
+                        kind)
                       (or description "")
                       (if max-input-tokens
                           (format "\n      max_input_tokens: %s" max-input-tokens)

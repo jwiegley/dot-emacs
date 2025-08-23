@@ -96,7 +96,7 @@ tasks. The only exception is headings tagged as REFILE."
   )
 
 (defun vulpea-project-list ()
-  "Return a list of note files containing 'todo' tag." ;
+  "Return a list of note files containing `todo' tag." ;
   (seq-uniq
    (seq-map
     #'car
@@ -125,7 +125,8 @@ tasks. The only exception is headings tagged as REFILE."
                   (expand-file-name (file-name-directory file))))
                 "/"))))
            (original-tags (vulpea-buffer-tags-get))
-           (tags (append original-tags path-tags)))
+           (tags (delete "template"
+                         (append original-tags path-tags))))
 
       ;; process projects
       (if (vulpea-buffer-project-p)
