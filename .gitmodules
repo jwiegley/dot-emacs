@@ -105,7 +105,7 @@
 	url = git@github.com:jwiegley/emacs-lzw
 [submodule "lisp/gptel-litellm"]
 	path = lisp/gptel-litellm
-	url = git@github.com:karthink/gptel-litellm
+	url = git@github.com:jwiegley/gptel-litellm
 [submodule "lisp/machines"]
 	path = lisp/machines
 	url = git@github.com:jwiegley/machines

@@ -9739,7 +9739,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (total-expire . t)
       (expiry-wait . 1.1)
       (expiry-target . "INBOX"))
-     ("\\(mail/\\|INBOX\\)"
+     ("\\`\\(mail/\\|INBOX\\)"
       (total-expire . t)
       (expiry-wait . 90)
       (expiry-target . "Archive")
@@ -9878,8 +9878,12 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                  (nnimap-user "johnw@newartisans.com")
                  (nnimap-inbox "INBOX")
                  (nnimap-server-port "imaps")
-                 (nnimap-stream ssl)))
-
+                 (nnimap-stream ssl))
+        gnus-secondary-select-methods
+        '((nnimap "Local"
+                  (nnimap-stream plain)
+                  (nnimap-address "127.0.0.1")
+                  (nnimap-server-port 9143))))
   :config
   (gnus-registry-initialize))
 #+end_src
