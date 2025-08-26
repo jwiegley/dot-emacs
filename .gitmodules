@@ -52,8 +52,8 @@
 [submodule "lisp/emacs-format-all-the-code"]
 	path = lisp/emacs-format-all-the-code
 	url = git@github.com:lassik/emacs-format-all-the-code
-[submodule "lisp/mcp.el"]
-	path = lisp/mcp.el
+[submodule "lisp/mcp"]
+	path = lisp/mcp
 	url = git@github.com:lizqwerscott/mcp.el
 [submodule "lisp/vulpea"]
 	path = lisp/vulpea
@@ -133,3 +133,6 @@
 [submodule "lisp/claude-code-ide"]
 	path = lisp/claude-code-ide
 	url = git@github.com:manzaltu/claude-code-ide.el
+[submodule "lisp/mcp-server-lib"]
+	path = lisp/mcp-server-lib
+	url = git@github.com:laurynas-biveinis/mcp-server-lib.el
