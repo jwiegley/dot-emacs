@@ -539,9 +539,9 @@ SCHEDULED: %t
                               "national-treasurers-office.org")
    ,(org-config-bahai-meeting "br" "Regional Treasurer's Office"
                               "regional-treasurers-office.org")
-   ,(org-config-bahai-meeting "bi" "Ruhi Intensive" "ruhi-intensive.org")
-   ,(org-config-bahai-meeting "bI" "Ruhi Intensive Reflection"
-                              "ruhi-intensive-reflection.org")
+   ,(org-config-bahai-meeting "bi" "Institute Day" "institute-day.org")
+   ,(org-config-bahai-meeting "bI" "Institute Day Reflection"
+                              "institute-day-reflection.org")
    ,(org-config-bahai-meeting "bu" "Unit Convention" "unit-convention.org")
    ,(org-config-bahai-meeting "bc" "Cluster Agencies" "cluster-agencies.org")
 
@@ -890,7 +890,7 @@ SCHEDULED: %t
     '(todo)
     :sort '(scheduled)))
 
-(defun org-config-show-tasks-with-filetags (tag)
+(defun org-config-show-tasks-with-filetags (_tag)
   "Report items pending review after one second."
   (interactive "sTag: ")
   (org-ql-search (org-agenda-files)

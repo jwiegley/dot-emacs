@@ -3363,6 +3363,16 @@ Intended to be placed in `git-commit-setup-hook'."
          ("q" . gptel-quick)))
 #+end_src
 
+*** gptel-claude-oauth
+
+#+begin_src emacs-lisp
+(use-package gptel-claude-oauth
+  :after (gptel)
+  :demand t
+  :config
+  (gptel-make-claude-oauth "Claude-OAuth" :stream t))
+#+end_src
+
 *** corsair
 
 #+begin_src emacs-lisp
@@ -3633,7 +3643,7 @@ request:
 #+begin_src emacs-lisp
 (use-package ragmacs
   :load-path "lisp/ragmacs"
-  :after (gptel)
+  :after (gptel claude-code-ide)
   :demand t
   :init
   (gptel-make-preset 'introspect
@@ -3678,9 +3688,10 @@ code using the `elisp_eval` tool.
 #+begin_src emacs-lisp
 (use-package claude-code-ide
   :load-path "lisp/claude-code-ide"
+  :demand t
   :bind ("C-x c c" . claude-code-ide-menu)
   :custom
-  (claude-code-ide-cli-extra-flags "--model opus")
+  (claude-code-ide-cli-extra-flags "--model opus --dangerously-skip-permissions")
   :config
   (claude-code-ide-emacs-tools-setup))
 #+end_src
