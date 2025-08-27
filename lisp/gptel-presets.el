@@ -115,6 +115,18 @@ differently or may not accept what another backend consider legitimate."
   :model 'anthropic/claude-opus-4-1-20250805
   :temperature 1.0)
 
+(gptel-make-preset 'sonnet-max
+  :description "Anthropic's Claude Sonnet, thinking"
+  :backend "Claude-OAuth"
+  :model 'claude-sonnet-4-20250514
+  :temperature 1.0)
+
+(gptel-make-preset 'opus-max
+  :description "Anthropic's Claude Opus, thinking"
+  :backend "Claude-OAuth"
+  :model 'claude-opus-4-1-20250805
+  :temperature 1.0)
+
 ;;; Ali Baba
 
 (gptel-make-preset 'qwen
@@ -182,7 +194,8 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'default
   :description "Default setup"
-  :parents 'coding-model
+  ;; :parents 'coding-model
+  :parents 'opus-max
   :system 'default
   :confirm-tool-calls nil ; 'auto
   :max-tokens 16384
@@ -195,6 +208,25 @@ differently or may not accept what another backend consider legitimate."
   :request-params '(:thinking
                     (:type "enabled" :budget_tokens 16384)
                     :max_tokens 24000)
+  :include-reasoning 'ignore)
+
+(my/gptel-make-preset 'analyze
+  :description "Best model for analysis"
+  :parents 'opus-max
+  :request-params '(:thinking
+                    (:type "enabled" :budget_tokens 16384)
+                    :max_tokens 24000)
+  :include-reasoning 'ignore)
+
+(my/gptel-make-preset 'search
+  :description "Best model for web search and analysis"
+  :parents 'opus-max
+  :request-params '(:thinking
+                    (:type "enabled" :budget_tokens 24000)
+                    :max_tokens 32000
+                    :tools [(:type "web_search_20250305"
+                                   :name "web_search"
+                                   :max_uses 5)])
   :include-reasoning 'ignore)
 
 (gptel-make-preset 'rewrite

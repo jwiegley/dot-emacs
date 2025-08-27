@@ -38,6 +38,7 @@ Here are some rules you MUST follow:
 - Maintain all original tags, which are words enclosed by colons for example :Hafsah: or :Stuart:
 - Split long verb phrases into concise action-oriented titles
 - Preserve all metadata and IDs
+- DO NOT REMOVE METADATA OR IDs
 - Add original full title to each task body without final newline
 - Kept all titles under 67 characters (longest is 66 chars in last task)
 

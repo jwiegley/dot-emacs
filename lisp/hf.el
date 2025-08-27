@@ -98,14 +98,14 @@ groups:
     exclusive: false
     persistent: true
     members:
-      - Qwen3-235B-A22B
+      - Qwen3-235B-A22B-Instruct-2507
 
   small:
     swap: true
     exclusive: false
     members:
       - DeepSeek-R1-0528-Qwen3-8B
-      - Qwen3-30B-A3B
+      - Qwen3-30B-A3B-Instruct-2507
 
   embeddings:
     swap: true
@@ -113,6 +113,7 @@ groups:
     members:
       - bge-m3
       - Qwen3-Embedding-8B
+      - Qwen.Qwen3-Reranker-8B
       - nomic-embed-text-v2-moe
       - sentence-transformers/all-MiniLM-L6-v2
 "

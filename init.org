@@ -3638,6 +3638,21 @@ request:
              "--org-dir" ,org-directory)))))
 #+end_src
 
+*** mcp-server-lib
+
+#+begin_src emacs-lisp
+(use-package mcp-server-lib
+  :load-path "lisp/mcp-server-lib")
+#+end_src
+
+**** elisp-mcp-dev
+
+#+begin_src emacs-lisp
+(use-package elisp-dev-mcp
+  :after (mcp-server-lib)
+  :load-path "lisp/elisp-mcp-dev")
+#+end_src
+
 *** ragmacs
 
 #+begin_src emacs-lisp
