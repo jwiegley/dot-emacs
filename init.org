@@ -3607,7 +3607,7 @@ request:
 
 #+begin_src emacs-lisp
 (use-package mcp
-  :load-path "lisp/mcp.el"
+  :load-path "lisp/mcp"
   :after (gptel)
   :custom
   (mcp-hub-servers
