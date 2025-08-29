@@ -85,8 +85,6 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
-  ;; :backend "ChatGPT"
-  ;; :model 'gpt-4.1
   :backend "LiteLLM"
   :model 'openai/gpt-4.1
   :temperature 1.0)
@@ -101,8 +99,6 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
-  ;; :backend "Claude-thinking"
-  ;; :model 'claude-sonnet-4-20250514
   :backend "LiteLLM"
   :model 'anthropic/claude-sonnet-4-20250514
   :temperature 1.0)
@@ -131,8 +127,6 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
-  ;; :backend "llama-swap-hera"
-  ;; :model 'Qwen3-235B-A22B-Thinking-2507
   :backend "LiteLLM"
   :model 'hera/Qwen3-235B-A22B-Thinking-2507
   :temperature 1.0)
@@ -147,8 +141,6 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'r1
   :description "DeepSeek R1"
-  ;; :backend "llama-swap-hera"
-  ;; :model 'DeepSeek-R1-0528
   :backend "LiteLLM"
   ;; :model 'hera/DeepSeek-R1-0528
   :model 'openrouter/deepseek/deepseek-r1-0528:free
@@ -156,8 +148,6 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'fast
   :description "DeepSeek R1, quick"
-  ;; :backend "llama-swap-hera"
-  ;; :model 'DeepSeek-R1-0528-Qwen3-8B
   :backend "LiteLLM"
   :model 'hera/DeepSeek-R1-0528-Qwen3-8B
   :temperature 0.6)
