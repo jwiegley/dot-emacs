@@ -820,7 +820,7 @@ Groups completed tasks together and removes extra newlines.
 Intended for task management workflow optimization."
   (interactive)
   (goto-char (point-min))
-  (org-sort-entries t ?F #'org-get-inactive-time #'<)
+  (org-sort-entries t ?F #'org-ext-get-inactive-time #'<)
   (goto-char (point-min))
   (while (re-search-forward "
 

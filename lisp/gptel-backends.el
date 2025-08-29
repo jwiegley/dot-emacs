@@ -50,7 +50,7 @@
 
 (defun gptel-backends-make-litellm ()
   "Make GPTel backends for LiteLLM hosted models."
-  (gptel-make-deepseek "LiteLLM"
+  (gptel-make-openai "LiteLLM"
     :host "vulcan"
     :protocol "http"
     :endpoint "/litellm/v1/chat/completions"

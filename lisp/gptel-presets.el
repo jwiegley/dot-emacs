@@ -60,8 +60,9 @@ directly changes the backend, then the `:request-params' set by the
 preset could become invalid, since different backends interpret them
 differently or may not accept what another backend consider legitimate."
   (declare (indent 1))
-  (let ((params (plist-get keys :request-params))
-        (transforms (plist-get keys :prompt-transforms)))
+  (let* ((keys (cl-copy-list keys))
+         (params (plist-get keys :request-params))
+         (transforms (plist-get keys :prompt-transforms)))
     (when (or params transforms)
       (plist-put
        keys :post
@@ -95,20 +96,20 @@ differently or may not accept what another backend consider legitimate."
   :description "Anthropic's Claude Haiku"
   :backend "LiteLLM"
   :model 'anthropic/claude-3-5-haiku-20241022
+  :max-tokens 8192
   :temperature 1.0)
+
+(gptel-make-preset 'haiku-max
+  :description "Anthropic's Claude Haiku"
+  :backend "Claude-OAuth"
+  :model 'claude-3-5-haiku-20241022
+  :max-tokens 8192
+  :temperature 0.4)
 
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
   :backend "LiteLLM"
   :model 'anthropic/claude-sonnet-4-20250514
-  :temperature 1.0)
-
-(gptel-make-preset 'opus
-  :description "Anthropic's Claude Opus, thinking"
-  ;; :backend "Claude-thinking"
-  ;; :model 'claude-opus-4-20250514
-  :backend "LiteLLM"
-  :model 'anthropic/claude-opus-4-1-20250805
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet-max
@@ -117,40 +118,17 @@ differently or may not accept what another backend consider legitimate."
   :model 'claude-sonnet-4-20250514
   :temperature 1.0)
 
+(gptel-make-preset 'opus
+  :description "Anthropic's Claude Opus, thinking"
+  :backend "LiteLLM"
+  :model 'anthropic/claude-opus-4-1-20250805
+  :temperature 1.0)
+
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
   :backend "Claude-OAuth"
   :model 'claude-opus-4-1-20250805
   :temperature 1.0)
-
-;;; Ali Baba
-
-(gptel-make-preset 'qwen
-  :description "Ali Baba's Qwen, thinking"
-  :backend "LiteLLM"
-  :model 'hera/Qwen3-235B-A22B-Thinking-2507
-  :temperature 1.0)
-
-(gptel-make-preset 'coding-model
-  :description "Ali Baba's Qwen coder, small"
-  :backend "LiteLLM"
-  :model hf-default-instance
-  :temperature (hf-model-temperature (hf-get-model hf-default-model)))
-
-;;; DeepSeek
-
-(gptel-make-preset 'r1
-  :description "DeepSeek R1"
-  :backend "LiteLLM"
-  ;; :model 'hera/DeepSeek-R1-0528
-  :model 'openrouter/deepseek/deepseek-r1-0528:free
-  :temperature 0.6)
-
-(gptel-make-preset 'fast
-  :description "DeepSeek R1, quick"
-  :backend "LiteLLM"
-  :model 'hera/DeepSeek-R1-0528-Qwen3-8B
-  :temperature 0.6)
 
 ;;; Perplexity
 
@@ -160,17 +138,45 @@ differently or may not accept what another backend consider legitimate."
   :model 'perplexity/sonar-pro
   :include-reasoning 'ignore)
 
-(my/gptel-make-preset 'pro
+(my/gptel-make-preset 'sonar-pro
   :description "Perplexity.ai sonar-reasoning-pro"
   :backend "LiteLLM"
   :model 'perplexity/sonar-reasoning-pro
   :include-reasoning 'ignore)
 
-(my/gptel-make-preset 'deep-research
+(my/gptel-make-preset 'sonar-deep-research
   :description "Perplexity.ai sonar-deep-research"
   :backend "LiteLLM"
   :model 'perplexity/sonar-deep-research
   :include-reasoning 'ignore)
+
+;;; Ali Baba
+
+(gptel-make-preset 'qwen
+  :description "Ali Baba's Qwen, thinking"
+  :backend "LiteLLM"
+  :model 'hera/Qwen3-235B-A22B-Thinking-2507
+  :temperature 1.0)
+
+;;; DeepSeek
+
+(gptel-make-preset 'r1
+  :description "DeepSeek R1"
+  :backend "LiteLLM"
+  :model 'hera/DeepSeek-R1-0528
+  :temperature 0.6)
+
+(gptel-make-preset 'r1-fast
+  :description "DeepSeek R1, quick"
+  :backend "LiteLLM"
+  :model 'hera/DeepSeek-R1-0528-Qwen3-8B
+  :temperature 0.6)
+
+(gptel-make-preset 'deepseek
+  :description "DeepSeek V3.1"
+  :backend "LiteLLM"
+  :model 'hera/DeepSeek-V3.1
+  :temperature 0.6)
 
 ;;; Other
 
@@ -184,28 +190,27 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'default
   :description "Default setup"
-  ;; :parents 'coding-model
   :parents 'opus-max
+  ;; :model hf-default-instance-name
   :system 'default
   :confirm-tool-calls nil ; 'auto
-  :max-tokens 16384
   :use-context 'user
   :include-reasoning 'ignore)
 
 (my/gptel-make-preset 'code
   :description "Best model for generating or interpreting code"
-  :parents 'opus
+  :parents 'opus-max
   :request-params '(:thinking
-                    (:type "enabled" :budget_tokens 16384)
-                    :max_tokens 24000)
+                    (:type "enabled" :budget_tokens 24000)
+                    :max_tokens 32000)
   :include-reasoning 'ignore)
 
 (my/gptel-make-preset 'analyze
   :description "Best model for analysis"
   :parents 'opus-max
   :request-params '(:thinking
-                    (:type "enabled" :budget_tokens 16384)
-                    :max_tokens 24000)
+                    (:type "enabled" :budget_tokens 24000)
+                    :max_tokens 32000)
   :include-reasoning 'ignore)
 
 (my/gptel-make-preset 'search
@@ -221,12 +226,11 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'rewrite
   :description "Model used for basic rewrites"
-  :max-tokens 8192
   :include-reasoning nil
   :tools nil
   :parents (if gptel-presets-rewrite-use-remote
-               'gpt
-             '(quick qwen)))
+               (or 'gpt 'haiku)
+             'qwen))
 
 ;;; DIRECTIVES (w/ MODELS) ===============================================
 
@@ -235,9 +239,8 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'prompt
   :description "AI prompt refiner"
   :system 'prompt
-  :parents 'gpt
+  :parents 'sonnet
   :tools nil
-  :max-tokens nil
   :include-reasoning 'ignore)
 
 (gptel-make-preset 'title
@@ -250,74 +253,71 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'persian
   :description "Persian translator"
   :system 'persian
-  :parents 'gpt
-  :max-tokens 2048)
+  :parents 'opus)
 
 (gptel-make-preset 'spanish
   :description "Spanish translator"
   :system 'spanish
-  :parents 'gpt
-  :max-tokens 2048)
+  :parents 'sonnet)
 
 ;;; Computing
 
 (gptel-make-preset 'cli
   :description "Generate command-line commands"
   :system 'cli
-  :parents 'opus)
+  :parents 'sonnet)
 
 (gptel-make-preset 'emacs
   :description "Best model for generating or interpreting code"
   :system 'emacs-aid
-  :parents 'coding-model
-  :max-tokens 32767
+  :parents 'opus
   :tools '("emacs" "introspection"))
 
 (gptel-make-preset 'haskell
   :description "Expert Haskell coder"
   :system 'haskell
-  :parents 'opus
-  :max-tokens 32767)
+  :parents 'opus)
 
 ;;; REQUEST-PARAMS =======================================================
 
-(my/gptel-make-preset 'here
-  :description "Add user location to query"
-  :request-params `(:user_location
-                    (:latitude
-                     ,calendar-latitude
-                     :longitude
-                     ,calendar-longitude
-                     :country "US")))
+;; (my/gptel-make-preset 'here
+;;   :description "Add user location to query"
+;;   :request-params `(:user_location
+;;                     (:latitude
+;;                      ,calendar-latitude
+;;                      :longitude
+;;                      ,calendar-longitude
+;;                      :country "US")))
 
 (my/gptel-make-preset 'web
   :description "Search the Web using Perplexity.ai"
+  ;; :parents '(here sonar)
   :parents 'sonar
   :request-params '(:web_search_options (:search_context_size "medium"))
   :include-reasoning 'ignore)
 
 (my/gptel-make-preset 'deep
   :description "Search the Web (deeply) using Perplexity.ai"
+  ;; :parents '(here sonar)
   :parents 'sonar
   :request-params '(:web_search_options (:search_context_size "high"))
   :include-reasoning 'ignore)
 
 (my/gptel-make-preset 'think
   :description "Search the Web (deeply) using Perplexity.ai"
-  :parents 'pro
+  ;; :parents '(here sonar-pro)
+  :parents 'sonar-pro
   :request-params '(:web_search_options (:search_context_size "high"))
   :include-reasoning 'ignore)
 
 (my/gptel-make-preset 'research
   :description "Perplexity.ai deep reasoning"
-  :parents 'deep-research
+  ;; :parents '(here sonar-deep-research)
+  :parents 'sonar-deep-research
   :request-params '(:web_search_options (:search_context_size "high"))
   :include-reasoning 'ignore)
 
 ;;; PROMPT-TRANSFORMS ====================================================
-
-(my/gptel-make-preset 'quick
-  :prompt-transforms '(gptel-presets-insert-no-think))
 
 (my/gptel-make-preset 'rag
   :rag-config-file "~/src/rag-client/chat.yaml"

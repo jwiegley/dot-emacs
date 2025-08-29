@@ -47,23 +47,12 @@
   :type 'integer
   :group 'hf)
 
-(defcustom hf-default-model
-  (if (string-match-p "clio" (system-name))
-      'Qwen3-30B-A3B-Thinking-2507
-    'Qwen3-235B-A22B-Thinking-2507)
-  "Name of default model."
-  :type 'symbol
-  :group 'hf)
-
 (defcustom hf-default-hostname "hera"
   "Name of model host."
   :type 'string
   :group 'hf)
 
-(defcustom hf-default-instance
-  (if (string-match-p "clio" (system-name))
-      hf-default-model
-    (intern (format "%s/%s" hf-default-hostname hf-default-model)))
+(defcustom hf-default-instance-name 'hera/Qwen3-235B-A22B-Thinking-2507
   "Name of default instance."
   :type 'symbol
   :group 'hf)
@@ -205,11 +194,15 @@ litellm_settings:
   cache_params:
     type: local
 
-# router_settings:
-#   provider_budget_config:
-#     perplexity:
-#       budget_limit: 5
-#       time_period: 1mo
+router_settings:
+  routing_strategy: \"least-busy\"
+  num_retries: 3
+  request_timeout: 7200
+  max_parallel_requests: 100
+  # provider_budget_config:
+  #   perplexity:
+  #     budget_limit: 5
+  #     time_period: 1mo
 
 general_settings:
   store_model_in_db: true
@@ -231,6 +224,9 @@ general_settings:
 (defvar hf-lmstudio-models (expand-file-name "lmstudio/models" hf-xdg-local))
 (defvar hf-ollama-models (expand-file-name "ollama/models" hf-xdg-local))
 
+(defconst hf-all-model-characteristics
+  '(high medium low remote local thinking instruct coding rewrite))
+
 (defconst hf-all-model-capabilities
   '(media tool json url))
 
@@ -250,6 +246,7 @@ general_settings:
   "Configuration data for a model, and its family of instances."
   name                                  ; name of the model
   description                           ; description of the model
+  characteristics
   (capabilities
    hf-all-model-capabilities)           ; capabilities of the model
   (mime-types
@@ -579,6 +576,7 @@ general_settings:
 
    (make-hf-model
     :name 'Qwen3-235B-A22B-Instruct-2507
+    :characteristics '(high local instruct)
     :context-length 262144
     :temperature 0.7
     :min-p 0.01
@@ -598,6 +596,7 @@ general_settings:
 
    (make-hf-model
     :name 'Qwen3-235B-A22B-Thinking-2507
+    :characteristics '(high local thinking)
     :context-length 262144
     :temperature 0.6
     :min-p 0.01
@@ -1094,8 +1093,17 @@ general_settings:
       :provider 'groq)))
    )
   "List of configured models."
-  :type '(repeat hf-model-widget)
+  :type '(repeat sexp)
   :group 'hf)
+
+(defun hf-models-from-characteristics (&rest characteristics)
+  "Return all models that provides the full list of CHARACTERISTICS."
+  (cl-loop for model in hf-models-list
+           when (and-let* ((all-chars (hf-model-characteristics model)))
+                  (cl-subsetp characteristics all-chars))
+           return (hf-model-name model)))
+
+;; (hf-models-from-characteristics 'high 'local 'thinking)
 
 (defun hf-make-models-hash ()
   "Build a hashtable from NAME to MODEL for `hf-models-list'."
@@ -1422,6 +1430,8 @@ Optionally generate for the given HOSTNAME."
       model: %s/%s
       litellm_credential_name: %s_credential
       supports_system_message: %s
+      tpm: 10000000
+      rpm: 100000
     model_info:
       mode: %S
       description: %S%s%s
@@ -1496,7 +1506,7 @@ Optionally generate for the given HOSTNAME."
   ;; Update LiteLLM to refer to all local and remote models
   (hf-build-litellm-yaml)
   ;; Update GPTel with instance list, to remain in sync with LiteLLM
-  (setq gptel-model hf-default-instance
+  (setq gptel-model hf-default-instance-name
         gptel-backend (gptel-backends-make-litellm)))
 
 (defun hf-get-instance-gptel-backend (model instance &optional hostname)

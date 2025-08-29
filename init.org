@@ -594,7 +594,7 @@ _v_ariable       _u_ser-option
 
 #+begin_src emacs-lisp
 (use-package hf
-  :defines (hf-default-model hf-default-instance)
+  :defines (hf-default-instance-name)
   :functions (hf-gptel-backends)
   :commands (hf-build-yaml
              hf-status
@@ -683,7 +683,7 @@ It reindents after every change, making it more reliable than
   :custom
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
-     "--model" ,(format "openai/%s" hf-default-instance)
+     "--model" ,(format "openai/%s" hf-default-instance-name)
      "--openai-api-base" "http://vulcan/litellm/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
@@ -1993,7 +1993,7 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
          ("C-h M-m"   . discover-my-mode)))
 #+end_src
 
-** COMMENT docker
+** docker
 
 #+begin_src emacs-lisp
 (use-package docker
@@ -3642,7 +3642,11 @@ request:
 
 #+begin_src emacs-lisp
 (use-package mcp-server-lib
-  :load-path "lisp/mcp-server-lib")
+  :load-path "lisp/mcp-server-lib"
+  :demand t
+  :config
+  (require 'mcp-server-lib-commands)
+  (mcp-server-lib-start))
 #+end_src
 
 **** elisp-mcp-dev

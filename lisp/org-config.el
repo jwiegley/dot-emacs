@@ -544,6 +544,8 @@ SCHEDULED: %t
                               "institute-day-reflection.org")
    ,(org-config-bahai-meeting "bu" "Unit Convention" "unit-convention.org")
    ,(org-config-bahai-meeting "bc" "Cluster Agencies" "cluster-agencies.org")
+   ,(org-config-bahai-meeting "bS" "Institute Coordinators"
+                              "institute-coordinators.org")
 
    ("w" "Work templates")
 
