@@ -188,23 +188,22 @@ NEXT_REVIEW date is <= that date."
          (table
           (org-ql-select 'org-agenda-files query
             :action `(org-ext-get-properties ,@columns)
-            :sort
-            #'(lambda (x y)
-                (cond
-                 (sort-ts
-                  (let ((x-value (nth sort-ts x))
-                        (y-value (nth sort-ts y)))
-                    (when (and x-value y-value)
-                      (time-less-p
-                       (org-encode-time
-                        (org-parse-time-string x-value))
-                       (org-encode-time
-                        (org-parse-time-string y-value))))))
-                 (sort
-                  (let ((x-value (nth sort x))
-                        (y-value (nth sort y)))
-                    (string-lessp (or x-value "")
-                                  (or y-value "")))))))))
+            :sort #'(lambda (x y)
+                      (cond
+                       (sort-ts
+                        (let ((x-value (nth sort-ts x))
+                              (y-value (nth sort-ts y)))
+                          (when (and x-value y-value)
+                            (time-less-p
+                             (org-encode-time
+                              (org-parse-time-string x-value))
+                             (org-encode-time
+                              (org-parse-time-string y-value))))))
+                       (sort
+                        (let ((x-value (nth sort x))
+                              (y-value (nth sort y)))
+                          (string-lessp (or x-value "")
+                                        (or y-value "")))))))))
     ;; Add column titles and a horizontal rule in front of the table.
     (setq table (cons columns (cons 'hline table)))
     (let ((hlines nil)

@@ -53,10 +53,10 @@
 (defalias 'org-ext-up-heading #'outline-up-heading)
 
 (defun org-ext-goto-inbox-heading ()
-  "Move to Inbox heading in file specified by `org-constants-todo-path'.
+  "Move to Inbox heading in file specified by `org-constants-drafts-path'.
 Checks for proper file structure: blank line after header, Inbox heading
 at top level. Signals error if formatting is incorrect."
-  (set-buffer (get-buffer (file-name-nondirectory org-constants-todo-path)))
+  (set-buffer (get-buffer (file-name-nondirectory org-constants-drafts-path)))
   (goto-char (point-min))
   (while (looking-at "^[:#]")
     (forward-line 1))
@@ -421,9 +421,10 @@ Returns first matching property in current entry."
                             (delq nil local)
                             (org--property-get-separator property))))))
 
-(defsubst org-ext-category-p ()
+(defun org-ext-category-p ()
   "A category is any heading that has a CATEGORY property."
-  (not (null (org-ext-entry-get-immediate "CATEGORY"))))
+  (and (not (org-entry-is-todo-p))
+       (org-ext-entry-get-immediate "CATEGORY")))
 
 (defun org-ext--first-child-todo (&optional pred)
   "Internal function to find child todo entries.
@@ -444,10 +445,10 @@ Useful for determining project status in org hierarchy.
 Optionally accepts PRED to filter child entries."
   (catch 'has-child-todo (org-ext--first-child-todo pred)))
 
-(defsubst org-ext-project-p ()
+(defun org-ext-project-p ()
   "A project is any open todo that has child tasks at any level."
   (and (org-entry-is-todo-p)
-       (not (null (org-ext-first-child-todo)))))
+       (org-ext-first-child-todo)))
 
 (defsubst org-ext-top-level-project-p ()
   "A top-level project is not the child of another project."
@@ -975,9 +976,98 @@ Triggers when three backticks are typed in sequence. Sets appropriate language."
 Adds `org-ext-insert-code-block' to `post-self-insert-hook'."
   (add-hook 'post-self-insert-hook #'org-ext-insert-code-block nil t))
 
-(defun org-ext-set-category ()
+(defun org-ext-get-all-categories (&optional files)
+  "Return a list of all unique categories used in org FILES.
+If FILES is nil, use `org-agenda-files'.
+Uses org-ql for efficient searching."
   (interactive)
-  (call-interactively #'org-set-property PROPERTY VALUE))
+  (let* ((files (or files (org-agenda-files)))
+         (categories '()))
+    ;; Use org-ql to search all entries and collect their categories
+    (org-ql-select files
+      '(category) ;; Match all entries with any category
+      :action (lambda ()
+                (when-let ((cat (org-get-category)))
+                  (cl-pushnew cat categories :test #'string=))))
+    ;; Sort the categories alphabetically
+    (sort categories #'string<)))
+
+(defun org-ext-get-all-categories-detailed (&optional files include-counts)
+  "Return all unique categories used in org FILES.
+If FILES is nil, use `org-agenda-files'.
+If INCLUDE-COUNTS is non-nil, return an alist of (category . count) pairs.
+Uses org-ql for efficient searching."
+  (interactive (list nil t))
+  (let* ((files (or files (org-agenda-files)))
+         (categories (if include-counts
+                         (make-hash-table :test #'equal)
+                       '())))
+    ;; Use org-ql to search all entries
+    (org-ql-select files
+      t ;; Match all entries
+      :action (lambda ()
+                (when-let ((cat (org-get-category)))
+                  (if include-counts
+                      (puthash cat (1+ (gethash cat categories 0)) categories)
+                    (cl-pushnew cat categories :test #'string=)))))
+    ;; Process and return results
+    (if include-counts
+        (let ((result '()))
+          (maphash (lambda (cat count)
+                     (push (cons cat count) result))
+                   categories)
+          (sort result (lambda (a b) (string< (car a) (car b)))))
+      (sort categories #'string<))))
+
+(defun org-ext-get-categories-by-file (&optional files)
+  "Return an alist of (file . categories) for org FILES.
+If FILES is nil, use `org-agenda-files'.
+Each file is mapped to a list of unique categories used in that file."
+  (interactive)
+  (let* ((files (or files (org-agenda-files)))
+         (result '()))
+    (dolist (file files)
+      (let ((file-categories '()))
+        (org-ql-select file
+          t ;; Match all entries
+          :action (lambda ()
+                    (when-let ((cat (org-get-category)))
+                      (cl-pushnew cat file-categories :test #'string=))))
+        (when file-categories
+          (push (cons file (sort file-categories #'string<)) result))))
+    (nreverse result)))
+
+(defun org-ext-show-all-categories ()
+  "Display all categories used in the current Org project.
+Shows categories with their usage counts in a temporary buffer."
+  (interactive)
+  (let* ((categories-with-counts (org-ext-get-all-categories-detailed nil t))
+         (total-categories (length categories-with-counts))
+         (total-entries (apply #'+ (mapcar #'cdr categories-with-counts))))
+    (with-current-buffer (get-buffer-create "*Org Categories*")
+      (erase-buffer)
+      (insert (format "Org Categories Summary\n"))
+      (insert (format "======================\n"))
+      (insert (format "Total categories: %d\n" total-categories))
+      (insert (format "Total categorized entries: %d\n\n" total-entries))
+      (insert "Category                     Count\n")
+      (insert "--------                     -----\n")
+      (dolist (cat-count categories-with-counts)
+        (insert (format "%-28s %5d\n" (car cat-count) (cdr cat-count))))
+      (goto-char (point-min))
+      (read-only-mode 1)
+      (display-buffer (current-buffer)))))
+
+(defvar org-ext-category-history nil)
+
+;;; jww (2025-08-30): This function should make it easy to quickly set a
+;;; category from a list of possible categories.
+(defun org-ext-set-category (category)
+  "Set the category of the current Org-mode element to CATEGORY."
+  (interactive
+   (list (completing-read "Category: " (org-ext-get-all-categories)
+                          nil nil nil 'org-ext-category-history)))
+  (org-set-property "CATEGORY" category))
 
 (provide 'org-ext)
 

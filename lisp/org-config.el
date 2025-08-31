@@ -59,8 +59,15 @@
 
 (defun org-config-category-search (who)
   (interactive
-   (list (completing-read "Category: " (org-property-values "CATEGORY"))))
+   (list (completing-read "Category: " (org-ext-get-all-categories)
+                          nil nil nil 'org-ext-category-history)))
   (org-tags-view t (format "CATEGORY=\"%s\"%s" who org-config-open-re)))
+
+(defun org-config-raw-category-search (who)
+  (interactive
+   (list (completing-read "Category: " (org-ext-get-all-categories)
+                          nil nil nil 'org-ext-category-history)))
+  (org-tags-view t (format "CATEGORY=\"%s\"" who)))
 
 (defun org-config-keyword-search (who)
   (interactive
@@ -241,7 +248,7 @@
  (let ((Inbox '(function org-ext-goto-inbox-heading)))
    `(("a" "TODO" entry
       ,Inbox
-      "* TODO %?\nSCHEDULED: %t"
+      "* TODO %?"
       :prepend t)
 
      ("d" "DRAFT" entry
@@ -251,6 +258,15 @@
       :hook (lambda ()
               (setq-local auto-save-interval 8
                           auto-save-timeout 1)))
+
+     ("f" "Feedback" entry
+      ,Inbox
+      "* TODO Feedback: %?
+- Can I give you some feedback?
+- When you…
+- What happens is…
+- Is this something you can work on?"
+      :prepend t)
 
      ("j" "Journal" entry
       (file ,(expand-file-name org-constants-journelly-path))
@@ -298,7 +314,6 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
      ("c" "Checklist" entry
       ,Inbox
       "* TODO %? [/]
-SCHEDULED: %t
 - [ ] $0
 :PROPERTIES:
 :COOKIE_DATA: recursive
@@ -716,10 +731,11 @@ SCHEDULED: %t
    ("n" "Notes"   todo "NOTE")
    ("l" "Links"   todo "LINK")
 
-   (":" "With TAGS"     ,(org-config-call-only #'org-config-tags-search))
-   ("c" "With CATEGORY" ,(org-config-call-only #'org-config-category-search))
-   ("k" "With KEYWORD"  ,(org-config-call-only #'org-config-keyword-search))
-   ("i" "With ITEM"     ,(org-config-call-only #'org-config-item-search))
+   (":" "With TAGS"      ,(org-config-call-only #'org-config-tags-search))
+   ("c" "With CATEGORY"  ,(org-config-call-only #'org-config-category-search))
+   ("C" "With CATEGORY+" ,(org-config-call-only #'org-config-raw-category-search))
+   ("k" "With KEYWORD"   ,(org-config-call-only #'org-config-keyword-search))
+   ("i" "With ITEM"      ,(org-config-call-only #'org-config-item-search))
 
    ("g" . "Org-ql queries")
 
@@ -902,6 +918,14 @@ SCHEDULED: %t
           ;;   (goto-char (point-min))
           ;;   (re-search-forward (concat "#\\+filetags:.*:" ,tag ":") 4096 t))
           )
+    :sort '(scheduled todo)))
+
+(defun org-config-show-invalid ()
+  (interactive)
+  (org-ql-search (org-ql-search-directories-files
+                  :directories (list org-directory))
+    '(and (not (todo))
+          (property "Effort"))
     :sort '(scheduled todo)))
 
 (provide 'org-config)

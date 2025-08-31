@@ -135,20 +135,17 @@ differently or may not accept what another backend consider legitimate."
 (my/gptel-make-preset 'sonar
   :description "Perplexity.ai sonar-pro"
   :backend "LiteLLM"
-  :model 'perplexity/sonar-pro
-  :include-reasoning 'ignore)
+  :model 'perplexity/sonar-pro)
 
 (my/gptel-make-preset 'sonar-pro
   :description "Perplexity.ai sonar-reasoning-pro"
   :backend "LiteLLM"
-  :model 'perplexity/sonar-reasoning-pro
-  :include-reasoning 'ignore)
+  :model 'perplexity/sonar-reasoning-pro)
 
 (my/gptel-make-preset 'sonar-deep-research
   :description "Perplexity.ai sonar-deep-research"
   :backend "LiteLLM"
-  :model 'perplexity/sonar-deep-research
-  :include-reasoning 'ignore)
+  :model 'perplexity/sonar-deep-research)
 
 ;;; Ali Baba
 
@@ -188,41 +185,42 @@ differently or may not accept what another backend consider legitimate."
 
 ;;; ALIASES ==============================================================
 
+(my/gptel-make-preset 'high-output
+  :request-params '(:max_tokens 32000))
+
+(my/gptel-make-preset 'low-thinking
+  :request-params '(:thinking (:type "enabled" :budget_tokens 8000)))
+
+(my/gptel-make-preset 'medium-thinking
+  :request-params '(:thinking (:type "enabled" :budget_tokens 16000)))
+
+(my/gptel-make-preset 'high-thinking
+  :request-params '(:thinking (:type "enabled" :budget_tokens 32000)))
+
+(my/gptel-make-preset 'web-search
+  :request-params '(:tools [(:type "web_search_20250305"
+                                   :name "web_search"
+                                   :max_uses 5)]))
+
 (gptel-make-preset 'default
   :description "Default setup"
   :parents 'opus-max
   ;; :model hf-default-instance-name
   :system 'default
-  :confirm-tool-calls nil ; 'auto
-  :use-context 'user
-  :include-reasoning 'ignore)
-
-(my/gptel-make-preset 'code
-  :description "Best model for generating or interpreting code"
-  :parents 'opus-max
-  :request-params '(:thinking
-                    (:type "enabled" :budget_tokens 24000)
-                    :max_tokens 32000)
-  :include-reasoning 'ignore)
+  :confirm-tool-calls nil               ; 'auto
+  :use-context 'user)
 
 (my/gptel-make-preset 'analyze
   :description "Best model for analysis"
-  :parents 'opus-max
-  :request-params '(:thinking
-                    (:type "enabled" :budget_tokens 24000)
-                    :max_tokens 32000)
-  :include-reasoning 'ignore)
+  :parents '(opus-max high-thinking high-output))
+
+(my/gptel-make-preset 'code
+  :description "Best model for generating or interpreting code"
+  :parents 'analyze)
 
 (my/gptel-make-preset 'search
   :description "Best model for web search and analysis"
-  :parents 'opus-max
-  :request-params '(:thinking
-                    (:type "enabled" :budget_tokens 24000)
-                    :max_tokens 32000
-                    :tools [(:type "web_search_20250305"
-                                   :name "web_search"
-                                   :max_uses 5)])
-  :include-reasoning 'ignore)
+  :parents '(analyze web-search))
 
 (gptel-make-preset 'rewrite
   :description "Model used for basic rewrites"
@@ -240,8 +238,7 @@ differently or may not accept what another backend consider legitimate."
   :description "AI prompt refiner"
   :system 'prompt
   :parents 'sonnet
-  :tools nil
-  :include-reasoning 'ignore)
+  :tools nil)
 
 (gptel-make-preset 'title
   :description "Create Org-mode title"
@@ -293,29 +290,25 @@ differently or may not accept what another backend consider legitimate."
   :description "Search the Web using Perplexity.ai"
   ;; :parents '(here sonar)
   :parents 'sonar
-  :request-params '(:web_search_options (:search_context_size "medium"))
-  :include-reasoning 'ignore)
+  :request-params '(:web_search_options (:search_context_size "medium")))
 
 (my/gptel-make-preset 'deep
   :description "Search the Web (deeply) using Perplexity.ai"
   ;; :parents '(here sonar)
   :parents 'sonar
-  :request-params '(:web_search_options (:search_context_size "high"))
-  :include-reasoning 'ignore)
+  :request-params '(:web_search_options (:search_context_size "high")))
 
 (my/gptel-make-preset 'think
   :description "Search the Web (deeply) using Perplexity.ai"
   ;; :parents '(here sonar-pro)
   :parents 'sonar-pro
-  :request-params '(:web_search_options (:search_context_size "high"))
-  :include-reasoning 'ignore)
+  :request-params '(:web_search_options (:search_context_size "high")))
 
 (my/gptel-make-preset 'research
   :description "Perplexity.ai deep reasoning"
   ;; :parents '(here sonar-deep-research)
   :parents 'sonar-deep-research
-  :request-params '(:web_search_options (:search_context_size "high"))
-  :include-reasoning 'ignore)
+  :request-params '(:web_search_options (:search_context_size "high")))
 
 ;;; PROMPT-TRANSFORMS ====================================================
 
