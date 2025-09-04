@@ -611,6 +611,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ,(org-config-kadena-meeting "wF" "Offsite Meeting"  "offsite.org")
    ,(org-config-kadena-meeting "wa" "All Hands"        "all-hands.org")
    ,(org-config-kadena-meeting "we" "EVM Posse"        "evm-posse.org")
+   ,(org-config-kadena-meeting "wL" "EVM ProductLeads" "evm-product-leads.org")
    ,(org-config-kadena-meeting "wj" "JS Team"          "js-team.org")
    ,(org-config-kadena-meeting "wl" "Leads Strategy"   "leads-strategy.org")
    ,(org-config-kadena-meeting "wE" "Eng Managers"     "eng-managers.org")

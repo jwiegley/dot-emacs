@@ -3133,6 +3133,7 @@ up before you execute another command."
   (gptel-mode . (lambda () (setq-local gptel-stream t)))
   (gptel-post-stream . gptel-auto-scroll)
   :custom
+  (gptel-cache t)
   (gptel-default-mode 'org-mode)
   (gptel-log-level 'info)
   (gptel-include-reasoning 'ignore)
@@ -11465,10 +11466,55 @@ context.
 
 *** org-anki
 
+[[https://github.com/eyeinsky/org-anki][org-anki]] is a non-invasive minor mode to synchronize your org-mode notes to
+Anki.
+
+Works via [[https://foosoft.net/projects/anki-connect/][AnkiConnect]] add-on to [[https://apps.ankiweb.net/][Anki]].
+
+Features deck import via =org-anki-import-deck= (requires pandoc for converting
+html to org).
+
+*How*: Creates “Basic” or “Cloze” type notes.
+
+By default “Basic” cards are created where org entry’s heading is the card
+front and content is the back.[fn:how] If the heading has Cloze syntax
+(={{...}}=) then the heading is used to create both the question and the answer,
+and content of the org entry is not used.
+
+Tags are also synchronized; hierarchical tags are supported via customizing
+=org-anki-hierarchical-tags-separator= (see below).
+
+See [[https://github.com/eyeinsky/org-anki/blob/master/example/example.org][example.org]] and the [[https://github.com/eyeinsky/org-anki/blob/master/example][resulting screenshots]] for how the cards look after
+being synced to Anki.
+
 #+begin_src emacs-lisp
 (use-package org-anki
   :after org
-  :commands org-anki-sync-all)
+  :commands
+  (;; adds or updates the current org-entry under cursor.
+   org-anki-sync-entry
+   ;; updates all entries in buffer. “All” means all entries that have
+   ;; ANKI_NOTE_ID property set.
+   org-anki-update-all
+   ;; adds or updates all entries in buffer. Use #+ANKI_MATCH:
+   ;; some_property=”some value” at top-of-file to selectively sync matched
+   ;; entries. Syntax is same as the MATCH argument for org-map-entries.
+   org-anki-sync-all
+   ;; deletes entry from Anki. Entry must have ANKI_NOTE_ID property.
+   org-anki-delete-entry
+   ;; delete all entries with ANKI_NOTE_ID property set from Anki.
+   org-anki-delete-all
+   ;; converts a region or word under cursor to Cloze syntax, i.e {{c1::hidden
+   ;; text::hint text}}. This should be used in org entry’s title.
+   org-anki-cloze-dwim
+   ;; Browse entry at point on anki’s browser dialog with searching nid
+   org-anki-browse-entry
+   ;; Prompts for deck name and imports it. Requires pandoc for converting html
+   ;; to org.
+   org-anki-import-deck
+   ;; Updates all entries having ANKI_NOTE_ID property in every .org file in
+   ;; your specified directory.
+   org-anki-update-dir))
 #+end_src
 
 *** org-attach
@@ -13582,7 +13628,7 @@ under the =t= menu.
 #+begin_src emacs-lisp
 (use-package asana
   :load-path "lisp/emacs-asana"
-  :commands asana-org-sync-tasks
+  :commands (asana-org-sync-tasks)
   :defines (asana-token)
   :custom
   (asana-tasks-org-file org-constants-work-asana-path)

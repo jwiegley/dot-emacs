@@ -22,7 +22,7 @@
   :type 'string
   :group 'hf)
 
-(defcustom hf-server "192.168.50.5"
+(defcustom hf-server "hera.localnet"
   "Server address."
   :type 'string
   :group 'hf)
@@ -126,21 +126,21 @@ groups:
 credential_list:
   - credential_name: hera_llama_swap_credential
     credential_values:
-      api_base: http://192.168.50.5:8080/v1
+      api_base: http://hera.localnet:8080/v1
       api_key: \"fake\"
     credential_info:
       description: \"API Key for llama-swap on Hera\"
 
   - credential_name: athena_llama_swap_credential
     credential_values:
-      api_base: http://192.168.50.235:8080/v1
+      api_base: http://athena.localnet:8080/v1
       api_key: \"fake\"
     credential_info:
       description: \"API Key for llama-swap on Athena\"
 
   - credential_name: clio_llama_swap_credential
     credential_values:
-      api_base: http://192.168.50.112:8080/v1
+      api_base: http://clio.localnet:8080/v1
       api_key: \"fake\"
     credential_info:
       description: \"API Key for llama-swap on Clio\"
