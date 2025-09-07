@@ -56,17 +56,16 @@
   "Move to Inbox heading in file specified by `org-constants-drafts-path'.
 Checks for proper file structure: blank line after header, Inbox heading
 at top level. Signals error if formatting is incorrect."
-  (set-buffer (get-buffer (file-name-nondirectory org-constants-drafts-path)))
-  (goto-char (point-min))
-  (while (looking-at "^[:#]")
-    (forward-line 1))
-  (unless (looking-at "^$")
-    (error "Missing blank line after file header in %s"
-           (file-name-nondirectory org-constants-todo-path)))
-  (forward-line 1)
-  (unless (looking-at "^\\* Inbox$")
-    (error "Missing Inbox heading at start of %s"
-           (file-name-nondirectory org-constants-todo-path))))
+  (let ((path (file-name-nondirectory org-constants-drafts-path)))
+    (set-buffer (find-file-noselect org-constants-drafts-path))
+    (goto-char (point-min))
+    (while (looking-at "^[:#]")
+      (forward-line 1))
+    (unless (looking-at "^$")
+      (error "Missing blank line after file header in %s" path))
+    (forward-line 1)
+    (unless (looking-at "^\\* Inbox$")
+      (error "Missing Inbox heading at start of %s" path))))
 
 (defun org-ext-goto-inbox (&optional func)
   "Navigate to the Inbox section in todo file.

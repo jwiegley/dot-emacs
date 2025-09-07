@@ -656,6 +656,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ,(org-config-1-on-1-from-name "Hafsah Asmat")
 
    ("woj" "Names beginning with J")
+   ,(org-config-1-on-1-from-name "Javad Khalilian")
    ,(org-config-1-on-1-from-name "June Boston")
    ,(org-config-1-on-1-from-name "Jose Cardona")
    ,(org-config-1-on-1-from-name "John Frost")
