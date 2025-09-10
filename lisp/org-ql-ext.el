@@ -233,6 +233,43 @@ NEXT_REVIEW date is <= that date."
 See `org-ext-ql-columnview'."
   (apply #'org-ext-ql-columnview params))
 
+(defun org-ql-ext-export-columnview ()
+  "Copy tasks in the current column view to pasteboard."
+  (interactive)
+  (save-excursion
+    (org-beginning-of-dblock)
+    (forward-line 1)
+    (let (result)
+      (while (not (looking-at-p "^#"))
+        (when-let* ((fields (split-string (buffer-substring-no-properties
+                                           (line-beginning-position)
+                                           (line-end-position))
+                                          "|"))
+                    (keyword (nth 1 fields))
+                    (link (nth 2 fields))
+                    (tags (nth 3 fields)))
+          (when (string-match org-link-bracket-re link)
+            (setq result
+                  (cons
+                   (concat
+                    "- "
+                    (match-string 2 link)
+                    (and tags
+                         (concat " ("
+                                 (and (string= keyword " TASK ")
+                                      "← ")
+                                 (mapconcat #'identity
+                                            (split-string (string-trim tags)
+                                                          ":" t)
+                                            ", ")
+                                 (and (string= keyword " TODO ")
+                                      " ⟹")
+                                 ")")))
+                   result))))
+        (forward-line 1))
+      (kill-new (mapconcat #'identity (nreverse result) "\n"))
+      (message "ql-columnview task list copied to kill ring"))))
+
 (provide 'org-ql-ext)
 
 ;;; org-ql-ext.el ends here

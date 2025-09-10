@@ -314,11 +314,11 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
      ("c" "Checklist" entry
       ,Inbox
       "* TODO %? [/]
-- [ ] $0
 :PROPERTIES:
 :COOKIE_DATA: recursive
 :RESET_CHECK_BOXES: t
-:END:"
+:END:
+- [ ] $0"
       :prepend t)
 
      ("C" "Category" entry
@@ -337,6 +337,28 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 :EMAIL:    %^{EMAIL}
 :END:"
       :prepend t)
+
+     ("b" "Bahá’í")
+
+     ("bc" "Concentric circles" entry
+      ,Inbox
+      "** NOTE Concentric circles — %?
+- *Population*
+  Everyone in a geographic area
+
+- *In Conversation*
+  Has not yet participated in anything
+
+- *Participating*
+  Volition to be part of something
+
+- *Shouldering Responsibility*
+  Has arisen to share the Word of God with others
+
+- *Accompanying Others*
+  Encouraging others to share the Word of God"
+      :immediate-finish t
+      :jump-to-captured t)
 
      ("m" "Meetings")
 
@@ -559,6 +581,8 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
                               "institute-day-reflection.org")
    ,(org-config-bahai-meeting "bu" "Unit Convention" "unit-convention.org")
    ,(org-config-bahai-meeting "bc" "Cluster Agencies" "cluster-agencies.org")
+   ,(org-config-bahai-meeting "bA" "Arden Team Reflection"
+                              "arden-team-reflection.org")
    ,(org-config-bahai-meeting "bS" "Institute Coordinators"
                               "institute-coordinators.org")
 

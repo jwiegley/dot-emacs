@@ -11195,12 +11195,19 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
   (add-all-to-list 'vertico-multiform-commands
                    '(org-ql-find)
                    '(org-refile)))
+#+end_src
 
+**** org-ql-ext
+
+#+begin_src emacs-lisp
 (use-package org-ql-ext
   :after org-ql
   :demand t
   :bind
-  ("M-g O" . org-ql-ext-find-refile-targets)
+  (("M-g O" . org-ql-ext-find-refile-targets)
+   :map
+   org-mode-map
+   ("C-c C-x E" . org-ql-ext-export-columnview))
   :config
   (eval-when-compile
     (require 'vertico-multiform))
@@ -12904,19 +12911,23 @@ utilities around note taking.
    ("j" . vulpea-find-journal))
   :hook
   (org-roam-db-autosync-mode . vulpea-ext-db-setup-dates)
+  :preface
+  (defun my/vulpea-ext-extend-updated-files (&rest _ignore)
+    (cl-delete-duplicates
+     (nconc org-agenda-files
+            (list org-constants-contacts-path
+                  org-constants-plain-org-path
+                  org-constants-todo-path
+                  org-constants-drafts-path
+                  ;; org-constants-flat-habits-path
+                  ))))
   :config
   (vulpea-auto-update-install)
   (vulpea-ext-db-setup-dates)
   (vulpea-db-autosync-enable)
 
-  (advice-add
-   'vulpea-update-agenda-files
-   :after (lambda (&rest _ignore)
-            (nconc org-agenda-files
-                   (list org-constants-contacts-path
-                         org-constants-plain-org-path
-                         ;; org-constants-flat-habits-path
-                         )))))
+  (advice-add 'vulpea-update-agenda-files
+              :after #'my/vulpea-ext-extend-updated-files))
 #+end_src
 
 **** org-roam-dailies
