@@ -462,6 +462,8 @@ tasks."
            (goto-char (point-min))
            (while (re-search-forward "^##### " nil t)
              (replace-match "\n- "))
+           (while (re-search-forward "^### \\*\\(.+?\\)\\*$" nil t)
+             (replace-match "\n- \\1"))
            (buffer-string)))
         (action-items
          (with-temp-buffer
@@ -491,7 +493,7 @@ tasks."
                 notes ?\n ?\n
                 "** Action items" ?\n
                 action-items ?\n)
-      (insert "** AI meeting summary" ?\n ?\n
+      (insert "** AI meeting summary" ?\n
               notes ?\n ?\n
               "** Action items" ?\n
               action-items ?\n))))
