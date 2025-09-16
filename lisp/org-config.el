@@ -668,8 +668,8 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :no-save t)
 
    ("woa" "Names beginning with A")
-   ,(org-config-1-on-1-from-name "Anastasia Bez")
    ,(org-config-1-on-1-from-name "Albert Groothedde")
+   ,(org-config-1-on-1-from-name "Anastasia Bez")
    ,(org-config-1-on-1-from-name "Annelise Osborne")
 
    ("woe" "Names beginning with E")
@@ -681,16 +681,17 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("woj" "Names beginning with J")
    ,(org-config-1-on-1-from-name "Javad Khalilian")
-   ,(org-config-1-on-1-from-name "June Boston")
-   ,(org-config-1-on-1-from-name "Jose Cardona")
-   ,(org-config-1-on-1-from-name "John Frost")
    ,(org-config-1-on-1-from-name "Jesse Marquez")
+   ,(org-config-1-on-1-from-name "John Frost")
+   ,(org-config-1-on-1-from-name "Jose Cardona")
+   ,(org-config-1-on-1-from-name "June Boston")
 
    ("wol" "Names beginning with L")
-   ,(org-config-1-on-1-from-name "Leah Bingham")
-   ,(org-config-1-on-1-from-name "Lisa Gunn")
    ,(org-config-1-on-1-from-name "Lars Kuhtz")
+   ,(org-config-1-on-1-from-name "Leah Bingham")
    ,(org-config-1-on-1-from-name "Linda Ortega")
+   ,(org-config-1-on-1-from-name "Lisa Gunn")
+   ,(org-config-1-on-1-from-name "Louis Page")
 
    ("wor" "Names beginning with R")
    ,(org-config-1-on-1-from-name "Robert Soeldner")
@@ -753,7 +754,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
        (org-overriding-columns-format ,org-config-standard-columns)))
      ))
 
-   ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending}&LEVEL=2")
+   ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending\\|Drafts}&TODO<>\"SCRAP\"&LEVEL=2")
    ("n" "Notes"   todo "NOTE")
    ("l" "Links"   todo "LINK")
 
@@ -770,7 +771,8 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("go" "Open source tasks"
     ((org-ql-block
-      `(and (path "OSS")
+      `(and (or (path "OSS")
+                (category "Computer"))
             (todo "TODO" "DOING")
             (not (tags "ARCHIVE"))
             (not (scheduled))

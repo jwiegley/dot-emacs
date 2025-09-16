@@ -10334,11 +10334,13 @@ is:
 (use-package smtpmail
   :after message
   :custom
-  (smtpmail-smtp-server "smtp.fastmail.com")
-  (smtpmail-smtp-user "johnw@newartisans.com")
-  (smtpmail-servers-requiring-authorization "fastmail")
-  (smtpmail-smtp-service 587)
-  (smtpmail-stream-type 'starttls))
+  ;; (smtpmail-smtp-server "smtp.fastmail.com")
+  ;; (smtpmail-smtp-user "johnw@newartisans.com")
+  ;; (smtpmail-servers-requiring-authorization "fastmail")
+  ;; (smtpmail-smtp-service 587)
+  ;; (smtpmail-stream-type 'starttls)
+  (smtpmail-smtp-server "vulcan.lan")
+  (smtpmail-smtp-service 25))
 #+end_src
 
 **** mm-decode
@@ -11075,7 +11077,7 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
                (call-process "ifconfig" nil t nil "en0" "inet")
                (call-process "ifconfig" nil t nil "en1" "inet")
                (goto-char (point-min))
-               (not (search-forward "inet 192.168.50." nil t))))
+               (not (search-forward "inet 192.168.1." nil t))))
             ((string= tag "Net")
              (not (quickping "imap.fastmail.com"))))
            (concat "-" tag))))
@@ -11241,7 +11243,8 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
          ("C-c C-x C-M-y" . org-ext-yank-link)
          ("C-c C-x C-t"   . org-ext-switch-todo-link)
          ("C-c C-x C-u"   . org-ext-todoize-region)
-         ("s-n"           . org-ext-edit-link-name)
+         ("s-N"           . org-ext-edit-link-name)
+         ("s-n"           . org-ext-swap-link-name)
          :map
          org-agenda-mode-map
          ("g" . org-ext-agenda-redo)
@@ -12920,7 +12923,8 @@ utilities around note taking.
                   org-constants-todo-path
                   org-constants-drafts-path
                   ;; org-constants-flat-habits-path
-                  ))))
+                  ))
+     :test #'string=))
   :config
   (vulpea-auto-update-install)
   (vulpea-ext-db-setup-dates)

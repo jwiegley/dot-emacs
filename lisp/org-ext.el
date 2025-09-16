@@ -648,6 +648,20 @@ Interactive: selects from available link names."
     (when (re-search-forward "\\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]" nil t)
       (replace-match name t t nil 2))))
 
+(defun org-ext-swap-link-name ()
+  (interactive)
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (when (re-search-forward
+           "\\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]: \\(\\([A-Za-z -]+ *\\)[^\n]*\n+\\)" nil t)
+      (let* ((name (string-trim (match-string 4)))
+             (parts (save-match-data (split-string name))))
+        (when (> (length parts) 2)
+          (setq name (mapconcat #'identity
+                                (list (nth 0 parts) (nth 1 parts)) " ")))
+        (replace-match name t t nil 2)
+        (delete-region (match-beginning 3) (match-end 3))))))
+
 (defun org-ext-fixup-slack (&optional arg)
   "Clean up Slack export formatting in current buffer.
 Removes extra spacing, emojis, time markers and formats conversation

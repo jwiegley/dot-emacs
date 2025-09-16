@@ -448,9 +448,10 @@ tasks."
 
 (defun org-roam-ext-clean-fireflies (json)
   (let ((overview
-         (with-temp-buffer
-           (insert (aref (gethash "Overview" json) 0))
-           (buffer-string)))
+         (and (arrayp (gethash "Overview" json))
+              (with-temp-buffer
+                (insert (aref (gethash "Overview" json) 0))
+                (buffer-string))))
         ;; Notes starts with a blank line and has no final return.
         (notes
          (with-temp-buffer
@@ -484,17 +485,16 @@ tasks."
                      (insert "  :" names ":")))
                  (forward-line 1))))
            (buffer-string))))
-    (insert
-     "** AI meeting summary"
-     ?\n ?\n
-     overview
-     ?\n
-     notes
-     ?\n ?\n
-     "** Action items"
-     ?\n
-     action-items
-     ?\n)))
+    (if overview
+        (insert "** AI meeting summary" ?\n ?\n
+                overview ?\n
+                notes ?\n ?\n
+                "** Action items" ?\n
+                action-items ?\n)
+      (insert "** AI meeting summary" ?\n ?\n
+              notes ?\n ?\n
+              "** Action items" ?\n
+              action-items ?\n))))
 
 (defun org-roam-ext-process-minutes ()
   (interactive)
