@@ -10869,16 +10869,17 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
   (org-tags-column -97)
   (org-time-clocksum-use-fractional t)
   (org-todo-keywords
-   '((sequence "DRAFT(a)" "TODO(t@)" "DOING(s!)"
+   '((sequence "DRAFT" "TODO(t@)" "DOING(s!)"
                "WAIT(w@)" "DEFER(r!)"
-               "TASK(g@)" "HABIT(h)"
+               "TASK(g@)" "HABIT(h)" "APPT(a)"
                "|" "DONE(d@)" "CANCELED(x@)" "PASS(p@)")
-     (sequence "|" "SCRAP(A)" "NOTE(n)" "LINK(l)")))
+     (sequence "|" "SCRAP" "NOTE(n)" "LINK(l)")))
   (org-todo-keyword-faces
    `(
      ("DRAFT"    :foreground "grey80"                 :weight bold)
      ("SCRAP"    :foreground "grey20"                 :weight bold)
      ("TODO"     :foreground ,palette-slate-blue      :weight bold)
+     ("APPT"     :foreground ,palette-teal            :weight bold)
      ("DOING"    :foreground ,palette-yellow          :weight bold)
      ("WAIT"     :foreground ,palette-red             :weight bold)
      ("TASK"     :foreground ,palette-blue            :weight bold)
@@ -12567,7 +12568,7 @@ stamp to a task, which can be used to schedule a review of the task.
             ((or todo-state
                  (save-excursion
                    (goto-char (point-min))
-                   (looking-at "^\\(DRAFT\\|TODO\\|TASK\\|HABIT\\) ")))
+                   (looking-at "^\\(DRAFT\\|TODO\\|TASK\\|HABIT\\|APPT\\) ")))
              (save-excursion
                (org-review-insert-last-review)
                (org-review-insert-date

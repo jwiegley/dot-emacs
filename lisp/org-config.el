@@ -579,6 +579,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ,(org-config-bahai-meeting "bi" "Institute Day" "institute-day.org")
    ,(org-config-bahai-meeting "bI" "Institute Day Reflection"
                               "institute-day-reflection.org")
+   ,(org-config-bahai-meeting "bT" "Tutor Training" "tutor-training.org")
    ,(org-config-bahai-meeting "bu" "Unit Convention" "unit-convention.org")
    ,(org-config-bahai-meeting "bc" "Cluster Agencies" "cluster-agencies.org")
    ,(org-config-bahai-meeting "bA" "Arden Team Reflection"
@@ -674,7 +675,6 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("woe" "Names beginning with E")
    ,(org-config-1-on-1-from-name "Edmund Noble")
-   ,(org-config-1-on-1-from-name "Emily Pillmore")
 
    ("woh" "Names beginning with H")
    ,(org-config-1-on-1-from-name "Hafsah Asmat")
@@ -757,6 +757,8 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending\\|Drafts}&TODO<>\"SCRAP\"&LEVEL=2")
    ("n" "Notes"   todo "NOTE")
    ("l" "Links"   todo "LINK")
+
+   ("A" "Events/Appointments" todo "APPT")
 
    (":" "With TAGS"      ,(org-config-call-only #'org-config-tags-search))
    ("c" "With CATEGORY"  ,(org-config-call-only #'org-config-category-search))
