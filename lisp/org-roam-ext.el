@@ -518,25 +518,24 @@ tasks."
         (read-file-name "Summary file: " "~/dl/" nil t nil
                         #'(lambda (name) (string-match regexp name)))))))
   (save-excursion
-    (goto-char (point-min))
-    (when (re-search-forward "^\\* Minutes\n\n")
-      (insert
-       (with-current-buffer (find-file summary)
-         (org-roam-ext-process-minutes)
-         (prog1
-             (buffer-string)
-           (set-buffer-modified-p nil)
-           (kill-buffer (current-buffer)))))
-      (goto-char (point-max))
-      (search-backward "** Action items\n")
-      (save-restriction
-        (narrow-to-region (match-end 0)
-                          (save-excursion
-                            (re-search-forward "^\\* ")
-                            (match-beginning 0)))
-        (goto-char (point-min))
-        (org-ext-todoize-region (point-min) (point-max) t)
-        (org-set-tags-command '(4)))))
+    (goto-char (point-max))
+    (unless (bolp)
+      (insert ?\n))
+    (insert
+     ?\n "* Minutes" ?\n ?\n
+     (with-current-buffer (find-file summary)
+       (org-roam-ext-process-minutes)
+       (prog1
+           (buffer-string)
+         (set-buffer-modified-p nil)
+         (kill-buffer (current-buffer)))))
+    (goto-char (point-max))
+    (search-backward "** Action items\n")
+    (save-restriction
+      (narrow-to-region (match-end 0) (point-max))
+      (goto-char (point-min))
+      (org-ext-todoize-region (point-min) (point-max) t)
+      (org-set-tags-command '(4))))
   (unless org-roam-ext-do-not-delete
     (delete-file summary t)))
 
@@ -553,26 +552,27 @@ tasks."
         (read-file-name "Transcript file: " "~/dl/" nil t nil
                         #'(lambda (name) (string-match regexp name)))))))
   (save-excursion
-    (goto-char (point-min))
-    (when (re-search-forward "^\\* Transcript\n")
-      (insert ?\n)
-      (let ((buf (current-buffer)))
-        (with-temp-buffer
-          (insert-file-contents-literally transcript)
-          (goto-char (point-min))
-          (forward-line 1)
-          (while (not (eobp))
-            (let ((fields
-                   (parse-csv->list
-                    (buffer-substring (line-beginning-position)
-                                      (line-end-position)))))
-              (with-current-buffer buf
-                (insert "- " (nth 1 fields)
-                        " *" (nth 4 fields) "* "
-                        (nth 0 fields) "\n\n")))
-            (forward-line 1)))
-        (goto-char (point-max))
-        (delete-blank-lines))))
+    (goto-char (point-max))
+    (unless (bolp)
+      (insert ?\n))
+    (insert ?\n "* Transcript" ?\n ?\n)
+    (let ((buf (current-buffer)))
+      (with-temp-buffer
+        (insert-file-contents-literally transcript)
+        (goto-char (point-min))
+        (forward-line 1)
+        (while (not (eobp))
+          (let ((fields
+                 (parse-csv->list
+                  (buffer-substring (line-beginning-position)
+                                    (line-end-position)))))
+            (with-current-buffer buf
+              (insert "- " (nth 1 fields)
+                      " *" (nth 4 fields) "* "
+                      (nth 0 fields) "\n\n")))
+          (forward-line 1)))
+      (goto-char (point-max))
+      (delete-blank-lines)))
   (unless org-roam-ext-do-not-delete
     (delete-file transcript t))
   (let ((audio-file (cdr (org-roam-ext-current-audio-file))))
@@ -718,6 +718,15 @@ tasks."
       (insert (format "[[id:%s][%s]]"
                       (cdr (assoc name people #'string=))
                       name)))))
+
+(defun org-roam-ext-add-notes ()
+  "Add a notes block with a starting note at the end of the file."
+  (interactive)
+  (goto-char (point-max))
+  (unless (bolp)
+    (insert ?\n))
+  (insert ?\n "* Notes" ?\n
+          "** "))
 
 (provide 'org-roam-ext)
 

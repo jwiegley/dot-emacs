@@ -243,6 +243,22 @@
 (defconst org-config-standard-columns
   "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")
 
+(defun org-config-entry-in-inbox (entry)
+  (let ((marker (org-compare--get-marker entry)))
+    (with-current-buffer (marker-buffer marker)
+      (string= '"Inbox" (org-get-category marker)))))
+
+(defun org-config-compare-items-needing-review ()
+  (let ((compare-randomly (org-compare-randomly)))
+    (lambda (x y)
+      (let ((x-in-inbox (org-config-entry-in-inbox x))
+            (y-in-inbox (org-config-entry-in-inbox y)))
+        (if x-in-inbox
+            1
+          (if y-in-inbox
+              -1
+            (funcall compare-randomly x y)))))))
+
 (setq
  org-capture-templates
  (let ((Inbox '(function org-ext-goto-inbox-heading)))
@@ -693,6 +709,9 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ,(org-config-1-on-1-from-name "Lisa Gunn")
    ,(org-config-1-on-1-from-name "Louis Page")
 
+   ("wom" "Names beginning with M")
+   ,(org-config-1-on-1-from-name "Mike Herron")
+
    ("wor" "Names beginning with R")
    ,(org-config-1-on-1-from-name "Robert Soeldner")
 
@@ -747,7 +766,8 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
               (org-config-skip-if-regularly-reviewed))))
        ;; (org-agenda-cmp-user-defined 'org-config-review-compare)
        (org-agenda-max-entries 38)
-       (org-agenda-cmp-user-defined (org-compare-randomly))
+       ;; (org-agenda-cmp-user-defined (org-compare-randomly))
+       (org-agenda-cmp-user-defined (org-config-compare-items-needing-review))
        (org-compare-random-refresh t)
        (org-agenda-prefix-format ,org-config-check-if-scheduled)
        (org-agenda-sorting-strategy '(user-defined-down))

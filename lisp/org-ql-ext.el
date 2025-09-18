@@ -51,9 +51,14 @@
 (org-ql-defpred about (&rest keywords)
   "Whether this entry is \"about\" the given keyword.
    This means checking if it's in the tags or CATEGORY."
-  :body (cl-loop for kw in keywords
-                 thereis (or (member kw (org-get-tags (point)))
-                             (string= kw (org-get-category (point))))))
+  :body (cl-loop for tags = (org-get-tags (point))
+                 for kw in keywords
+                 thereis
+                 (or (member kw tags)
+                     (and (string= kw (org-get-category (point)))
+                          (or (null tags)
+                              (cl-every (lambda (tag) (string= tag (downcase tag)))
+                                        tags))))))
 
 (org-ql-defpred tasks-for (&rest who)
   "True if this task is assigned to, or related to, anyone in WHO."

@@ -10340,7 +10340,25 @@ is:
   ;; (smtpmail-smtp-service 587)
   ;; (smtpmail-stream-type 'starttls)
   (smtpmail-smtp-server "vulcan.lan")
-  (smtpmail-smtp-service 25))
+  (smtpmail-smtp-service 25)
+  :preface
+  (defun smtpmail-set-server (arg)
+    "Set the SMTP server used for mail.
+This defaults to vulcan.lan, so executing this command will switch the
+server to Fastmail. If a prefix argument is provided, it reverts the
+service back to vulcan.lan."
+    (interactive "P")
+    (if arg
+        (setq smtpmail-smtp-server "vulcan.lan"
+              smtpmail-smtp-user nil
+              smtpmail-servers-requiring-authorization nil
+              smtpmail-smtp-service 25
+              smtpmail-stream-type nil)
+      (setq smtpmail-smtp-server "smtp.fastmail.com"
+            smtpmail-smtp-user "johnw@newartisans.com"
+            smtpmail-servers-requiring-authorization "fastmail"
+            smtpmail-smtp-service 587
+            smtpmail-stream-type 'starttls))))
 #+end_src
 
 **** mm-decode
@@ -12970,6 +12988,7 @@ utilities around note taking.
   (:map
    org-mode-map
    ("M-@" . org-roam-ext-insert-person)
+   ("C-c C-x N" . org-roam-ext-add-notes)
    ("C-c C-x S" . org-roam-ext-sync)
    :map
    my-ctrl-c-n-map

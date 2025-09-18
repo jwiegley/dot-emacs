@@ -136,3 +136,6 @@
 [submodule "lisp/mcp-server-lib"]
 	path = lisp/mcp-server-lib
 	url = git@github.com:laurynas-biveinis/mcp-server-lib.el
+[submodule "lisp/wombag"]
+	path = lisp/wombag
+	url = git@github.com:karthink/wombag
