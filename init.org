@@ -684,7 +684,7 @@ It reindents after every change, making it more reliable than
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
      "--model" ,(format "openai/%s" hf-default-instance-name)
-     "--openai-api-base" "http://vulcan/litellm/v1"
+     "--openai-api-base" "http://litellm.vulcan.lan/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
      "--no-show-model-warnings"
@@ -7040,6 +7040,22 @@ RET in the buffer you want to undo.
   (winner-mode 1))
 #+end_src
 
+** wombag
+
+#+begin_src emacs-lisp
+(use-package wombag
+  :load-path "lisp/wombag"
+  :nix nil
+  :unless noninteractive
+  :commands (wombag wombag-sync)
+  :custom
+  (wombag-host "http://wallabag.vulcan.lan")
+  (wombag-username "jwiegley@gmail.com")
+  (wombag-password (lookup-password "wallabag.password" "jwiegley@gmail.com" 80))
+  (wombag-client-id "3_3qigwe7ajfuokw8sk80c40sk08wkssk04gkogw88sswoo88o88")
+  (wombag-client-secret (lookup-password "wallabag.secret" "jwiegley@gmail.com" 80)))
+#+end_src
+
 ** word-count
 
 #+begin_src emacs-lisp
@@ -11424,7 +11440,7 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
                        (format-time-string (org-time-stamp-format t t))))
       ;; If possible, add location info. We know the location at home always.
       (cl-destructuring-bind (lat lon)
-          (if (quickping "192.168.2.2")
+          (if (quickping "192.168.3.2")
               '("38.569498" "-121.388618")
             (let ((strs
                    (split-string

@@ -51,9 +51,9 @@
 (defun gptel-backends-make-litellm ()
   "Make GPTel backends for LiteLLM hosted models."
   (gptel-make-openai "LiteLLM"
-    :host "vulcan"
+    :host "litellm.vulcan.lan"
     :protocol "http"
-    :endpoint "/litellm/v1/chat/completions"
+    :endpoint "/v1/chat/completions"
     :key gptel-api-key
     :models (hf-gptel-backends)
     :header
