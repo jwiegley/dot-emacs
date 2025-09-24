@@ -90,6 +90,12 @@ differently or may not accept what another backend consider legitimate."
   :model 'openai/gpt-4.1
   :temperature 1.0)
 
+(gptel-make-preset 'gpt-oss
+  :description "OpenAI's ChatGPT, Open Source"
+  :backend "llama-swap"
+  :model 'gpt-oss-20b
+  :temperature 1.0)
+
 ;;; Anthropic
 
 (gptel-make-preset 'haiku
@@ -228,7 +234,9 @@ differently or may not accept what another backend consider legitimate."
   :tools nil
   :parents (if gptel-presets-rewrite-use-remote
                (or 'gpt 'haiku)
-             'qwen))
+             'gpt-oss
+             ;; 'qwen
+             ))
 
 ;;; DIRECTIVES (w/ MODELS) ===============================================
 

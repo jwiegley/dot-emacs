@@ -52,7 +52,7 @@
   "Make GPTel backends for LiteLLM hosted models."
   (gptel-make-openai "LiteLLM"
     :host "litellm.vulcan.lan"
-    :protocol "http"
+    :protocol "https"
     :endpoint "/v1/chat/completions"
     :key gptel-api-key
     :models (hf-gptel-backends)

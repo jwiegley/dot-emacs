@@ -41,15 +41,12 @@
   (interactive)
   (gptel-with-preset 'proof (gptel--suffix-rewrite)))
 
-(defun gptel-ext-title ()
+(defun gptel-ext-title (beg end)
   "Given a region of text, generate a title to describe it."
-  (interactive)
+  (interactive "r")
   (gptel-with-preset 'title
     (gptel-request
-        (if (region-active-p)
-            (buffer-substring-no-properties
-             (region-beginning) (region-end))
-          (buffer-string))
+        (buffer-substring-no-properties beg end)
       :transforms gptel-prompt-transform-functions
       :callback (lambda (resp info)
                   (when (stringp resp)

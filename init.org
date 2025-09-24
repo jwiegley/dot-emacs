@@ -552,6 +552,15 @@ unto itself.
             ("C-c N" . my-ctrl-c-N-map)))))
 #+end_src
 
+** gnutls
+
+#+begin_src emacs-lisp
+(use-package gnutls
+  :config
+  (add-to-list 'gnutls-trustfiles
+               "~/.config/emacs/certs/vulcan-ca-bundle.pem"))
+#+end_src
+
 ** hydra
 
 #+begin_src emacs-lisp
@@ -6388,6 +6397,21 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   :commands smerge-mode)
 #+end_src
 
+** COMMENT sops
+
+#+begin_src emacs-lisp
+(use-package sops
+  ;; :bind (:map
+  ;;        sops-mode-map
+  ;;        ("C-c C-c" . sops-save-file)
+  ;;        ("C-c C-k" . sops-cancel)
+  ;;        ("C-c C-d" . sops-edit-file))
+  ;; :hook
+  ;; (sops-before-encrypt-decrypt . #'sops-setup-env)
+  :config
+  (global-sops-mode 1))
+#+end_src
+
 ** sort-words
 
 #+begin_src emacs-lisp
@@ -8903,6 +8927,13 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :after json-mode)
 #+end_src
 
+*** just-mode
+
+#+begin_src emacs-lisp
+(use-package just-mode
+  :commands just-mode)
+#+end_src
+
 *** ledger-mode
 
 #+begin_src emacs-lisp
@@ -10355,8 +10386,9 @@ is:
   ;; (smtpmail-servers-requiring-authorization "fastmail")
   ;; (smtpmail-smtp-service 587)
   ;; (smtpmail-stream-type 'starttls)
-  (smtpmail-smtp-server "vulcan.lan")
-  (smtpmail-smtp-service 25)
+  (smtpmail-smtp-server "smtp.vulcan.lan")
+  (smtpmail-smtp-service 587)
+  (smtpmail-stream-type 'starttls)
   :preface
   (defun smtpmail-set-server (arg)
     "Set the SMTP server used for mail.
@@ -10365,11 +10397,11 @@ server to Fastmail. If a prefix argument is provided, it reverts the
 service back to vulcan.lan."
     (interactive "P")
     (if arg
-        (setq smtpmail-smtp-server "vulcan.lan"
+        (setq smtpmail-smtp-server "smtp.vulcan.lan"
               smtpmail-smtp-user nil
               smtpmail-servers-requiring-authorization nil
-              smtpmail-smtp-service 25
-              smtpmail-stream-type nil)
+              smtpmail-smtp-service 587
+              smtpmail-stream-type 'starttls)
       (setq smtpmail-smtp-server "smtp.fastmail.com"
             smtpmail-smtp-user "johnw@newartisans.com"
             smtpmail-servers-requiring-authorization "fastmail"

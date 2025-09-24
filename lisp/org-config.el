@@ -246,7 +246,7 @@
 (defun org-config-entry-in-inbox (entry)
   (let ((marker (org-compare--get-marker entry)))
     (with-current-buffer (marker-buffer marker)
-      (string= '"Inbox" (org-get-category marker)))))
+      (member (org-get-category marker) '("Inbox" "Drafts")))))
 
 (defun org-config-compare-items-needing-review ()
   (let ((compare-randomly (org-compare-randomly)))
