@@ -139,3 +139,12 @@
 [submodule "lisp/wombag"]
 	path = lisp/wombag
 	url = git@github.com:karthink/wombag
+[submodule "lisp/acp"]
+	path = lisp/acp
+	url = git@github.com:xenodium/acp.el.git
+[submodule "lisp/agent-shell"]
+	path = lisp/agent-shell
+	url = git@github.com:xenodium/agent-shell.git
+[submodule "lisp/shell-maker"]
+	path = lisp/shell-maker
+	url = git@github.com:xenodium/shell-maker.git

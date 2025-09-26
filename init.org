@@ -217,6 +217,12 @@
 (use-package org-constants)
 #+end_src
 
+** acp
+
+#+begin_src emacs-lisp
+(use-package acp :load-path "lisp/acp" :defer t)
+#+end_src
+
 ** COMMENT aio
 
 #+begin_src emacs-lisp
@@ -301,6 +307,12 @@
 
 #+begin_src emacs-lisp
 (use-package language-id :defer t)
+#+end_src
+
+** shell-maker
+
+#+begin_src emacs-lisp
+(use-package shell-maker :load-path "lisp/shell-maker" :defer t)
 #+end_src
 
 ** timeout
@@ -665,6 +677,17 @@ _v_ariable       _u_ser-option
      ("diag"   "∆")
      ("whl"    "⊳")
      ("whr"    "⊲"))))
+#+end_src
+
+** agent-shell
+
+#+begin_src emacs-lisp
+(use-package agent-shell
+  :load-path "lisp/agent-shell"
+  :commands (agent-shell-start-claude-code-agent)
+  :custom
+  (agent-shell-anthropic-key
+   (lambda () (lookup-password "api.anthropic.com" "johnw" 80))))
 #+end_src
 
 ** aggressive-indent
@@ -4520,6 +4543,7 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   (magit-refresh-status-buffer nil)
   (magit-section-initial-visibility-alist '((untracked . hide)))
   (magit-stage-all-confirm nil)
+  (magit-status-show-untracked-files 'all)
   (magit-unstage-all-confirm nil)
   (magit-use-overlays nil)
   :preface
