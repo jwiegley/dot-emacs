@@ -57,6 +57,34 @@
   (interactive "sTags: ")
   (org-tags-view t (format "%s%s" tags org-config-closed-re)))
 
+(defun org-config-check-category-in-parents (category)
+  "Check if CATEGORY matches current entry or any of its parents."
+  (save-excursion
+    (catch 'found
+      ;; Check current entry first
+      (when (string= category (org-entry-get nil "CATEGORY" t))
+        (throw 'found t))
+      ;; Walk up the tree checking parents
+      (while (org-up-heading-safe)
+        (when (string= category (org-entry-get nil "CATEGORY" t))
+          (throw 'found t)))
+      nil)))
+
+(defun org-config-category-search-with-parents (who)
+  "Search for tasks where entry or any parent has category WHO."
+  (interactive
+   (list (completing-read "Category: " (org-ext-get-all-categories)
+                          nil nil nil 'org-ext-category-history)))
+  (let ((org-agenda-skip-function
+         (lambda ()
+           (unless (org-config-check-category-in-parents who)
+             (or (outline-next-heading) (point-max)))))
+        (org-agenda-overriding-header
+         (format "Items under category '%s' (entry or parents)" who)))
+    ;; Use a minimal matcher that includes everything,
+    ;; letting the skip function do the filtering
+    (org-tags-view t org-config-open-re)))
+
 (defun org-config-category-search (who)
   (interactive
    (list (completing-read "Category: " (org-ext-get-all-categories)
@@ -781,7 +809,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ("A" "Events/Appointments" todo "APPT")
 
    (":" "With TAGS"      ,(org-config-call-only #'org-config-tags-search))
-   ("c" "With CATEGORY"  ,(org-config-call-only #'org-config-category-search))
+   ("c" "With CATEGORY"  ,(org-config-call-only #'org-config-category-search-with-parents))
    ("C" "With CATEGORY+" ,(org-config-call-only #'org-config-raw-category-search))
    ("k" "With KEYWORD"   ,(org-config-call-only #'org-config-keyword-search))
    ("i" "With ITEM"      ,(org-config-call-only #'org-config-item-search))

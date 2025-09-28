@@ -1079,6 +1079,49 @@ Shows categories with their usage counts in a temporary buffer."
                           nil nil nil 'org-ext-category-history)))
   (org-set-property "CATEGORY" category))
 
+(defun org-ext-set-id-and-created (&optional arg)
+  (org-id-get-create arg)
+  (unless (org-entry-get (point) "CREATED")
+    (org-entry-put (point) "CREATED"
+                   (format-time-string (org-time-stamp-format t t)))))
+
+(defun org-ext-quickping (host)
+  (= 0 (call-process "ping" nil nil nil "-c1" "-W5" "-q" host)))
+
+(defun org-ext-set-location (&optional arg)
+  "If possible, add location info. We know the location at home always."
+  (cl-destructuring-bind (lat lon)
+      (if (and nil (org-ext-quickping "192.168.3.2"))
+          '("38.569498" "-121.388618")
+        (let ((strs
+               (split-string
+                (string-trim
+                 (shell-command-to-string "CoreLocationCLI")))))
+          (if (= 2 (length strs))
+              strs
+            (message "Failed to obtain Lat/Lon!")
+            '("" ""))))
+    (unless (string= lat "")
+      (org-entry-put (point) "LOCATION" (concat lat "," lon)))))
+
+(defun org-ext-set-basic-properties (&optional arg)
+  (interactive "P")
+  (save-excursion
+    (org-ext-set-id-and-created)
+    (org-ext-set-location)))
+
+(defun org-ext-cleanup-whitespace (&optional arg)
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (search-forward " " nil t)
+      (replace-match  " "))
+    (whitespace-cleanup)
+    (goto-char (point-max))
+    (delete-blank-lines)
+    (if (looking-at "^$")
+        (delete-char -1))))
+
 (provide 'org-ext)
 
 ;;; org-ext.el ends here
