@@ -9982,12 +9982,12 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                  (nnimap-server-port "imaps")
                  (nnimap-stream ssl))
         gnus-secondary-select-methods
-        '((nnimap "imap.vulcan.lan"
-                  (nnimap-address "imap.vulcan.lan")
-                  (nnimap-user "johnw")
-                  (nnimap-inbox "INBOX")
-                  (nnimap-server-port "imaps")
-                  (nnimap-stream ssl))
+        '(;; (nnimap "imap.vulcan.lan"
+          ;;         (nnimap-address "imap.vulcan.lan")
+          ;;         (nnimap-user "johnw")
+          ;;         (nnimap-inbox "INBOX")
+          ;;         (nnimap-server-port "imaps")
+          ;;         (nnimap-stream ssl))
           (nnimap "imap-assembly.vulcan.lan"
                   (nnimap-address "imap.vulcan.lan")
                   (nnimap-user "assembly")
@@ -12021,6 +12021,12 @@ A group FOO is composed of contacts with the tag FOO."
 #+end_src
 
 *** org-extra-emphasis
+
+This library provides two additional markers =!!= and =!@= over and above those in
+=org-emphasis-alist=.
+
+- Text enclosed in =!!= is highlighted in yellow, and exported likewise
+- Text enclosed in =!@= is displayed in red, and exported likewise.
 
 #+begin_src emacs-lisp
 (use-package org-extra-emphasis

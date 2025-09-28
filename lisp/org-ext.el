@@ -96,15 +96,15 @@ Intended for use with `org-capture' templates."
   ;; If there is a URL, this is a LINK.
   (when (re-search-forward ":LOCATION:\\s-*0.0,.+\n" nil t)
     (delete-region (match-beginning 0) (match-end 0)))
-  (when (re-search-forward "^\\(:URL:\\s-*\\)?\\(http.+?\\)\n?" nil t)
+  (when (re-search-forward "^\\(:URL:\\s-*\\)?\\(http.+\\)\n?" nil t)
     (let ((url (match-string 2)))
       (delete-region (match-beginning 0) (match-end 0))
       (org-set-property "URL" url)
       (goto-char (point-min))
-      (when (re-search-forward "SCHEDULED: .+\n")
+      (when (re-search-forward "SCHEDULED: .+\n" nil t)
         (delete-region (match-beginning 0) (match-end 0)))
       (goto-char (point-min))
-      (when (re-search-forward " TODO ")
+      (when (re-search-forward " TODO " nil t)
         (replace-match " LINK " nil nil nil 0))))
   ;; If there is a note tag, this is a NOTE.
   (goto-char (point-min))
@@ -112,10 +112,10 @@ Intended for use with `org-capture' templates."
          ":TAGS:\\s-+.+?\\(\\<note\\>\\(,\\s-*\\)?\\|,\\s-*\\<note\\>$\\)" nil t)
     (delete-region (match-beginning 1) (match-end 1))
     (goto-char (point-min))
-    (when (re-search-forward " TODO ")
+    (when (re-search-forward " TODO " nil t)
       (replace-match " NOTE " nil nil nil 0))
     (goto-char (point-min))
-    (when (re-search-forward "SCHEDULED: .+\n")
+    (when (re-search-forward "SCHEDULED: .+\n" nil t)
       (delete-region (match-beginning 0) (match-end 0))))
   ;; If there are no tags, delete that property.
   (goto-char (point-min))
@@ -130,26 +130,23 @@ Intended for use with `org-capture' templates."
 
 (defadvice org-agenda (around fit-windows-for-agenda activate)
   "Fit the Org Agenda to its buffer and import any pending Drafts."
-  (let ((notes
-         (ignore-errors
-           (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil)))
+  (let ((notes (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil))
         url)
     (when notes
       (org-ext-goto-inbox
        (lambda ()
          (dolist (note notes)
-           (when (ignore-errors
-                   (insert
-                    (with-temp-buffer
-                      (insert-file-contents note)
-                      (goto-char (point-min))
-                      (org-ext-reformat-draft)
-                      (goto-char (point-max))
-                      (unless (bolp)
-                        (insert ?\n))
-                      (buffer-string)))
-                   t)
-             (delete-file note t)))
+           (insert
+            (with-temp-buffer
+              (org-mode)
+              (insert-file-contents note)
+              (goto-char (point-min))
+              (org-ext-reformat-draft)
+              (goto-char (point-max))
+              (unless (bolp)
+                (insert ?\n))
+              (buffer-string)))
+           (delete-file note t))
          (when (buffer-modified-p)
            (save-buffer))))))
   ad-do-it
