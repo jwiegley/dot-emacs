@@ -115,7 +115,7 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
   :backend "LiteLLM"
-  :model 'anthropic/claude-sonnet-4-20250514
+  :model 'anthropic/claude-sonnet
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet-max
@@ -233,7 +233,7 @@ differently or may not accept what another backend consider legitimate."
   :include-reasoning nil
   :tools nil
   :parents (if gptel-presets-rewrite-use-remote
-               (or 'gpt 'haiku)
+               (or 'sonnet 'gpt 'haiku)
              'gpt-oss
              ;; 'qwen
              ))

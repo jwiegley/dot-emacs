@@ -350,7 +350,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
       ,Inbox
       "* LINK %:description%?
 :PROPERTIES:
-:URL:      %:link
+:URL:      [[%:link][%:description]]
 :END:
 %:initial"
       :prepend t)

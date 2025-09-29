@@ -10970,7 +10970,7 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
    '((sequence "DRAFT" "TODO(t@)" "DOING(s!)"
                "WAIT(w@)" "DEFER(r!)"
                "TASK(g@)" "HABIT(h)" "APPT(a)"
-               "|" "DONE(d@)" "CANCELED(x@)" "PASS(p@)")
+               "|" "DONE(d@)" "CANCELED(x@)" "PASS(p!)")
      (sequence "|" "SCRAP" "NOTE(n)" "LINK(l)")))
   (org-todo-keyword-faces
    `(
@@ -11250,6 +11250,7 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
      (("Personal")    face (:background ,palette-blue-dark      :foreground "#eeeeee"))
      ;; indigo
      (("Computer")    face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
+     (("Open Source") face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ;; purple
      (("Family")      face (:background ,palette-purple-darker  :foreground "#eeeeee")))))
 #+end_src
@@ -11484,50 +11485,18 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   (org-auto-expand-mode))
 #+end_src
 
-*** org-capture
+*** org-capture-ext
 
 #+begin_src emacs-lisp
-(use-package org-capture
-  :after org
+(use-package org-capture-ext
+  :no-require t
+  :after (org-capture org-ext)
   :demand t
   :hook
-  ;; Ensure the ID and CREATED properties are always set for new entries.
-  (org-capture-before-finalize . my/org-basic-properties)
-  (org-capture-prepare-finalize . my/org-cleanup-whitespace)
-  :preface
-  (defun my/org-basic-properties (&optional arg)
-    (interactive "P")
-    (save-excursion
-      (org-id-get-create arg)
-      (unless (org-entry-get (point) "CREATED")
-        (org-entry-put (point) "CREATED"
-                       (format-time-string (org-time-stamp-format t t))))
-      ;; If possible, add location info. We know the location at home always.
-      (cl-destructuring-bind (lat lon)
-          (if (quickping "192.168.3.2")
-              '("38.569498" "-121.388618")
-            (let ((strs
-                   (split-string
-                    (string-trim
-                     (shell-command-to-string "CoreLocationCLI")))))
-              (if (= 2 (length strs))
-                  strs
-                (message "Failed to obtain Lat/Lon!")
-                '("" ""))))
-        (unless (string= lat "")
-          (org-entry-put (point) "LOCATION" (concat lat "," lon))))))
-
-  (defun my/org-cleanup-whitespace (&optional arg)
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      (while (search-forward " " nil t)
-        (replace-match  " "))
-      (whitespace-cleanup)
-      (goto-char (point-max))
-      (delete-blank-lines)
-      (if (looking-at "^$")
-          (delete-char -1)))))
+  ;; Ensure ID and CREATED properties are set for new entries.
+  (org-capture-before-finalize . org-ext-set-basic-properties)
+  ;; Ensure whitespace is clean for new entries.
+  (org-capture-prepare-finalize . org-ext-cleanup-whitespace))
 #+end_src
 
 **** org-smart-capture

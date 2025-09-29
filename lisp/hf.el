@@ -110,7 +110,7 @@ groups:
   :type 'string
   :group 'hf)
 
-(defcustom hf-litellm-path "/ssh:root@vulcan:/etc/litellm/config.yaml"
+(defcustom hf-litellm-path "/ssh:vulcan|sudo:root@vulcan:/etc/litellm/config.yaml"
   "Pathname to LiteLLM's config.yaml file."
   :type 'file
   :group 'hf)
@@ -372,6 +372,19 @@ general_settings:
      (make-hf-instance
       :context-length 16384
       :model-path "~/Models/unsloth_DeepSeek-V3.1-GGUF"
+      :arguments '("--cache-type-k" "q4_1"
+                   ;; "--flash-attn"
+                   ;; "--cache-type-v" "q4_1"
+                   "--seed" "3407"))))
+
+   (make-hf-model
+    :name 'DeepSeek-V3.1-Terminus
+    :context-length 131072
+    :instances
+    (list
+     (make-hf-instance
+      :context-length 16384
+      :model-path "~/Models/unsloth_DeepSeek-V3.1-Terminus-GGUF"
       :arguments '("--cache-type-k" "q4_1"
                    ;; "--flash-attn"
                    ;; "--cache-type-v" "q4_1"

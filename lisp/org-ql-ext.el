@@ -257,17 +257,17 @@ See `org-ext-ql-columnview'."
             (setq result
                   (cons
                    (concat
-                    "- "
+                    ;; "- "
                     (match-string 2 link)
                     (and tags
                          (concat " ("
-                                 (and (string= keyword " TASK ")
+                                 (and (string= (string-trim keyword) "TASK")
                                       "← ")
                                  (mapconcat #'identity
                                             (split-string (string-trim tags)
                                                           ":" t)
                                             ", ")
-                                 (and (string= keyword " TODO ")
+                                 (and (string= (string-trim keyword) "TODO")
                                       " ⟹")
                                  ")")))
                    result))))
