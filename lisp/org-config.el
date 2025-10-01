@@ -147,7 +147,25 @@ Example usage:
       nil)))
 
 (defun org-config-category-search-with-parents (who)
-  "Search for tasks where entry or any parent has category WHO."
+  "Search for tasks where entry or any parent has category WHO.
+
+This function creates an agenda view that displays all Org entries where
+either the entry itself or any of its parent headings has the specified
+category. It uses a custom skip function to traverse the heading
+hierarchy and check category properties at each level.
+
+WHO is a string representing the category name to search for. When
+called interactively, prompts for category selection using completion
+from all available categories in the current Org files.
+
+The search utilizes `org-tags-view' with a minimal matcher and relies on
+a skip function to filter results, ensuring efficient traversal while
+maintaining accurate parent-child relationship checking.
+
+Example usage:
+  (org-config-category-search-with-parents \"work\")
+
+Interactive usage will prompt for category selection with completion."
   (interactive
    (list (completing-read "Category: " (org-ext-get-all-categories)
                           nil nil nil 'org-ext-category-history)))
