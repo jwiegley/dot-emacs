@@ -2,7 +2,13 @@
 (require 'term/tty-colors)
 
 (defun color-fg-comp (&optional arg)
-  "Completion function for color links."
+  "Completion function for color links.
+
+Displays the *Colors* buffer, extracts available color names, prompts
+user to select one via completion, and returns a formatted \"fg:COLOR\"
+string suitable for org-mode link insertion.
+
+ARG is currently unused but reserved for future extensibility."
   (let ((color-fg-data
          (prog2
              (save-selected-window

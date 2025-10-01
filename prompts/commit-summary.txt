@@ -21,3 +21,5 @@ gptel-integrations: Fix tool-import logic
 gptel-bedrock: Add Claude 3-7 Sonnet (#887)
 README: Explain difference between GitHub models/copilot
 gptel: Reduce Windows curl-file-size-threshold
+
+For each file mentioned in the body of the changelog, examine the git diff relating to that file and add a bullet-list description of the changes being made to each file.

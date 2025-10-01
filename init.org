@@ -3459,6 +3459,7 @@ Intended to be placed in `git-commit-setup-hook'."
    gptel-cmd-map
    ("s" . gptel-ext-shorten)
    ("p" . gptel-ext-proofread)
+   ("D" . gptel-ext-docstring)
    ("t" . gptel-ext-title)
    :map
    gptel-mode-map

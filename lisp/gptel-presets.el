@@ -92,6 +92,12 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'gpt-oss
   :description "OpenAI's ChatGPT, Open Source"
+  :backend "LiteLLM"
+  :model 'hera/gpt-oss-120b
+  :temperature 1.0)
+
+(gptel-make-preset 'gpt-oss-travel
+  :description "OpenAI's ChatGPT, Open Source"
   :backend "llama-swap"
   :model 'gpt-oss-20b
   :temperature 1.0)
@@ -101,7 +107,7 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'haiku
   :description "Anthropic's Claude Haiku"
   :backend "LiteLLM"
-  :model 'anthropic/claude-3-5-haiku-20241022
+  :model 'anthropic/claude-haiku
   :max-tokens 8192
   :temperature 1.0)
 
@@ -127,7 +133,7 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'opus
   :description "Anthropic's Claude Opus, thinking"
   :backend "LiteLLM"
-  :model 'anthropic/claude-opus-4-1-20250805
+  :model 'anthropic/claude-opus
   :temperature 1.0)
 
 (gptel-make-preset 'opus-max
@@ -231,12 +237,9 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'rewrite
   :description "Model used for basic rewrites"
   :include-reasoning nil
-  :tools nil
   :parents (if gptel-presets-rewrite-use-remote
                (or 'sonnet 'gpt 'haiku)
-             'gpt-oss
-             ;; 'qwen
-             ))
+             (or 'gpt-oss 'gpt-oss-travel 'qwen)))
 
 ;;; DIRECTIVES (w/ MODELS) ===============================================
 
@@ -245,8 +248,7 @@ differently or may not accept what another backend consider legitimate."
 (gptel-make-preset 'prompt
   :description "AI prompt refiner"
   :system 'prompt
-  :parents 'sonnet
-  :tools nil)
+  :parents 'sonnet)
 
 (gptel-make-preset 'title
   :description "Create Org-mode title"
@@ -366,7 +368,7 @@ differently or may not accept what another backend consider legitimate."
           " rationale or explanation, and do not enclose any of the existing"
           " code within progn blocks. Do not enclose the rewritten code in"
           " Markdown code block markers.")
-  :parents 'rewrite)
+  :parents '(emacs rewrite))
 
 (provide 'gptel-presets)
 

@@ -41,6 +41,11 @@
   (interactive)
   (gptel-with-preset 'proof (gptel--suffix-rewrite)))
 
+(defun gptel-ext-docstring ()
+  "Given selected text, proofread it."
+  (interactive)
+  (gptel-with-preset 'docstring (gptel--suffix-rewrite)))
+
 (defun gptel-ext-title (beg end)
   "Given a region of text, generate a title to describe it."
   (interactive "r")

@@ -15,11 +15,18 @@
 ;;;             (org-compare-random-refresh  t)
 ;;;             (org-agenda-sorting-strategy '(user-defined-up))))))
 
+;;; Code:
+
 (defun org-compare--get-marker (entry)
   "Return the marker for ENTRY.
 
-This marker points to the location of the headline referenced by
-ENTRY."
+ENTRY is a string representing an Org headline, typically from an agenda
+or similar listing. The marker is extracted from the text property
+`org-marker' at position 1 of the string.
+
+This marker points to the location of the headline referenced by ENTRY
+in its original Org buffer, allowing navigation back to the source
+headline."
   (get-text-property 1 'org-marker entry))
 
 (defvar org-compare-random-refresh nil
@@ -29,7 +36,11 @@ See the docs for `org-compare-randomly' for more information.")
 
 (defun org-compare-randomly--update-sort-key (entry table generator)
   "Return sort key for ENTRY in TABLE, generating it if necessary.
-For internal use by `org-compare-randomly-by'."
+For internal use by `org-compare-randomly-by'.
+
+ENTRY is an Org-mode entry as provided by `org-backward-element'
+TABLE is a hash table mapping entry markers to sort keys
+GENERATOR is a function that takes ENTRY and returns a numeric sort value"
   (let* ((marker    (org-compare--get-marker entry))
          (hash-key  `(,(marker-buffer marker) . ,(marker-position marker))))
     (or (gethash hash-key table)
