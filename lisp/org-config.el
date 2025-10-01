@@ -243,21 +243,32 @@
           :no-save t))
 
 (defsubst org-config-kadena-meeting (keys title file)
+  "Create a Kadena meeting configuration with KEYS, TITLE, and FILE.
+Uses the Kadena meeting template located at ~/org/template/kadena/meeting."
   (org-config-meeting-template
    keys title file "~/org/template/kadena/meeting"))
 
 (defsubst org-config-kadena-1-on-1 (keys title file)
+  "Create a Kadena 1-on-1 meeting configuration with KEYS, TITLE, and FILE.
+Uses the Kadena one-on-one template and adds '1-on-1-' prefix."
   (org-config-meeting-template
    keys title file "~/org/template/kadena/one-on-one" "1-on-1-"))
 
 (defsubst org-config-bahai-meeting (keys title file)
+  "Create a Bahai meeting configuration with KEYS, TITLE, and FILE.
+Uses the Bahai meeting template with 'bahai' tag."
   (org-config-meeting-template
    keys title file "~/org/template/bahai/meeting" nil "bahai"))
 
 (defsubst org-config-call-only (f)
+  "Return a lambda to call function F interactively, ignoring arguments."
   `(lambda (_arg) (call-interactively (function ,f) nil)))
 
 (defsubst org-config-1-on-1-from-name (name)
+  "Generate a Kadena 1-on-1 meeting configuration from NAME.
+Creates keys from first letters of words in NAME, formats title as
+'1-on-1 NAME', and generates filename by replacing spaces with hyphens
+in lowercased NAME."
   (let ((down (downcase name)))
     (org-config-kadena-1-on-1
      (apply #'concat "wo"
