@@ -327,7 +327,26 @@ if the entry should be included in the agenda view."
             "Crmichael"
             "Feast"
             "Fund"))
-  "Categories \"regularly reviewed\" that don't need separate review."
+  "Categories regularly reviewed that don't need separate reviews.
+
+This list combines the base regularly-reviewed names with additional
+category-specific items. Categories in this list are considered to be
+under continuous review and will be excluded from periodic review
+scheduling workflows.
+
+The list includes:
+- All items from `org-config-names-regularly-reviewed'
+- EVM: Ethereum Virtual Machine related items
+- PM: Project Management related items
+- JS: JavaScript related items
+- Core: Core system/infrastructure items
+- Assembly: Low-level programming items
+- Crmichael: Person-specific or project-specific category
+- Feast: Feature store or feast-related items
+- Fund: Financial or funding related items
+
+Items in this list should represent categories that receive ongoing
+attention through regular workflows rather than scheduled reviews."
   :type '(repeat string)
   :group 'org-config)
 

@@ -274,7 +274,7 @@ differently or may not accept what another backend consider legitimate."
 
 (gptel-make-preset 'emacs
   :description "Best model for generating or interpreting code"
-  :system 'emacs-aid
+  :system 'emacs
   :parents 'opus
   :tools '("emacs" "introspection"))
 
