@@ -106,6 +106,10 @@
   (interactive "sItem: ")
   (org-tags-view t (format "ITEM={%s}%s" who org-config-open-re)))
 
+(defun org-config-who-search (who)
+  (interactive "sWho: ")
+  (org-tags-view t (format "CATEGORY={%s}|%s%s" who who org-config-open-re)))
+
 (defun org-config-tasks-for-query (who)
   (interactive "sTasks for: ")
   (org-ql-block `(tasks-for ,who)))
@@ -813,6 +817,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ("C" "With CATEGORY+" ,(org-config-call-only #'org-config-raw-category-search))
    ("k" "With KEYWORD"   ,(org-config-call-only #'org-config-keyword-search))
    ("i" "With ITEM"      ,(org-config-call-only #'org-config-item-search))
+   ("w" "With WHO"       ,(org-config-call-only #'org-config-who-search))
 
    ("g" . "Org-ql queries")
 

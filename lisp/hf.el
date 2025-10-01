@@ -192,7 +192,10 @@ litellm_settings:
   # set_verbose: True
   cache: True
   cache_params:
-    type: local
+    type: redis
+    host: \"host.containers.internal\"
+    port: 8085
+    supported_call_types: [\"acompletion\", \"atext_completion\", \"aembedding\", \"atranscription\"]
 
 router_settings:
   routing_strategy: \"least-busy\"
@@ -207,6 +210,8 @@ router_settings:
 general_settings:
   store_model_in_db: true
   store_prompts_in_spend_logs: true
+  maximum_spend_logs_retention_period: \"90d\"
+  maximum_spend_logs_retention_interval: \"7d\"
 "
   "Epilog for beginning of LiteLLM's config.yaml file."
   :type 'string
@@ -286,32 +291,6 @@ general_settings:
   (list
 
    (make-hf-model
-    :name 'WizardCoder-Python-7B-V1.0
-    :context-length 16384
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/TheBloke_WizardCoder-Python-7B-V1.0-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'WizardCoder-Python-34B-V1.0
-    :context-length 16384
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/TheBloke_WizardCoder-Python-34B-V1.0-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'Llama-3.3-Nemotron-Super-49B-v1
-    :context-length 131072
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/bartowski_nvidia_Llama-3.3-Nemotron-Super-49B-v1-GGUF")))
-
-   (make-hf-model
     :name 'r1-1776-distill-llama-70b
     :context-length 131072
     :instances
@@ -363,19 +342,6 @@ general_settings:
      (make-hf-instance
       :model-path "~/Models/unsloth_DeepSeek-R1-0528-Qwen3-8B-GGUF"
       :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'DeepSeek-V3.1
-    :context-length 131072
-    :instances
-    (list
-     (make-hf-instance
-      :context-length 16384
-      :model-path "~/Models/unsloth_DeepSeek-V3.1-GGUF"
-      :arguments '("--cache-type-k" "q4_1"
-                   ;; "--flash-attn"
-                   ;; "--cache-type-v" "q4_1"
-                   "--seed" "3407"))))
 
    (make-hf-model
     :name 'DeepSeek-V3.1-Terminus
@@ -448,46 +414,6 @@ general_settings:
      (make-hf-instance
       :name 'meta-llama/llama-4-maverick:free
       :provider 'openrouter)))
-
-   (make-hf-model
-    :name 'Magistral-Small-2506
-    :context-length 40960
-    :supports-system-message nil
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Magistral-Small-2506-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'Mistral-Small-3.2-24B-Instruct-2506
-    :context-length 131072
-    :supports-system-message nil
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Mistral-Small-3.2-24B-Instruct-2506-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'Mistral-Nemo-Instruct-2407
-    :context-length 1024000
-    :supports-system-message nil
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/bartowski_Mistral-Nemo-Instruct-2407-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'Devstral-Small-2505
-    :context-length 131072
-    :supports-system-message nil
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Devstral-Small-2505-GGUF"
-      :hostnames '("hera" "clio"))))
 
    (make-hf-model
     :name 'Phi-4-reasoning-plus
