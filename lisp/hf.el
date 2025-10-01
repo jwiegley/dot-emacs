@@ -963,12 +963,12 @@ general_settings:
     :instances
     (list
      (make-hf-instance
-      :name 'claude-sonnet-4-20250514
+      :name 'claude-sonnet-4-5-20250929
       :provider 'anthropic)
 
      (make-hf-instance
       :model-name 'claude-sonnet-cached
-      :name 'claude-sonnet-4-20250514
+      :name 'claude-sonnet-4-5-20250929
       :provider 'anthropic
       :cache-control t)))
 

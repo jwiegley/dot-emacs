@@ -241,27 +241,50 @@
                      :description "Claude Opus 4.1 - Most capable"
                      :capabilities (tool json reasoning)
                      :context-window 200000
-                     :max-tokens 64000)
+                     :request-params
+                     (:max_tokens
+                      32000
+                      :thinking (:type "enabled"
+                                       :budget_tokens 32000)
+                      :tools [(:type "web_search_20250305"
+                                     :name "web_search"
+                                     :max_uses 5)]))
                     (claude-opus-4-20250514
                      :description "Claude Opus 4"
                      :capabilities (tool json reasoning)
                      :context-window 200000
-                     :max-tokens 64000)
+                     :request-params
+                     (:max_tokens 32000))
+                    (claude-sonnet-4-5-20250929
+                     :description "Claude Sonnet 4.5"
+                     :capabilities (tool json)
+                     :context-window 200000
+                     :request-params
+                     (:max_tokens
+                      32000
+                      :thinking (:type "enabled"
+                                       :budget_tokens 32000)
+                      :tools [(:type "web_search_20250305"
+                                     :name "web_search"
+                                     :max_uses 5)]))
                     (claude-sonnet-4-20250514
                      :description "Claude Sonnet 4"
                      :capabilities (tool json)
                      :context-window 200000
-                     :max-tokens 32000)
+                     :request-params
+                     (:max_tokens 32000))
                     (claude-3-5-sonnet-20241022
                      :description "Claude Sonnet 3.5 v2"
                      :capabilities (tool json)
                      :context-window 200000
-                     :max-tokens 8192)
+                     :request-params
+                     (:max_tokens 8192))
                     (claude-3-5-haiku-20241022
                      :description "Claude Haiku 3.5 - Fast"
                      :capabilities (tool json)
                      :context-window 200000
-                     :max-tokens 8192))))
+                     :request-params
+                     (:max_tokens 8192)))))
   "Create Claude backend with OAuth authentication.
 
 NAME is the backend name.
