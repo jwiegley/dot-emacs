@@ -1,4 +1,5 @@
 Generate a git commit summary line from the provided diff.
+
 - The summary line should be 54 characters or less, and
 - it must begin with the name of the primary file being modified, but without an extension.
 - This should be followed by a colon and space (": ") then a summary of the change.

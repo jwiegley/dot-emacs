@@ -25,6 +25,8 @@
 
 ;;; Commentary:
 
+;;; Code:
+
 (require 'org-constants)
 (require 'org)
 (require 'org-capture)
@@ -36,11 +38,45 @@
 (eval-when-compile
   (require 'org-habit))
 
+;;; -*- lexical-binding: t; -*-
+
 (defgroup org-config nil
-  "Configurations for Org-mode and related packages"
-  :group 'org)
+  "Configurations for Org-mode and related packages.
+
+This customization group provides centralized configuration options
+for Org-mode and its ecosystem of related packages. It serves as a
+parent group for organizing settings related to:
+
+- Core Org-mode behavior and appearance
+- Task management and agenda functionality
+- Export and publishing configurations
+- Integration with external tools and workflows
+- Performance and optimization settings
+
+All customizable variables and faces for org-config should belong
+to this group or its subgroups to maintain organization and
+discoverability through the Emacs customization interface."
+  :group 'org
+  :prefix "org-config-"
+  :link '(url-link :tag "Homepage" "https://orgmode.org/")
+  :version "29.1")
 
 (defun org-config-hide ()
+  "Set the HIDE property to t for the current org entry.
+
+This function adds or updates the HIDE property of the current
+`org-mode' entry to indicate that it should be hidden. The property is
+set at the current heading level and will be inherited by child entries
+unless they have their own HIDE property.
+
+When called interactively, operates on the entry at point. This is
+typically used in conjunction with custom `org-mode' filtering or
+display functions that respect the HIDE property.
+
+Example usage:
+  - Position point on an org heading
+  - Call \\[org-config-hide]
+  - The entry will have :HIDE: t added to its properties drawer"
   (interactive)
   (org-set-property "HIDE" "t"))
 
@@ -50,10 +86,50 @@
   "Tasks that are closed.")
 
 (defun org-config-tags-search (tags)
+  "Search for TODO entries matching TAGS with configurable open criteria.
+
+This function performs an `org-mode' tags search specifically for TODO
+entries, combining the user-provided TAGS with a predefined regular
+expression pattern stored in `org-config-open-re'. The search results
+are displayed in the agenda view.
+
+TAGS should be a string containing tag expressions following `org-mode'
+syntax:
+  - Single tag: \"project\"
+  - Multiple tags (AND): \"project+urgent\"
+  - Multiple tags (OR): \"project|personal\"
+  - Tag exclusion: \"project-completed\"
+  - Complex expressions: \"project+urgent|personal-someday\"
+
+The function appends `org-config-open-re' to the search criteria, which
+typically contains patterns to filter by TODO state or other properties.
+
+Example usage:
+  (org-config-tags-search \"project+urgent\")
+  ;; Searches for TODO items tagged with both `project' and `urgent'
+
+See Info node `(org) Matching tags and properties' for detailed tag syntax."
   (interactive "sTags: ")
   (org-tags-view t (format "%s%s" tags org-config-open-re)))
 
 (defun org-config-tags-search-done (tags)
+  "Search for org entries with TAGS that are marked as DONE.
+
+Combines the provided TAGS with a closed task regular expression to find
+completed tasks matching the specified tags. This function provides an
+interactive interface to `org-tags-view' for searching done items.
+
+TAGS should be a string containing `org-mode' tag syntax, such as:
+  - \"project\" - entries tagged with `project'
+  - \"+work-personal\" - entries with `work' tag but not `personal'
+  - \"urgent&deadline\" - entries with both `urgent' and `deadline' tags
+
+The search automatically includes closed/done task criteria via
+`org-config-closed-re' to filter results to completed items only.
+
+Example usage:
+  (org-config-tags-search-done \"project+urgent\")
+  \\[org-config-tags-search-done] RET work RET"
   (interactive "sTags: ")
   (org-tags-view t (format "%s%s" tags org-config-closed-re)))
 
@@ -86,35 +162,90 @@
     (org-tags-view t org-config-open-re)))
 
 (defun org-config-category-search (who)
+  "Search for entries matching a specific category with open status filter.
+
+Prompts for a category selection from all available categories and
+performs an `org-tags-view' search combining the category filter with
+the open status regular expression defined in `org-config-open-re'.
+
+WHO is the category name to search for, selected interactively from
+available categories using completion with history support."
   (interactive
    (list (completing-read "Category: " (org-ext-get-all-categories)
                           nil nil nil 'org-ext-category-history)))
   (org-tags-view t (format "CATEGORY=\"%s\"%s" who org-config-open-re)))
 
 (defun org-config-raw-category-search (who)
+  "Search for entries matching a specific category without status filtering.
+
+Similar to `org-config-category-search' but performs a raw category search
+without applying the open status filter, showing all entries regardless of
+their completion state.
+
+WHO is the category name to search for, selected interactively from available
+categories using completion with history support."
   (interactive
    (list (completing-read "Category: " (org-ext-get-all-categories)
                           nil nil nil 'org-ext-category-history)))
   (org-tags-view t (format "CATEGORY=\"%s\"" who)))
 
 (defun org-config-keyword-search (who)
+  "Search for entries containing a specific keyword with open status filter.
+
+Prompts for keyword selection from all property values of KEYWORDS and
+performs an `org-tags-view' search using regex matching combined with
+the open status filter.
+
+WHO is the keyword to search for, selected interactively from available
+KEYWORDS property values using completion."
   (interactive
    (list (completing-read "Keyword: " (org-property-values "KEYWORDS"))))
   (org-tags-view t (format "KEYWORDS={%s}%s" who org-config-open-re)))
 
 (defun org-config-item-search (who)
+  "Search for entries with ITEM property matching the given pattern.
+
+Performs an `org-tags-view' search using regex matching on the ITEM
+property combined with the open status filter to find entries whose
+titles match the specified pattern.
+
+WHO is the item pattern to search for, entered as a string interactively."
   (interactive "sItem: ")
   (org-tags-view t (format "ITEM={%s}%s" who org-config-open-re)))
 
 (defun org-config-who-search (who)
+  "Search for entries by person name in both CATEGORY and general content.
+
+Performs an `org-tags-view' search that matches entries where WHO
+appears either as a category or within the entry content, combined with
+the open status filter for active items only.
+
+WHO is the person name to search for, entered as a string interactively."
   (interactive "sWho: ")
   (org-tags-view t (format "CATEGORY={%s}|%s%s" who who org-config-open-re)))
 
 (defun org-config-tasks-for-query (who)
+  "Display tasks assigned to or related to a specific person using org-ql.
+
+Uses `org-ql-block' to create a dynamic block showing tasks associated
+with the specified person. This provides a more structured view than
+basic text searches by leveraging org-ql's task-specific queries.
+
+WHO is the person to find tasks for, entered as a string interactively."
   (interactive "sTasks for: ")
   (org-ql-block `(tasks-for ,who)))
 
 (defun org-config-text-search (regexp &optional include-closed)
+  "Search org files for entries matching a regular expression pattern.
+
+Performs an `org-ql-search' across all configured org directories and
+files, optionally filtering out completed tasks. By default, excludes
+CANCELED and DONE entries unless INCLUDE-CLOSED is non-nil.
+
+REGEXP is the regular expression pattern to search for.
+INCLUDE-CLOSED when non-nil, includes completed and canceled entries in
+results.
+With prefix argument, prompts for INCLUDE-CLOSED interactively."
   (interactive "sRegexp: \nP")
   (org-ql-search (org-ql-search-directories-files)
     (if include-closed
@@ -123,13 +254,28 @@
             (not (todo "CANCELED" "DONE"))))))
 
 (defmacro org-config-agenda-skip-entry-if (body)
-  "Skip all but the first non-done entry."
+  "Skip agenda entries when BODY is non-nil.
+
+This macro provides a standardized way to skip agenda entries during
+agenda construction. When BODY returns non-nil, the current entry is
+skipped by advancing to the next heading or end of buffer.
+
+BODY is an expression that determines whether to skip the current entry.
+Returns the position to skip to, or nil if the entry should be included."
   `(when ,body
      (org-with-wide-buffer
       (or (outline-next-heading)
           (goto-char (point-max))))))
 
 (defsubst org-config-agenda-skip-habit ()
+  "Skip habit entries in org agenda views.
+
+Uses `org-config-agenda-skip-entry-if' to skip entries identified as
+habits by `org-ext-habit-p'. This is typically used in agenda custom
+commands to filter out habit tracking entries from regular task views.
+
+Returns the position to skip to if the current entry is a habit, or nil
+if the entry should be included in the agenda view."
   (org-config-agenda-skip-entry-if
    (org-ext-habit-p)))
 
@@ -168,6 +314,18 @@
   :group 'org-config)
 
 (defun org-config-skip-if-regularly-reviewed ()
+  "Skip agenda entry if it's regularly reviewed and not explicitly hidden.
+
+This function checks if the current org entry should be skipped from
+agenda views based on regular review criteria. An entry is skipped if:
+- It doesn't have a HIDE property set
+- AND it matches at least one of:
+  - Has tags that intersect with `org-config-names-regularly-reviewed'
+  - Belongs to a category in `org-config-categories-regularly-reviewed'
+  - The buffer filename contains \"OSS\"
+
+Returns the position to skip to if the entry should be skipped, nil otherwise.
+This follows the org-agenda skip function protocol."
   (org-config-agenda-skip-entry-if
    (and (null (org-entry-get nil "HIDE"))
         (or (cl-intersection org-config-names-regularly-reviewed
@@ -178,10 +336,21 @@
             (string-match-p "OSS" (buffer-file-name))))))
 
 (defsubst org-config-skip-if-review-not-needed ()
+  "Skip agenda entry if it doesn't need review.
+
+Uses `org-ext-needs-review-p' to determine if the current entry requires
+review. Returns the position to skip to if review is not needed, nil
+otherwise. This follows the `org-agenda' skip function protocol."
   (org-config-agenda-skip-entry-if
    (not (org-ext-needs-review-p))))
 
 (defsubst org-config-skip-if-reviewed ()
+  "Skip agenda entry if it has already been reviewed.
+
+Checks for the presence of a last review property using
+`org-review-last-review-prop'. Returns the position to skip to if the
+entry has been reviewed, nil otherwise. This follows the `org-agenda'
+skip function protocol."
   (org-config-agenda-skip-entry-if
    (org-review-last-review-prop nil)))
 
@@ -212,6 +381,20 @@
            subtree-end))))
 
 (defun org-config-review-compare (a b)
+  "Compare two org agenda items for review sorting purposes.
+
+This function implements a comparison predicate for sorting org items
+based on their review status and age. Items are prioritized by:
+1. Items with review properties vs. those without
+2. Among reviewed items, those requiring review sooner
+3. Among unreviewed items, by TODO age via `my/org-compare-todo-age'
+
+A and B are agenda item strings with text properties containing
+org-marker or org-hd-marker pointing to the source org entries.
+
+Returns:
+  1 if A should come after B in sort order
+ -1 if A should come before B in sort order"
   (let* ((ma (or (get-text-property 0 'org-marker a)
                  (get-text-property 0 'org-hd-marker a)))
          (mb (or (get-text-property 0 'org-marker b)
@@ -232,6 +415,21 @@
 
 (defsubst org-config-meeting-template
     (keys title file dir &optional prefix location)
+  "Generate an `org-capture' template configuration for meeting notes.
+
+Creates a template that captures to a timestamped file in a subdirectory,
+with immediate finish and jump-to-captured behavior suitable for meeting
+workflows.
+
+KEYS is the key sequence to access this template (e.g., \"m\").
+TITLE is the descriptive name shown in the capture menu.
+FILE is the base filename for the captured content.
+DIR is the directory path where the target file will be created.
+PREFIX is an optional string prepended to the filename.
+LOCATION is an optional subdirectory name (defaults to \"meeting\").
+
+Returns a complete org-capture template specification list suitable
+for use in `org-capture-templates'."
   `(,keys ,title plain
           (file ,(expand-file-name file dir))
           :target (file ,(concat (or location "meeting")
@@ -250,13 +448,13 @@ Uses the Kadena meeting template located at ~/org/template/kadena/meeting."
 
 (defsubst org-config-kadena-1-on-1 (keys title file)
   "Create a Kadena 1-on-1 meeting configuration with KEYS, TITLE, and FILE.
-Uses the Kadena one-on-one template and adds '1-on-1-' prefix."
+Uses the Kadena one-on-one template and adds `1-on-1-' prefix."
   (org-config-meeting-template
    keys title file "~/org/template/kadena/one-on-one" "1-on-1-"))
 
 (defsubst org-config-bahai-meeting (keys title file)
   "Create a Bahai meeting configuration with KEYS, TITLE, and FILE.
-Uses the Bahai meeting template with 'bahai' tag."
+Uses the Bahai meeting template with `bahai' tag."
   (org-config-meeting-template
    keys title file "~/org/template/bahai/meeting" nil "bahai"))
 
@@ -287,11 +485,29 @@ in lowercased NAME."
   "%9CATEGORY %52ITEM(Task) %LAST_REVIEW %NEXT_REVIEW")
 
 (defun org-config-entry-in-inbox (entry)
+  "Check if ENTRY belongs to an inbox or drafts category.
+
+ENTRY should be an org-compare entry object containing marker information.
+Returns non-nil if the entry's category is either \"Inbox\" or \"Drafts\".
+
+This function extracts the marker from the entry, switches to the marker's
+buffer context, and checks the org category at that position."
   (let ((marker (org-compare--get-marker entry)))
     (with-current-buffer (marker-buffer marker)
       (member (org-get-category marker) '("Inbox" "Drafts")))))
 
 (defun org-config-compare-items-needing-review ()
+  "Create a comparison function that prioritizes inbox items over others.
+
+Returns a comparison function suitable for sorting org-compare entries.
+
+The comparison logic follows this priority order:
+  1. Inbox/Drafts items are ranked higher (positive comparison value)
+  2. Non-inbox items are ranked lower (negative comparison value)
+  3. When both items have the same inbox status, fall back to random comparison
+
+This ensures that items in \"Inbox\" or \"Drafts\" categories bubble up
+during org-compare sessions for immediate attention."
   (let ((compare-randomly (org-compare-randomly)))
     (lambda (x y)
       (let ((x-in-inbox (org-config-entry-in-inbox x))
@@ -976,6 +1192,20 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ))
 
 (defun org-config-find (query &optional arg)
+  "Search org agenda files for entries matching QUERY.
+
+By default, searches for TODO entries and NOTE entries that match the
+rifle search QUERY. When ARG is non-nil (called with prefix argument),
+restricts search to only TODO entries, excluding NOTE entries.
+
+QUERY is a string passed to org-ql's rifle predicate for full-text
+search. ARG when non-nil limits results to TODO entries only.
+
+Excludes habit entries from all results.
+
+Example usage:
+  (org-config-find \"project\")   ; Find TODOs and NOTEs containing \"project\"
+  (org-config-find \"meeting\" t) ; Find only TODOs containing \"meeting\""
   (interactive "sQuery: \nP")
   (org-ql-search (org-agenda-files)
     `(and ,(if arg
@@ -986,24 +1216,69 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
           (rifle ,query))))
 
 (defun org-config-find-any (query)
+  "Search all org files in search directories for entries matching QUERY.
+
+Performs a full-text rifle search across all org files found in directories
+specified by `org-ql-search-directories-files'. Unlike `org-config-find',
+this function searches beyond just agenda files and includes all entry types.
+
+QUERY is a string passed to org-ql's rifle predicate for full-text search.
+
+Example usage:
+  (org-config-find-any \"archive\")      ; Find any entries containing \"archive\""
   (interactive "sQuery: ")
   (org-ql-search (org-ql-search-directories-files)
     `(rifle ,query)))
 
 (defun org-config-show-habits ()
+  "Display habit entries from org agenda files, sorted by scheduled date.
+
+Shows a dedicated org-ql search buffer containing only entries marked as
+habits, ordered by their scheduled dates. Useful for reviewing recurring
+tasks and habit tracking.
+
+Example usage:
+  (org-config-show-habits)   ; Show all habits sorted by schedule"
   (interactive)
   (org-ql-search (org-agenda-files)
     '(habit)
     :sort '(scheduled)))
 
 (defun org-config-show-todos ()
+  "Display TODO entries from org agenda files, sorted by scheduled date.
+
+Shows a dedicated org-ql search buffer containing all TODO entries,
+ordered by their scheduled dates. Provides a comprehensive view of
+pending tasks across all agenda files.
+
+Example usage:
+  (org-config-show-todos)    ; Show all TODOs sorted by schedule"
   (interactive)
   (org-ql-search (org-agenda-files)
     '(todo)
     :sort '(scheduled)))
 
 (defun org-config-show-tasks-with-filetags (_tag)
-  "Report items pending review after one second."
+  "Display TODO items from agenda files with optional filetag filtering.
+
+This function uses org-ql to query all files in the variable
+`org-agenda-files' for TODO items and displays them sorted by scheduled
+date and TODO status. The TAG parameter is currently unused but reserved
+for future filetag filtering functionality.
+
+The commented code shows the intended filetag matching logic that would
+search for #+filetags: entries containing the specified TAG within the
+first 4096 characters of each file.
+
+TAG: String representing the filetag to filter by (currently unused)
+
+Returns: Opens an org-ql search buffer with matching TODO items
+
+Example usage:
+  (org-config-show-tasks-with-filetags \"project\")
+
+Interactive usage:
+  \\[org-config-show-tasks-with-filetags] RET project RET"
   (interactive "sTag: ")
   (org-ql-search (org-agenda-files)
     `(and (todo)
@@ -1015,6 +1290,16 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :sort '(scheduled todo)))
 
 (defun org-config-show-invalid ()
+  "Display org entries with Effort property but no TODO state.
+
+This function searches through all org files in `org-directory' to find
+entries that have an Effort property defined but are not marked with any
+TODO keyword. This can help identify tasks that have time estimates but
+may have been improperly configured or need review.
+
+The results are sorted by scheduled date and TODO state for easier review.
+
+Requires `org-ql' package to be installed and loaded."
   (interactive)
   (org-ql-search (org-ql-search-directories-files
                   :directories (list org-directory))

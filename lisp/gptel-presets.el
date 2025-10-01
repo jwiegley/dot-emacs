@@ -364,7 +364,8 @@ differently or may not accept what another backend consider legitimate."
           " remove any code. Preserve all existing code as is, simply edit"
           " the text to insert the missing docstring. Do not provide any"
           " rationale or explanation, and do not enclose any of the existing"
-          " code within progn blocks.")
+          " code within progn blocks. Do not enclose the rewritten code in"
+          " Markdown code block markers.")
   :parents 'rewrite)
 
 (provide 'gptel-presets)
