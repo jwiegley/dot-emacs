@@ -27,12 +27,14 @@
 
 ;; I use: (define-key global-map [(meta ?m)] 'org-smart-capture)
 
+;;; Code:
+
 (require 'org-macs)
 (require 'org-capture)
 (require 'gnus-sum)
 
 (defgroup org-smart-capture nil
-  "Capture Gnus messages as tasks, with context"
+  "Capture Gnus messages as tasks, with context."
   :group 'org)
 
 (defcustom org-smart-capture-use-lastname nil
@@ -61,6 +63,15 @@
 ;;               ?\]))))
 
 (defun org-smart-capture-article (&optional article multiple)
+  "Capture a Gnus article as an Org task with metadata.
+
+Creates an Org capture entry from a Gnus article, extracting subject,
+author, date, and message-id. If a region is active in article mode,
+includes the selected text as body content.
+
+ARTICLE is the article number to capture (defaults to current article).
+MULTIPLE, when non-nil, automatically finalizes the capture for batch
+processing."
   (let* ((body (and (eq major-mode 'gnus-article-mode)
                     (region-active-p)
                     (buffer-substring-no-properties (region-beginning)
@@ -157,12 +168,24 @@
   (unless (derived-mode-p 'dired-mode)
     (user-error "Not in Dired buffer"))
   (let* ((target-file (dired-get-filename nil t))
-         (heading (file-name-nondirectory target-file)))
+         ;; (heading (file-name-nondirectory target-file))
+         )
     (call-interactively #'org-capture)
     (org-attach-attach target-file nil 'mv)))
 
 ;;;###autoload
-(defun org-smart-capture (&optional arg func)
+(defun org-smart-capture (&optional _arg func)
+  "Smart context-aware Org capture dispatcher.
+
+Automatically detects the current major mode and invokes appropriate
+capture behavior:
+- In `dired-mode': Prompts to create a task with file as attachment
+- In `gnus-article-mode': Captures current article with metadata
+- In `gnus-summary-mode': Captures marked articles (or current article)
+- Otherwise: Falls back to standard `org-capture'
+
+ARG is the universal prefix argument (currently unused).
+FUNC is an alternative capture function to call for fallback cases."
   (interactive "P")
   (cond ((and (eq major-mode 'dired-mode)
               (y-or-n-p "Create task from file/directory as attachment?"))
@@ -177,7 +200,8 @@
 
         ((eq major-mode 'gnus-summary-mode)
          (save-excursion
-           (let* ((current-article (gnus-summary-article-number))
+           (let* (
+                  ;; (current-article (gnus-summary-article-number))
                   (articles (gnus-summary-work-articles nil))
                   (multiple (> (length articles) 1)))
              (dolist (article articles)
