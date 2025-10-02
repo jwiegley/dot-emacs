@@ -117,11 +117,19 @@
       (list start end candidates :exit-function exit-function))))
 
 (defun org-ql-ext-completion-hook ()
-  "Configure org-mode for completion at point for org-agenda headlines."
+  "Configure `org-mode' with capf for `org-agenda' headlines."
   (add-to-list 'completion-at-point-functions
                'org-ql-ext-completions-at-point))
 
 (defun org-ql-ext-find-refile-targets ()
+  "Search for org-ql refile targets across different contexts.
+
+Behavior depends on current major mode:
+- In `dired-mode': Recursively searches all org files in `org-directory'
+- In `org-mode': Searches buffers returned by `org-ql-find--buffers'
+- Otherwise: Searches files returned by the function `org-agenda-files'
+
+All searches use the \"refile-target: \" query prefix."
   (interactive)
   (let ((query-prefix "refile-target: ")
         current-prefix-arg)
