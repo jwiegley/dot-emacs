@@ -3323,7 +3323,8 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package gptel-commit
   :no-require t
-  :after (gptel git-commit)
+  :after (git-commit)
+  :demand t
   :preface
   (defun my/gptel-commit-summary ()
     "Insert a commit message header line in the format I use, followed by a
@@ -3355,10 +3356,11 @@ Intended to be placed in `git-commit-setup-hook'."
                     (insert resp "\n\n")
                     (magit-generate-changelog))))))))))
   :config
+  (require 'gptel)
+
   (gptel-make-preset 'commit-summary
     :system 'commit-summary
-    :parents 'rewrite
-    :tools nil)
+    :parents 'rewrite)
 
   (add-hook 'git-commit-setup-hook #'my/gptel-commit-summary 50))
 #+end_src
@@ -11174,8 +11176,7 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
             ((string= tag "Night")  (< hour 21))
             ((string= tag "Home")
              (with-temp-buffer
-               (call-process "ifconfig" nil t nil "en0" "inet")
-               (call-process "ifconfig" nil t nil "en1" "inet")
+               (call-process "ifconfig" nil t nil "bridge0" "inet")
                (goto-char (point-min))
                (not (search-forward "inet 192.168.1." nil t))))
             ((string= tag "Net")
