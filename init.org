@@ -3321,10 +3321,8 @@ up before you execute another command."
 **** gptel-commit
 
 #+begin_src emacs-lisp
-(use-package gptel-commit
-  :no-require t
-  :after (git-commit)
-  :demand t
+(use-package git-commit
+  :defer t
   :preface
   (defun my/gptel-commit-summary ()
     "Insert a commit message header line in the format I use, followed by a
@@ -3356,13 +3354,12 @@ Intended to be placed in `git-commit-setup-hook'."
                     (insert resp "\n\n")
                     (magit-generate-changelog))))))))))
   :config
-  (require 'gptel)
+  (add-hook 'git-commit-setup-hook #'my/gptel-commit-summary 50)
 
-  (gptel-make-preset 'commit-summary
-    :system 'commit-summary
-    :parents 'rewrite)
-
-  (add-hook 'git-commit-setup-hook #'my/gptel-commit-summary 50))
+  (with-eval-after-load 'gptel
+    (gptel-make-preset 'commit-summary
+      :system 'commit-summary
+      :parents 'rewrite)))
 #+end_src
 
 **** gptel-rewrite-embark
@@ -4643,13 +4640,13 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
     :defer t
     :config
     (use-package git-commit
+      :hook
+      (git-commit-setup . git-commit-save-message)
+      (git-commit-setup . git-commit-turn-on-auto-fill)
+      (git-commit-setup . git-commit-turn-on-flyspell)
+      (git-commit-setup . bug-reference-mode)
       :custom
-      (git-commit-major-mode 'markdown-mode)
-      (git-commit-setup-hook
-       '(git-commit-save-message
-         git-commit-turn-on-auto-fill
-         git-commit-turn-on-flyspell
-         bug-reference-mode))))
+      (git-commit-major-mode 'markdown-mode)))
 
   (use-package magit-pull
     :defer t

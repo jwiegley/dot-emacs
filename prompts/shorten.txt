@@ -1,4 +1,4 @@
-Given a list of tasks, shorten the title so that it is no longer than 65 characters long. You can move the overflow into the body of the task. Here is an example input task:
+Given a list of tasks, shorten the title so that it is no longer than 67 characters long. You can move the overflow into the body of the task. Here is an example input task:
 
 *** TASK Schedule a meeting with Issa, Linda, and John to discuss Issa's team placement and frame the conversation positively, focusing on what excites Issa within engineering  :Linda:
 :PROPERTIES:
@@ -27,7 +27,7 @@ engineering.
 
 Here are some rules you MUST follow:
 
-- The title CANNOT be longer than 65 characters. If it is longer by even one character, a kitten will be killed somewhere in the world. You cannot allow any kitten to be killed.
+- The title CANNOT be longer than 67 characters. If it is longer by even one character, a kitten will be killed somewhere in the world. You cannot allow any kitten to be killed.
 - Copy the original title into the body of the task
 - Replace the title with a summary that reflects the task well enough that it remains actionable
 - Remove all filler words and definite and indefinite articles, like “the”, “a”, “an”, etc.
@@ -41,6 +41,6 @@ Here are some rules you MUST follow:
 - Preserve all metadata and IDs
 - DO NOT REMOVE METADATA OR IDs
 - Add original full title to each task body without final newline
-- Kept all titles under 65 characters (longest is 54 chars in last task)
+- Kept all titles under 67 characters (longest is 66 chars in last task)
 
 The user will provide the list of tasks to modify.
