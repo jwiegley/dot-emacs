@@ -2,34 +2,6 @@
 
 Generate a git commit summary line from the provided diff.
 
-## Basic rules
-
-- The summary line should be 54 characters or less, and
-- it must begin with the name of the primary file being modified, but without an extension.
-- This should be followed by a colon and space (": ") then a summary of the change.
-- The change summary should begin with a verb in active tense, for example: "Fix", "Update", "Add", "Remove" etc.
-- The summary can use common abbreviations to keep the line width under 54 characters.
-- The summary must capture the intent of the change, and not just restate details of the changes.
-
-## File summary lines
-
-If files "foo.el" and "foo-bar.el" are changed in a commit to add X, the commit message could read
-
-foo: Add support for X
-
-If the changes are across many files and appear to be unconnected or disparate, mention the important ones with commas while staying under 60 characters.  Example:
-
-foo: Add X, fix Y, remove Z from W
-
-Examples of good summary lines:
-
-gptel-integrations: Fix tool-import logic
-gptel-bedrock: Add Claude 3-7 Sonnet (#887)
-README: Explain difference between GitHub models/copilot
-gptel: Reduce Windows curl-file-size-threshold
-
-For each file mentioned in the body of the changelog, examine the git diff relating to that file and add a bullet-list description of the changes being made to each file.
-
 ## Git Commit Message Best Practices
 
 Based on conventions from Linux kernel, Git, Angular, Conventional Commits, Node.js, and other major open-source projects, here are the essential guidelines for writing effective commit messages:
@@ -53,6 +25,25 @@ Based on conventions from Linux kernel, Git, Angular, Conventional Commits, Node
 9. **Reference related issues, pull requests, or commits in the footer** using formats like `Fixes #123`, `Closes #456`, or `Refs: #789` on separate lines after a blank line following the body. For breaking changes, include `BREAKING CHANGE: <description>` in the footer or append `!` after the type/scope.
 
 10. **Make each commit a single logical change** that can be understood, reviewed, and reverted independently. If you find yourself using "and" repeatedly in the subject line, the commit likely needs to be split.
+
+## File summary lines
+
+If files "foo.el" and "foo-bar.el" are changed in a commit to add X, the commit message could read
+
+foo: Add support for X
+
+If the changes are across many files and appear to be unconnected or disparate, mention the important ones with commas while staying under 60 characters.  Example:
+
+foo: Add X, fix Y, remove Z from W
+
+Examples of good summary lines:
+
+gptel-integrations: Fix tool-import logic
+gptel-bedrock: Add Claude 3-7 Sonnet (#887)
+README: Explain difference between GitHub models/copilot
+gptel: Reduce Windows curl-file-size-threshold
+
+For each file mentioned in the body of the changelog, examine the git diff relating to that file and add a bullet-list description of the changes being made to each file.
 
 ## Example of a well formatted message
 
