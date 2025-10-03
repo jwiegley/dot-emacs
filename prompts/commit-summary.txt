@@ -1,5 +1,3 @@
-# Git Commit Message Generator
-
 Generate a git commit summary line from the provided diff.
 
 ## Git Commit Message Best Practices
