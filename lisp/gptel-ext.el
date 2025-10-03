@@ -47,7 +47,17 @@
   (gptel-with-preset 'docstring (gptel--suffix-rewrite)))
 
 (defun gptel-ext-title (beg end)
-  "Given a region of text, generate a title to describe it."
+  "Generate a title for the region from BEG to END using gptel.
+
+Sends the text in the region to the LLM configured in the `title' preset
+and inserts the generated title at the end of the current Org heading.
+
+BEG and END define the region bounds to use as context for title
+generation.
+
+When called interactively, uses the active region. The callback
+positions point at the end of the current Org heading and inserts the
+generated title, adding a space before the title if needed."
   (interactive "r")
   (gptel-with-preset 'title
     (gptel-request
@@ -59,7 +69,7 @@
                       (goto-char (plist-get info :position))
                       (org-back-to-heading)
                       (goto-char (line-end-position))
-                      (unless (looking-back " ")
+                      (unless (looking-back " " (line-beginning-position))
                         (insert " "))
                       (insert resp)))))))
 
@@ -148,8 +158,8 @@ used to run a function asynchronously, which when complete, finishes the
 synchronous call.
 
   (synchronous
-     #'(lambda (k)
-         (make-thread #'(lambda ()
+     #\\='(lambda (k)
+         (make-thread #\\='(lambda ()
                           (sleep-for 3)
                           (funcall k 123)))))"
   (let* ((mut (make-mutex))
@@ -163,7 +173,7 @@ synchronous call.
                    (condition-notify var))))
     (with-mutex mut
       (while (null (car result))
-        (sleep-for 0 1)
+        (sleep-for 0)
         (condition-wait var)))
     (cdr result)))
 
@@ -185,7 +195,47 @@ synchronous call.
                (stream nil) (in-place nil)
                (system gptel--system-message)
                transforms (fsm (gptel-make-fsm)))
-  "Synchronous version of `gptel-request'."
+  "Make a synchronous GPT request and block until response is received.
+
+This function wraps `gptel-request' to provide synchronous behavior,
+blocking execution until the API response is complete. Returns the
+response string from the language model.
+
+PROMPT is the text input to send to the language model. If nil, uses the
+current buffer contents or context.
+
+Optional keyword arguments:
+
+CALLBACK   - Function called with (RESPONSE INFO) after completion.
+             Receives the model's response string and metadata plist.
+
+BUFFER     - Buffer to use for the request context. Defaults to current
+             buffer.
+
+POSITION   - Position in buffer to insert response when :in-place is non-nil.
+
+CONTEXT    - Additional context to include with the request.
+
+DRY-RUN    - If non-nil, prepare request but don't actually send it.
+
+STREAM     - If non-nil, enable streaming responses (not typically useful
+             for synchronous requests).
+
+IN-PLACE   - If non-nil, insert response directly into buffer at position.
+
+SYSTEM     - System message/instructions for the model. Defaults to
+             `gptel--system-message'.
+
+TRANSFORMS - List of transformation functions to apply to response.
+
+FSM        - Finite state machine for managing request state. Defaults
+             to new FSM from `gptel-make-fsm'.
+
+Returns the response string from the language model.
+
+Example:
+  (let ((response (gptel-request-synchronous \"Explain Emacs\")))
+    (message \"Got: %s\" response))"
   (synchronous
    #'(lambda (komplete)
        (gptel-request
@@ -238,6 +288,50 @@ For example:
     (let ((gptel-backend (gptel-get-backend "ChatGPT"))
           (gptel-model 'gpt-4o-mini))
       (gptel-send))))
+
+(defun gptel-ext-commit-summary ()
+  "Insert a commit message header line in the format I use.
+This is followed by a standard magit (GNU style) changelog.
+
+Don't get the LLM to write the commit message itself, because it's bad
+at inferring my intent.
+
+Intended to be placed in `git-commit-setup-hook'."
+  (unless (string-match-p "/org/" default-directory)
+    (gptel-with-preset 'commit-summary
+      (let ((commit-buffer (current-buffer))) ;commit message buffer
+
+        (with-temp-buffer
+          (vc-git-command              ;insert diff
+           (current-buffer) 1 nil
+           "diff-index" "--exit-code" "--patch"
+           (and (magit-anything-staged-p) "--cached")
+           "HEAD" "--")
+
+          (gptel-request nil           ;Run request on diff buffer contents
+            :context commit-buffer
+            :callback
+            (lambda (resp info)
+              (if (not (stringp resp))
+                  (message "Git commit summary generation failed")
+                (with-current-buffer (plist-get info :context)
+                  (save-excursion
+                    (goto-char (point-min))
+                    (insert resp "\n\n")
+                    (magit-generate-changelog)))))))))))
+
+(defun gptel-ext-commit-summary-install ()
+  "Install `gptel-ext-commit-summary' into `git-commit-setup-hook'.
+
+Registers the commit summary function to run during git commit setup
+and configures the commit-summary preset for gptel with rewrite-style
+system prompt."
+  (add-hook 'git-commit-setup-hook #'gptel-ext-commit-summary 50)
+
+  (with-eval-after-load 'gptel
+    (gptel-make-preset 'commit-summary
+      :system 'commit-summary
+      :parents 'rewrite)))
 
 (provide 'gptel-ext)
 

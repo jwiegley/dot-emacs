@@ -45,9 +45,8 @@ For each file mentioned in the body of the changelog, examine the git diff relat
 
 ## Example of a well formatted message
 
-Here is an example of what the final product might look like for a realistic set of changes:
+Below is an example of what the final product might look like for a realistic set of changes. Note that there are no markdown code block markers, and not asterix-bulleted list of file names at the end:
 
-<message>
 OPNSENSE-EXPORTER-SETUP: Add OPNsense exporter docs, config
 
 - **OPNSENSE-EXPORTER-SETUP.md**: Add comprehensive documentation for OPNsense
@@ -71,4 +70,3 @@ OPNSENSE-EXPORTER-SETUP: Add OPNsense exporter docs, config
 - **secrets.yaml**: Add encrypted opnsense-exporter-secrets entry containing
   OPNSENSE_EXPORTER_OPS_API_KEY and OPNSENSE_EXPORTER_OPS_API_SECRET environment
   variables
-</message>
