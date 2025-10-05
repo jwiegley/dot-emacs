@@ -3323,43 +3323,9 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package git-commit
   :defer t
-  :preface
-  (defun my/gptel-commit-summary ()
-    "Insert a commit message header line in the format I use, followed by a
-standard magit (GNU style) changelog.
-
-Don't get the LLM to write the commit message itself, because it's bad
-at inferring my intent.
-
-Intended to be placed in `git-commit-setup-hook'."
-    (gptel-with-preset 'commit-summary
-      (let ((commit-buffer (current-buffer))) ;commit message buffer
-
-        (with-temp-buffer
-          (vc-git-command               ;insert diff
-           (current-buffer) 1 nil
-           "diff-index" "--exit-code" "--patch"
-           (and (magit-anything-staged-p) "--cached")
-           "HEAD" "--")
-
-          (gptel-request nil            ;Run request on diff buffer contents
-            :context commit-buffer
-            :callback
-            (lambda (resp info)
-              (if (not (stringp resp))
-                  (message "Git commit summary generation failed")
-                (with-current-buffer (plist-get info :context)
-                  (save-excursion
-                    (goto-char (point-min))
-                    (insert resp "\n\n")
-                    (magit-generate-changelog))))))))))
   :config
-  (add-hook 'git-commit-setup-hook #'my/gptel-commit-summary 50)
-
-  (with-eval-after-load 'gptel
-    (gptel-make-preset 'commit-summary
-      :system 'commit-summary
-      :parents 'rewrite)))
+  (require 'gptel-ext)
+  (gptel-ext-commit-summary-install))
 #+end_src
 
 **** gptel-rewrite-embark

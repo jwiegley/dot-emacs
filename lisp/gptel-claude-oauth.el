@@ -237,25 +237,7 @@
 ;;;###autoload
 (cl-defun gptel-make-claude-oauth
     (name &key stream key
-          (models '((claude-opus-4-1-20250805
-                     :description "Claude Opus 4.1 - Most capable"
-                     :capabilities (tool json reasoning)
-                     :context-window 200000
-                     :request-params
-                     (:max_tokens
-                      32000
-                      :thinking (:type "enabled"
-                                       :budget_tokens 32000)
-                      :tools [(:type "web_search_20250305"
-                                     :name "web_search"
-                                     :max_uses 5)]))
-                    (claude-opus-4-20250514
-                     :description "Claude Opus 4"
-                     :capabilities (tool json reasoning)
-                     :context-window 200000
-                     :request-params
-                     (:max_tokens 32000))
-                    (claude-sonnet-4-5-20250929
+          (models '((claude-sonnet-4-5-20250929
                      :description "Claude Sonnet 4.5"
                      :capabilities (tool json)
                      :context-window 200000
@@ -279,6 +261,24 @@
                      :context-window 200000
                      :request-params
                      (:max_tokens 8192))
+                    (claude-opus-4-1-20250805
+                     :description "Claude Opus 4.1 - Most capable"
+                     :capabilities (tool json reasoning)
+                     :context-window 200000
+                     :request-params
+                     (:max_tokens
+                      32000
+                      :thinking (:type "enabled"
+                                       :budget_tokens 32000)
+                      :tools [(:type "web_search_20250305"
+                                     :name "web_search"
+                                     :max_uses 5)]))
+                    (claude-opus-4-20250514
+                     :description "Claude Opus 4"
+                     :capabilities (tool json reasoning)
+                     :context-window 200000
+                     :request-params
+                     (:max_tokens 32000))
                     (claude-3-5-haiku-20241022
                      :description "Claude Haiku 3.5 - Fast"
                      :capabilities (tool json)
