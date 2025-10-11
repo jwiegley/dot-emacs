@@ -1122,6 +1122,21 @@ Shows categories with their usage counts in a temporary buffer."
     (if (looking-at "^$")
         (delete-char -1))))
 
+(defun org-ext-fill-body ()
+  "Fill body paragraph of the current Org heading, skipping properties.
+
+Moves to the first body paragraph after the heading and any properties
+drawer, then applies `org-fill-paragraph' to reflow the text while
+preserving the current position."
+  (interactive)
+  (save-excursion
+    (let ((heading-pos (point-marker)))
+      (forward-line)
+      (when (looking-at-p ":PROPERTIES:")
+        (re-search-forward ":END:")
+        (forward-line))
+      (org-fill-paragraph))))
+
 (provide 'org-ext)
 
 ;;; org-ext.el ends here

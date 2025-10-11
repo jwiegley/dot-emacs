@@ -913,7 +913,9 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :empty-lines-before 1
     :unnarrowed t)
 
-   ("wm" "Work Meeting" plain
+   ("wm" "Work Meeting")
+
+   ("wmm" "Meeting" plain
     (file "~/org/template/meeting.org")
     :target
     (file+head
@@ -929,31 +931,24 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :unnarrowed t
     :no-save t)
 
-   ("wT" "Work Team Member" plain
-    (file "~/org/template/kadena/team-member.org")
-    :target
-    (file "kadena/team/%<%Y%m%d%H%M>.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ,(org-config-kadena-meeting "wmM" "Marketing <> Eng"  "marketing-eng.org")
+   ,(org-config-kadena-meeting "wmO" "Ops <> Eng"        "ops-eng.org")
+   ,(org-config-kadena-meeting "wmP" "Product <> Eng"    "product-eng.org")
+   ,(org-config-kadena-meeting "wmb" "BD <> Eng"         "bd-eng.org")
+   ,(org-config-kadena-meeting "wmp" "PM <> Eng"         "pm-eng.org")
 
-   ,(org-config-kadena-meeting "wM" "Marketing <> Eng"  "marketing-eng.org")
-   ,(org-config-kadena-meeting "wO" "Ops <> Eng"        "ops-eng.org")
-   ,(org-config-kadena-meeting "wP" "Product <> Eng"    "product-eng.org")
-   ,(org-config-kadena-meeting "wb" "BD <> Eng"         "bd-eng.org")
-   ,(org-config-kadena-meeting "wp" "PM <> Eng"         "pm-eng.org")
+   ,(org-config-kadena-meeting "wma" "All Hands"         "all-hands.org")
+   ,(org-config-kadena-meeting "wmc" "Chainweb Standup"  "chainweb-standup.org")
+   ,(org-config-kadena-meeting "wme" "EVM Posse"         "evm-posse.org")
+   ,(org-config-kadena-meeting "wmL" "EVM Product Leads" "evm-product-leads.org")
+   ,(org-config-kadena-meeting "wmj" "JS Team"           "js-team.org")
+   ,(org-config-kadena-meeting "wml" "Leads Strategy"    "leads-strategy.org")
+   ,(org-config-kadena-meeting "wmE" "Eng Managers"      "eng-managers.org")
+   ,(org-config-kadena-meeting "wms" "Eng Standup"       "eng-standup.org")
+   ,(org-config-kadena-meeting "wmt" "CTO Meeting"       "cto.org")
 
-   ,(org-config-kadena-meeting "wC" "Work Conference"   "conference.org")
-   ,(org-config-kadena-meeting "wF" "Offsite Meeting"   "offsite.org")
-   ,(org-config-kadena-meeting "wa" "All Hands"         "all-hands.org")
-   ,(org-config-kadena-meeting "we" "EVM Posse"         "evm-posse.org")
-   ,(org-config-kadena-meeting "wL" "EVM Product Leads" "evm-product-leads.org")
-   ,(org-config-kadena-meeting "wj" "JS Team"           "js-team.org")
-   ,(org-config-kadena-meeting "wl" "Leads Strategy"    "leads-strategy.org")
-   ,(org-config-kadena-meeting "wE" "Eng Managers"      "eng-managers.org")
-   ,(org-config-kadena-meeting "ws" "Eng Standup"       "eng-standup.org")
-   ,(org-config-kadena-meeting "wt" "CTO Meeting"       "cto.org")
+   ,(org-config-kadena-meeting "wC" "Conference" "conference.org")
+   ,(org-config-kadena-meeting "wO" "Offsite"    "offsite.org")
 
    ("wh" "Hack-a-chain")
 
@@ -975,6 +970,15 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
        "#+filetags: :kadena:\n"
        "#+startup: showeverything\n"
        "#+title: 1-on-1: %^{Person meeting with}\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("woT" "1-on-1 with Team Member" plain
+    (file "~/org/template/kadena/team-member.org")
+    :target
+    (file "kadena/team/%<%Y%m%d%H%M>.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -1013,6 +1017,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("wos" "Names beginning with S")
    ,(org-config-1-on-1-from-name "Stuart Popejoy")
+   ,(org-config-1-on-1-from-name "Steven Straatemans")
 
    ("wow" "Names beginning with W")
    ,(org-config-1-on-1-from-name "Will Martino")

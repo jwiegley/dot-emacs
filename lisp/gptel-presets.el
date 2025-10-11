@@ -87,7 +87,7 @@
 (gptel-make-preset 'sonnet-max
   :description "Anthropic's Claude Sonnet, thinking"
   :backend "Claude-OAuth"
-  :model 'claude-sonnet-4-20250514
+  :model 'claude-sonnet-4-5-20250929
   :temperature 1.0)
 
 (gptel-make-preset 'opus
@@ -176,7 +176,7 @@
 
 (gptel-make-preset 'default
   :description "Default setup"
-  :parents 'opus-max
+  :parents 'sonnet-max
   ;; :model hf-default-instance-name
   :system 'default
   :confirm-tool-calls nil               ; 'auto
@@ -220,7 +220,7 @@
 (gptel-make-preset 'persian
   :description "Persian translator"
   :system 'persian
-  :parents 'opus)
+  :parents 'sonnet)
 
 (gptel-make-preset 'spanish
   :description "Spanish translator"
@@ -237,13 +237,13 @@
 (gptel-make-preset 'emacs
   :description "Best model for generating or interpreting code"
   :system 'emacs
-  :parents 'opus
+  :parents 'sonnet
   :tools '("emacs" "introspection"))
 
 (gptel-make-preset 'haskell
   :description "Expert Haskell coder"
   :system 'haskell
-  :parents 'opus)
+  :parents 'sonnet)
 
 ;;; REQUEST-PARAMS =======================================================
 

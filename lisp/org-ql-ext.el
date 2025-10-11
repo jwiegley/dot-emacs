@@ -199,7 +199,10 @@ NEXT_REVIEW date is <= that date."
                             review-by))
                    t)))
          (table
-          (org-ql-select 'org-agenda-files query
+          (org-ql-select 'org-agenda-files
+            (progn
+              (message "QL Query: %S" query)
+              query)
             :action `(org-ext-get-properties ,@columns)
             :sort #'(lambda (x y)
                       (cond
@@ -265,7 +268,7 @@ See `org-ext-ql-columnview'."
             (setq result
                   (cons
                    (concat
-                    ;; "- "
+                    "- "
                     (match-string 2 link)
                     (and tags
                          (concat " ("
