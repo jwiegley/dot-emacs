@@ -581,46 +581,6 @@ general_settings:
                    "--yarn-orig-ctx" "262144"))))
 
    (make-hf-model
-    :name 'Qwen3-Coder-30B-A3B-Instruct-480B-Distill-V2
-    :context-length 262144
-    :temperature 0.7
-    :min-p 0.01
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :max-output-tokens 65536
-      :model-path "~/Models/BasedBase_Qwen3-Coder-30B-A3B-Instruct-480B-Distill-V2"
-      :hostnames '("hera")
-      :cache-control t
-      :arguments '("--repeat-penalty" "1.05"
-                   "--cache-type-k" "q8_0"
-                   "--top-k" "20"
-                   "--flash-attn"
-                   "--cache-type-v" "q8_0"
-                   "--batch-size" "8192"
-                   "--ubatch-size" "8192"
-                   "--rope-scaling" "yarn"
-                   "--rope-scale" "4"
-                   "--yarn-orig-ctx" "262144"))
-
-     (make-hf-instance
-      :max-output-tokens 65536
-      :model-path "~/Models/BasedBase_Qwen3-Coder-30B-A3B-Instruct-480B-Distill-V2"
-      :hostnames '("clio" "athena")
-      :cache-control t
-      :arguments '("--repeat-penalty" "1.05"
-                   "--cache-type-k" "q4_1"
-                   "--top-k" "20"
-                   "--flash-attn"
-                   "--cache-type-v" "q4_1"
-                   "--rope-scaling" "yarn"
-                   "--rope-scale" "4"
-                   "--yarn-orig-ctx" "262144"))))
-
-   (make-hf-model
     :name 'Qwen3-Coder-480B-A35B-Instruct
     :context-length 262144
     :temperature 0.7
@@ -726,6 +686,7 @@ general_settings:
 
    (make-hf-model
     :name 'Qwen3-Embedding-8B
+    :context-length 32767
     :kind 'embedding
     :instances
     (list
