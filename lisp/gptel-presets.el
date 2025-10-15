@@ -68,15 +68,13 @@
   :description "Anthropic's Claude Haiku"
   :backend "LiteLLM"
   :model 'anthropic/claude-haiku
-  :max-tokens 8192
   :temperature 1.0)
 
 (gptel-make-preset 'haiku-max
   :description "Anthropic's Claude Haiku"
   :backend "Claude-OAuth"
-  :model 'claude-3-5-haiku-20241022
-  :max-tokens 8192
-  :temperature 0.4)
+  :model 'claude-haiku-4-5-20251001
+  :temperature 1.0)
 
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
@@ -198,7 +196,7 @@
   :description "Model used for basic rewrites"
   :include-reasoning nil
   :parents (if gptel-presets-rewrite-use-remote
-               (or 'sonnet 'gpt 'haiku)
+               (or 'haiku 'sonnet 'gpt)
              (or 'gpt-oss 'gpt-oss-travel 'qwen)))
 
 ;;; DIRECTIVES (w/ MODELS) ===============================================
@@ -208,7 +206,7 @@
 (gptel-make-preset 'prompt
   :description "AI prompt refiner"
   :system 'prompt
-  :parents 'sonnet)
+  :parents 'opus)
 
 (gptel-make-preset 'title
   :description "Create Org-mode title"

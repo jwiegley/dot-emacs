@@ -918,21 +918,12 @@ general_settings:
     :instances
     (list
      (make-hf-instance
-      :name 'claude-3-5-haiku-20241022
-      :provider 'anthropic)))
-
-   (make-hf-model
-    :name 'claude-opus
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :name 'claude-opus-4-1-20250805
+      :name 'claude-haiku-4-5-20251001
       :provider 'anthropic)
 
      (make-hf-instance
-      :model-name 'claude-opus-cached
-      :name 'claude-opus-4-1-20250805
+      :model-name 'claude-haiku-cached
+      :name 'claude-haiku-4-5-20251001
       :provider 'anthropic
       :cache-control t)))
 
@@ -948,6 +939,21 @@ general_settings:
      (make-hf-instance
       :model-name 'claude-sonnet-cached
       :name 'claude-sonnet-4-5-20250929
+      :provider 'anthropic
+      :cache-control t)))
+
+   (make-hf-model
+    :name 'claude-opus
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :name 'claude-opus-4-1-20250805
+      :provider 'anthropic)
+
+     (make-hf-instance
+      :model-name 'claude-opus-cached
+      :name 'claude-opus-4-1-20250805
       :provider 'anthropic
       :cache-control t)))
 
