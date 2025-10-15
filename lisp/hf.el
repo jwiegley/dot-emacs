@@ -87,7 +87,9 @@ groups:
     exclusive: false
     persistent: true
     members:
-      - Qwen3-235B-A22B-Instruct-2507
+      - gpt-oss-120b
+      - bge-m3
+      - bge-reranker-v2-m3
 
   small:
     swap: true
@@ -100,9 +102,12 @@ groups:
     swap: true
     exclusive: false
     members:
-      - bge-m3
-      - Qwen3-Embedding-8B
+      - NV-Embed-v2
       - Qwen.Qwen3-Reranker-8B
+      - Qwen3-Embedding-8B
+      - all-MiniLM-L6-v2
+      - bge-base-en-v1.5
+      - bge-large-en-v1.5
       - nomic-embed-text-v2-moe
       - sentence-transformers/all-MiniLM-L6-v2
 "
@@ -682,7 +687,8 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--reranking"))))
 
    (make-hf-model
     :name 'Qwen3-Embedding-8B
@@ -709,6 +715,18 @@ general_settings:
       :hostnames '("hera" "clio")
       :arguments '("--embedding"
                    "--pooling" "mean"
+                   "--ubatch-size" "8192"
+                   "--batch-size" "4096"))))
+
+   (make-hf-model
+    :name 'bge-reranker-v2-m3
+    :kind 'reranker
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/gpustack_bge-reranker-v2-m3-GGUF"
+      :hostnames '("hera" "clio")
+      :arguments '("--reranking"
                    "--ubatch-size" "8192"
                    "--batch-size" "4096"))))
 
@@ -1261,7 +1279,7 @@ Optionally generate for the given HOSTNAME."
           (format "
       %s
         --host 127.0.0.1 --port ${PORT}
-        --offline --jinja
+        --jinja
         --model %s %s"
                   exe (hf-strip-tramp-prefix (expand-file-name path)) args)
           footer)))
@@ -1391,7 +1409,7 @@ Optionally generate for the given HOSTNAME."
     (insert (with-current-buffer (hf-generate-litellm-yaml)
               (buffer-string)))
     (write-file hf-litellm-path))
-  (shell-command "ssh vulcan sudo systemctl restart podman-litellm.service"))
+  (shell-command "ssh vulcan sudo systemctl restart litellm.service"))
 
 (defun hf-reset ()
   "Reset all of the configuration files related to LLMs."

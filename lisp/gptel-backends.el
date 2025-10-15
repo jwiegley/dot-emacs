@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-(require 'gptel-curl)
+(require 'gptel-request)
 ;; (require 'gptel-kagi)
 ;; (require 'gptel-ollama)
 ;; (require 'gptel-gemini)
