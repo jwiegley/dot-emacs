@@ -309,8 +309,13 @@
 (use-package language-id :defer t)
 #+end_src
 
-** shell-maker
+** plz
 
+#+begin_src emacs-lisp
+(use-package plz :defer t)
+#+end_src
+
+** shell-maker
 #+begin_src emacs-lisp
 (use-package shell-maker :load-path "lisp/shell-maker" :defer t)
 #+end_src
@@ -2823,6 +2828,13 @@ Giving these commands a prefix argument means copy instead of kill.
   (eyebrowse-new-workspace t)
   :config
   (eyebrowse-mode t))
+#+end_src
+
+** eww-plz
+
+#+begin_src emacs-lisp
+(use-package eww-plz
+  :after (eww))
 #+end_src
 
 ** feebleline
@@ -7063,11 +7075,11 @@ RET in the buffer you want to undo.
   :unless noninteractive
   :commands (wombag wombag-sync)
   :custom
-  (wombag-host "http://wallabag.vulcan.lan")
+  (wombag-host "https://wallabag.vulcan.lan")
   (wombag-username "jwiegley@gmail.com")
-  (wombag-password (lookup-password "wallabag.password" "jwiegley@gmail.com" 80))
+  (wombag-password (lookup-password "wallabag.password" "jwiegley@gmail.com" 443))
   (wombag-client-id "3_3qigwe7ajfuokw8sk80c40sk08wkssk04gkogw88sswoo88o88")
-  (wombag-client-secret (lookup-password "wallabag.secret" "jwiegley@gmail.com" 80)))
+  (wombag-client-secret (lookup-password "wallabag.secret" "jwiegley@gmail.com" 443)))
 #+end_src
 
 ** word-count

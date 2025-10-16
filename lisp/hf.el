@@ -392,7 +392,7 @@ general_settings:
       :context-length 16384
       :model-path "~/Models/unsloth_DeepSeek-V3.1-Terminus-GGUF"
       :arguments '("--cache-type-k" "q4_1"
-                   ;; "--flash-attn"
+                   ;; "--flash-attn" "on"
                    ;; "--cache-type-v" "q4_1"
                    "--seed" "3407"))))
 
@@ -570,7 +570,7 @@ general_settings:
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
                    "--top-k" "20"
-                   "--flash-attn"
+                   "--flash-attn" "on"
                    "--cache-type-v" "q8_0"))))
 
    (make-hf-model
@@ -591,7 +591,7 @@ general_settings:
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
                    "--top-k" "20"
-                   "--flash-attn"
+                   "--flash-attn" "on"
                    "--cache-type-v" "q8_0"))))
 
    (make-hf-model
@@ -612,7 +612,7 @@ general_settings:
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
                    "--top-k" "20"
-                   "--flash-attn"
+                   "--flash-attn" "on"
                    "--cache-type-v" "q8_0"
                    "--batch-size" "8192"
                    "--ubatch-size" "8192"
@@ -638,7 +638,7 @@ general_settings:
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q4_1"
                    "--top-k" "20"
-                   "--flash-attn"
+                   "--flash-attn" "on"
                    "--cache-type-v" "q4_1"
                    "--rope-scaling" "yarn"
                    "--rope-scale" "4"
@@ -1389,8 +1389,6 @@ Optionally generate for the given HOSTNAME."
       model: %s/%s
       litellm_credential_name: %s_credential
       supports_system_message: %s
-      tpm: 10000000
-      rpm: 100000
     model_info:
       mode: %S
       description: %S%s%s
