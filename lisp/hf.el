@@ -80,36 +80,71 @@ startPort: 9200
   :type 'string
   :group 'hf)
 
+
+
 (defcustom hf-llama-swap-epilog "
 groups:
-  always_running:
-    swap: false
+  large_models:
+    swap: true
     exclusive: false
-    persistent: true
     members:
+      - DeepSeek-R1-Distill-Qwen-32B
+      - DeepSeek-V3.1-Terminus
+      - Kimi-K2-Instruct
+      - Llama-4-Maverick-17B-128E-Instruct
+      - Llama-4-Scout-17B-16E-Instruct
+      - Phi-4-reasoning-plus
+      - Qwen3-235B-A22B-Instruct-2507
+      - Qwen3-235B-A22B-Thinking-2507
+      - Qwen3-30B-A3B-Instruct-2507
+      - Qwen3-30B-A3B-Thinking-2507
+      - Qwen3-32B
+      - Qwen3-Coder-30B-A3B-Instruct
+      - Qwen3-Coder-480B-A35B-Instruct
       - gpt-oss-120b
-      - bge-m3
-      - bge-reranker-v2-m3
+      - r1-1776-distill-llama-70b
 
-  small:
+  small_models:
     swap: true
     exclusive: false
     members:
       - DeepSeek-R1-0528-Qwen3-8B
-      - Qwen3-30B-A3B-Instruct-2507
+      - Qwen3-0.6B
+      - Qwen3-1.7B
+      - Qwen3-14B
+      - Qwen3-4B
+      - Qwen3-8B
+      - gemma-3-12b-it
+      - gemma-3-1b-it
+      - gemma-3-27b-it
+      - gemma-3-4b-it
+      - gemma-3n-E4B-it
+      - gpt-oss-20b
 
   embeddings:
     swap: true
     exclusive: false
     members:
       - NV-Embed-v2
-      - Qwen.Qwen3-Reranker-8B
       - Qwen3-Embedding-8B
       - all-MiniLM-L6-v2
       - bge-base-en-v1.5
       - bge-large-en-v1.5
+      - bge-m3
       - nomic-embed-text-v2-moe
-      - sentence-transformers/all-MiniLM-L6-v2
+
+  rerankings:
+    swap: true
+    exclusive: false
+    members:
+      - Qwen.Qwen3-Reranker-8B
+      - bge-reranker-v2-m3
+
+  stt:
+    swap: true
+    exclusive: false
+    members:
+      - whisper-large-v3-mlx
 "
   "Epilog for beginning of llama-swap.yaml file."
   :type 'string
