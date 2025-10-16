@@ -148,3 +148,12 @@
 [submodule "lisp/shell-maker"]
 	path = lisp/shell-maker
 	url = git@github.com:xenodium/shell-maker.git
+[submodule "lisp/gnus-harvest"]
+	path = lisp/gnus-harvest
+	url = git@github.com:jwiegley/gnus-harvest.git
+[submodule "lisp/regex-tool"]
+	path = lisp/regex-tool
+	url = git@github.com:jwiegley/regex-tool.git
+[submodule "lisp/springboard"]
+	path = lisp/springboard
+	url = git@github.com:jwiegley/springboard.git
