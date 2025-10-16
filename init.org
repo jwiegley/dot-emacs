@@ -316,6 +316,7 @@
 #+end_src
 
 ** shell-maker
+
 #+begin_src emacs-lisp
 (use-package shell-maker :load-path "lisp/shell-maker" :defer t)
 #+end_src
