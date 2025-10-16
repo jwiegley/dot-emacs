@@ -239,7 +239,9 @@
     (name &key stream key
           (models '((claude-sonnet-4-5-20250929
                      :description "Claude Sonnet 4.5"
-                     :capabilities (tool json)
+                     :capabilities (media tool-use cache json)
+                     :mime-types '("image/jpeg" "image/png" "image/gif" "image/webp"
+                                   "application/pdf")
                      :context-window 200000
                      :request-params
                      (:max_tokens
@@ -251,19 +253,21 @@
                                      :max_uses 5)]))
                     (claude-sonnet-4-20250514
                      :description "Claude Sonnet 4"
-                     :capabilities (tool json)
+                     :capabilities (tool-use cache json)
                      :context-window 200000
                      :request-params
                      (:max_tokens 64000))
                     (claude-3-7-sonnet-20250219
                      :description "Claude Sonnet 3.7 - Extended thinking"
-                     :capabilities (tool json reasoning)
+                     :capabilities (tool-use cache json reasoning)
                      :context-window 200000
                      :request-params
                      (:max_tokens 64000))
                     (claude-opus-4-1-20250805
                      :description "Claude Opus 4.1 - Most capable"
-                     :capabilities (tool json reasoning)
+                     :capabilities (media tool-use cache json reasoning)
+                     :mime-types '("image/jpeg" "image/png" "image/gif" "image/webp"
+                                   "application/pdf")
                      :context-window 200000
                      :request-params
                      (:max_tokens
@@ -275,13 +279,15 @@
                                      :max_uses 5)]))
                     (claude-opus-4-20250514
                      :description "Claude Opus 4"
-                     :capabilities (tool json reasoning)
+                     :capabilities (tool-use cache json reasoning)
                      :context-window 200000
                      :request-params
                      (:max_tokens 32000))
                     (claude-haiku-4-5-20251001
                      :description "Claude Haiku 4.5 - Fast"
-                     :capabilities (tool json reasoning)
+                     :capabilities (media tool-use cache json reasoning)
+                     :mime-types '("image/jpeg" "image/png" "image/gif" "image/webp"
+                                   "application/pdf")
                      :context-window 200000
                      :request-params
                      (:max_tokens
@@ -290,7 +296,7 @@
                                        :budget_tokens 32000)))
                     (claude-3-5-haiku-20241022
                      :description "Claude Haiku 3.5 - Fast"
-                     :capabilities (tool json)
+                     :capabilities (tool-use cache json)
                      :context-window 200000
                      :request-params
                      (:max_tokens 8000)))))
