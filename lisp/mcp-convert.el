@@ -226,23 +226,97 @@ Returns Emacs Lisp list representation."
       ;; Return as-is
       args-list)))
 
+(defun mcp-convert--parse-url-query-params (url)
+  "Parse query parameters from URL and return as alist.
+Each element is (param-name . param-value)."
+  (when-let* ((parsed (url-generic-parse-url url))
+              (query (url-filename parsed)))
+    (when (string-match "\\?" query)
+      (let ((params-string (substring query (1+ (match-beginning 0))))
+            (params nil))
+        (dolist (pair (split-string params-string "&"))
+          (when (string-match "\\([^=]+\\)=\\(.+\\)" pair)
+            (push (cons (match-string 1 pair) (match-string 2 pair)) params)))
+        (nreverse params)))))
+
+(defun mcp-convert--find-api-key-param (params)
+  "Find API key parameter in PARAMS alist.
+Returns cons cell (param-name . param-value) or nil."
+  (cl-some (lambda (param-name)
+             (assoc param-name params))
+           '("apiKey" "api_key" "key" "token" "access_token")))
+
+(defun mcp-convert--remove-query-param (url param-name)
+  "Remove PARAM-NAME from URL query string."
+  (let* ((parsed (url-generic-parse-url url))
+         (path (url-filename parsed))
+         (base-path (if (string-match "\\?" path)
+                        (substring path 0 (match-beginning 0))
+                      path))
+         (params (mcp-convert--parse-url-query-params url))
+         (filtered (cl-remove-if (lambda (p) (string= (car p) param-name)) params))
+         (scheme (url-type parsed))
+         (host (url-host parsed))
+         (port (url-port parsed))
+         (port-str (cond
+                    ((null port) "")
+                    ((and (string= scheme "https") (= port 443)) "")
+                    ((and (string= scheme "http") (= port 80)) "")
+                    (t (format ":%d" port)))))
+    (if filtered
+        (format "%s://%s%s%s?%s"
+                scheme host port-str base-path
+                (mapconcat (lambda (p) (format "%s=%s" (car p) (cdr p)))
+                           filtered "&"))
+      (format "%s://%s%s%s" scheme host port-str base-path))))
+
+(defun mcp-convert--process-url (srvr-name url)
+  "Process URL, detecting and protecting API keys in query parameters.
+Returns either the original URL string or a format expression with lookup-password."
+  (let* ((params (mcp-convert--parse-url-query-params url))
+         (secret-param (mcp-convert--find-api-key-param params)))
+    (if secret-param
+        (let* ((param-name (car secret-param))
+               (base-url (mcp-convert--remove-query-param url param-name))
+               (parsed (url-generic-parse-url url))
+               (host (url-host parsed)))
+          ;; Return format expression with lookup-password
+          `(format ,(concat base-url (if (string-match "\\?" base-url) "&" "?")
+                           param-name "=%s")
+                   (lookup-password ,host ,mcp-convert-default-user 80)))
+      ;; No secret found, return as-is
+      url)))
+
 (defun mcp-convert--json-to-server-config (srvr-name config)
   "Convert single server CONFIG to Emacs Lisp format.
 SRVR-NAME is the server identifier string.
 CONFIG is a hash table from parsed JSON."
-  (let* ((command (gethash "command" config))
+  (let* ((server-type (gethash "type" config))
+         (url (gethash "url" config))
+         (command (gethash "command" config))
          (args (gethash "args" config))
          (env (gethash "env" config))
-         (result (list (intern (concat ":" "command")) command)))
+         (result nil))
 
-    ;; Add args if present
-    (when args
-      (let ((processed-args (mcp-convert--process-args args command)))
-        (setq result (append result
-                             (list (intern (concat ":" "args"))
-                                   processed-args)))))
+    ;; Handle HTTP-type servers with URL
+    (cond
+     ;; HTTP server with URL (note: we don't emit :type field per user request)
+     ((and (string= server-type "http") url)
+      (let ((processed-url (mcp-convert--process-url srvr-name url)))
+        (setq result (list (intern ":url") processed-url))))
 
-    ;; Add env if present
+     ;; Command-based server
+     (command
+      (setq result (list (intern ":command") command))
+
+      ;; Add args if present
+      (when args
+        (let ((processed-args (mcp-convert--process-args args command)))
+          (setq result (append result
+                               (list (intern ":args")
+                                     processed-args)))))))
+
+    ;; Add env if present (applies to both HTTP and command-based)
     (when env
       (let ((env-list nil))
         (maphash
@@ -254,7 +328,7 @@ CONFIG is a hash table from parsed JSON."
          env)
         (when env-list
           (setq result (append result
-                               (list (intern (concat ":" "env"))
+                               (list (intern ":env")
                                      (nreverse env-list)))))))
 
     ;; Return (srvr-name config...)
@@ -338,9 +412,17 @@ SERVERS-LIST is a list of server configurations."
                         (prin1 env-value (current-buffer)))))))
                 (insert ")"))
 
-               ;; Other values
+               ;; Other values - check if they need unquoting
                (t
-                (prin1 value (current-buffer)))))))
+                (cond
+                 ;; Format/lookup-password expressions need unquoting in backquote
+                 ((and (listp value)
+                       (memq (car value) '(lookup-password format)))
+                  (insert ",")
+                  (prin1 value (current-buffer)))
+                 ;; Regular values
+                 (t
+                  (prin1 value (current-buffer))))))))
 
         (insert ")")))
 
