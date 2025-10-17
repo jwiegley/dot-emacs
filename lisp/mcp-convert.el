@@ -270,9 +270,10 @@ Returns cons cell (param-name . param-value) or nil."
                            filtered "&"))
       (format "%s://%s%s%s" scheme host port-str base-path))))
 
-(defun mcp-convert--process-url (srvr-name url)
+(defun mcp-convert--process-url (_srvr-name url)
   "Process URL, detecting and protecting API keys in query parameters.
-Returns either the original URL string or a format expression with lookup-password."
+Returns either the original URL string or a format expression with
+`lookup-password'."
   (let* ((params (mcp-convert--parse-url-query-params url))
          (secret-param (mcp-convert--find-api-key-param params)))
     (if secret-param
@@ -282,7 +283,7 @@ Returns either the original URL string or a format expression with lookup-passwo
                (host (url-host parsed)))
           ;; Return format expression with lookup-password
           `(format ,(concat base-url (if (string-match "\\?" base-url) "&" "?")
-                           param-name "=%s")
+                            param-name "=%s")
                    (lookup-password ,host ,mcp-convert-default-user 80)))
       ;; No secret found, return as-is
       url)))
