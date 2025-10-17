@@ -377,17 +377,6 @@ SERVERS-LIST is a list of server configurations."
 
               ;; Special formatting for different value types
               (cond
-               ;; Lists (args)
-               ((and (listp value) (not (eq (car-safe value) 'lookup-password))
-                     (not (eq (car-safe value) 'format)))
-                (insert "(")
-                (let ((first-item t))
-                  (dolist (item value)
-                    (unless first-item (insert " "))
-                    (setq first-item nil)
-                    (prin1 item (current-buffer))))
-                (insert ")"))
-
                ;; Env plist
                ((eq key :env)
                 (insert "(")
@@ -404,26 +393,33 @@ SERVERS-LIST is a list of server configurations."
                       (insert " ")
 
                       ;; Unquote for backquote template
-                      (cond
-                       ((and (listp env-value)
-                             (memq (car env-value) '(lookup-password format)))
-                        (insert ",")
-                        (prin1 env-value (current-buffer)))
-                       (t
-                        (prin1 env-value (current-buffer)))))))
+                      (if (and (consp env-value)
+                               (memq (car env-value) '(lookup-password format)))
+                          (progn
+                            (insert ",")
+                            (prin1 env-value (current-buffer)))
+                        (prin1 env-value (current-buffer))))))
                 (insert ")"))
 
-               ;; Other values - check if they need unquoting
+               ;; Format/lookup-password expressions need unquoting
+               ((and (consp value)
+                     (memq (car value) '(lookup-password format)))
+                (insert ",")
+                (prin1 value (current-buffer)))
+
+               ;; Lists (args)
+               ((listp value)
+                (insert "(")
+                (let ((first-item t))
+                  (dolist (item value)
+                    (unless first-item (insert " "))
+                    (setq first-item nil)
+                    (prin1 item (current-buffer))))
+                (insert ")"))
+
+               ;; Other values
                (t
-                (cond
-                 ;; Format/lookup-password expressions need unquoting in backquote
-                 ((and (listp value)
-                       (memq (car value) '(lookup-password format)))
-                  (insert ",")
-                  (prin1 value (current-buffer)))
-                 ;; Regular values
-                 (t
-                  (prin1 value (current-buffer)))))))))
+                (prin1 value (current-buffer)))))))
 
         (insert ")")))
 
