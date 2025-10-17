@@ -174,11 +174,34 @@
 
 (gptel-make-preset 'default
   :description "Default setup"
-  :parents 'sonnet-max
+  :parents 'haiku
   ;; :model hf-default-instance-name
   :system 'default
   :confirm-tool-calls nil               ; 'auto
-  :use-context 'user)
+  :use-context 'user
+  :pre (lambda () (gptel-mcp-connect
+              '("memory-keeper"
+                "Ref"
+                "context7"
+                "fetch"
+                "github"
+                "perplexity"
+                "sequential-thinking"
+                "time")
+              'sync))
+  :tools '(:append ("mcp-memory-keeper"
+                    "mcp-Ref"
+                    "mcp-context7"
+                    "mcp-fetch"
+                    "mcp-github"
+                    "mcp-perplexity"
+                    "mcp-sequential-thinking"
+                    "mcp-time"))
+  :system '(:append "
+
+- Use sequential-thinking MCP when appropriate to break down tasks further.
+- Use context7 MCP and Ref MCP whenever code examples might help.
+- Use memory-keeper MCP to record and recall conversations."))
 
 (gptel-make-preset 'analyze
   :description "Best model for analysis"
@@ -195,6 +218,7 @@
 (gptel-make-preset 'rewrite
   :description "Model used for basic rewrites"
   :include-reasoning nil
+  :use-context nil
   :parents (if gptel-presets-rewrite-use-remote
                (or 'haiku 'sonnet 'gpt)
              (or 'gpt-oss 'gpt-oss-travel 'qwen)))

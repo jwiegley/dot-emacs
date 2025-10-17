@@ -240,8 +240,8 @@
           (models '((claude-sonnet-4-5-20250929
                      :description "Claude Sonnet 4.5"
                      :capabilities (media tool-use cache json)
-                     :mime-types '("image/jpeg" "image/png" "image/gif" "image/webp"
-                                   "application/pdf")
+                     :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"
+                                  "application/pdf")
                      :context-window 200000
                      :request-params
                      (:max_tokens
@@ -266,8 +266,8 @@
                     (claude-opus-4-1-20250805
                      :description "Claude Opus 4.1 - Most capable"
                      :capabilities (media tool-use cache json reasoning)
-                     :mime-types '("image/jpeg" "image/png" "image/gif" "image/webp"
-                                   "application/pdf")
+                     :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"
+                                  "application/pdf")
                      :context-window 200000
                      :request-params
                      (:max_tokens
@@ -286,8 +286,8 @@
                     (claude-haiku-4-5-20251001
                      :description "Claude Haiku 4.5 - Fast"
                      :capabilities (media tool-use cache json reasoning)
-                     :mime-types '("image/jpeg" "image/png" "image/gif" "image/webp"
-                                   "application/pdf")
+                     :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"
+                                  "application/pdf")
                      :context-window 200000
                      :request-params
                      (:max_tokens

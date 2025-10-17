@@ -62,7 +62,6 @@ generated title, adding a space before the title if needed."
   (gptel-with-preset 'title
     (gptel-request
         (buffer-substring-no-properties beg end)
-      :transforms gptel-prompt-transform-functions
       :callback (lambda (resp info)
                   (when (stringp resp)
                     (with-current-buffer (plist-get info :buffer)

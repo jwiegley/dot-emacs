@@ -3176,15 +3176,17 @@ up before you execute another command."
   (gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
   (gptel-mode . my/gptel-prepare-new-chat-buffer)
   (gptel-mode . (lambda () (setq-local gptel-stream t)))
+  (gptel-mode . (lambda () (setq-local gptel-use-context 'system)))
   (gptel-post-stream . gptel-auto-scroll)
   :custom
   (gptel-cache t)
   (gptel-default-mode 'org-mode)
   (gptel-log-level 'info)
   (gptel-include-reasoning 'ignore)
-  (gptel-use-tools t)
   (gptel-stream nil)
   (gptel-track-media t)
+  (gptel-use-context nil)
+  (gptel-use-tools t)
   (gptel-use-header-line t)
   (gptel-org-branching-context t)
   (gptel-prompt-prefix-alist
@@ -3224,6 +3226,8 @@ up before you execute another command."
   :config
   ;; These are defvars
   (setq gptel-expert-commands t)
+
+  (make-variable-buffer-local 'gptel-context)
 
   (add-all-to-list 'gptel-post-response-functions
                    #'my/gptel-next-prompt
@@ -3618,32 +3622,84 @@ request:
 *** mcp
 
 #+begin_src emacs-lisp
-(use-package mcp
+(use-package mcp-hub
   :load-path "lisp/mcp"
+  :nix mcp
   :after (gptel)
+  :commands (mcp-hub)
   :custom
   (mcp-hub-servers
    `(
-     ;; ("brave-search" :command "mcp-server-brave-search")
-     ;; ("fetch" :command "mcp-server-fetch")
-     ;; ("filesystem" :command "mcp-server-filesystem"
-     ;;  :args (,(expand-file-name "~/Products/")))
-     ;; ("gdrive" :command "mcp-server-gdrive")
-     ;; ("git" :command "mcp-server-git")
-     ;; ("google-maps" :command "mcp-server-google-maps")
-     ;; ("memory" :command "mcp-server-memory")
-     ;; ("postgres" :command "mcp-server-postgres")
-     ;; ("sequential-thinking" :command "mcp-server-sequential-thinking")
-     ;; ("slack" :command "mcp-server-slack")
-     ;; ("sqlite" :command "mcp-server-sqlite")
-     ;; ("time" :command "mcp-server-time")
+     ("sequential-thinking"
+      :command "/etc/profiles/per-user/johnw/bin/mcp-server-sequential-thinking"
+      :args ())
+
+     ("fetch"
+      :command "npx"
+      :args ("-y" "@kazuph/mcp-fetch"))
+
+     ;; ("task-master-ai"
+     ;;  :command "/opt/homebrew/bin/task-master-mcp"
+     ;;  :args ())
+
+     ("time"
+      :command "/etc/profiles/per-user/johnw/bin/mcp-server-time"
+      :args ())
+
+     ("playwright"
+      :command "/etc/profiles/per-user/johnw/bin/mcp-server-playwright"
+      :args ())
+
+     ("server-memory"
+      :command "/etc/profiles/per-user/johnw/bin/mcp-server-memory"
+      :args ())
+
+     ("nixos"
+      :command "uvx"
+      :args ("--isolated" "--from" "mcp-nixos" "mcp-nixos" "--"))
+
+     ("arxiv-mcp-server"
+      :command "uv"
+      :args ("tool" "run" "arxiv-mcp-server" "--storage-path" "/Users/johnw/doc/arxiv"))
+
+     ("haskell-hackage"
+      :command "uv"
+      :args ("run" "--with" "mcp" "--with" "bs4" "--with" "httpx" "https://raw.githubusercontent.com/apenugon/haskell-hackage-mcp/refs/heads/main/main.py"))
+
+     ("context7"
+      :command "/etc/profiles/per-user/johnw/bin/context7-mcp"
+      :args ())
+
+     ("perplexity"
+      :command "uvx"
+      :args ("--isolated" "--from" "perplexity-mcp" "perplexity-mcp" "--")
+      :env (:PERPLEXITY_API_KEY
+            ,(lookup-password "api.perplexity.ai" "johnw" 80)
+            :PERPLEXITY_MODEL "sonar-pro"))
+
+     ("browser-control"
+      :command "node"
+      :args ("/Users/johnw/src/browser-control-mcp/mcp-server/dist/server.js")
+      :env (:EXTENSION_SECRET
+            ,(lookup-password "browser-control.mcp" "johnw" 80)
+            :EXTENSION_PORT "6263"))
+
+     ("postgres"
+      :command "uvx"
+      :args ("postgres-mcp" "--access-mode=unrestricted")
+      :env (:DATABASE_URI
+            ,(format "postgresql://johnw:%s@postgres.vulcan.lan:5432/SRP"
+                     (lookup-password "postgres.vulcan.lan" "johnw" 5432))))
+
+     ("memory-keeper"
+      :command "npx"
+      :args ("mcp-memory-keeper"))
+
      ("github" :command "github-mcp-server"
       :args ("stdio")
       :env (:GITHUB_PERSONAL_ACCESS_TOKEN
             ,(lookup-password "api.github.com" "johnw" 80)))
-     ("nixos"
-      :command "uvx"
-      :args ("--isolated" "--from" "mcp-nixos" "mcp-nixos" "--"))
+
      ("org-mcp"
       :command "uvx"
       :args ("--isolated" "--from" "org-mcp" "org-mcp"
