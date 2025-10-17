@@ -422,7 +422,7 @@ SERVERS-LIST is a list of server configurations."
                   (prin1 value (current-buffer)))
                  ;; Regular values
                  (t
-                  (prin1 value (current-buffer))))))))
+                  (prin1 value (current-buffer)))))))))
 
         (insert ")")))
 
