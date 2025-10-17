@@ -423,7 +423,7 @@ SERVERS-LIST is a list of server configurations."
 
         (insert ")")))
 
-    (insert ")))")
+    (insert "))")
     (buffer-string)))
 
 ;;; Main Command
