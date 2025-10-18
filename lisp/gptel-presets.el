@@ -181,22 +181,24 @@
   :use-context 'user
   :pre (lambda () (gptel-mcp-connect
               '("memory-keeper"
-                "Ref"
-                "context7"
-                "fetch"
-                "github"
-                "perplexity"
+                ;; "Ref"
+                ;; "context7"
+                ;; "fetch"
+                ;; "github"
+                ;; "perplexity"
                 "sequential-thinking"
-                "time")
+                ;; "time"
+                )
               'sync))
   :tools '(:append ("mcp-memory-keeper"
-                    "mcp-Ref"
-                    "mcp-context7"
-                    "mcp-fetch"
-                    "mcp-github"
-                    "mcp-perplexity"
+                    ;; "mcp-Ref"
+                    ;; "mcp-context7"
+                    ;; "mcp-fetch"
+                    ;; "mcp-github"
+                    ;; "mcp-perplexity"
                     "mcp-sequential-thinking"
-                    "mcp-time"))
+                    ;; "mcp-time"
+                    ))
   :system '(:append "
 
 - Use sequential-thinking MCP when appropriate to break down tasks further.
@@ -219,6 +221,7 @@
   :description "Model used for basic rewrites"
   :include-reasoning nil
   :use-context nil
+  :tools nil
   :parents (if gptel-presets-rewrite-use-remote
                (or 'haiku 'sonnet 'gpt)
              (or 'gpt-oss 'gpt-oss-travel 'qwen)))

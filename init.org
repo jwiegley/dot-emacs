@@ -477,6 +477,8 @@ unto itself.
   (delete-old-versions t)
   (directory-free-space-args "-kh")
   (large-file-warning-threshold nil)
+  (remote-file-name-inhibit-auto-save-visited t)
+  (remote-file-name-inhibit-locks t)
   (save-abbrevs 'silently)
   (trash-directory "~/.Trash")
   (version-control t)
@@ -3650,10 +3652,6 @@ request:
       :command "/etc/profiles/per-user/johnw/bin/mcp-server-playwright"
       :args ())
 
-     ("server-memory"
-      :command "/etc/profiles/per-user/johnw/bin/mcp-server-memory"
-      :args ())
-
      ("nixos"
       :command "uvx"
       :args ("--isolated" "--from" "mcp-nixos" "mcp-nixos" "--"))
@@ -3694,6 +3692,17 @@ request:
      ("memory-keeper"
       :command "npx"
       :args ("mcp-memory-keeper"))
+
+     ("node-red"
+      :command "npx"
+      :args ("mcp-node-red")
+      :env (:NODE_RED_URL
+            "http://127.0.0.1:1880"
+            :NODE_RED_TOKEN ,(lookup-password "api.nodered.com" "johnw" 80)))
+
+     ("Ref"
+      :url ,(format "https://api.ref.tools/mcp?apiKey=%s"
+                    (lookup-password "api.ref.tools" "johnw" 80)))
 
      ("github" :command "github-mcp-server"
       :args ("stdio")
@@ -6656,6 +6665,9 @@ A collection of paredit-like functions for editing in =html-mode=.
   :custom
   (tramp-default-method "ssh")
   (tramp-auto-save-directory "~/.local/share/emacs/backups")
+  (tramp-use-scp-direct-remote-copying t)
+  (tramp-copy-size-limit (* 1024 1024))
+  (tramp-verbose 2)
   :config
   (add-to-list 'tramp-remote-path
                (expand-file-name "bin" (getenv "PROFILE_DIR")))
