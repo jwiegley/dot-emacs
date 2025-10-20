@@ -437,23 +437,23 @@ general_settings:
       :name 'meta-llama/llama-4-scout-17b-16e-instruct
       :provider 'groq)))
 
-   (make-hf-model
-    :name 'Llama-4-Maverick-17B-128E-Instruct
-    :context-length 1048576
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :context-length 65536
-      :model-path "~/Models/unsloth_Llama-4-Maverick-17B-128E-Instruct-GGUF")
+   ;; (make-hf-model
+   ;;  :name 'Llama-4-Maverick-17B-128E-Instruct
+   ;;  :context-length 1048576
+   ;;  :supports-function-calling t
+   ;;  :instances
+   ;;  (list
+   ;;   (make-hf-instance
+   ;;    :context-length 65536
+   ;;    :model-path "~/Models/unsloth_Llama-4-Maverick-17B-128E-Instruct-GGUF")
 
-     (make-hf-instance
-      :name 'meta-llama/llama-4-maverick-17b-128e-instruct
-      :provider 'groq)
+   ;;   (make-hf-instance
+   ;;    :name 'meta-llama/llama-4-maverick-17b-128e-instruct
+   ;;    :provider 'groq)
 
-     (make-hf-instance
-      :name 'meta-llama/llama-4-maverick:free
-      :provider 'openrouter)))
+   ;;   (make-hf-instance
+   ;;    :name 'meta-llama/llama-4-maverick:free
+   ;;    :provider 'openrouter)))
 
    (make-hf-model
     :name 'Phi-4-reasoning-plus
