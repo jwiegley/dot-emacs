@@ -3632,6 +3632,16 @@ request:
   :custom
   (mcp-hub-servers
    `(
+     ("mssql"
+      :command "npx"
+      :args ("@executeautomation/database-server"
+             "--"
+             "--sqlserver"
+             "--server" "mssql.vulcan.lan"
+             "--database" "SRP"
+             "--user" "sa"
+             "--password" ,(lookup-password "mssql.vulcan.lan" "johnw" 80)))
+
      ("sequential-thinking"
       :command "/etc/profiles/per-user/johnw/bin/mcp-server-sequential-thinking"
       :args ())
