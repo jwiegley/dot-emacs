@@ -3725,6 +3725,13 @@ request:
              "--org-dir" ,org-directory)))))
 #+end_src
 
+*** mcp-convert
+
+#+begin_src emacs-lisp
+(use-package mcp-convert
+  :commands (mcp-convert-json-to-elisp))
+#+end_src
+
 *** mcp-server-lib
 
 #+begin_src emacs-lisp
