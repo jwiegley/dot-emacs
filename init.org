@@ -6510,7 +6510,23 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 (use-package sql
   :defer t
   :custom
-  (sql-sqlite-program "sqlite3"))
+  (sql-sqlite-program "sqlite3")
+  (sql-ms-program "sqlcmd")
+  (sql-ms-options '("-C"))
+  :config
+  (add-to-list 'sql-product-alist
+               '(mssql
+                 :name "Microsoft"
+                 :font-lock sql-mode-ms-font-lock-keywords
+                 :sqli-program sql-ms-program
+                 :sqli-options sql-ms-options
+                 :sqli-login sql-ms-login-params
+                 :sqli-comint-func sql-comint-ms
+                 :prompt-regexp "^[0-9]*>"
+                 :prompt-cont-regexp "^[0-9]*>"
+                 :prompt-length 5
+                 :syntax-alist ((?@ . "_"))
+                 :terminator ("^go" . "go"))))
 #+end_src
 
 *** sql-indent

@@ -57,7 +57,7 @@
   :type 'symbol
   :group 'hf)
 
-(defcustom hf-valid-hostnames '("hera" "clio" "athena")
+(defcustom hf-valid-hostnames '("hera" "clio" "vulcan")
   "Name of hosts that can run models."
   :type '(repeat string)
   :group 'hf)
@@ -171,12 +171,12 @@ credential_list:
     credential_info:
       description: \"API Key for llama-swap on Hera\"
 
-  - credential_name: athena_llama_swap_credential
+  - credential_name: vulcan_llama_swap_credential
     credential_values:
-      api_base: http://athena.lan:8080/v1
+      api_base: http://127.0.0.1:8080/v1
       api_key: \"fake\"
     credential_info:
-      description: \"API Key for llama-swap on Athena\"
+      description: \"API Key for llama-swap on Vulcan\"
 
   - credential_name: clio_llama_swap_credential
     credential_values:
@@ -346,7 +346,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/lmstudio-community_DeepSeek-R1-Distill-Qwen-32B-GGUF"
-      :hostnames '("hera" "athena" "clio"))))
+      :hostnames '("hera" "vulcan" "clio"))))
 
    (make-hf-model
     :name 'DeepSeek-R1-0528
@@ -529,7 +529,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-32B-GGUF"
-      :hostnames '("hera" "athena" "clio"))))
+      :hostnames '("hera" "vulcan" "clio"))))
 
    (make-hf-model
     :name 'Qwen3-30B-A3B-Instruct-2507
@@ -540,7 +540,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-30B-A3B-Instruct-2507-GGUF"
-      :hostnames '("hera" "athena" "clio"))))
+      :hostnames '("hera" "vulcan" "clio"))))
 
    (make-hf-model
     :name 'Qwen3-30B-A3B-Thinking-2507
@@ -551,7 +551,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-30B-A3B-Thinking-2507-GGUF"
-      :hostnames '("hera" "athena" "clio"))))
+      :hostnames '("hera" "vulcan" "clio"))))
 
    (make-hf-model
     :name 'Qwen3-235B-A22B-Instruct-2507
@@ -607,7 +607,7 @@ general_settings:
      (make-hf-instance
       :max-output-tokens 65536
       :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
-      :hostnames '("hera" "athena" "clio")
+      :hostnames '("hera" "vulcan" "clio")
       :cache-control t
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
@@ -701,7 +701,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
-      :hostnames '("hera" "athena" "clio")
+      :hostnames '("hera" "vulcan" "clio")
       :cache-control t)))
 
    (make-hf-model
@@ -1459,7 +1459,7 @@ Optionally generate for the given HOSTNAME."
   ;; Update llama-swap configurations on all machines that run models
   (hf-build-llama-swap-yaml)
   (hf-build-llama-swap-yaml "clio")
-  (hf-build-llama-swap-yaml "athena")
+  (hf-build-llama-swap-yaml "vulcan")
   ;; Update LiteLLM to refer to all local and remote models
   (hf-build-litellm-yaml)
   ;; Update GPTel with instance list, to remain in sync with LiteLLM
@@ -1648,7 +1648,7 @@ If HOSTNAME is non-nil, only generate definitions for that host."
           unless (string= (file-name-nondirectory item) ".locks")
           collect (intern (hf-short-model-name (hf-full-model-name item))))))
 
-;; (hf-installed-models "athena")
+;; (hf-installed-models "vulcan")
 
 (cl-defun hf-generate-instance-declarations
     (&key (hostname hf-default-hostname))

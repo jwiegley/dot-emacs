@@ -30,6 +30,7 @@
 (require 'cl-lib)
 (require 'solar)
 (require 'gptel)
+(require 'gptel-anthropic)
 (require 'hf)
 
 (defconst gptel-presets-rewrite-use-remote t
@@ -64,6 +65,16 @@
 
 ;;; Anthropic
 
+(gptel-make-anthropic "Claude"          ;Any name you want
+  :stream t                             ;Streaming responses
+  :key gptel-api-key)
+
+(gptel-make-preset 'haiku-direct
+  :description "Anthropic's Claude Haiku"
+  :backend "Claude"
+  :model 'claude-haiku-4-5-20251001
+  :temperature 1.0)
+
 (gptel-make-preset 'haiku
   :description "Anthropic's Claude Haiku"
   :backend "LiteLLM"
@@ -74,6 +85,12 @@
   :description "Anthropic's Claude Haiku"
   :backend "Claude-OAuth"
   :model 'claude-haiku-4-5-20251001
+  :temperature 1.0)
+
+(gptel-make-preset 'sonnet
+  :description "Anthropic's Claude Sonnet, thinking"
+  :backend "LiteLLM"
+  :model 'anthropic/claude-sonnet
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet
@@ -174,7 +191,8 @@
 
 (gptel-make-preset 'default
   :description "Default setup"
-  :parents 'haiku
+  :parents 'haiku-direct
+  ;; :parents 'haiku
   ;; :model hf-default-instance-name
   :system 'default
   :confirm-tool-calls nil               ; 'auto
@@ -223,8 +241,33 @@
   :use-context nil
   :tools nil
   :parents (if gptel-presets-rewrite-use-remote
-               (or 'haiku 'sonnet 'gpt)
+               (or 'haiku 'haiku-direct 'sonnet 'gpt)
              (or 'gpt-oss 'gpt-oss-travel 'qwen)))
+
+(gptel-make-preset 'visible-buffers
+  :description "Include the full text of all buffers visible in the frame."
+  :context
+  '(:eval (mapcar #'window-buffer
+                  (delq (selected-window) (window-list)))))
+
+(gptel-make-preset 'visible-text
+  :description "Include visible text from all windows in the frame."
+  :context
+  '(:eval
+    (letrec ((contexts
+              (mapcar
+               (lambda (win)
+                 (list (window-buffer win)
+                       (make-overlay (window-start win) (window-end win)
+                                     (window-buffer win))))
+               (delq (selected-window) (window-list))))
+             (cleanup
+              (lambda ()
+                (remove-hook 'gptel-post-request-hook cleanup)
+                (cl-loop for (buf . ovs) in contexts
+                         do (mapc #'delete-overlay ovs)))))
+      (add-hook 'gptel-post-request-hook cleanup)
+      contexts)))
 
 ;;; DIRECTIVES (w/ MODELS) ===============================================
 
