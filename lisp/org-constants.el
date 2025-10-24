@@ -25,8 +25,6 @@
 
 (defconst org-constants-work-todo-path (org-file "kadena/kadena.org"))
 
-(defconst org-constants-work-asana-path (org-file "kadena/asana.org"))
-
 (defconst org-constants-kadena-team-file "kadena/team/202409042228-team.org"
   "File containing names of team members and links to their files.")
 
@@ -47,7 +45,6 @@
 (defconst org-constants-protected-filenames-list
   (list (file-name-nondirectory org-constants-todo-path)
         (file-name-nondirectory org-constants-drafts-path)
-        "kadena/kadena.org"
         "assembly/assembly.org"
         "quantum-trades/quantum-trades.org"
         (file-name-nondirectory org-constants-open-source-path)

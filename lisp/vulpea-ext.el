@@ -220,7 +220,7 @@ tasks. The only exception is headings tagged as REFILE."
         (org-entry-get (point) "AUDIO"))
       (expand-file-name
        (concat (file-name-base (buffer-file-name)) ext)
-       "~/Audio/Kadena/Meetings")))
+       "~/Audio/Meetings")))
 
 ;;;###autoload
 (defun vulpea-ext-db-setup-dates ()
