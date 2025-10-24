@@ -479,15 +479,15 @@ for use in `org-capture-templates'."
 
 (defsubst org-config-kadena-meeting (keys title file)
   "Create a Kadena meeting configuration with KEYS, TITLE, and FILE.
-Uses the Kadena meeting template located at ~/org/template/kadena/meeting."
+Uses the Kadena meeting template located at ~/org/kadena/template/meeting."
   (org-config-meeting-template
-   keys title file "~/org/template/kadena/meeting"))
+   keys title file "~/org/kadena/template/meeting"))
 
 (defsubst org-config-kadena-1-on-1 (keys title file)
   "Create a Kadena 1-on-1 meeting configuration with KEYS, TITLE, and FILE.
 Uses the Kadena one-on-one template and adds `1-on-1-' prefix."
   (org-config-meeting-template
-   keys title file "~/org/template/kadena/one-on-one" "1-on-1-"))
+   keys title file "~/org/kadena/template/one-on-one" "1-on-1-"))
 
 (defsubst org-config-bahai-meeting (keys title file)
   "Create a Bahai meeting configuration with KEYS, TITLE, and FILE.
@@ -759,13 +759,13 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
      ("pwO" "Out of Office" entry
       (file+headline ,org-constants-work-todo-path "Operations (Ops)")
-      (file "~/org/template/kadena/out-of-office.org")
+      (file "~/org/kadena/template/out-of-office.org")
       :immediate-finish t
       :jump-to-captured t)
 
      ("pwn" "Network Incident" entry
       (file+headline ,org-constants-work-todo-path "Improve Response Process")
-      (file "~/org/template/kadena/network-incident.org")
+      (file "~/org/kadena/template/network-incident.org")
       :immediate-finish t
       :jump-to-captured t)))
 
@@ -960,7 +960,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ("wo" "1-on-1s")
 
    ("woo" "1-on-1 meeting" plain
-    (file "~/org/template/kadena/one-on-one.org")
+    (file "~/org/kadena/template/one-on-one.org")
     :target
     (file+head
      "meeting/%<%Y%m%d%H%M>-1-on-1.org"
@@ -976,7 +976,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :no-save t)
 
    ("woT" "1-on-1 with Team Member" plain
-    (file "~/org/template/kadena/team-member.org")
+    (file "~/org/kadena/template/team-member.org")
     :target
     (file "kadena/team/%<%Y%m%d%H%M>.org")
     :immediate-finish t

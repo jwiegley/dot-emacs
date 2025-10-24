@@ -6027,7 +6027,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
      (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/profiles\\|/\\.nix-profile\\)" path)))
   (projectile-keymap-prefix (kbd "C-c p"))
   (projectile-known-projects-file (user-data "projectile-bookmarks.eld"))
-  (projectile-project-search-path '("~/src" "~/kadena" "~/doc"))
+  (projectile-project-search-path '("~/src" "~/doc"))
   (projectile-sort-order 'recentf)
   :preface
   (defun my-projectile-invalidate-cache (&rest _args)
@@ -8107,7 +8107,7 @@ locations. The =default-directory= variable is not changed in the process.
   (consult-gh-dashboard-action #'consult-gh--dashboard-action)
   (consult-gh-large-file-warning-threshold 2500000)
   (consult-gh-prioritize-local-folder 'suggest)
-  (consult-gh-favorite-orgs-list '("kadena-io" "ekmett" "karthink" "jwiegley" "ledger"))
+  (consult-gh-favorite-orgs-list '("ekmett" "karthink" "jwiegley" "ledger"))
   :config
   (add-to-list 'savehist-additional-variables 'consult-gh--known-orgs-list)
   (add-to-list 'savehist-additional-variables 'consult-gh--known-repos-list)
@@ -10044,8 +10044,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                '(raw)))
         (cons
          'search-group-spec
-         '(("nnimap:imap.fastmail.com" "INBOX")
-           ("nnimap:imap.fastmail.com" "mail/kadena")))))
+         '(("nnimap:imap.fastmail.com" "INBOX")))))
     (gnus-summary-next-page))
 
   (defun exit-gnus-on-exit ()
@@ -11177,7 +11176,7 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-hide-tags-regexp
-   "\\`\\(Noon\\|Day\\|Eve\\|Night\\|assembly\\|kadena\\)\\'")
+   "\\`\\(Noon\\|Day\\|Eve\\|Night\\|assembly\\)\\'")
   (org-agenda-inhibit-startup t)
   (org-agenda-log-mode-items '(closed clock state))
   (org-agenda-ndays 1)
@@ -11791,6 +11790,15 @@ being synced to Anki.
   :after org)
 #+end_src
 
+**** org-mssql
+
+#+begin_src emacs-lisp
+(use-package org-mssql
+  :nix nil
+  :after org
+  :demand t)
+#+end_src
+
 *** org-bookmark-heading
 
 #+begin_src emacs-lisp
@@ -12118,11 +12126,6 @@ This library provides two additional markers =!!= and =!@= over and above those 
       "8b1d0a83-6c8e-46d9-acc7-755819a56a54"
       :inbox ,(org-file "calendar/tripit.org")
       :files (,(org-file "archive/calendar/tripit.org")))
-
-     (:calendar-id
-      "eb88c053-4d61-4015-ac11-e6d8f437eb16"
-      :inbox ,(org-file "calendar/kadena.org")
-      :files (,(org-file "archive/calendar/kadena.org")))
 
      (:calendar-id
       "b6f9a6f5-7a62-45a3-8b29-b4c7cfe4555f"
@@ -13700,8 +13703,7 @@ under the =t= menu.
          ("N" . citar-create-note))
   :custom
   (org-cite-global-bibliography
-   (list "~/org/resource/bibliography.bib"
-         "~/org/resource/kadena.bib"))
+   (list "~/org/resource/bibliography.bib"))
   (citar-bibliography org-cite-global-bibliography)
   :config
   (setq citar--multiple-setup '("M-RET" . "RET"))
