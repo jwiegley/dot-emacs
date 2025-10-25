@@ -6701,6 +6701,7 @@ A collection of paredit-like functions for editing in =html-mode=.
   (tramp-use-scp-direct-remote-copying t)
   (tramp-copy-size-limit (* 1024 1024))
   (tramp-verbose 2)
+  (tramp-use-connection-share nil)
   :config
   (add-to-list 'tramp-remote-path
                (expand-file-name "bin" (getenv "PROFILE_DIR")))

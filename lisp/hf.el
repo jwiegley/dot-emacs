@@ -52,7 +52,7 @@
   :type 'string
   :group 'hf)
 
-(defcustom hf-default-instance-name 'hera/Qwen3-235B-A22B-Thinking-2507
+(defcustom hf-default-instance-name 'hera/gpt-oss-120b
   "Name of default instance."
   :type 'symbol
   :group 'hf)
@@ -1314,7 +1314,9 @@ Optionally generate for the given HOSTNAME."
     (cl-case (hf-instance-engine instance)
       (llama-cpp
        (when-let* ((path (hf-get-instance-gguf-path instance hostname))
-                   (exe (executable-find hf-llama-server-executable)))
+                   (exe (let ((default-directory (hf-remote-path "~/" hostname)))
+                          (executable-find hf-llama-server-executable
+                                           (hf-remote-hostname-p hostname)))))
          (insert
           leader
           (format "
@@ -1325,7 +1327,9 @@ Optionally generate for the given HOSTNAME."
                   exe (hf-strip-tramp-prefix (expand-file-name path)) args)
           footer)))
       (mlx-lm
-       (when-let* ((exe (executable-find hf-mlx-lm-executable)))
+       (when-let* ((exe (let ((default-directory (hf-remote-path "~/" hostname)))
+                          (executable-find hf-mlx-lm-executable
+                                           (hf-remote-hostname-p hostname)))))
          (insert
           leader
           (format "
@@ -1354,7 +1358,9 @@ Optionally generate for the given HOSTNAME."
 
 (defun hf-build-llama-swap-yaml (&optional hostname)
   "Build llama-swap.yaml configuration, optionally for HOSTNAME."
-  (let ((yaml-path (expand-file-name "llama-swap.yaml" hf-gguf-models)))
+  (let ((yaml-path (if (string= hostname "vulcan")
+                       (expand-file-name "llama-swap.yaml" "/home/johnw/Models")
+                     (expand-file-name "llama-swap.yaml" hf-gguf-models))))
     (with-temp-buffer
       (insert (with-current-buffer
                   (hf-generate-llama-swap-yaml (or hostname hf-default-hostname))
