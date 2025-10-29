@@ -712,6 +712,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
+      :draft-model "~/Models/unsloth_gpt-oss-20b-GGUF/gpt-oss-20b-F16.gguf"
       :cache-control t)))
 
    (make-hf-model
@@ -1286,11 +1287,12 @@ Optionally generate for the given HOSTNAME."
                  (list "--top-p" (number-to-string top-p)))
             (and top-k
                  (list "--top-k" (number-to-string top-k)))
-            (and-let* ((draft-model (hf-instance-draft-model instance)))
-              (and (file-exists-p draft-model)
+            (and-let* ((draft-model (hf-instance-draft-model instance))
+                       (expanded (expand-file-name draft-model)))
+              (and (file-exists-p expanded)
                    (cl-case (hf-instance-engine instance)
-                     (llama-cpp (list "--model-draft" draft-model))
-                     (mlx-lm (list "--draft-model" draft-model)))))
+                     (llama-cpp (list "--model-draft" expanded))
+                     (mlx-lm (list "--draft-model" expanded)))))
             (and context-length
                  (cl-case (hf-instance-engine instance)
                    ;; mlx-lm does not specify the context size, but grows the
