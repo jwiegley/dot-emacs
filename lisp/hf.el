@@ -57,7 +57,8 @@
   :type 'symbol
   :group 'hf)
 
-(defcustom hf-valid-hostnames '("hera" "clio" "vulcan")
+(defcustom hf-valid-hostnames '("hera" "clio" ;; "vulcan"
+                                )
   "Name of hosts that can run models."
   :type '(repeat string)
   :group 'hf)
@@ -79,8 +80,6 @@ startPort: 9200
   "Prolog for beginning of llama-swap.yaml file."
   :type 'string
   :group 'hf)
-
-
 
 (defcustom hf-llama-swap-epilog "
 groups:
@@ -346,7 +345,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/lmstudio-community_DeepSeek-R1-Distill-Qwen-32B-GGUF"
-      :hostnames '("hera" "vulcan" "clio"))))
+      :hostnames '("hera" "clio"))))
 
    (make-hf-model
     :name 'DeepSeek-R1-0528
@@ -529,7 +528,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-32B-GGUF"
-      :hostnames '("hera" "vulcan" "clio"))))
+      :hostnames '("hera" "clio"))))
 
    (make-hf-model
     :name 'Qwen3-30B-A3B-Instruct-2507
@@ -540,7 +539,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-30B-A3B-Instruct-2507-GGUF"
-      :hostnames '("hera" "vulcan" "clio"))))
+      :hostnames '("hera" "clio"))))
 
    (make-hf-model
     :name 'Qwen3-30B-A3B-Thinking-2507
@@ -551,7 +550,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-30B-A3B-Thinking-2507-GGUF"
-      :hostnames '("hera" "vulcan" "clio"))))
+      :hostnames '("hera" "clio"))))
 
    (make-hf-model
     :name 'Qwen3-235B-A22B-Instruct-2507
@@ -607,7 +606,7 @@ general_settings:
      (make-hf-instance
       :max-output-tokens 65536
       :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
-      :hostnames '("hera" "vulcan" "clio")
+      :hostnames '("hera" "clio")
       :cache-control t
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
@@ -701,7 +700,7 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
-      :hostnames '("hera" "vulcan" "clio")
+      :hostnames '("hera" "clio")
       :cache-control t)))
 
    (make-hf-model
@@ -1465,7 +1464,7 @@ Optionally generate for the given HOSTNAME."
   ;; Update llama-swap configurations on all machines that run models
   (hf-build-llama-swap-yaml)
   (hf-build-llama-swap-yaml "clio")
-  (hf-build-llama-swap-yaml "vulcan")
+  ;; (hf-build-llama-swap-yaml "vulcan")
   ;; Update LiteLLM to refer to all local and remote models
   (hf-build-litellm-yaml)
   ;; Update GPTel with instance list, to remain in sync with LiteLLM
