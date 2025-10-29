@@ -9624,7 +9624,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
           (executable-find "cargo")))
 
   (defun my-cargo-target-dir (path)
-    (replace-regexp-in-string "kadena" "Products" path))
+    (replace-regexp-in-string "work" "Products" path))
 
   (defun my-update-cargo-args (ad-do-it name command &optional last-cmd opens-external)
     (let* ((cmd (car (split-string command)))
@@ -10164,7 +10164,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (gnus-summary-normal-ticked ((t (:foreground "pink4"))))
   :preface
   (defconst my-mail-address-regexp
-    "\\(jwiegley\\|johnw?\\)@\\(\\(gmail\\|newartisans\\)\\.com\\|gnu\\.org\\|kadena\\.io\\)")
+    "\\(jwiegley\\|johnw?\\)@\\(\\(gmail\\|newartisans\\)\\.com\\|gnu\\.org\\)")
 
   (defface gnus-summary-expirable-face
     '((((class color) (background dark))
@@ -10696,7 +10696,6 @@ variables.  This is useful for a regi `begin' frame-entry."
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2
 
 Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
-     ("Kadena" "" "\"John Wiegley\" <john@kadena.io>" "" nil "" "")
      ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
      ("C2G" "" "\"John Wiegley\" <john.wiegley@coppertogold.org>" "" nil "" "")
      ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>"
@@ -10706,13 +10705,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2
 
 Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")))
   (gnus-alias-identity-rules
-   '(("Kadena Mail"
-      ("To" "kadena" current)
-      "Kadena")
-     ("Copper to Gold Mail"
-      ("To" "copper\\(to\\|2\\)gold" current)
-      "C2G")
-     ("Ledger Mailing List"
+   '( ("Ledger Mailing List"
       ("To" "ledger-cli@googlegroups\\.com" current)
       "Gmail")
      ("Emacs Mailing Lists"
@@ -10782,9 +10775,7 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
   :after gnus
   :custom
   (gnus-harvest-sender-alist
-   '((".*@gnu\\.org\\'"   . "johnw@gnu.org")
-     (".*@kadena\\.io\\'" . "john@kadena.io")
-     (".*@coppertogold\\.org\\'" . "john.wiegley@coppertogold.org")))
+   '((".*@gnu\\.org\\'"   . "johnw@gnu.org")))
   (gnus-harvest-query-limit 50000)
   ;; :hook
   ;; (message-setup . gnus-harvest-set-from)
@@ -11083,8 +11074,7 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
   (org-use-sub-superscripts nil)
   (org-use-tag-inheritance
    '("Noon" "Day" "Eve" "Night" "Home" "Call" "Errand"
-     "assembly"
-     "kadena"))
+     "assembly"))
   (org-use-property-inheritance '("OVERLAY"))
   (org-yank-adjusted-subtrees t)
   :custom-face
@@ -11304,7 +11294,6 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
      ("assembly"      face (:background ,palette-teal-darker    :foreground "#eeeeee"))
      ("tech"          face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ("quantumtrades" face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
-     ("kadena"        face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ))
   (org-agenda-overlay-by-olp
    `(;; Headings in todo.org
@@ -11431,7 +11420,7 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
          my-ctrl-c-n-map
          ("C" . org-ext-set-category))
   :hook
-  (after-save . org-ext-update-team-after-save)
+  ;; (after-save . org-ext-update-team-after-save)
   (org-mode . org-ext-setup-insert-code-block)
   (org-log-buffer-setup . org-ext-setup-insert-code-block)
   ;; (org-agenda-finalize . org-ext-report-items-to-be-reviewed)
@@ -11451,7 +11440,8 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
   ;;   :config
   ;;   (org-ext-gnus-drop-link-parameter "mairix"))
 
-  (org-ext-update-team))
+  ;; (org-ext-update-team)
+  )
 #+end_src
 
 *** org-config
@@ -12280,7 +12270,7 @@ displays the priority part of a heading as your preferred string value.
                              "#E6E1DC" "#232323")))))
 #+end_src
 
-*** org-ml
+*** COMMENT org-ml
 
 #+begin_src emacs-lisp
 (use-package org-ml
@@ -12288,7 +12278,7 @@ displays the priority part of a heading as your preferred string value.
   :demand t)
 #+end_src
 
-*** org-sql
+*** COMMENT org-sql
 
 #+begin_src emacs-lisp
 (use-package org-sql
