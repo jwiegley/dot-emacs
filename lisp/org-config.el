@@ -171,8 +171,11 @@ Interactive usage will prompt for category selection with completion."
                           nil nil nil 'org-ext-category-history)))
   (let ((org-agenda-skip-function
          (lambda ()
-           (unless (org-config-check-category-in-parents who)
-             (or (outline-next-heading) (point-max)))))
+           (or (org-agenda-skip-entry-if
+                'scheduled 'deadline 'timestamp
+                'todo org-done-keywords)
+               (unless (org-config-check-category-in-parents who)
+                 (or (outline-next-heading) (point-max))))))
         (org-agenda-overriding-header
          (format "Items under category '%s' (entry or parents)" who)))
     ;; Use a minimal matcher that includes everything,

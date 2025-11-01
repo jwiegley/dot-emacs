@@ -271,6 +271,7 @@ See `org-ext-ql-columnview'."
                     "- "
                     (match-string 2 link)
                     (and tags
+                         (not (string-empty-p (string-trim tags)))
                          (concat " ("
                                  (and (string= (string-trim keyword) "TASK")
                                       "← ")

@@ -33,9 +33,6 @@
 (require 'gptel-anthropic)
 (require 'hf)
 
-(defconst gptel-presets-rewrite-use-remote t
-  "Non-nil if we should use remote models (local is unavailable?).")
-
 (defsubst gptel-presets-insert-no-think ()
   "Insert the text /no_think at the end of the user prompt."
   (insert " /no_think"))
@@ -191,9 +188,7 @@
 
 (gptel-make-preset 'default
   :description "Default setup"
-  :parents 'haiku-direct
-  ;; :parents 'haiku
-  ;; :model hf-default-instance-name
+  :parents 'opus-max
   :system 'default
   :confirm-tool-calls nil               ; 'auto
   :use-context 'user
@@ -240,9 +235,16 @@
   :include-reasoning nil
   :use-context nil
   :tools nil
-  :parents (if gptel-presets-rewrite-use-remote
-               (or 'haiku 'haiku-direct 'sonnet 'gpt)
-             (or 'gpt-oss 'gpt-oss-travel 'qwen)))
+  :parents (or
+            'haiku
+            'haiku-direct
+            'haiku-max
+            'sonnet
+            'gpt
+            'gpt-oss
+            'gpt-oss-travel
+            'qwen
+            ))
 
 (gptel-make-preset 'visible-buffers
   :description "Include the full text of all buffers visible in the frame."

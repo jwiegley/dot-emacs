@@ -5872,7 +5872,8 @@ append it to ENTRY."
     (delete-other-windows)
     (find-file "~/org/home.org")
     (magit-status "~/org")
-    (when (quickping "imap.fastmail.com")
+    ;; (when (quickping "imap.fastmail.com")
+    (when (quickping "imap.vulcan.lan")
       (delete-other-windows)
       (call-interactively #'switch-to-gnus))
     (call-interactively #'org-ext-jump-to-agenda))
@@ -9893,14 +9894,14 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (gnus-novice-user nil)
   (gnus-parameters
    '(
-     ;; Emacs     spam pos: Spam[unread] -> Spam[read] -> IsSpam
-     ;; Emacs     spam fls: Spam[unread] -> TrainGood -> IsGood
-     ;; Emacs     good fls: INBOX -> TrainSpam -> IsSpam
-     ;; Fastmail  spam pos: Spam[unread] -> Spam[read] -> IsSpam
-     ;; Fastmail  spam fls: Spam[unread] -> TrainGood -> IsGood
-     ;; SpamSieve spam fls: Spam[unread] -> INBOX
-     ;; Fastmail  good fls: INBOX -> TrainSpam -> IsSpam
-     ;; SpamSieve good fls: INBOX -> IsSpam
+     ;; Emacs     spam: Spam[unread] -> Spam[read] -> IsSpam
+     ;; Emacs     good: Spam[unread] -> TrainGood -> IsGood
+     ;; Emacs     spam: INBOX -> TrainSpam -> IsSpam
+     ;; Fastmail  spam: Spam[unread] -> Spam[read] -> IsSpam
+     ;; Fastmail  good: Spam[unread] -> TrainGood -> IsGood
+     ;; SpamSieve good: Spam[unread] -> INBOX
+     ;; Fastmail  spam: INBOX -> TrainSpam -> IsSpam
+     ;; SpamSieve spam: INBOX -> IsSpam
      ;;
      ;; The only reason to have both Spam and TrainSpam, is that the Remote
      ;; Training script used with SpamSieve only consider read messages in
@@ -9924,7 +9925,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (expiry-target . "INBOX"))
      ("\\`\\(mail/\\|INBOX\\)"
       (total-expire . t)
-      (expiry-wait . 90)
+      (expiry-wait . 365)
       (expiry-target . "Archive")
       (gcc-self . t)
       (gnus-use-scoring nil)
@@ -9935,7 +9936,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (spam-process-destination . "TrainSpam"))
      ("list/\\(github\\|misc\\|haskell\\|emacs\\|bahai/tarjuman\\)$"
       (total-expire . t)
-      (expiry-wait . 90)
+      (expiry-wait . 365)
       (expiry-target . delete))
      ("list/ledger/devel"
       (to-list . "ledger-cli@googlegroups.com"))
@@ -10045,7 +10046,9 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                '(raw)))
         (cons
          'search-group-spec
-         '(("nnimap:imap.fastmail.com" "INBOX")))))
+         '(("nnimap:imap.vulcan.lan" "INBOX")
+           ;; ("nnimap:imap.fastmail.com" "INBOX")
+           ))))
     (gnus-summary-next-page))
 
   (defun exit-gnus-on-exit ()
@@ -10056,11 +10059,16 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
             (gnus-group-exit)))))
   :init
   (setq gnus-select-method
-        '(nnimap "imap.fastmail.com"
-                 (nnimap-user "johnw@newartisans.com")
+        '(nnimap "imap.vulcan.lan"
+                 (nnimap-user "johnw")
                  (nnimap-inbox "INBOX")
                  (nnimap-server-port "imaps")
                  (nnimap-stream ssl))
+        ;; '(nnimap "imap.fastmail.com"
+        ;;          (nnimap-user "johnw@newartisans.com")
+        ;;          (nnimap-inbox "INBOX")
+        ;;          (nnimap-server-port "imaps")
+        ;;          (nnimap-stream ssl))
         gnus-secondary-select-methods
         '(;; (nnimap "imap.vulcan.lan"
           ;;         (nnimap-address "imap.vulcan.lan")
@@ -12085,7 +12093,7 @@ This library provides two additional markers =!!= and =!@= over and above those 
                  :bold t :background "yellow" :foreground "black")))))
 #+end_src
 
-*** org-caldav
+*** COMMENT org-caldav
 
 #+begin_src emacs-lisp
 (use-package org-caldav
