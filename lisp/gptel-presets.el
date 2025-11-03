@@ -60,6 +60,12 @@
   :model 'gpt-oss-20b
   :temperature 1.0)
 
+(gptel-make-preset 'minimax-m2
+  :description "MiniMax-M2"
+  :backend "LiteLLM"
+  :model 'hera/MiniMax-M2
+  :temperature 1.0)
+
 ;;; Anthropic
 
 (gptel-make-anthropic "Claude"          ;Any name you want
@@ -236,6 +242,7 @@
   :use-context nil
   :tools nil
   :parents (or
+            'minimax-m2
             'haiku
             'haiku-direct
             'haiku-max
