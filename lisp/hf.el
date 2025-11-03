@@ -92,6 +92,7 @@ groups:
       - Kimi-K2-Instruct
       - Llama-4-Maverick-17B-128E-Instruct
       - Llama-4-Scout-17B-16E-Instruct
+      - MiniMax-M2
       - Phi-4-reasoning-plus
       - Qwen3-235B-A22B-Instruct-2507
       - Qwen3-235B-A22B-Thinking-2507
@@ -453,6 +454,20 @@ general_settings:
    ;;   (make-hf-instance
    ;;    :name 'meta-llama/llama-4-maverick:free
    ;;    :provider 'openrouter)))
+
+   (make-hf-model
+    :name 'MiniMax-M2
+    :context-length 262144
+    :temperature 1.0
+    :top-p 0.95
+    :top-k 40
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_MiniMax-M2-GGUF"
+      :hostnames '("hera"))))
 
    (make-hf-model
     :name 'Phi-4-reasoning-plus
