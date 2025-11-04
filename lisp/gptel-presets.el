@@ -257,6 +257,7 @@
   :use-context nil
   :tools nil
   :parents (or
+            'opus
             'sonnet-max
             'haiku
             'haiku-direct
