@@ -3649,7 +3649,7 @@ request:
       :args ("@executeautomation/database-server"
              "--"
              "--sqlserver"
-             "--server" "mssql.vulcan.lan"
+             "--server" "localhost"
              "--database" "SRP"
              "--user" "sa"
              "--password" ,(lookup-password "mssql.vulcan.lan" "johnw" 80)))
@@ -3698,11 +3698,11 @@ request:
             :PERPLEXITY_MODEL "sonar-pro"))
 
      ("browser-control"
-      :command "node"
+      :command "/opt/homebrew/opt/node@22/bin/node"
       :args ("/Users/johnw/src/browser-control-mcp/mcp-server/dist/server.js")
       :env (:EXTENSION_SECRET
             ,(lookup-password "browser-control.mcp" "johnw" 80)
-            :EXTENSION_PORT "6263"))
+            :EXTENSION_PORT "6264"))
 
      ("postgres"
       :command "uvx"
