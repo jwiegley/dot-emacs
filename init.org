@@ -3380,14 +3380,26 @@ up before you execute another command."
          ("q" . gptel-quick)))
 #+end_src
 
-*** gptel-claude-oauth
+*** COMMENT gptel-claude-oauth
 
 #+begin_src emacs-lisp
 (use-package gptel-claude-oauth
+  :nix nil
   :after (gptel)
   :demand t
   :config
   (gptel-make-claude-oauth "Claude-OAuth" :stream t))
+#+end_src
+
+*** gptel-anthropic-oauth
+
+#+begin_src emacs-lisp
+(use-package gptel-anthropic-oauth
+  :nix nil
+  :after (gptel)
+  :demand t
+  :config
+  (gptel-make-anthropic-oauth "Claude-Anthropic" :stream t))
 #+end_src
 
 *** corsair
