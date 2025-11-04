@@ -37,7 +37,7 @@
 (defconst org-constants-agenda-base-files
   (list org-constants-todo-path
         org-constants-drafts-path
-        org-constants-work-todo-path
+        ;; org-constants-work-todo-path
         (org-file "assembly/assembly.org")
         (org-file "quantum-trades/quantum-trades.org")
         org-constants-open-source-path))
