@@ -64,7 +64,22 @@
   :description "MiniMax-M2"
   :backend "LiteLLM"
   :model 'hera/MiniMax-M2
-  :temperature 1.0)
+  :temperature 1.0
+  :prompt-transform-functions
+  `(:append
+    (list
+     ,(lambda (fsm)   ;Remove non-delimited <think>...</think> block for minimax-m2
+        (let* ((info (gptel-fsm-info fsm))
+               (callback
+                (or (plist-get info :callback) 'gptel--insert-response)))
+          (plist-put info :callback
+                     (lambda (resp info)
+                       (when (stringp resp)
+                         ;; Remove everything up to and including </think>
+                         (when-let* ((idx (string-search "</think>" resp)))
+                           ;; 8 = length of "</think>"
+                           (setq resp (substring resp (+ idx 8)))))
+                       (funcall callback resp info))))))))
 
 ;;; Anthropic
 
