@@ -869,8 +869,7 @@ decision tree.
 
 #+begin_src emacs-lisp
 (use-package avy
-  :bind* (("<S-return>" . avy-goto-char-timer)
-          ("C-." . avy-goto-char-timer))
+  :bind* (("C-." . avy-goto-char-timer))
   :custom
   (avy-case-fold-search t)
   (avy-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n ?s))
