@@ -9918,22 +9918,33 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
      ;; Training script used with SpamSieve only consider read messages in
      ;; Spam, but both read and unread messages in TrainSpam. Otherwise, all
      ;; other details are the same.
-     ("Spam"
+
+     ("\\`Spam\\'"
+      (total-expire . t)
+      (expiry-wait . immediate)
+      (expiry-target . "TrainSpam")
+      (ham-process-destination . "TrainGood")
+      (spam-process-destination . "TrainSpam"))
+     ("\\`IsSpam\\'"
       (total-expire . t)
       (expiry-wait . 31)
       (expiry-target . delete)
-      (ham-process-destination . "TrainGood")
-      (spam-process-destination . "TrainSpam"))
-     ("TrainSpam"
+      (ham-process-destination . "TrainGood"))
+     ("\\`TrainSpam\\'"
       (spam-contents gnus-group-spam-classification-spam))
-     ("Good"
+
+     ("\\`Good\\'"
       (gcc-self . t)
       (gnus-use-scoring nil)
+      (ham-process-destination . "TrainGood")
       (spam-process-destination . "TrainSpam"))
-     ("IsGood"
+     ("\\`IsGood\\'"
       (total-expire . t)
-      (expiry-wait . 1.1)
-      (expiry-target . "INBOX"))
+      (expiry-wait . 'immediate)
+      (expiry-target . "INBOX")
+      (spam-process-destination . "TrainSpam"))
+     ("\\`TrainGood\\'")
+
      ("\\`\\(mail/\\|INBOX\\)"
       (total-expire . t)
       (expiry-wait . 365)
@@ -9941,14 +9952,17 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam"))
+
      ("list/"
       (subscribed . t)
       (gcc-self . nil)
       (spam-process-destination . "TrainSpam"))
+
      ("list/\\(github\\|misc\\|haskell\\|emacs\\|bahai/tarjuman\\)$"
       (total-expire . t)
       (expiry-wait . 365)
       (expiry-target . delete))
+
      ("list/ledger/devel"
       (to-list . "ledger-cli@googlegroups.com"))
      ("list/bahai/tarjuman"
@@ -9970,7 +9984,9 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (list-identifier . "\\[O\\]"))
      ("list/haskell/infrastructure"
       (to-list . "haskell-infrastructure@community.galois.com")
-      (list-identifier . "\\[Haskell-infrastructure\\]"))))
+      (list-identifier . "\\[Haskell-infrastructure\\]"))
+
+     ))
   (gnus-permanently-visible-groups "INBOX")
   (gnus-read-active-file nil)
   (gnus-read-newsrc-file nil)
@@ -10803,15 +10819,41 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
 
 #+end_src
 
-*** COMMENT gnus-sieve
+*** sieve-manage
+
+#+begin_src emacs-lisp
+(use-package sieve-manage
+  :after (gnus)
+  :custom
+  (sieve-manage-default-port 4190)
+  (sieve-manage-default-stream 'starttls)
+  :preface
+  ;; Helper function to manage sieve scripts
+  (defun my-sieve-manage ()
+    "Open sieve management interface for vulcan.lan."
+    (interactive)
+    (require 'sieve)
+    (require 'sieve-mode)
+    ;; Use the built-in sieve-manage function which handles everything
+    (sieve-manage "imap.vulcan.lan" 4190))
+  :config
+  ;; Enable debug logging (you can remove this later)
+  (setq sieve-manage-log "*sieve-manage-log*"))
+#+end_src
+
+*** gnus-sieve
 
 #+begin_src emacs-lisp
 (use-package gnus-sieve
   :nix nil
-  :defer t
+  :after (gnus)
   :custom
-  (gnus-sieve-file "~/.config/gnus/dovecot.sieve")
-  (gnus-sieve-select-method "nnimap:imap.fastmail.com"))
+  (gnus-sieve-file "~/.local/share/gnus/active")
+  (gnus-sieve-select-method "nnimap:imap.vulcan.lan")
+  (gnus-sieve-update-shell-command
+   (format "echo put %%f | sieveshell --no-tls-verify --passwd %s %%s"
+           (lookup-password "imap.vulcan.lan" "johnw" 4190)))
+  (gnus-sieve-crosspost nil))
 #+end_src
 
 *** gnus-agent
