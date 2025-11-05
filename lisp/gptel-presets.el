@@ -257,14 +257,13 @@
   :use-context nil
   :tools nil
   :parents (or
-            'opus
+            'sonnet
             'sonnet-max
             'haiku
-            'haiku-direct
             'haiku-max
-            'sonnet
-            'minimax-m2
+            'haiku-direct
             'gpt
+            'minimax-m2
             'gpt-oss
             'gpt-oss-travel
             'qwen
