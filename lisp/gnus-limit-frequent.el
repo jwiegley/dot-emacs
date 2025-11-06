@@ -66,15 +66,18 @@ ARTICLES should be a list of article numbers."
       (let ((header (gnus-summary-article-header article)))
         (when header
           ;; Count authors
-          (when-let ((from (mail-header-from header)))
-            (when-let ((normalized-author (gnus-limit-frequent--normalize-author from)))
-              (cl-incf (gethash normalized-author author-counts 0))))
+          (let ((from (mail-header-from header)))
+            (when from
+              (let ((normalized-author (gnus-limit-frequent--normalize-author from)))
+                (when normalized-author
+                  (cl-incf (gethash normalized-author author-counts 0))))))
 
           ;; Count subjects
-          (when-let ((subject (mail-header-subject header)))
-            (let ((normalized-subject (gnus-simplify-subject-re subject)))
-              (when (and normalized-subject (> (length normalized-subject) 0))
-                (cl-incf (gethash normalized-subject subject-counts 0))))))))
+          (let ((subject (mail-header-subject header)))
+            (when subject
+              (let ((normalized-subject (gnus-simplify-subject-re subject)))
+                (when (and normalized-subject (> (length normalized-subject) 0))
+                  (cl-incf (gethash normalized-subject subject-counts 0))))))))
 
     (cons author-counts subject-counts)))
 
@@ -129,7 +132,7 @@ This is a limiting command; you can restore the full summary with
   (unless (and (integerp threshold) (>= threshold 1))
     (user-error "Threshold must be a positive integer, got: %s" threshold))
 
-  (let* ((articles (gnus-summary-article-list))
+  (let* ((articles gnus-newsgroup-articles)
          (article-count (length articles)))
 
     ;; Check for empty group
@@ -152,15 +155,18 @@ This is a limiting command; you can restore the full summary with
             (let* ((header (gnus-summary-article-header article))
                    (author-frequent-p
                     (and header
-                         (when-let ((from (mail-header-from header)))
-                           (when-let ((norm (gnus-limit-frequent--normalize-author from)))
-                             (> (gethash norm author-table 0) threshold)))))
+                         (let ((from (mail-header-from header)))
+                           (when from
+                             (let ((norm (gnus-limit-frequent--normalize-author from)))
+                               (when norm
+                                 (> (gethash norm author-table 0) threshold)))))))
                    (subject-frequent-p
                     (and header
-                         (when-let ((subject (mail-header-subject header)))
-                           (let ((norm (gnus-simplify-subject-re subject)))
-                             (and norm (> (length norm) 0)
-                                  (> (gethash norm subject-table 0) threshold)))))))
+                         (let ((subject (mail-header-subject header)))
+                           (when subject
+                             (let ((norm (gnus-simplify-subject-re subject)))
+                               (and norm (> (length norm) 0)
+                                    (> (gethash norm subject-table 0) threshold))))))))
 
               (when (or author-frequent-p subject-frequent-p)
                 (push article matching-articles)
@@ -170,7 +176,7 @@ This is a limiting command; you can restore the full summary with
                  (author-frequent-p
                   (cl-incf author-matches))
                  (subject-frequent-p
-                  (cl-incf subject-matches))))))
+                  (cl-incf subject-matches)))))))
 
           ;; Apply the limit
           (if matching-articles

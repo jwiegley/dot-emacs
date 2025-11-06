@@ -31,17 +31,18 @@
 
 (defmacro gnus-limit-frequent-test--with-mock-summary (&rest body)
   "Execute BODY in a mock Gnus summary environment."
-  `(cl-letf* ((gnus-limit-frequent-test--headers nil)
-              (gnus-limit-frequent-test--articles nil)
-              ((symbol-function 'gnus-summary-article-list)
-               (lambda () gnus-limit-frequent-test--articles))
-              ((symbol-function 'gnus-summary-article-header)
-               (lambda (article)
-                 (cdr (assq article gnus-limit-frequent-test--headers))))
-              ((symbol-function 'gnus-summary-limit-to-articles)
-               (lambda (articles)
-                 (setq gnus-limit-frequent-test--limited-articles articles))))
-     ,@body))
+  `(let ((gnus-limit-frequent-test--headers nil)
+         (gnus-limit-frequent-test--articles nil)
+         (gnus-newsgroup-articles nil))
+     (cl-letf (((symbol-function 'gnus-summary-article-header)
+                (lambda (article)
+                  (cdr (assq article gnus-limit-frequent-test--headers))))
+               ((symbol-function 'gnus-summary-limit-to-articles)
+                (lambda (articles)
+                  (setq gnus-limit-frequent-test--limited-articles articles))))
+       ;; Set the articles list
+       (setq gnus-newsgroup-articles gnus-limit-frequent-test--articles)
+       ,@body)))
 
 (defun gnus-limit-frequent-test--make-header (article from subject)
   "Create a mock header for ARTICLE with FROM and SUBJECT."
@@ -78,13 +79,16 @@
 
     ;; Manually count authors and subjects to test the logic
     (dolist (header headers)
-      (when-let ((from (mail-header-from header)))
-        (when-let ((normalized-author (gnus-limit-frequent--normalize-author from)))
-          (cl-incf (gethash normalized-author author-counts 0))))
-      (when-let ((subject (mail-header-subject header)))
-        (let ((normalized-subject (gnus-simplify-subject-re subject)))
-          (when (and normalized-subject (> (length normalized-subject) 0))
-            (cl-incf (gethash normalized-subject subject-counts 0))))))
+      (let ((from (mail-header-from header)))
+        (when from
+          (let ((normalized-author (gnus-limit-frequent--normalize-author from)))
+            (when normalized-author
+              (cl-incf (gethash normalized-author author-counts 0))))))
+      (let ((subject (mail-header-subject header)))
+        (when subject
+          (let ((normalized-subject (gnus-simplify-subject-re subject)))
+            (when (and normalized-subject (> (length normalized-subject) 0))
+              (cl-incf (gethash normalized-subject subject-counts 0)))))))
 
     ;; Check author counts
     (should (= (gethash "alice@example.com" author-counts 0) 3))
