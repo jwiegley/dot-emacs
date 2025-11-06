@@ -1,0 +1,194 @@
+#+TITLE: gnus-limit-frequent - Limit Gnus to Frequent Authors/Subjects
+#+AUTHOR: John Wiegley
+#+EMAIL: johnw@newartisans.com
+
+* Overview
+
+=gnus-limit-frequent= is an Emacs package that provides intelligent filtering for Gnus summary buffers based on message frequency. It allows you to focus on conversations with active participants or popular topics by limiting the view to articles where either the author or subject appears more than a specified threshold.
+
+* Features
+
+- *Frequency-based filtering*: Show only articles from authors who have sent multiple messages
+- *Subject thread detection*: Identify active discussion threads regardless of Re:/Fwd: prefixes
+- *Smart normalization*: Handles various email address formats and subject line variations
+- *Detailed statistics*: Reports how many matches were found by author, subject, or both
+- *Seamless integration*: Works with standard Gnus limiting commands (pop limit to restore)
+
+* Installation
+
+** Manual Installation
+
+Add the following to your Emacs configuration:
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "/path/to/gnus-limit-frequent")
+(require 'gnus-limit-frequent)
+
+;; Optional: Set default threshold (default is 5)
+(setq gnus-limit-frequent-default-threshold 5)
+
+;; Optional: Add keybinding
+(define-key gnus-summary-mode-map (kbd "/ F") #'gnus-summary-limit-to-frequent)
+#+end_src
+
+** With use-package
+
+#+begin_src emacs-lisp
+(use-package gnus-limit-frequent
+  :load-path "lisp"
+  :after gnus-sum
+  :bind (:map gnus-summary-mode-map
+              ("/ F" . gnus-summary-limit-to-frequent))
+  :custom
+  (gnus-limit-frequent-default-threshold 5))
+#+end_src
+
+* Usage
+
+** Basic Usage
+
+In any Gnus summary buffer:
+
+1. Execute =M-x gnus-summary-limit-to-frequent=
+2. Enter threshold when prompted (e.g., 5)
+3. Buffer will be limited to show only:
+   - Articles from authors who sent > 5 messages, OR
+   - Articles with subjects that appear in > 5 messages
+
+** With Prefix Argument
+
+Use prefix argument to specify threshold without prompting:
+
+- =C-u 10 M-x gnus-summary-limit-to-frequent= - Show frequent with threshold 10
+- =C-u M-x gnus-summary-limit-to-frequent= - Show frequent with threshold 4
+
+** Restoring Original View
+
+After limiting, restore the full article list using:
+
+- =/ w= (=gnus-summary-pop-limit=) - Restore previous limit
+- =C-u / w= - Remove all limits
+
+* Algorithm Details
+
+** Two-Pass Processing
+
+The package uses an efficient two-pass algorithm:
+
+1. *First pass*: Count occurrences of all authors and subjects
+2. *Second pass*: Filter articles based on counts exceeding threshold
+
+** Author Normalization
+
+Authors are normalized to handle various email formats:
+
+- ="John Doe <john@example.com>"= → ="john@example.com"=
+- ="john@example.com"= → ="john@example.com"=
+- ="John Doe"= → ="john doe"= (lowercase)
+
+** Subject Normalization
+
+Subjects are normalized using =gnus-simplify-subject-re=:
+
+- Removes =Re:=, =Fwd:=, and other prefixes
+- Strips trailing =(was: ...)= additions
+- Handles mailing list tags like =[list-name]=
+
+* Customization
+
+** Variables
+
+- =gnus-limit-frequent-default-threshold= (integer, default: 5)
+
+  Default threshold for frequent author/subject filtering.
+  Articles are shown if the author or subject appears more than this many times.
+
+** Performance Tuning
+
+For large groups (10,000+ articles), the initial analysis may take a few seconds. The package uses hash tables for O(1) lookups during counting, making it efficient even for large datasets.
+
+* Use Cases
+
+** Finding Active Discussions
+
+Quickly identify hot topics in high-volume mailing lists:
+
+#+begin_src emacs-lisp
+;; Show only very active threads
+(gnus-summary-limit-to-frequent 10)
+#+end_src
+
+** Identifying Regular Contributors
+
+See messages from people who regularly participate:
+
+#+begin_src emacs-lisp
+;; Show messages from people who sent at least 3 messages
+(gnus-summary-limit-to-frequent 2)
+#+end_src
+
+** Filtering Noise
+
+In groups with many one-off posts, focus on sustained conversations:
+
+#+begin_src emacs-lisp
+;; Hide single-post threads
+(gnus-summary-limit-to-frequent 1)
+#+end_src
+
+* Integration with Gnus Workflow
+
+** Combining with Other Limits
+
+=gnus-limit-frequent= works well with other Gnus limiting commands:
+
+1. Apply initial limit with =/ F=
+2. Further refine with:
+   - =/ a= - Limit to author
+   - =/ s= - Limit to subject
+   - =/ t= - Limit to age
+   - =/ *= - Limit to cached
+
+** Saving Frequent Author/Subject Filters
+
+Create persistent filters using Gnus scoring:
+
+After using =gnus-summary-limit-to-frequent=, identify patterns and add to score file:
+
+#+begin_src emacs-lisp
+;; In *Score Trace* buffer after V t
+(("from" ("frequent-poster@example.com" 100 nil s))
+ ("subject" ("Active Topic" 50 nil s)))
+#+end_src
+
+* Troubleshooting
+
+** Empty Results
+
+If the command returns no articles:
+- Lower the threshold value
+- Check if the group has enough articles
+- Verify articles have proper From/Subject headers
+
+** Performance Issues
+
+For very large groups:
+- Consider using Gnus agent for local caching
+- Limit the initial article range with =/ t= (age limit) first
+- Use server-side searching if available
+
+* Related Packages
+
+- =gnus-recent=: Navigate to recently read groups
+- =gnus-summary-limit-to-score=: Limit based on scoring rules
+- =gnus-summary-limit-to-author=: Limit to specific author
+
+* Contributing
+
+Bug reports and patches welcome at: https://github.com/jwiegley/dot-emacs
+
+* License
+
+Copyright (C) 2025 John Wiegley
+
+Distributed under the same terms as Emacs itself.

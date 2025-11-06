@@ -10437,6 +10437,18 @@ is:
          ("C-c L" . gnus-recent-goto-previous)))
 #+end_src
 
+*** gnus-limit-frequent
+
+#+begin_src emacs-lisp
+(use-package gnus-limit-frequent
+  :load-path "lisp"
+  :after gnus-sum
+  :bind (:map gnus-summary-mode-map
+              ("/ F" . gnus-summary-limit-to-frequent))
+  :custom
+  (gnus-limit-frequent-default-threshold 5))
+#+end_src
+
 *** nnmail
 
 #+begin_src emacs-lisp

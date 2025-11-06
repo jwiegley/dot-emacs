@@ -86,15 +86,18 @@ more than THRESHOLD times in AUTHOR-TABLE or SUBJECT-TABLE."
     (when header
       (or
        ;; Check author frequency
-       (when-let ((from (mail-header-from header)))
-         (when-let ((normalized-author (gnus-limit-frequent--normalize-author from)))
-           (> (gethash normalized-author author-table 0) threshold)))
+       (let ((from (mail-header-from header)))
+         (when from
+           (let ((normalized-author (gnus-limit-frequent--normalize-author from)))
+             (when normalized-author
+               (> (gethash normalized-author author-table 0) threshold)))))
 
        ;; Check subject frequency
-       (when-let ((subject (mail-header-subject header)))
-         (let ((normalized-subject (gnus-simplify-subject-re subject)))
-           (when (and normalized-subject (> (length normalized-subject) 0))
-             (> (gethash normalized-subject subject-table 0) threshold))))))))
+       (let ((subject (mail-header-subject header)))
+         (when subject
+           (let ((normalized-subject (gnus-simplify-subject-re subject)))
+             (when (and normalized-subject (> (length normalized-subject) 0))
+               (> (gethash normalized-subject subject-table 0) threshold)))))))))
 
 ;;;###autoload
 (defun gnus-summary-limit-to-frequent (threshold)
