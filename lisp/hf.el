@@ -233,7 +233,7 @@ litellm_settings:
   cache: True
   cache_params:
     type: redis
-    host: \"host.containers.internal\"
+    host: \"10.0.2.2\"
     port: 8085
     supported_call_types: [\"acompletion\", \"atext_completion\", \"aembedding\", \"atranscription\"]
 
