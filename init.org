@@ -8184,6 +8184,19 @@ locations. The =default-directory= variable is not changed in the process.
   :after consult-gh)
 #+end_src
 
+**** consult-omni
+
+#+begin_src emacs-lisp
+(use-package consult-omni
+  :after (consult)
+  :config
+  (require 'consult-omni-sources)
+  (require 'consult-omni-embark)
+  (require 'consult-omni-brave-autosuggest)
+  (setq consult-omni-default-interactive-command
+        #'consult-omni-brave-autosuggest))
+#+end_src
+
 *** COMMENT company
 
 #+begin_src emacs-lisp
