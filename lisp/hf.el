@@ -308,7 +308,8 @@ general_settings:
   (supports-function-calling nil)       ; t if model supports function calling
   (supports-reasoning nil)              ; t if model supports reasoning
   aliases                               ; model alias names
-  instances)                            ; model instances
+  instances                             ; model instances
+  )
 
 (cl-defstruct hf-instance
   "Configuration data for a model, and its family of instances."
@@ -325,7 +326,9 @@ general_settings:
   model-path                            ; if local: path to model directory
   file-path                             ; if local: (optional) path to model file
   draft-model                           ; if local: (optional) path to draft model
-  arguments)                            ; if local: arguments to engine
+  arguments                             ; if local: arguments to engine
+  fallbacks                             ; if remote: list of fallback model names
+  )
 
 (defcustom hf-models-list
   (list
@@ -984,12 +987,14 @@ general_settings:
     (list
      (make-hf-instance
       :name 'claude-sonnet-4-5-20250929
-      :provider 'anthropic)
+      :provider 'anthropic
+      :fallbacks '(openai/gpt-4.1))
 
      (make-hf-instance
       :model-name 'claude-sonnet-cached
       :name 'claude-sonnet-4-5-20250929
       :provider 'anthropic
+      :fallbacks '(openai/gpt-4.1)
       :cache-control t)))
 
    (make-hf-model
@@ -1401,7 +1406,8 @@ Optionally generate for the given HOSTNAME."
          (max-output-tokens (hf-get-instance-max-output-tokens model instance))
          (supports-system-message (hf-model-supports-system-message model))
          (supports-function-calling (hf-model-supports-function-calling model))
-         (supports-reasoning (hf-model-supports-reasoning model)))
+         (supports-reasoning (hf-model-supports-reasoning model))
+         (fallbacks (hf-instance-fallbacks instance)))
     (dolist (host (if (eq 'local provider)
                       hostnames
                     (list provider)))
@@ -1415,7 +1421,7 @@ Optionally generate for the given HOSTNAME."
       mode: %S
       description: %S%s%s
       supports_function_calling: %s
-      supports_reasoning: %s
+      supports_reasoning: %s%s
 "
                       host model-name
                       (if (eq 'local provider)
@@ -1443,7 +1449,15 @@ Optionally generate for the given HOSTNAME."
                           (format "\n      max_output_tokens: %s" max-output-tokens)
                         "")
                       (if supports-function-calling "true" "false")
-                      (if supports-reasoning "true" "false"))))))
+                      (if supports-reasoning "true" "false")
+                      (if fallbacks
+                          (concat "\n      fallbacks:"
+                                  (mapconcat
+                                   (lambda (fallback-model)
+                                     (format "\n        - model_name: %s" fallback-model))
+                                   fallbacks
+                                   ""))
+                        ""))))))
 
 (defun hf-generate-litellm-yaml ()
   "Build llama-swap.yaml configuration for HOSTNAME."
