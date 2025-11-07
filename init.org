@@ -3643,51 +3643,51 @@ request:
   :custom
   (mcp-hub-servers
    `(
-     ("mssql"
-      :command "npx"
-      :args ("@executeautomation/database-server"
-             "--"
-             "--sqlserver"
-             "--server" "localhost"
-             "--database" "SRP"
-             "--user" "sa"
-             "--password" ,(lookup-password "mssql.vulcan.lan" "johnw" 80)))
+     ;; ("mssql"
+     ;;  :command "npx"
+     ;;  :args ("@executeautomation/database-server"
+     ;;         "--"
+     ;;         "--sqlserver"
+     ;;         "--server" "localhost"
+     ;;         "--database" "SRP"
+     ;;         "--user" "sa"
+     ;;         "--password" ,(lookup-password "mssql.vulcan.lan" "johnw" 80)))
 
      ("sequential-thinking"
       :command "/etc/profiles/per-user/johnw/bin/mcp-server-sequential-thinking"
       :args ())
 
-     ("fetch"
-      :command "npx"
-      :args ("-y" "@kazuph/mcp-fetch"))
+     ;; ("fetch"
+     ;;  :command "npx"
+     ;;  :args ("-y" "@kazuph/mcp-fetch"))
 
      ;; ("task-master-ai"
      ;;  :command "/opt/homebrew/bin/task-master-mcp"
      ;;  :args ())
 
-     ("time"
-      :command "/etc/profiles/per-user/johnw/bin/mcp-server-time"
-      :args ())
+     ;; ("time"
+     ;;  :command "/etc/profiles/per-user/johnw/bin/mcp-server-time"
+     ;;  :args ())
 
-     ("playwright"
-      :command "/etc/profiles/per-user/johnw/bin/mcp-server-playwright"
-      :args ())
+     ;; ("playwright"
+     ;;  :command "/etc/profiles/per-user/johnw/bin/mcp-server-playwright"
+     ;;  :args ())
 
-     ("nixos"
-      :command "uvx"
-      :args ("--isolated" "--from" "mcp-nixos" "mcp-nixos" "--"))
+     ;; ("nixos"
+     ;;  :command "uvx"
+     ;;  :args ("--isolated" "--from" "mcp-nixos" "mcp-nixos" "--"))
 
-     ("arxiv-mcp-server"
-      :command "uv"
-      :args ("tool" "run" "arxiv-mcp-server" "--storage-path" "/Users/johnw/doc/arxiv"))
+     ;; ("arxiv-mcp-server"
+     ;;  :command "uv"
+     ;;  :args ("tool" "run" "arxiv-mcp-server" "--storage-path" "/Users/johnw/doc/arxiv"))
 
-     ("haskell-hackage"
-      :command "uv"
-      :args ("run" "--with" "mcp" "--with" "bs4" "--with" "httpx" "https://raw.githubusercontent.com/apenugon/haskell-hackage-mcp/refs/heads/main/main.py"))
+     ;; ("haskell-hackage"
+     ;;  :command "uv"
+     ;;  :args ("run" "--with" "mcp" "--with" "bs4" "--with" "httpx" "https://raw.githubusercontent.com/apenugon/haskell-hackage-mcp/refs/heads/main/main.py"))
 
-     ("context7"
-      :command "/etc/profiles/per-user/johnw/bin/context7-mcp"
-      :args ())
+     ;; ("context7"
+     ;;  :command "/etc/profiles/per-user/johnw/bin/context7-mcp"
+     ;;  :args ())
 
      ("perplexity"
       :command "uvx"
@@ -3696,44 +3696,45 @@ request:
             ,(lookup-password "api.perplexity.ai" "johnw" 80)
             :PERPLEXITY_MODEL "sonar-pro"))
 
-     ("browser-control"
-      :command "/opt/homebrew/opt/node@22/bin/node"
-      :args ("/Users/johnw/src/browser-control-mcp/mcp-server/dist/server.js")
-      :env (:EXTENSION_SECRET
-            ,(lookup-password "browser-control.mcp" "johnw" 80)
-            :EXTENSION_PORT "6264"))
+     ;; ("browser-control"
+     ;;  :command "/opt/homebrew/opt/node@22/bin/node"
+     ;;  :args ("/Users/johnw/src/browser-control-mcp/mcp-server/dist/server.js")
+     ;;  :env (:EXTENSION_SECRET
+     ;;        ,(lookup-password "browser-control.mcp" "johnw" 80)
+     ;;        :EXTENSION_PORT "6264"))
 
-     ("postgres"
-      :command "uvx"
-      :args ("postgres-mcp" "--access-mode=unrestricted")
-      :env (:DATABASE_URI
-            ,(format "postgresql://johnw:%s@postgres.vulcan.lan:5432/SRP"
-                     (lookup-password "postgres.vulcan.lan" "johnw" 5432))))
+     ;; ("postgres"
+     ;;  :command "uvx"
+     ;;  :args ("postgres-mcp" "--access-mode=unrestricted")
+     ;;  :env (:DATABASE_URI
+     ;;        ,(format "postgresql://johnw:%s@postgres.vulcan.lan:5432/SRP"
+     ;;                 (lookup-password "postgres.vulcan.lan" "johnw" 5432))))
 
      ("memory-keeper"
       :command "npx"
       :args ("mcp-memory-keeper"))
 
-     ("node-red"
-      :command "npx"
-      :args ("mcp-node-red")
-      :env (:NODE_RED_URL
-            "http://127.0.0.1:1880"
-            :NODE_RED_TOKEN ,(lookup-password "api.nodered.com" "johnw" 80)))
+     ;; ("node-red"
+     ;;  :command "npx"
+     ;;  :args ("mcp-node-red")
+     ;;  :env (:NODE_RED_URL
+     ;;        "http://127.0.0.1:1880"
+     ;;        :NODE_RED_TOKEN ,(lookup-password "api.nodered.com" "johnw" 80)))
 
-     ("Ref"
-      :url ,(format "https://api.ref.tools/mcp?apiKey=%s"
-                    (lookup-password "api.ref.tools" "johnw" 80)))
+     ;; ("Ref"
+     ;;  :url ,(format "https://api.ref.tools/mcp?apiKey=%s"
+     ;;                (lookup-password "api.ref.tools" "johnw" 80)))
 
-     ("github" :command "github-mcp-server"
-      :args ("stdio")
-      :env (:GITHUB_PERSONAL_ACCESS_TOKEN
-            ,(lookup-password "api.github.com" "johnw" 80)))
+     ;; ("github" :command "github-mcp-server"
+     ;;  :args ("stdio")
+     ;;  :env (:GITHUB_PERSONAL_ACCESS_TOKEN
+     ;;        ,(lookup-password "api.github.com" "johnw" 80)))
 
-     ("org-mcp"
-      :command "uvx"
-      :args ("--isolated" "--from" "org-mcp" "org-mcp"
-             "--org-dir" ,org-directory)))))
+     ;; ("org-mcp"
+     ;;  :command "uvx"
+     ;;  :args ("--isolated" "--from" "org-mcp" "org-mcp"
+     ;;         "--org-dir" ,org-directory))
+     )))
 #+end_src
 
 *** mcp-convert
@@ -3815,7 +3816,7 @@ code using the `elisp_eval` tool.
   :demand t
   :bind ("C-x c c" . claude-code-ide-menu)
   :custom
-  (claude-code-ide-cli-extra-flags "--model opus --dangerously-skip-permissions")
+  (claude-code-ide-cli-extra-flags "--dangerously-skip-permissions")
   :config
   (claude-code-ide-emacs-tools-setup))
 #+end_src
@@ -8193,8 +8194,52 @@ locations. The =default-directory= variable is not changed in the process.
   (require 'consult-omni-sources)
   (require 'consult-omni-embark)
   (require 'consult-omni-brave-autosuggest)
-  (setq consult-omni-default-interactive-command
-        #'consult-omni-brave-autosuggest))
+  (setq consult-omni-sources--all-modules-list
+        (list 'consult-omni-gh
+              ;; 'consult-omni-apps
+              ;; 'consult-omni-bing
+              ;; 'consult-omni-brave-autosuggest
+              ;; 'consult-omni-brave
+              ;; 'consult-omni-browser-history
+              ;; 'consult-omni-buffer
+              ;; 'consult-omni-calc
+              ;; 'consult-omni-chatgpt
+              ;; 'consult-omni-consult-notes
+              ;; 'consult-omni-dict
+              ;; 'consult-omni-doi
+              ;; 'consult-omni-duckduckgo
+              ;; 'consult-omni-elfeed
+              ;; 'consult-omni-fd
+              ;; 'consult-omni-find
+              ;; 'consult-omni-git-grep
+              ;; 'consult-omni-google
+              ;; 'consult-omni-google-autosuggest
+              ;; 'consult-omni-gptel
+              ;; 'consult-omni-grep
+              ;; 'consult-omni-invidious
+              ;; 'consult-omni-line-multi
+              ;; 'consult-omni-locate
+              ;; 'consult-omni-man
+              ;; 'consult-omni-mdfind
+              ;; 'consult-omni-mu4e
+              ;; 'consult-omni-notes
+              ;; 'consult-omni-notmuch
+              ;; 'consult-omni-numi
+              ;; 'consult-omni-openalex
+              ;; 'consult-omni-org-agenda
+              ;; 'consult-omni-pubmed
+              ;; 'consult-omni-process
+              ;; 'consult-omni-projects
+              ;; 'consult-omni-ripgrep
+              ;; 'consult-omni-ripgrep-all
+              ;; 'consult-omni-scopus
+              ;; 'consult-omni-stackoverflow
+              ;; 'consult-omni-wikipedia
+              ;; 'consult-omni-youtube
+              ))
+  (setq consult-omni-default-interactive-command #'consult-omni-multi)
+  (setq consult-omni-multi-sources '("Google" "Wikipedia"))
+  (consult-omni-sources-load-modules))
 #+end_src
 
 *** COMMENT company
@@ -9953,7 +9998,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (spam-process-destination . "TrainSpam"))
      ("\\`IsGood\\'"
       (total-expire . t)
-      (expiry-wait . 'immediate)
+      (expiry-wait . immediate)
       (expiry-target . "INBOX")
       (spam-process-destination . "TrainSpam"))
      ("\\`TrainGood\\'")
@@ -10386,6 +10431,15 @@ is:
         gnus-summary-highlight))
 #+end_src
 
+**** gnus-limit-frequest
+
+#+begin_src emacs-lisp
+(use-package gnus-limit-frequent
+  :after (gnus-sum)
+  :bind (:map gnus-summary-mode-map
+              ("/ F" . gnus-summary-limit-to-frequent)))
+#+end_src
+
 **** rs-gnus-summary
 
 #+begin_src emacs-lisp
@@ -10435,18 +10489,6 @@ is:
          ("l" . gnus-recent-goto-previous)
          :map gnus-group-mode-map
          ("C-c L" . gnus-recent-goto-previous)))
-#+end_src
-
-*** gnus-limit-frequent
-
-#+begin_src emacs-lisp
-(use-package gnus-limit-frequent
-  :load-path "lisp"
-  :after gnus-sum
-  :bind (:map gnus-summary-mode-map
-              ("/ F" . gnus-summary-limit-to-frequent))
-  :custom
-  (gnus-limit-frequent-default-threshold 5))
 #+end_src
 
 *** nnmail
@@ -13723,7 +13765,9 @@ middle-click to temporarily hide it.
   (defun markdown-to-org-region (start end)
     "Convert region from markdown to org, replacing selection"
     (interactive "r")
-    (shell-command-on-region start end "pandoc -f markdown -t org" t t)))
+    (shell-command-on-region
+     start end
+     "pandoc -f markdown-auto_identifiers -t org" t t)))
 #+end_src
 
 **** ox-slack

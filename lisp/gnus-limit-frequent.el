@@ -77,7 +77,7 @@ ARTICLES should be a list of article numbers."
             (when subject
               (let ((normalized-subject (gnus-simplify-subject-re subject)))
                 (when (and normalized-subject (> (length normalized-subject) 0))
-                  (cl-incf (gethash normalized-subject subject-counts 0))))))))
+                  (cl-incf (gethash normalized-subject subject-counts 0)))))))))
 
     (cons author-counts subject-counts)))
 
@@ -121,8 +121,7 @@ This is a limiting command; you can restore the full summary with
    (list (if current-prefix-arg
              (prefix-numeric-value current-prefix-arg)
            (read-number "Show articles with > N occurrences: "
-                        gnus-limit-frequent-default-threshold)))
-   gnus-summary-mode)
+                        gnus-limit-frequent-default-threshold))))
 
   ;; Validate we're in a Gnus summary buffer
   (unless (derived-mode-p 'gnus-summary-mode)
@@ -176,7 +175,7 @@ This is a limiting command; you can restore the full summary with
                  (author-frequent-p
                   (cl-incf author-matches))
                  (subject-frequent-p
-                  (cl-incf subject-matches)))))))
+                  (cl-incf subject-matches))))))
 
           ;; Apply the limit
           (if matching-articles
@@ -188,10 +187,8 @@ This is a limiting command; you can restore the full summary with
                  author-matches subject-matches both-matches))
             (message "No articles found with author or subject appearing > %d times"
                      threshold)))
-
       (error
-       (message "Error analyzing articles: %s" (error-message-string err))
-       (signal (car err) (cdr err))))))
+       (message "Error analyzing articles: %s" (error-message-string err))))))
 
 (provide 'gnus-limit-frequent)
 ;;; gnus-limit-frequent.el ends here

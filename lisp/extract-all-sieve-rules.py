@@ -25,12 +25,12 @@ def parse_jmapquery(jmap_text):
 
     # Simple condition
     if "from" in data:
-        return f'(address "from" "{data["from"]}")'
+        return f'(address :contains "from" "{data["from"]}")'
     elif "listId" in data:
         list_id = data["listId"]
         if not list_id.startswith("<"):
             list_id = f"<{list_id}>"
-        return f'(header "list-id" "{list_id}")'
+        return f'(header :contains "list-id" "{list_id}")'
     elif "subject" in data:
         subj = data["subject"].strip('"')
         return f'(header :contains "subject" "{subj}")'
@@ -51,15 +51,15 @@ def parse_jmapquery(jmap_text):
                 nested_parsed = []
                 for nested_cond in cond["conditions"]:
                     if "from" in nested_cond:
-                        nested_parsed.append(f'(address "from" "{nested_cond["from"]}")')
+                        nested_parsed.append(f'(address :contains "from" "{nested_cond["from"]}")')
                     elif "to" in nested_cond:
-                        nested_parsed.append(f'(address "to" "{nested_cond["to"]}")')
+                        nested_parsed.append(f'(address :contains "to" "{nested_cond["to"]}")')
                     elif "cc" in nested_cond:
-                        nested_parsed.append(f'(address "cc" "{nested_cond["cc"]}")')
+                        nested_parsed.append(f'(address :contains "cc" "{nested_cond["cc"]}")')
                     elif "bcc" in nested_cond:
-                        nested_parsed.append(f'(address "bcc" "{nested_cond["bcc"]}")')
+                        nested_parsed.append(f'(address :contains "bcc" "{nested_cond["bcc"]}")')
                     elif "deliveredTo" in nested_cond:
-                        nested_parsed.append(f'(header "delivered-to" "{nested_cond["deliveredTo"]}")')
+                        nested_parsed.append(f'(header :contains "delivered-to" "{nested_cond["deliveredTo"]}")')
                     elif "subject" in nested_cond:
                         subj = nested_cond["subject"].strip('"')
                         nested_parsed.append(f'(header :contains "subject" "{subj}")')
@@ -74,7 +74,7 @@ def parse_jmapquery(jmap_text):
             else:
                 # Simple condition in array
                 if "from" in cond:
-                    parsed_conds.append(f'(address "from" "{cond["from"]}")')
+                    parsed_conds.append(f'(address :contains "from" "{cond["from"]}")')
                 elif "subject" in cond:
                     subj = cond["subject"].strip('"')
                     parsed_conds.append(f'(header :contains "subject" "{subj}")')
@@ -199,7 +199,7 @@ def generate_elisp(folder_rules):
         const_name = folder_var.lower().replace('_', '-')
 
         output.append(f';; {folder_name} - {len(rules)} rules\n')
-        output.append(f'(defconst {const_name}-sieve\n')
+        output.append(f'(setq {const_name}-sieve\n')
         output.append("  (list 'anyof\n")
         output.append("        (list\n")  # Wrap all tests in a list
 
@@ -212,7 +212,7 @@ def generate_elisp(folder_rules):
             output.append(f'         {quote_sexp(test)}\n')
 
         output.append('         ))\n')  # Close both the inner list and outer list
-        output.append(f'  "Sieve rules for INBOX.{folder_name} ({len(rules)} rules).")\n\n')
+        output.append(f'  )\n\n')
 
     # Add application function
     output.append(';;;###autoload\n')
