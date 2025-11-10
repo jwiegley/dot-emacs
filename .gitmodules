@@ -46,9 +46,6 @@
 [submodule "lisp/emacs-asana"]
 	path = lisp/emacs-asana
 	url = https://github.com/jwiegley/emacs-asana
-[submodule "lisp/org-mode"]
-	path = lisp/org-mode
-	url = git://git.savannah.gnu.org/emacs/org-mode.git
 [submodule "lisp/emacs-format-all-the-code"]
 	path = lisp/emacs-format-all-the-code
 	url = https://github.com/lassik/emacs-format-all-the-code
