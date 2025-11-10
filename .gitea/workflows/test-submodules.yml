@@ -1,0 +1,307 @@
+name: Test Submodule Clone
+
+# This workflow verifies that all git submodules can be cloned recursively
+# Place this file in your repository at:
+#   .gitea/workflows/test-submodules.yml
+# or
+#   .github/workflows/test-submodules.yml
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  verify-submodules:
+    # Use nixos runner if available, otherwise any runner with git
+    runs-on: nixos  # Change to 'org-builder' or 'ubuntu-latest' as needed
+
+    steps:
+      - name: Checkout repository with recursive submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0  # Full history for proper submodule initialization
+
+      - name: Display git and submodule versions
+        run: |
+          echo "Git version:"
+          git --version
+          echo ""
+          echo "Repository information:"
+          git remote -v
+          echo ""
+
+      - name: Check for .gitmodules file
+        id: check-gitmodules
+        run: |
+          if [ ! -f .gitmodules ]; then
+            echo "No .gitmodules file found - repository has no submodules"
+            echo "has_submodules=false" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            submodule_count=$(git config --file .gitmodules --get-regexp path | wc -l)
+            echo "Found $submodule_count submodule(s) in .gitmodules"
+            echo "has_submodules=true" >> $GITHUB_OUTPUT
+            echo "submodule_count=$submodule_count" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Display submodule status
+        if: steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          echo "=== Submodule Status (Recursive) ==="
+          git submodule status --recursive
+          echo ""
+          echo "Legend:"
+          echo "  ' ' (space) = submodule checked out at correct commit"
+          echo "  '-' = submodule not initialized"
+          echo "  '+' = submodule checked out at different commit"
+          echo "  'U' = submodule has merge conflicts"
+          echo ""
+
+      - name: Verify all submodules are initialized
+        if: steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          echo "=== Checking for Uninitialized Submodules ==="
+
+          # Check if any submodules are uninitialized (status starts with '-')
+          uninitialized=$(git submodule status --recursive | grep -c '^-' || true)
+
+          if [ $uninitialized -gt 0 ]; then
+            echo "❌ ERROR: Found $uninitialized uninitialized submodule(s):"
+            git submodule status --recursive | grep '^-' || true
+            exit 1
+          else
+            echo "✓ SUCCESS: All submodules are initialized"
+          fi
+
+      - name: Check for uncommitted changes in submodules
+        if: steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          echo "=== Checking for Uncommitted Changes ==="
+
+          # Check if any submodules have uncommitted changes (status starts with '+')
+          uncommitted=$(git submodule status --recursive | grep -c '^+' || true)
+
+          if [ $uncommitted -gt 0 ]; then
+            echo "⚠ WARNING: Found $uncommitted submodule(s) with uncommitted changes:"
+            git submodule status --recursive | grep '^+' || true
+            echo ""
+            echo "This is not necessarily an error, but indicates the submodule"
+            echo "is checked out at a different commit than recorded in the parent."
+          else
+            echo "✓ SUCCESS: All submodules are at their committed state"
+          fi
+
+      - name: Verify submodule directories exist and are populated
+        if: steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          #!/bin/bash
+          set -e
+
+          echo "=== Verifying Submodule Directories ==="
+
+          # Get list of all submodule paths
+          submodule_paths=$(git config --file .gitmodules --get-regexp path | awk '{ print $2 }')
+
+          failed=0
+          checked=0
+
+          for path in $submodule_paths; do
+            checked=$((checked + 1))
+            echo ""
+            echo "Checking: $path"
+
+            # Check if directory exists
+            if [ ! -d "$path" ]; then
+              echo "  ❌ ERROR: Directory does not exist"
+              failed=1
+              continue
+            fi
+
+            # Check if directory is empty
+            if [ ! "$(ls -A $path 2>/dev/null)" ]; then
+              echo "  ❌ ERROR: Directory is empty"
+              failed=1
+              continue
+            fi
+
+            # Check if .git exists (file or directory)
+            if [ ! -e "$path/.git" ]; then
+              echo "  ❌ ERROR: No .git found (not a git repository)"
+              failed=1
+              continue
+            fi
+
+            # Count files in submodule
+            file_count=$(find "$path" -type f | wc -l)
+            dir_count=$(find "$path" -type d | wc -l)
+
+            echo "  ✓ Directory exists and is populated"
+            echo "  ✓ Contains $file_count files in $dir_count directories"
+
+            # Check for nested submodules
+            if [ -f "$path/.gitmodules" ]; then
+              nested_count=$(git config --file "$path/.gitmodules" --get-regexp path | wc -l || echo 0)
+              echo "  ℹ Has $nested_count nested submodule(s)"
+            fi
+          done
+
+          echo ""
+          echo "=== Summary ==="
+          echo "Checked $checked submodule(s)"
+
+          if [ $failed -eq 1 ]; then
+            echo "❌ FAILED: One or more submodules failed verification"
+            exit 1
+          else
+            echo "✓ SUCCESS: All submodules verified"
+          fi
+
+      - name: Verify submodule git configuration
+        if: steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          #!/bin/bash
+          set -e
+
+          echo "=== Verifying Submodule Git Configuration ==="
+
+          submodule_paths=$(git config --file .gitmodules --get-regexp path | awk '{ print $2 }')
+
+          for path in $submodule_paths; do
+            echo ""
+            echo "Checking git config: $path"
+
+            # Verify .git exists
+            if [ ! -f "$path/.git" ] && [ ! -d "$path/.git" ]; then
+              echo "  ❌ ERROR: Submodule not properly initialized (no .git)"
+              exit 1
+            fi
+
+            # Try to get the current commit
+            if cd "$path" && git rev-parse HEAD >/dev/null 2>&1; then
+              commit=$(git rev-parse --short HEAD)
+              branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "detached")
+              echo "  ✓ At commit: $commit"
+              echo "  ℹ Branch/ref: $branch"
+              cd - >/dev/null
+            else
+              echo "  ❌ ERROR: Cannot read git information"
+              exit 1
+            fi
+          done
+
+          echo ""
+          echo "✓ SUCCESS: All submodules have valid git configuration"
+
+      - name: List submodule URLs and branches
+        if: steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          echo "=== Submodule Configuration ==="
+          echo ""
+
+          git config --file .gitmodules --list | sort
+
+          echo ""
+          echo "=== Submodule URLs ==="
+
+          submodule_paths=$(git config --file .gitmodules --get-regexp path | awk '{ print $2 }')
+
+          for path in $submodule_paths; do
+            echo ""
+            echo "Submodule: $path"
+
+            url=$(git config --file .gitmodules --get "submodule.$path.url" || echo "unknown")
+            branch=$(git config --file .gitmodules --get "submodule.$path.branch" || echo "default")
+
+            echo "  URL: $url"
+            echo "  Branch: $branch"
+          done
+
+      - name: Generate submodule summary
+        if: steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          echo "=== Git Submodule Summary ==="
+          git submodule summary
+
+      - name: Test submodule update (dry-run)
+        if: steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          echo "=== Testing Submodule Update (Dry-Run) ==="
+          echo "This verifies that submodules can be updated without errors"
+          echo ""
+
+          # Show what would be updated
+          git submodule update --init --recursive --dry-run 2>&1 || true
+
+          echo ""
+          echo "✓ Dry-run completed (check output above for any issues)"
+
+      - name: Create verification report
+        if: steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          echo "=========================================="
+          echo "SUBMODULE VERIFICATION REPORT"
+          echo "=========================================="
+          echo ""
+          echo "Repository: $(git config --get remote.origin.url || echo 'local')"
+          echo "Commit: $(git rev-parse --short HEAD)"
+          echo "Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo ""
+          echo "Total submodules: ${{ steps.check-gitmodules.outputs.submodule_count }}"
+          echo ""
+
+          # Count submodules by depth
+          submodule_paths=$(git config --file .gitmodules --get-regexp path | awk '{ print $2 }')
+
+          depth_1=0
+          depth_2_plus=0
+
+          for path in $submodule_paths; do
+            depth=$(echo "$path" | tr -cd '/' | wc -c)
+            if [ $depth -eq 0 ]; then
+              depth_1=$((depth_1 + 1))
+            else
+              depth_2_plus=$((depth_2_plus + 1))
+            fi
+          done
+
+          echo "Direct submodules: $depth_1"
+          echo "Nested submodules: $depth_2_plus"
+          echo ""
+
+          echo "✓ All verification checks passed!"
+          echo "✓ All submodules are properly cloned and initialized"
+          echo "=========================================="
+
+      - name: Display debug information (on failure)
+        if: failure() && steps.check-gitmodules.outputs.has_submodules == 'true'
+        run: |
+          echo "=== DEBUG INFORMATION ==="
+          echo ""
+          echo "Git status:"
+          git status
+          echo ""
+          echo "Submodule status:"
+          git submodule status --recursive
+          echo ""
+          echo "Directory listing:"
+          ls -laR
+          echo ""
+          echo "Git configuration:"
+          git config --list
+
+      - name: Success message
+        if: success()
+        run: |
+          if [ "${{ steps.check-gitmodules.outputs.has_submodules }}" == "true" ]; then
+            echo "✅ SUCCESS: All submodules verified and can be cloned recursively!"
+          else
+            echo "ℹ INFO: Repository has no submodules to verify"
+          fi

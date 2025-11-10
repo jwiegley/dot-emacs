@@ -11831,6 +11831,7 @@ being synced to Anki.
      (sql        . t)
      (dot        . t)
      (makefile   . t)
+     (sqlite     . t)
      (emamux     . t)
      ;; (jupyter    . t)
      ))                  ; must be last
