@@ -1,156 +1,156 @@
 [submodule "lisp/use-package"]
 	path = lisp/use-package
-	url = git@github.com:jwiegley/use-package.git
+	url = https://github.com/jwiegley/use-package.git
 [submodule "lisp/alert"]
 	path = lisp/alert
-	url = git@github.com:jwiegley/alert.git
+	url = https://github.com/jwiegley/alert.git
 [submodule "lisp/initsplit"]
 	path = lisp/initsplit
-	url = git@github.com:jwiegley/initsplit.git
+	url = https://github.com/jwiegley/initsplit.git
 [submodule "lisp/emacs-pl"]
 	path = lisp/emacs-pl
-	url = git@github.com:jwiegley/emacs-pl.git
+	url = https://github.com/jwiegley/emacs-pl.git
 [submodule "lisp/haskell-config"]
 	path = lisp/haskell-config
-	url = git@github.com:jwiegley/haskell-config.git
+	url = https://github.com/jwiegley/haskell-config.git
 [submodule "lisp/emacs-async"]
 	path = lisp/async
-	url = git@github.com:jwiegley/emacs-async.git
+	url = https://github.com/jwiegley/emacs-async.git
 [submodule "lisp/git-annex"]
 	path = lisp/git-annex
-	url = git@github.com:jwiegley/git-annex-el.git
+	url = https://github.com/jwiegley/git-annex-el.git
 [submodule "lisp/erc-yank"]
 	path = lisp/erc-yank
-	url = git@github.com:jwiegley/erc-yank.git
+	url = https://github.com/jwiegley/erc-yank.git
 [submodule "lisp/chess"]
 	path = lisp/chess
-	url = git@github.com:jwiegley/emacs-chess.git
+	url = https://github.com/jwiegley/emacs-chess.git
 [submodule "lisp/git-undo"]
 	path = lisp/git-undo
-	url = git@github.com:jwiegley/git-undo-el.git
+	url = https://github.com/jwiegley/git-undo-el.git
 [submodule "lisp/nix-update"]
 	path = lisp/nix-update
-	url = git@github.com:jwiegley/nix-update-el.git
+	url = https://github.com/jwiegley/nix-update-el.git
 [submodule "lisp/org-context"]
 	path = lisp/org-context
-	url = git@github.com:jwiegley/org-context.git
+	url = https://github.com/jwiegley/org-context.git
 [submodule "lisp/org-hash"]
 	path = lisp/org-hash
-	url = git@github.com:jwiegley/org-hash.git
+	url = https://github.com/jwiegley/org-hash.git
 [submodule "lisp/gptel"]
 	path = lisp/gptel
-	url = git@github.com:karthink/gptel
+	url = https://github.com/karthink/gptel
 [submodule "lisp/llm-tool-collection"]
 	path = lisp/llm-tool-collection
-	url = git@github.com:skissue/llm-tool-collection
+	url = https://github.com/skissue/llm-tool-collection
 [submodule "lisp/emacs-asana"]
 	path = lisp/emacs-asana
-	url = git@github.com:jwiegley/emacs-asana
+	url = https://github.com/jwiegley/emacs-asana
 [submodule "lisp/org-mode"]
 	path = lisp/org-mode
 	url = git://git.savannah.gnu.org/emacs/org-mode.git
 [submodule "lisp/emacs-format-all-the-code"]
 	path = lisp/emacs-format-all-the-code
-	url = git@github.com:lassik/emacs-format-all-the-code
+	url = https://github.com/lassik/emacs-format-all-the-code
 [submodule "lisp/mcp"]
 	path = lisp/mcp
-	url = git@github.com:lizqwerscott/mcp.el
+	url = https://github.com/lizqwerscott/mcp.el
 [submodule "lisp/vulpea"]
 	path = lisp/vulpea
-	url = git@github.com:jwiegley/vulpea.git
+	url = https://github.com/jwiegley/vulpea.git
 [submodule "lisp/gptel-prompts"]
 	path = lisp/gptel-prompts
-	url = git@github.com:jwiegley/gptel-prompts.git
+	url = https://github.com/jwiegley/gptel-prompts.git
 [submodule "lisp/elisp-mcp-dev"]
 	path = lisp/elisp-mcp-dev
-	url = git@github.com:laurynas-biveinis/elisp-mcp-dev.git
+	url = https://github.com/laurynas-biveinis/elisp-mcp-dev.git
 [submodule "lisp/gptel-eshell"]
 	path = lisp/gptel-eshell
-	url = git@github.com:karthink/gptel-eshell
+	url = https://github.com/karthink/gptel-eshell
 [submodule "lisp/DSel"]
 	path = lisp/DSel
-	url = git@github.com:cosmicz/DSel
+	url = https://github.com/cosmicz/DSel
 [submodule "lisp/emacs-copy-code"]
 	path = lisp/emacs-copy-code
-	url = git@github.com:jwiegley/emacs-copy-code
+	url = https://github.com/jwiegley/emacs-copy-code
 [submodule "lisp/emacs-loeb"]
 	path = lisp/emacs-loeb
-	url = git@github.com:jwiegley/emacs-loeb
+	url = https://github.com/jwiegley/emacs-loeb
 [submodule "lisp/emacs-z3"]
 	path = lisp/emacs-z3
-	url = git@github.com:jwiegley/emacs-z3
+	url = https://github.com/jwiegley/emacs-z3
 [submodule "lisp/gptel-rag"]
 	path = lisp/gptel-rag
-	url = git@github.com:jwiegley/gptel-rag
+	url = https://github.com/jwiegley/gptel-rag
 [submodule "lisp/hash-store"]
 	path = lisp/hash-store
-	url = git@github.com:jwiegley/hash-store
+	url = https://github.com/jwiegley/hash-store
 [submodule "lisp/ob-gptel"]
 	path = lisp/ob-gptel
-	url = git@github.com:jwiegley/ob-gptel
+	url = https://github.com/jwiegley/ob-gptel
 [submodule "lisp/org-agenda-overlay"]
 	path = lisp/org-agenda-overlay
-	url = git@github.com:jwiegley/org-agenda-overlay
+	url = https://github.com/jwiegley/org-agenda-overlay
 [submodule "lisp/org-devonthink"]
 	path = lisp/org-devonthink
-	url = git@github.com:jwiegley/org-devonthink
+	url = https://github.com/jwiegley/org-devonthink
 [submodule "lisp/stock-quote"]
 	path = lisp/stock-quote
-	url = git@github.com:jwiegley/stock-quote
+	url = https://github.com/jwiegley/stock-quote
 [submodule "lisp/vulpea-field"]
 	path = lisp/vulpea-field
-	url = git@github.com:jwiegley/vulpea-field
+	url = https://github.com/jwiegley/vulpea-field
 [submodule "lisp/emacs-lzw"]
 	path = lisp/emacs-lzw
-	url = git@github.com:jwiegley/emacs-lzw
+	url = https://github.com/jwiegley/emacs-lzw
 [submodule "lisp/gptel-litellm"]
 	path = lisp/gptel-litellm
-	url = git@github.com:jwiegley/gptel-litellm
+	url = https://github.com/jwiegley/gptel-litellm
 [submodule "lisp/machines"]
 	path = lisp/machines
-	url = git@github.com:jwiegley/machines
+	url = https://github.com/jwiegley/machines
 [submodule "lisp/gptel-emacs-tools"]
 	path = lisp/gptel-emacs-tools
-	url = git@github.com:jwiegley/gptel-emacs-tools
+	url = https://github.com/jwiegley/gptel-emacs-tools
 [submodule "lisp/org-autolist"]
 	path = lisp/org-autolist
-	url = git@github.com:jwiegley/org-autolist.git
+	url = https://github.com/jwiegley/org-autolist.git
 [submodule "lisp/drafts"]
 	path = lisp/drafts
-	url = git@github.com:jwiegley/drafts
+	url = https://github.com/jwiegley/drafts
 [submodule "lisp/org-drafts"]
 	path = lisp/org-drafts
-	url = git@github.com:jwiegley/org-drafts
+	url = https://github.com/jwiegley/org-drafts
 [submodule "lisp/ragmacs"]
 	path = lisp/ragmacs
-	url = git@github.com:positron-solutions/ragmacs.git
+	url = https://github.com/positron-solutions/ragmacs.git
 [submodule "lisp/macher"]
 	path = lisp/macher
-	url = git@github.com:kmontag/macher.git
+	url = https://github.com/kmontag/macher.git
 [submodule "lisp/claude-code-ide"]
 	path = lisp/claude-code-ide
-	url = git@github.com:manzaltu/claude-code-ide.el
+	url = https://github.com/manzaltu/claude-code-ide.el
 [submodule "lisp/mcp-server-lib"]
 	path = lisp/mcp-server-lib
-	url = git@github.com:laurynas-biveinis/mcp-server-lib.el
+	url = https://github.com/laurynas-biveinis/mcp-server-lib.el
 [submodule "lisp/wombag"]
 	path = lisp/wombag
-	url = git@github.com:karthink/wombag
+	url = https://github.com/karthink/wombag
 [submodule "lisp/acp"]
 	path = lisp/acp
-	url = git@github.com:xenodium/acp.el.git
+	url = https://github.com/xenodium/acp.el.git
 [submodule "lisp/agent-shell"]
 	path = lisp/agent-shell
-	url = git@github.com:xenodium/agent-shell.git
+	url = https://github.com/xenodium/agent-shell.git
 [submodule "lisp/shell-maker"]
 	path = lisp/shell-maker
-	url = git@github.com:xenodium/shell-maker.git
+	url = https://github.com/xenodium/shell-maker.git
 [submodule "lisp/gnus-harvest"]
 	path = lisp/gnus-harvest
-	url = git@github.com:jwiegley/gnus-harvest.git
+	url = https://github.com/jwiegley/gnus-harvest.git
 [submodule "lisp/regex-tool"]
 	path = lisp/regex-tool
-	url = git@github.com:jwiegley/regex-tool.git
+	url = https://github.com/jwiegley/regex-tool.git
 [submodule "lisp/springboard"]
 	path = lisp/springboard
-	url = git@github.com:jwiegley/springboard.git
+	url = https://github.com/jwiegley/springboard.git
