@@ -5335,7 +5335,7 @@ writes your namespaces for you.
   (olivetti-hide-mode-line t))
 #+end_src
 
-** COMMENT 1password
+** 1password
 
 [[https://github.com/justinbarclay/1password.el][1password.el]] integrates 1Password with auth-source. It enables lookups in your
 1Password vault:
@@ -5355,8 +5355,9 @@ to search only 1Password, include the type:
   :nix onepassword-el
   :custom
   (1password-results-formatter '1password-colour-formatter)
-  :config
-  (1password-enable-auth-source))
+  ;; :config
+  ;; (1password-enable-auth-source)
+  )
 #+end_src
 
 ** operate-on-number
