@@ -37,7 +37,6 @@
   "Insert the text /no_think at the end of the user prompt."
   (insert " /no_think"))
 
-
 ;;; MODELS ===============================================================
 
 ;;; OpenAI
