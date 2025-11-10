@@ -54,7 +54,7 @@
   :temperature 1.0)
 
 (gptel-make-preset 'gpt-oss-travel
-  :description "OpenAI's ChatGPT, Open Source"
+  :description "OpenAI's ChatGPT, Open Source (small)"
   :backend "llama-swap"
   :model 'gpt-oss-20b
   :temperature 1.0)
