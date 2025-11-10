@@ -3710,9 +3710,9 @@ request:
      ;;        ,(format "postgresql://johnw:%s@postgres.vulcan.lan:5432/SRP"
      ;;                 (lookup-password "postgres.vulcan.lan" "johnw" 5432))))
 
-     ("memory-keeper"
-      :command "npx"
-      :args ("mcp-memory-keeper"))
+     ;; ("memory-keeper"
+     ;;  :command "npx"
+     ;;  :args ("mcp-memory-keeper"))
 
      ;; ("node-red"
      ;;  :command "npx"
@@ -9978,30 +9978,13 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
      ;; other details are the same.
 
      ("\\`Spam\\'"
-      (total-expire . t)
-      (expiry-wait . immediate)
-      (expiry-target . "TrainSpam")
       (ham-process-destination . "TrainGood")
       (spam-process-destination . "TrainSpam"))
      ("\\`IsSpam\\'"
-      (total-expire . t)
-      (expiry-wait . 31)
-      (expiry-target . delete)
+      ;; (total-expire . t)
+      ;; (expiry-wait . 31)
+      ;; (expiry-target . delete)
       (ham-process-destination . "TrainGood"))
-     ("\\`TrainSpam\\'"
-      (spam-contents gnus-group-spam-classification-spam))
-
-     ("\\`Good\\'"
-      (gcc-self . t)
-      (gnus-use-scoring nil)
-      (ham-process-destination . "TrainGood")
-      (spam-process-destination . "TrainSpam"))
-     ("\\`IsGood\\'"
-      (total-expire . t)
-      (expiry-wait . immediate)
-      (expiry-target . "INBOX")
-      (spam-process-destination . "TrainSpam"))
-     ("\\`TrainGood\\'")
 
      ("\\`\\(mail/\\|INBOX\\)"
       (total-expire . t)
@@ -10045,7 +10028,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (list-identifier . "\\[Haskell-infrastructure\\]"))
 
      ))
-  (gnus-permanently-visible-groups "INBOX")
   (gnus-read-active-file nil)
   (gnus-read-newsrc-file nil)
   (gnus-refer-article-method
