@@ -64,9 +64,6 @@
 [submodule "lisp/elisp-mcp-dev"]
 	path = lisp/elisp-mcp-dev
 	url = https://github.com/laurynas-biveinis/elisp-mcp-dev.git
-[submodule "lisp/gptel-eshell"]
-	path = lisp/gptel-eshell
-	url = https://github.com/karthink/gptel-eshell
 [submodule "lisp/DSel"]
 	path = lisp/DSel
 	url = https://github.com/cosmicz/DSel
