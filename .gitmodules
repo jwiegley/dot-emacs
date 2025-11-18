@@ -148,3 +148,6 @@
 [submodule "lisp/springboard"]
 	path = lisp/springboard
 	url = https://github.com/jwiegley/springboard.git
+[submodule "lisp/ecard"]
+	path = lisp/ecard
+	url = https://github.com/jwiegley/ecard.git
