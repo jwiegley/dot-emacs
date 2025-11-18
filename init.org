@@ -2176,6 +2176,23 @@ To get the most out of Eat, you should also setup shell integration.
   :commands ebdb)
 #+end_src
 
+** ecard
+
+#+begin_src emacs-lisp
+(use-package ecard-display
+  :nix nil
+  :commands (ecard-display)
+  :custom
+  (ecard-display-contacts-page-size 2000)
+  (ecard-display-servers
+   (list (ecard-carddav-server-create
+          :url "https://radicale.vulcan.lan"
+          :auth (lambda ()
+                  (ecard-carddav-auth-basic-create
+                   :username "johnw"
+                   :password (lookup-password "radicale.vulcan.lan" "johnw" 443)))))))
+#+end_src
+
 ** edbi
 
 #+begin_src emacs-lisp
@@ -9956,41 +9973,22 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (gnus-generate-tree-function 'gnus-generate-horizontal-tree)
   (gnus-interactive-exit 'quiet)
   (gnus-large-newsgroup 4000)
-  (gnus-local-domain "newartisans.com")
-  (gnus-mailing-list-groups "\\`\\(list\\|wg21\\)\\.")
+  (gnus-mailing-list-groups "\\`\\(list\\)\\.")
   (gnus-mark-unpicked-articles-as-read t)
   (gnus-message-archive-group "Sent")
   (gnus-message-replysign t)
   (gnus-novice-user nil)
   (gnus-parameters
    '(
-     ;; Emacs     spam: Spam[unread] -> Spam[read] -> IsSpam
-     ;; Emacs     good: Spam[unread] -> TrainGood -> IsGood
-     ;; Emacs     spam: INBOX -> TrainSpam -> IsSpam
-     ;; Fastmail  spam: Spam[unread] -> Spam[read] -> IsSpam
-     ;; Fastmail  good: Spam[unread] -> TrainGood -> IsGood
-     ;; SpamSieve good: Spam[unread] -> INBOX
-     ;; Fastmail  spam: INBOX -> TrainSpam -> IsSpam
-     ;; SpamSieve spam: INBOX -> IsSpam
-     ;;
-     ;; The only reason to have both Spam and TrainSpam, is that the Remote
-     ;; Training script used with SpamSieve only consider read messages in
-     ;; Spam, but both read and unread messages in TrainSpam. Otherwise, all
-     ;; other details are the same.
-
      ("\\`Spam\\'"
+      (spam-contents gnus-group-spam-classification-spam)
       (ham-process-destination . "TrainGood")
       (spam-process-destination . "TrainSpam"))
-     ("\\`IsSpam\\'"
-      ;; (total-expire . t)
-      ;; (expiry-wait . 31)
-      ;; (expiry-target . delete)
-      (ham-process-destination . "TrainGood"))
 
      ("\\`\\(mail/\\|INBOX\\)"
-      (total-expire . t)
-      (expiry-wait . 365)
-      (expiry-target . "Archive")
+      ;; (total-expire . t)
+      ;; (expiry-wait . 365)
+      ;; (expiry-target . "Archive")
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam"))
@@ -10001,9 +9999,10 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (spam-process-destination . "TrainSpam"))
 
      ("list/\\(github\\|misc\\|haskell\\|emacs\\|bahai/tarjuman\\)$"
-      (total-expire . t)
-      (expiry-wait . 365)
-      (expiry-target . delete))
+      ;; (total-expire . t)
+      ;; (expiry-wait . 365)
+      ;; (expiry-target . delete)
+      )
 
      ("list/ledger/devel"
       (to-list . "ledger-cli@googlegroups.com"))
@@ -10034,7 +10033,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (gnus-refer-article-method
    '(current
      (nnregistry)
-     ;; (nnir "nnimap:imap.fastmail.com")
+     ;; (nnir "nnimap:imap.vulcan.lan")
      ;; (nntp "LocalNews"
      ;;       (nntp-address "localhost")
      ;;       (nntp-port-number 9119))
@@ -10044,8 +10043,8 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
      ;;       (nntp-address "news.eternal-september.org")
      ;;       (nntp-authinfo-user "jwiegley"))
      ))
-  (gnus-registry-max-entries 9000)
-  (gnus-registry-ignored-groups '(("nntp" t) ("^INBOX" t)))
+  (gnus-registry-max-entries 19000)
+  (gnus-registry-ignored-groups '(("Spam" t) ("IsSpam" t) ("Archive" t)))
   (gnus-save-killed-list nil)
   (gnus-save-newsrc-file nil)
   (gnus-signature-separator '("^-- $" "^-- *$" "^_____+$"))
@@ -10130,6 +10129,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
         '(nnimap "imap.vulcan.lan"
                  (nnimap-user "johnw")
                  (nnimap-inbox "INBOX")
+                 (nnimap-expunge immediately)
                  (nnimap-server-port "imaps")
                  (nnimap-stream ssl))
         ;; '(nnimap "imap.fastmail.com"
@@ -10148,6 +10148,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                   (nnimap-address "imap.vulcan.lan")
                   (nnimap-user "assembly")
                   (nnimap-inbox "INBOX")
+                  (nnimap-expunge immediately)
                   (nnimap-server-port "imaps")
                   (nnimap-stream ssl))))
   :config
@@ -10191,13 +10192,12 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :custom
   (my-gnus-thread-sort-functions
    '(gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-total-score))
-  (my-gnus-score-groups-regex
-   "\\`\\(list\\.\\|\\(Is\\)?Spam\\)")
+  (my-gnus-score-groups-regex "\\`\\(list/\\)")
   :preface
   (defun gnus-group-get-all-new-news (&optional arg)
     (interactive "P")
-    (gnus-group-get-new-news 5)
-    (gnus-group-list-groups (or arg 4))
+    (gnus-group-get-new-news 6)
+    (gnus-group-list-groups (or arg 6))
     (my-gnus-score-groups)
     (gnus-group-list-groups (or arg 3))
     (gnus-group-save-newsrc t)))
@@ -10224,13 +10224,15 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (gnus-sum-thread-tree-single-leaf "└—— ")
   (gnus-sum-thread-tree-indent " ")
   (gnus-sum-thread-tree-single-indent nil)
-  (gnus-summary-expunge-below -100)
+  ;; (gnus-summary-expunge-below -100)
+  (gnus-summary-expunge-below nil)
   (gnus-summary-line-format "%«%3t %U%R %uS %ur %»%(%*%-14,14f   %«%B%»%)\n")
   (gnus-summary-mark-below -100)
   (gnus-summary-pick-line-format "%U%R %uS %ur %(%*%-14,14f  %B%s%)\n")
   (gnus-summary-prepared-hook '(gnus-summary-hide-all-threads))
   (gnus-summary-save-parts-default-mime ".*")
-  (gnus-thread-expunge-below -1000)
+  ;; (gnus-thread-expunge-below -1000)
+  (gnus-thread-expunge-below nil)
   (gnus-thread-hide-subtree t)
   (gnus-thread-ignore-subject nil)
   (gnus-thread-score-function 'max)
@@ -10903,7 +10905,58 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
   (gnus-sieve-update-shell-command
    (format "echo put %%f | sieveshell --no-tls-verify --passwd %s %%s"
            (lookup-password "imap.vulcan.lan" "johnw" 4190)))
-  (gnus-sieve-crosspost nil))
+  (gnus-sieve-crosspost nil)
+  (gnus-sieve-region-end
+   "\12\12# ... (other specific rules)\12if true {\12  fileinto \"INBOX\";\12  stop;\12}\12## End Gnus Sieve Script")
+  :config
+  (defun gnus-sieve-script (&optional method crosspost)
+    "Generate a Sieve script based on groups with select method METHOD
+\(or all groups if nil).  Only groups having a `sieve' parameter are
+considered.  This parameter should contain an elisp test
+\(see the documentation of gnus-sieve-test for details).  For each
+such group, a Sieve IF control structure is generated, having the
+test as the condition and { fileinto \"group.name\"; } as the body.
+
+If CROSSPOST is nil, each conditional body contains a \"stop\" command
+which stops execution after a match is found.
+
+For example: If the INBOX.list.sieve group has the
+
+  (sieve address \"sender\" \"sieve-admin@extundo.com\")
+
+group parameter, (gnus-sieve-script) results in:
+
+  if address \"sender\" \"sieve-admin@extundo.com\" {
+          fileinto \"INBOX.list.sieve\";
+  }
+
+This is returned as a string."
+    (let* ((newsrc (cdr gnus-newsrc-alist))
+	   script)
+      (dolist (info (sort newsrc
+                          :key #'gnus-info-group
+                          :reverse t
+                          :lessp (lambda (x y)
+                                   (cond ((string= y "list/misc") t)
+                                         ((string= x "list/misc") nil)
+                                         ((string= y "list/vulcan") t)
+                                         ((string= x "list/vulcan") nil)
+                                         ((string= y "list/notifications") t)
+                                         ((string= x "list/notifications") nil)
+                                         (t (string-lessp x y))))))
+        (when (or (not method)
+		  (gnus-server-equal method (gnus-info-method info)))
+	  (let* ((group (gnus-info-group info))
+	         (spec (gnus-group-find-parameter group 'sieve t)))
+	    (when spec
+	      (push (concat "if " (gnus-sieve-test spec) " {\n"
+			    "\tfileinto \"" (gnus-group-real-name group) "\";\n"
+			    (if crosspost
+			        ""
+			      "\tstop;\n")
+			    "}")
+		    script)))))
+      (mapconcat #'identity script "\n"))))
 #+end_src
 
 *** gnus-agent
@@ -12134,9 +12187,28 @@ A group FOO is composed of contacts with the tag FOO."
     '(add-hook 'org-noter-parse-document-property-hook
                #'org-devonthink-uuid-to-path))
 
-    ;; Replace Gnus link type with Message
+  (defun org-my-message-open (message-id)
+    (require 'gnus-util)
+    (if (get-buffer "*Group*")
+        (gnus-goto-article
+         (gnus-string-remove-all-properties (substring message-id 2)))
+      (error "Gnus is not running")))
+
+  (defun my-gnus-lookup-article (message-id)
+    (interactive "sMessage-ID: ")
+    (gnus-group-make-nnir-group
+     nil
+     `((search-group-spec
+        ("nnimap:imap.vulcan.lan"))
+       (search-query-spec
+        (query . ,(format "message-id:%s" message-id))
+        (raw)))))
+
+  ;; Replace Gnus link type with Message
   (org-link-set-parameters "message"
-			   :follow #'org-devonthink-message-open
+			   ;; :follow #'org-devonthink-message-open
+			   :follow #'org-my-message-open
+			   ;; :follow #'my-gnus-lookup-article
 			   :store #'org-gnus-store-link))
 #+end_src
 

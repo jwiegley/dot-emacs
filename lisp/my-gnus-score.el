@@ -173,9 +173,11 @@
 
 (my-gnus-score-defcustom gnus-use-adaptive-scoring '(line))
 (my-gnus-score-defcustom gnus-score-interactive-default-score 10)
-(my-gnus-score-defcustom gnus-summary-expunge-below -10)
+;; (my-gnus-score-defcustom gnus-summary-expunge-below -100)
+(my-gnus-score-defcustom gnus-summary-expunge-below nil)
 (my-gnus-score-defcustom gnus-summary-mark-below -10)
-(my-gnus-score-defcustom gnus-thread-expunge-below -100)
+;; (my-gnus-score-defcustom gnus-thread-expunge-below -1000)
+(my-gnus-score-defcustom gnus-thread-expunge-below nil)
 (my-gnus-score-defcustom gnus-score-thread-simplify nil)
 (my-gnus-score-defcustom gnus-summary-default-high-score 50)
 (my-gnus-score-defcustom gnus-decay-scores "\\.ADAPT\\'")
@@ -199,7 +201,8 @@
                       gnus-level-subscribed)))
         (let* ((group (gnus-info-group info))
                (unread (gnus-group-unread group)))
-          (when (and (numberp unread) (> unread 0)
+          (when (and (numberp unread)
+                     (> unread 0)
                      (my-gnus-score-group-p group))
             (ignore-errors
               (gnus-topic-get-new-news-this-topic)

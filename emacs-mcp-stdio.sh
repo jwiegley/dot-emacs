@@ -22,8 +22,8 @@ set -eu -o pipefail
 INIT_FUNCTION=""
 STOP_FUNCTION=""
 SOCKET=""
+SERVER_ID=""
 EMACS_MCP_DEBUG_LOG=${EMACS_MCP_DEBUG_LOG:-""}
-EMACSCLIENT="$EDITOR"
 
 # Debug logging setup
 if [ -n "$EMACS_MCP_DEBUG_LOG" ]; then
@@ -39,7 +39,7 @@ if [ -n "$EMACS_MCP_DEBUG_LOG" ]; then
 		local message="$2"
 		local timestamp
 		timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-		echo "[$timestamp] MCP-${direction}: ${message}" >>"$EMACS_MCP_DEBUG_LOG"
+		echo "[$timestamp] [$$] MCP-${direction}: ${message}" >>"$EMACS_MCP_DEBUG_LOG"
 	}
 
 	mcp_debug_log "INFO" "Debug logging enabled"
@@ -65,9 +65,13 @@ while [ $# -gt 0 ]; do
 		SOCKET="${1#--socket=}"
 		shift
 		;;
+	--server-id=*)
+		SERVER_ID="${1#--server-id=}"
+		shift
+		;;
 	*)
 		echo "Unknown option: $1" >&2
-		echo "Usage: $0 [--init-function=name] [--stop-function=name] [--socket=path]" >&2
+		echo "Usage: $0 [--init-function=name] [--stop-function=name] [--socket=path] [--server-id=id]" >&2
 		exit 1
 		;;
 	esac
@@ -84,24 +88,47 @@ fi
 # Log init function info if provided
 if [ -n "$INIT_FUNCTION" ]; then
 	mcp_debug_log "INFO" "Using init function: $INIT_FUNCTION"
+
+	# Derive server-id from init function if not explicitly provided
+	# This is a hack for backwards compatibility and will be removed later
+	if [ -z "$SERVER_ID" ]; then
+		# Extract server-id by removing -mcp-enable suffix
+		SERVER_ID="${INIT_FUNCTION%-mcp-enable}"
+		mcp_debug_log "INFO" "Derived server-id from init function: $SERVER_ID"
+	fi
 else
 	mcp_debug_log "INFO" "No init function specified"
+fi
+
+# Log server-id
+if [ -n "$SERVER_ID" ]; then
+	mcp_debug_log "INFO" "Using server-id: $SERVER_ID"
+else
+	# Default to "default" if not specified
+	SERVER_ID="default"
+	mcp_debug_log "INFO" "Using default server-id: $SERVER_ID"
 fi
 
 # Initialize MCP if init function is provided
 if [ -n "$INIT_FUNCTION" ]; then
 	# shellcheck disable=SC2124
-	readonly INIT_CMD="${EMACSCLIENT} ${SOCKET_OPTIONS[@]+"${SOCKET_OPTIONS[@]}"} -e \"($INIT_FUNCTION)\""
+	readonly INIT_CMD="$EDITOR ${SOCKET_OPTIONS[@]+"${SOCKET_OPTIONS[@]}"} -e \"($INIT_FUNCTION)\""
 
 	mcp_debug_log "INIT-CALL" "$INIT_CMD"
 
 	# Execute the command and capture output and return code
-	INIT_OUTPUT=$(eval "$INIT_CMD" 2>&1)
+	init_stderr_file="/tmp/mcp-init-stderr.$$-$(date +%s%N)"
+	mcp_debug_log "INIT-STDERR-FILE" "$init_stderr_file"
+	INIT_OUTPUT=$(eval "$INIT_CMD" 2>"$init_stderr_file")
 	INIT_RC=$?
 
 	# Log results
 	mcp_debug_log "INIT-RC" "$INIT_RC"
 	mcp_debug_log "INIT-OUTPUT" "$INIT_OUTPUT"
+	if [ -s "$init_stderr_file" ]; then
+		mcp_debug_log "INIT-STDERR" "$(cat "$init_stderr_file")"
+	fi
+	rm -f "$init_stderr_file"
 else
 	mcp_debug_log "INFO" "Skipping init function call (none provided)"
 fi
@@ -120,11 +147,11 @@ while read -r line; do
 	# Process JSON-RPC request and return the result with proper UTF-8 encoding
 	# Encode the response to base64 to avoid any character encoding issues
 	# Handle nil responses from notifications by converting to empty string
-	elisp_expr="(base64-encode-string (encode-coding-string (or (mcp-server-lib-process-jsonrpc (base64-decode-string \"$base64_input\")) \"\") 'utf-8 t) t)"
+	elisp_expr="(base64-encode-string (encode-coding-string (or (mcp-server-lib-process-jsonrpc (base64-decode-string \"$base64_input\") \"$SERVER_ID\") \"\") 'utf-8 t) t)"
 
 	# Get response from emacsclient - capture stderr for debugging
 	stderr_file="/tmp/mcp-stderr.$$-$(date +%s%N)"
-	base64_response=$(${EMACSCLIENT} "${SOCKET_OPTIONS[@]+"${SOCKET_OPTIONS[@]}"}" -e "$elisp_expr" 2>"$stderr_file")
+	base64_response=$($EDITOR "${SOCKET_OPTIONS[@]+"${SOCKET_OPTIONS[@]}"}" -e "$elisp_expr" 2>"$stderr_file")
 
 	# Check for stderr output
 	if [ -s "$stderr_file" ]; then
@@ -159,7 +186,7 @@ if [ -n "$STOP_FUNCTION" ]; then
 	mcp_debug_log "INFO" "Stopping MCP with function: $STOP_FUNCTION"
 
 	# shellcheck disable=SC2124
-	readonly STOP_CMD="${EMACSCLIENT} ${SOCKET_OPTIONS[@]+"${SOCKET_OPTIONS[@]}"} -e \"($STOP_FUNCTION)\""
+	readonly STOP_CMD="$EDITOR ${SOCKET_OPTIONS[@]+"${SOCKET_OPTIONS[@]}"} -e \"($STOP_FUNCTION)\""
 
 	mcp_debug_log "STOP-CALL" "$STOP_CMD"
 

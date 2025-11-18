@@ -90,6 +90,7 @@ groups:
       - DeepSeek-R1-Distill-Qwen-32B
       - DeepSeek-V3.1-Terminus
       - Kimi-K2-Instruct
+      - Kimi-K2-Thinking
       - Llama-4-Maverick-17B-128E-Instruct
       - Llama-4-Scout-17B-16E-Instruct
       - MiniMax-M2
@@ -427,6 +428,23 @@ general_settings:
                    "--seed" "3407"))))
 
    (make-hf-model
+    :name 'Kimi-K2-Thinking
+    :context-length 131072
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.8
+    :top-k 20
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :context-length 32768
+      :max-output-tokens 32768
+      :model-path "~/Models/unsloth_Kimi-K2-Thinking-GGUF"
+      :arguments '("--cache-type-k" "q4_1"
+                   "--seed" "3407"))))
+
+   (make-hf-model
     :name 'Llama-4-Scout-17B-16E-Instruct
     :context-length 10485760
     :supports-function-calling t
@@ -661,6 +679,19 @@ general_settings:
                    "--rope-scale" "4"
                    "--yarn-orig-ctx" "262144"
                    "--chat-template-file" "/Users/johnw/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/chat_template.jinja"))))
+
+   (make-hf-model
+    :name 'VibeThinker-1.5B
+    :context-length 262144
+    :temperature 0.6
+    :top-p 0.95
+    :top-k -1
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 40960
+      :model-path "~/Models/mradermacher_VibeThinker-1.5B-GGUF")))
 
    (make-hf-model
     :name 'gemma-3-1b-it

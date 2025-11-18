@@ -36,6 +36,11 @@
   (interactive)
   (gptel-with-preset 'shorten (gptel--suffix-rewrite)))
 
+(defun gptel-ext-breakdown ()
+  "Given an Org-mode task, break it down into other tasks."
+  (interactive)
+  (gptel-with-preset 'breakdown (gptel--suffix-rewrite)))
+
 (defun gptel-ext-proofread ()
   "Given selected text, proofread it."
   (interactive)

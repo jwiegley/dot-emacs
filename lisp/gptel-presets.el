@@ -213,22 +213,22 @@
   :confirm-tool-calls nil               ; 'auto
   :use-context 'user
   :pre (lambda () (gptel-mcp-connect
-              '("memory-keeper"
+              '(;; "memory-keeper"
                 ;; "Ref"
                 ;; "context7"
                 ;; "fetch"
                 ;; "github"
-                ;; "perplexity"
+                "perplexity"
                 "sequential-thinking"
                 ;; "time"
                 )
               'sync))
-  :tools '(:append ("mcp-memory-keeper"
+  :tools '(:append (;; "mcp-memory-keeper"
                     ;; "mcp-Ref"
                     ;; "mcp-context7"
                     ;; "mcp-fetch"
                     ;; "mcp-github"
-                    ;; "mcp-perplexity"
+                    "mcp-perplexity"
                     "mcp-sequential-thinking"
                     ;; "mcp-time"
                     ))
@@ -400,6 +400,12 @@
 (gptel-make-preset 'shorten
   :description "Shorten Org-mode titles"
   :rewrite-directive 'shorten
+  :rewrite-message "Shorten it as described."
+  :parents 'rewrite)
+
+(gptel-make-preset 'breakdown
+  :description "Break down complex Org-mode task into smaller subtasks"
+  :rewrite-directive 'breakdown
   :rewrite-message "Shorten it as described."
   :parents 'rewrite)
 
