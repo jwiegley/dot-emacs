@@ -2180,17 +2180,21 @@ To get the most out of Eat, you should also setup shell integration.
 
 #+begin_src emacs-lisp
 (use-package ecard-display
+  :load-path "lisp/ecard"
   :nix nil
   :commands (ecard-display)
   :custom
-  (ecard-display-contacts-page-size 2000)
+  (ecard-display-contacts-page-size 3000)
   (ecard-display-servers
    (list (ecard-carddav-server-create
           :url "https://radicale.vulcan.lan"
-          :auth (lambda ()
-                  (ecard-carddav-auth-basic-create
-                   :username "johnw"
-                   :password (lookup-password "radicale.vulcan.lan" "johnw" 443)))))))
+          :version "3.0"
+          :auth
+          (lambda ()
+            (ecard-carddav-auth-basic-create
+             :username "johnw"
+             :password (lookup-password "radicale.vulcan.lan"
+                                        "johnw" 443)))))))
 #+end_src
 
 ** edbi
@@ -3470,6 +3474,7 @@ up before you execute another command."
   (:map
    gptel-cmd-map
    ("s" . gptel-ext-shorten)
+   ("B" . gptel-ext-breakdown)
    ("p" . gptel-ext-proofread)
    ("D" . gptel-ext-docstring)
    ("t" . gptel-ext-title)
