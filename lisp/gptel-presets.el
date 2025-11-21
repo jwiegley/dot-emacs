@@ -257,13 +257,13 @@
   :tools nil
   :parents (or
             'sonnet
+            'gpt-oss
             'sonnet-max
             'haiku
             'haiku-max
             'haiku-direct
             'gpt
             'minimax-m2
-            'gpt-oss
             'gpt-oss-travel
             'qwen
             ))

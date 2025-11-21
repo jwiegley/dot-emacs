@@ -1,4 +1,4 @@
-Generate a git commit summary line from the provided diff.
+Generate a git commit summary line from the provided diff, along with accompanying descriptions of the changes being made.
 
 ## Git Commit Message Best Practices
 

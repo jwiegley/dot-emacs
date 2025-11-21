@@ -84,37 +84,17 @@ Format subtasks according to these rules:
 
 2. **TODO State**: All subtasks start with `TODO` status
 
-3. **Properties Drawer**:
-   - Each subtask gets its own `:PROPERTIES:` drawer
-   - Include `:CREATED:` timestamp in format `[YYYY-MM-DD DDD HH:MM]` (use the current date/time when creating)
-   - Include `:ID:` with a unique UUID (generate a new UUID for each subtask)
-   - DO NOT copy `:LAST_REVIEW:`, `:NEXT_REVIEW:`, or `:REVIEWS:` from parent
-   - Include `:URL:` only if the subtask has a different relevant URL than the parent
-
-4. **Tag Inheritance**:
-   - Relevant tags from parent can be inherited or omitted (Org-mode handles inheritance automatically)
-   - Add new tags only if the subtask has specific characteristics
-
-5. **Spacing**: Use standard Org-mode spacing (one blank line between tasks)
+3. **Spacing**: Use standard Org-mode spacing (one blank line between tasks)
 
 ## Output Format
 
-Provide your response by repeating the input task, and then adding subtasks
-under it at the next level:
+Provide your response by repeating the input task, and then adding subtasks under it at the next level:
 
 ### Subtasks (Org-Mode)
 
 ```org
 **** TODO [First subtask with clear action and outcome]
-:PROPERTIES:
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       A1B2C3D4-E5F6-4789-A0B1-C2D3E4F5G6H7
-:END:
 **** TODO [Second subtask...]
-:PROPERTIES:
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       B2C3D4E5-F6G7-4890-B1C2-D3E4F5G6H7I8
-:END:
 [Continue with all subtasks in logical order...]
 ```
 
@@ -147,120 +127,29 @@ under it at the next level:
 :URL:      https://github.com/emacs-elsa/Elsa
 :END:
 **** TODO Research Elsa's capabilities and architecture
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       E1A2B3C4-D5E6-4789-A0B1-C2D3E4F5G6H7
-:URL:      https://github.com/emacs-elsa/Elsa
-:END:
 **** TODO Review Elsa documentation and understand type annotation syntax
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       E2B3C4D5-E6F7-4890-B1C2-D3E4F5G6H7I8
-:URL:      https://github.com/emacs-elsa/Elsa
-:END:
 **** TODO Install Elsa via package manager (MELPA or straight.el)
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       E3C4D5E6-F7G8-4901-C2D3-E4F5G6H7I8J9
-:END:
 **** TODO Verify Elsa installation and check version
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       E4D5E6F7-G8H9-4012-D3E4-F5G6H7I8J9K0
-:END:
 **** TODO Identify all Emacs Lisp files in the project for analysis
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       E5E6F7G8-H9I0-4123-E4F5-G6H7I8J9K0L1
-:END:
 **** TODO Run Elsa on sample file to understand default output format
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       E6F7G8H9-I0J1-4234-F5G6-H7I8J9K0L1M2
-:END:
 **** TODO Configure Elsa rules and settings for project-specific conventions
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       E7G8H9I0-J1K2-4345-G6H7-I8J9K0L1M2N3
-:END:
 **** TODO Integrate Elsa with flycheck for real-time analysis in Emacs
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       E8H9I0J1-K2L3-4456-H7I8-J9K0L1M2N3O4
-:END:
 **** TODO Add type annotations to critical functions for better analysis
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       E9I0J1K2-L3M4-4567-I8J9-K0L1M2N3O4P5
-:END:
 **** TODO Create Elsa configuration file for the project (.elsa file)
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       EA10J1K2-L3M4-4678-J9K0-L1M2N3O4P5Q6
-:END:
 **** TODO Set up CI/CD integration for automated Elsa checks
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       EB11K2L3-M4N5-4789-K0L1-M2N3O4P5Q6R7
-:END:
 **** TODO Test Elsa analysis on the entire codebase and review findings
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       EC12L3M4-N5O6-4890-L1M2-N3O4P5Q6R7S8
-:END:
 **** TODO Create documentation for team on using Elsa and interpreting results
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       ED13M4N5-O6P7-4901-M2N3-O4P5Q6R7S8T9
-:END:
 **** TODO Document Elsa setup steps and configuration decisions
-:PROPERTIES:
-:LAST_REVIEW: [2025-09-27 Sat]
-:NEXT_REVIEW: [2026-09-27 Sun]
-:REVIEWS:  3
-:CREATED:  [2025-01-17 Fri 14:30]
-:ID:       EE14N5O6-P7Q8-4012-N3O4-P5Q6R7S8T9U0
-:END:
 ```
+
+## Some rules you must follow
+
+- The number of stars used for the original task SHOULD NOT BE CHANGED. If it uses 2 stars, then the children have 3 stars; if it uses 1 star, the children have 2 stars; etc.
+- The title CANNOT be longer than 67 characters. If it is longer by even one character, a kitten will be killed somewhere in the world. You cannot allow any kitten to be killed.
+- Remove all filler words and definite and indefinite articles, like “the”, “a”, “an”, etc.
+- Avoid using any abbreviations (such as "w/" instead of "with", or "&" - instead of "and")
+- DO NOT REMOVE METADATA OR IDs
+- Kept all titles under 67 characters (longest is 66 chars in last task)
 
 ## Special Cases
 

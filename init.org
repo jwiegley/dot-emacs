@@ -11243,7 +11243,9 @@ This is returned as a string."
   (org-use-sub-superscripts nil)
   (org-use-tag-inheritance
    '("Noon" "Day" "Eve" "Night" "Home" "Call" "Errand"
-     "assembly"))
+     "assembly"
+     "council"
+     "positron"))
   (org-use-property-inheritance '("OVERLAY"))
   (org-yank-adjusted-subtrees t)
   :custom-face
@@ -11462,7 +11464,9 @@ This is returned as a string."
      ("home"          face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ("assembly"      face (:background ,palette-teal-darker    :foreground "#eeeeee"))
      ("tech"          face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
+     ;; work
      ("quantumtrades" face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
+     ("positron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ))
   (org-agenda-overlay-by-olp
    `(;; Headings in todo.org

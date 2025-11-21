@@ -30,6 +30,7 @@
 (require 'cl-lib)
 (require 'solar)
 (require 'gptel)
+(require 'org-ext)
 
 (defun gptel-ext-shorten ()
   "Given a selected set of Org-mode headings, shorten them."
@@ -39,7 +40,11 @@
 (defun gptel-ext-breakdown ()
   "Given an Org-mode task, break it down into other tasks."
   (interactive)
-  (gptel-with-preset 'breakdown (gptel--suffix-rewrite)))
+  (save-excursion
+    (org-ext-with-entry-narrowed
+     (set-mark (point-min))
+     (goto-char (point-max))
+     (gptel-with-preset 'breakdown (gptel--suffix-rewrite)))))
 
 (defun gptel-ext-proofread ()
   "Given selected text, proofread it."

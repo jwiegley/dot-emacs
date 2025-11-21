@@ -238,48 +238,57 @@ When ALL is non-nil, forces full refresh of all agenda buffers."
       (ignore-errors
         (window-resize wind (- 100 (window-width wind)) t)))))
 
+(defun org-ext-entry-span ()
+  "Return a cons cell (START . END) that spans the current Org entry.
+START is the point at the beginning of the heading, obtained by
+`org-back-to-heading' inside a `save-excursion'. END is the position of
+the entry’s end, as returned by `org-entry-end-position'."
+  (cons (save-excursion (org-back-to-heading-or-point-min))
+        (org-entry-end-position)))
+
+(defmacro org-ext-with-entry-narrowed (&rest body)
+  "Execute BODY with the buffer narrowed to the current Org entry.
+The macro obtains the entry’s start and end positions via
+`org-ext-entry-span', temporarily restricts the buffer using
+`save-restriction' and `narrow-to-region', evaluates BODY, and then
+restores the original restriction."
+  `(cl-destructuring-bind (beg . end)
+       (org-ext-entry-span)
+     (save-restriction
+       (narrow-to-region beg end)
+       ,@body)))
+
 (defun org-ext-entire-properties-block ()
   "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
-  (save-excursion
-    (org-back-to-heading)
-    (let* ((entry-end (save-excursion
-                        (outline-next-heading)
-                        (point)))
-           (beg (and (search-forward ":PROPERTIES:" entry-end t)
-                     (match-beginning 0)))
-           (end (and (re-search-forward ":END:\\s-*\n" entry-end t)
-                     (match-end 0))))
-      (cons beg end))))
+  (org-ext-with-entry-narrowed
+   (goto-char (point-min))
+   (cons (and (search-forward ":PROPERTIES:" nil t)
+              (match-beginning 0))
+         (and (re-search-forward ":END:\\s-*\n" nil t)
+              (match-end 0)))))
 
 (defun org-ext-move-properties-drawer ()
   "Move the PROPERTIES drawer to its proper location.
 Returns nil if nothing was moved, otherwise it returns point
 after :END:."
   (interactive)
-  (save-excursion
-    (org-back-to-heading-or-point-min)
-    (let* ((beg (point))
-           (end (save-excursion
-                  (org-next-visible-heading 1)
-                  (point)))
-           (before-sha (sha1 (buffer-substring-no-properties beg end)))
-           (modified (buffer-modified-p)))
-      (save-restriction
-        (narrow-to-region beg end)
-        (pcase (org-ext-entire-properties-block)
-          (`(,beg . ,end)
-           (let ((entries-block (buffer-substring beg end)))
-             (delete-region beg end)
-             ;; Create a new properties block
-             (org-get-property-block nil 'force)
-             (pcase (org-ext-entire-properties-block)
-               (`(,new-beg . ,new-end)
-                (goto-char new-beg)
-                (delete-region new-beg new-end)
-                (insert entries-block)))))
-          (_ nil))
-        (if (equal before-sha (sha1 (buffer-substring-no-properties beg end)))
-            (set-buffer-modified-p modified))))))
+  (org-ext-with-entry-narrowed
+   (let* ((before-sha (sha1 (buffer-string)))
+          (modified (buffer-modified-p)))
+     (pcase (org-ext-entire-properties-block)
+       (`(,beg . ,end)
+        (let ((entries-block (buffer-substring beg end)))
+          (delete-region beg end)
+          ;; Create a new properties block
+          (org-get-property-block nil 'force)
+          (pcase (org-ext-entire-properties-block)
+            (`(,new-beg . ,new-end)
+             (goto-char new-beg)
+             (delete-region new-beg new-end)
+             (insert entries-block)))))
+       (_ nil))
+     (if (equal before-sha (sha1 (buffer-string)))
+         (set-buffer-modified-p modified)))))
 
 (defun org-ext-fix-all-properties ()
   "Reposition properties blocks throughout current buffer.
@@ -487,10 +496,10 @@ filtering."
    (org-agenda-files)))
 
 (defun org-ext-team-files ()
-  "Get all .org files in kadena/team directory as agenda files.
+  "Get all .org files in positron/team directory as agenda files.
 Expands path from `org-directory' variable and returns file names.
 Uses `directory-files' with full path and .org extension filter."
-  (directory-files (expand-file-name "kadena/team" org-directory)
+  (directory-files (expand-file-name "positron/team" org-directory)
                    t "\\.org\\'"))
 
 (defun org-ext-refine-refile-targets (orig-func &optional default-buffer)
@@ -566,6 +575,54 @@ If no ID exists, creates one before copying. Shows message with the copied ID."
 	      (buffer-string))))
       (org-set-property blocker-prop blocker-value)
       (message "Task is now blocked on %s" blocker-value))))
+
+(defun org-ext-chain-blockers-in-region (beg end)
+  "Chain tasks in region BEG to END with BLOCKER dependencies.
+Each task blocked by previous task. Creates IDs if needed.
+Returns count of tasks chained."
+  (interactive "r")
+  (unless (derived-mode-p 'org-mode)
+    (user-error "Not in org buffer"))
+  (save-excursion
+    (goto-char beg)
+    (let ((end-marker (copy-marker end))
+          (ids nil)
+          (count 0)
+          (first-heading t))
+      ;; First pass: collect heading IDs
+      (while (and (< (point) end-marker)
+                  (re-search-forward org-heading-regexp end-marker t))
+        (save-excursion
+          (org-back-to-heading t)
+          (push (org-id-get-create) ids)))
+      (setq ids (nreverse ids))
+      ;; Second pass: set BLOCKER properties
+      (goto-char beg)
+      (while (and (< (point) end-marker)
+                  (re-search-forward org-heading-regexp end-marker t))
+        (save-excursion
+          (org-back-to-heading t)
+          (if first-heading
+              (setq first-heading nil)
+            (let* ((prev-id (car ids))
+                   (blocker-prop "BLOCKER")
+                   (blocker-existing (org-entry-get nil blocker-prop 'selective))
+                   (blocker-base (or blocker-existing "ids()"))
+                   (blocker-value
+                    (with-temp-buffer
+                      (insert blocker-base)
+                      (backward-char)
+                      (when blocker-existing
+                        (insert " "))
+                      (insert "id:" prev-id)
+                      (buffer-string))))
+              (org-set-property blocker-prop blocker-value)
+              (setq count (1+ count))))
+          (setq ids (cdr ids))))
+      (set-marker end-marker nil)
+      (message "Chained %d task%s with blocker dependencies"
+               count (if (= count 1) "" "s"))
+      count)))
 
 ;;; From https://mbork.pl/2024-08-19_Opening_all_links_in_an_Org_subtree
 (defun org-ext-open-all-links-in-subtree ()
@@ -713,22 +770,25 @@ Narrows to heading with `org-id-find', copies subtree, and pastes at current loc
 Narrow to LOGBOOK section and delete entries beyond age threshold.
 DAYS is the number of days to retain history."
   (interactive "Number of days to keep: ")
-  (save-excursion
-    (org-back-to-heading)
-    (re-search-forward "^:LOGBOOK:\n")
-    (let ((beg (point)) end)
-      (re-search-forward "^:END:\n")
-      (setq end (match-beginning 0))
-      (save-restriction
-        (narrow-to-region beg end)
-        (goto-char (point-min))
-        (while (re-search-forward "- State.*\\(\\[[-:0-9A-Z ]+\\]\\)" nil t)
-          (let* ((start (match-beginning 0)) (date (match-string 1))
-                 (age (- (time-to-days (current-time))
-                         (time-to-days (org-encode-time
-                                        (org-parse-time-string date))))))
-            (if (> age days)
-                (delete-region start (point-max)))))))))
+  (org-ext-with-entry-narrowed
+   (goto-char (point-min))
+   (let* ((beg (progn
+                 (re-search-forward "^:LOGBOOK:\n")
+                 (point)))
+          (end (progn
+                 (re-search-forward "^:END:\n")
+                 (match-beginning 0))))
+     (save-restriction
+       (narrow-to-region beg end)
+       (goto-char (point-min))
+       (while (re-search-forward "- State.*\\(\\[[-:0-9A-Z ]+\\]\\)" nil t)
+         (let* ((start (match-beginning 0))
+                (date (match-string 1))
+                (age (- (time-to-days (current-time))
+                        (time-to-days (org-encode-time
+                                       (org-parse-time-string date))))))
+           (if (> age days)
+               (delete-region start (point-max)))))))))
 
 (defun org-ext-prune-ninety-days-of-logs ()
   "Prune log entries older than 90 days.
@@ -758,7 +818,7 @@ Used to populate `org-ext-link-names' list."
 Reads names from file and defines s-KEY shortcuts to call
 `org-ext-edit-link-name' with the appropriate name."
   (interactive)
-  (let ((file (org-file org-constants-kadena-team-file)))
+  (let ((file (org-file org-constants-positron-team-file)))
     (setq org-ext-link-names (org-ext-read-names file))
     (with-current-buffer (find-file-noselect file)
       (save-excursion
@@ -774,10 +834,10 @@ Reads names from file and defines s-KEY shortcuts to call
 
 (defun org-ext-update-team-after-save ()
   "Hook function to update team when team.org is saved.
-Checks buffer filename against `org-constants-kadena-team-file' to avoid
+Checks buffer filename against `org-constants-positron-team-file' to avoid
 processing unrelated buffers."
   (when (and (eq major-mode 'org-mode)
-             (string-match org-constants-kadena-team-file (buffer-file-name)))
+             (string-match org-constants-positron-team-file (buffer-file-name)))
     (org-ext-update-team)))
 
 (defun org-ext-unlink-region (&optional beg end)
@@ -1110,7 +1170,7 @@ Shows categories with their usage counts in a temporary buffer."
     (org-ext-set-id-and-created)
     (org-ext-set-location)))
 
-(defun org-ext-cleanup-whitespace (&optional arg)
+(defun org-ext-cleanup-whitespace (&optional _arg)
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -1130,12 +1190,11 @@ drawer, then applies `org-fill-paragraph' to reflow the text while
 preserving the current position."
   (interactive)
   (save-excursion
-    (let ((heading-pos (point-marker)))
-      (forward-line)
-      (when (looking-at-p ":PROPERTIES:")
-        (re-search-forward ":END:")
-        (forward-line))
-      (org-fill-paragraph))))
+    (forward-line)
+    (when (looking-at-p ":PROPERTIES:")
+      (re-search-forward ":END:")
+      (forward-line))
+    (org-fill-paragraph)))
 
 (provide 'org-ext)
 

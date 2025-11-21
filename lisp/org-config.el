@@ -480,17 +480,17 @@ for use in `org-capture-templates'."
           :unnarrowed t
           :no-save t))
 
-(defsubst org-config-kadena-meeting (keys title file)
-  "Create a Kadena meeting configuration with KEYS, TITLE, and FILE.
-Uses the Kadena meeting template located at ~/org/kadena/template/meeting."
+(defsubst org-config-positron-meeting (keys title file)
+  "Create a Positron meeting configuration with KEYS, TITLE, and FILE.
+Uses the Positron meeting template located at ~/org/positron/template/meeting."
   (org-config-meeting-template
-   keys title file "~/org/kadena/template/meeting"))
+   keys title file "~/org/positron/template/meeting"))
 
-(defsubst org-config-kadena-1-on-1 (keys title file)
-  "Create a Kadena 1-on-1 meeting configuration with KEYS, TITLE, and FILE.
-Uses the Kadena one-on-one template and adds `1-on-1-' prefix."
+(defsubst org-config-positron-1-on-1 (keys title file)
+  "Create a Positron 1-on-1 meeting configuration with KEYS, TITLE, and FILE.
+Uses the Positron one-on-one template and adds `1-on-1-' prefix."
   (org-config-meeting-template
-   keys title file "~/org/kadena/template/one-on-one" "1-on-1-"))
+   keys title file "~/org/positron/template/one-on-one" "1-on-1-"))
 
 (defsubst org-config-bahai-meeting (keys title file)
   "Create a Bahai meeting configuration with KEYS, TITLE, and FILE.
@@ -503,12 +503,12 @@ Uses the Bahai meeting template with `bahai' tag."
   `(lambda (_arg) (call-interactively (function ,f) nil)))
 
 (defsubst org-config-1-on-1-from-name (name)
-  "Generate a Kadena 1-on-1 meeting configuration from NAME.
+  "Generate a Positron 1-on-1 meeting configuration from NAME.
 Creates keys from first letters of words in NAME, formats title as
 '1-on-1 NAME', and generates filename by replacing spaces with hyphens
 in lowercased NAME."
   (let ((down (downcase name)))
-    (org-config-kadena-1-on-1
+    (org-config-positron-1-on-1
      (apply #'concat "wo"
             (mapcar #'(lambda (word) (char-to-string (aref word 0)))
                     (split-string down)))
@@ -762,13 +762,13 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
      ("pwO" "Out of Office" entry
       (file+headline ,org-constants-work-todo-path "Operations (Ops)")
-      (file "~/org/kadena/template/out-of-office.org")
+      (file "~/org/positron/template/out-of-office.org")
       :immediate-finish t
       :jump-to-captured t)
 
      ("pwn" "Network Incident" entry
       (file+headline ,org-constants-work-todo-path "Improve Response Process")
-      (file "~/org/kadena/template/network-incident.org")
+      (file "~/org/positron/template/network-incident.org")
       :immediate-finish t
       :jump-to-captured t)))
 
@@ -869,7 +869,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     (file "~/org/template/bahai/meeting/assembly-meeting.org")
     :target
     (file+head
-     "assembly/%<%Y%m%d%H%M>-local-spiritual-assembly.org"
+     "bahai/assembly/%<%Y%m%d%H%M>-local-spiritual-assembly.org"
      ,(concat
        "#+category: Assembly\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
@@ -907,9 +907,9 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ("wn" "Work Note" plain "%?"
     :target
     (file+head
-     "kadena/%<%Y%m%d%H%M>.org"
-     ,(concat "#+category: Kadena\n"
-              "#+filetags: :kadena:\n"
+     "positron/%<%Y%m%d%H%M>.org"
+     ,(concat "#+category: Positron\n"
+              "#+filetags: :positron:\n"
               "#+title: ${title}\n"))
     :immediate-finish t
     :jump-to-captured t
@@ -924,9 +924,9 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     (file+head
      "meeting/%<%Y%m%d%H%M>.org"
      ,(concat
-       "#+category: Kadena\n"
+       "#+category: Positron\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
-       "#+filetags: :kadena:\n"
+       "#+filetags: :positron:\n"
        "#+startup: showeverything\n"
        "#+title: %^{Purpose of meeting}\n"))
     :immediate-finish t
@@ -934,43 +934,43 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :unnarrowed t
     :no-save t)
 
-   ,(org-config-kadena-meeting "wmM" "Marketing <> Eng"  "marketing-eng.org")
-   ,(org-config-kadena-meeting "wmO" "Ops <> Eng"        "ops-eng.org")
-   ,(org-config-kadena-meeting "wmP" "Product <> Eng"    "product-eng.org")
-   ,(org-config-kadena-meeting "wmb" "BD <> Eng"         "bd-eng.org")
-   ,(org-config-kadena-meeting "wmp" "PM <> Eng"         "pm-eng.org")
+   ,(org-config-positron-meeting "wmM" "Marketing <> Eng"  "marketing-eng.org")
+   ,(org-config-positron-meeting "wmO" "Ops <> Eng"        "ops-eng.org")
+   ,(org-config-positron-meeting "wmP" "Product <> Eng"    "product-eng.org")
+   ,(org-config-positron-meeting "wmb" "BD <> Eng"         "bd-eng.org")
+   ,(org-config-positron-meeting "wmp" "PM <> Eng"         "pm-eng.org")
 
-   ,(org-config-kadena-meeting "wma" "All Hands"         "all-hands.org")
-   ,(org-config-kadena-meeting "wmc" "Chainweb Standup"  "chainweb-standup.org")
-   ,(org-config-kadena-meeting "wme" "EVM Posse"         "evm-posse.org")
-   ,(org-config-kadena-meeting "wmL" "EVM Product Leads" "evm-product-leads.org")
-   ,(org-config-kadena-meeting "wmj" "JS Team"           "js-team.org")
-   ,(org-config-kadena-meeting "wml" "Leads Strategy"    "leads-strategy.org")
-   ,(org-config-kadena-meeting "wmE" "Eng Managers"      "eng-managers.org")
-   ,(org-config-kadena-meeting "wms" "Eng Standup"       "eng-standup.org")
-   ,(org-config-kadena-meeting "wmt" "CTO Meeting"       "cto.org")
+   ,(org-config-positron-meeting "wma" "All Hands"         "all-hands.org")
+   ,(org-config-positron-meeting "wmc" "Chainweb Standup"  "chainweb-standup.org")
+   ,(org-config-positron-meeting "wme" "EVM Posse"         "evm-posse.org")
+   ,(org-config-positron-meeting "wmL" "EVM Product Leads" "evm-product-leads.org")
+   ,(org-config-positron-meeting "wmj" "JS Team"           "js-team.org")
+   ,(org-config-positron-meeting "wml" "Leads Strategy"    "leads-strategy.org")
+   ,(org-config-positron-meeting "wmE" "Eng Managers"      "eng-managers.org")
+   ,(org-config-positron-meeting "wms" "Eng Standup"       "eng-standup.org")
+   ,(org-config-positron-meeting "wmt" "CTO Meeting"       "cto.org")
 
-   ,(org-config-kadena-meeting "wC" "Conference" "conference.org")
-   ,(org-config-kadena-meeting "wO" "Offsite"    "offsite.org")
+   ,(org-config-positron-meeting "wC" "Conference" "conference.org")
+   ,(org-config-positron-meeting "wO" "Offsite"    "offsite.org")
 
    ("wh" "Hack-a-chain")
 
-   ,(org-config-kadena-meeting "whr" "Hack-a-chain Indexer"
+   ,(org-config-positron-meeting "whr" "Hack-a-chain Indexer"
                                "hackachain-indexer-review.org")
-   ,(org-config-kadena-meeting "whs" "Hack-a-chain Standup"
+   ,(org-config-positron-meeting "whs" "Hack-a-chain Standup"
                                "hackachain-internal-standup.org")
 
    ("wo" "1-on-1s")
 
    ("woo" "1-on-1 meeting" plain
-    (file "~/org/kadena/template/one-on-one.org")
+    (file "~/org/positron/template/one-on-one.org")
     :target
     (file+head
      "meeting/%<%Y%m%d%H%M>-1-on-1.org"
      ,(concat
        "#+category: 1-on-1\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
-       "#+filetags: :kadena:\n"
+       "#+filetags: :positron:\n"
        "#+startup: showeverything\n"
        "#+title: 1-on-1: %^{Person meeting with}\n"))
     :immediate-finish t
@@ -979,9 +979,9 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :no-save t)
 
    ("woT" "1-on-1 with Team Member" plain
-    (file "~/org/kadena/template/team-member.org")
+    (file "~/org/positron/template/team-member.org")
     :target
-    (file "kadena/team/%<%Y%m%d%H%M>.org")
+    (file "positron/team/%<%Y%m%d%H%M>.org")
     :immediate-finish t
     :jump-to-captured t
     :unnarrowed t
@@ -1108,7 +1108,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("gw" "Work tasks (needing to be seen)"
     ((org-ql-block
-      `(and (about "kadena")
+      `(and (about "positron")
             (not (about ,@org-config-categories-regularly-reviewed))
             (todo "TODO" "DOING" "WAIT" "TASK")
             (not (tags "ARCHIVE"))
@@ -1118,7 +1118,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("gW" "Work tasks (all)"
     ((org-ql-block
-      `(and (about "kadena")
+      `(and (about "positron")
             (todo "TODO" "DOING" "WAIT" "TASK")
             (not (tags "ARCHIVE"))
             (not (scheduled))
