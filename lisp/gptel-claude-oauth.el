@@ -8,7 +8,7 @@
 ;; Uses device flow authentication with PKCE.
 ;; Automatically injects required system prompt for OAuth tokens.
 
-;; (setq gptel-model 'claude-opus-4-1-20250805
+;; (setq gptel-model 'claude-opus-4-5-20251101
 ;;       gptel-backend (gptel-make-claude-oauth "Claude-OAuth" :stream t))
 
 ;;; Code:
@@ -263,8 +263,8 @@
                      :context-window 200000
                      :request-params
                      (:max_tokens 64000))
-                    (claude-opus-4-1-20250805
-                     :description "Claude Opus 4.1 - Most capable"
+                    (claude-opus-4-5-20251101
+                     :description "Claude Opus 4.5 - Most capable"
                      :capabilities (media tool-use cache json reasoning)
                      :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"
                                   "application/pdf")

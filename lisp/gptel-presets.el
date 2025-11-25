@@ -131,7 +131,7 @@
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
   :backend "Claude-Anthropic"
-  :model 'claude-opus-4-1-20250805
+  :model 'claude-opus-4-5-20251101
   :temperature 1.0)
 
 ;;; Perplexity

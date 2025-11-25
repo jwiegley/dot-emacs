@@ -243,7 +243,9 @@ When ALL is non-nil, forces full refresh of all agenda buffers."
 START is the point at the beginning of the heading, obtained by
 `org-back-to-heading' inside a `save-excursion'. END is the position of
 the entry’s end, as returned by `org-entry-end-position'."
-  (cons (save-excursion (org-back-to-heading-or-point-min))
+  (cons (save-excursion
+          (or (ignore-errors (org-back-to-heading-or-point-min))
+              (point-min)))
         (org-entry-end-position)))
 
 (defmacro org-ext-with-entry-narrowed (&rest body)

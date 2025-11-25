@@ -11338,7 +11338,9 @@ This is returned as a string."
   (org-agenda-fontify-priorities t)
   (org-agenda-include-diary nil)
   (org-agenda-hide-tags-regexp
-   "\\`\\(Noon\\|Day\\|Eve\\|Night\\|assembly\\)\\'")
+   (concat "\\`" (regexp-opt '("Noon" "Day" "Eve" "Night"
+                               "assembly" "council" "positron"))
+           "\\'"))
   (org-agenda-inhibit-startup t)
   (org-agenda-log-mode-items '(closed clock state))
   (org-agenda-ndays 1)
@@ -12684,7 +12686,7 @@ directory.
   :custom
   (org-project-capture-default-backend
    (make-instance 'org-project-capture-projectile-backend))
-  (org-project-capture-projects-file org-constants-open-source-path)
+  (org-project-capture-projects-file org-constants-todo-path)
   :config
   (org-project-capture-single-file))
 #+end_src

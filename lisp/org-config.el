@@ -482,15 +482,15 @@ for use in `org-capture-templates'."
 
 (defsubst org-config-positron-meeting (keys title file)
   "Create a Positron meeting configuration with KEYS, TITLE, and FILE.
-Uses the Positron meeting template located at ~/org/positron/template/meeting."
+Uses the Positron meeting template located at ~/org/template/positron/meeting."
   (org-config-meeting-template
-   keys title file "~/org/positron/template/meeting"))
+   keys title file "~/org/template/positron/meeting"))
 
 (defsubst org-config-positron-1-on-1 (keys title file)
   "Create a Positron 1-on-1 meeting configuration with KEYS, TITLE, and FILE.
 Uses the Positron one-on-one template and adds `1-on-1-' prefix."
   (org-config-meeting-template
-   keys title file "~/org/positron/template/one-on-one" "1-on-1-"))
+   keys title file "~/org/template/positron/one-on-one" "1-on-1-"))
 
 (defsubst org-config-bahai-meeting (keys title file)
   "Create a Bahai meeting configuration with KEYS, TITLE, and FILE.
@@ -724,7 +724,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
      ("pb" "Bahá’í templates")
 
      ("pbf" "Bahá’í Feast" entry
-      (file+headline ,org-constants-assembly-path
+      (file+headline ,(org-file "bahai/assembly/assembly.org")
                      "Carmichael Local Spiritual Assembly (LSA)")
       (file "~/org/template/bahai/feast.org")
       :immediate-finish t
@@ -745,7 +745,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
       :jump-to-captured t)
 
      ("pbg" "Flow of guidance" entry
-      (file+headline ,org-constants-assembly-path
+      (file+headline ,(org-file "bahai/assembly/assembly.org")
                      "Increasing the flow of guidance to the grassroots")
       (file "~/org/template/bahai/flow-of-guidance.org")
       :immediate-finish t
@@ -761,14 +761,16 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
      ("pw" "Work templates")
 
      ("pwO" "Out of Office" entry
-      (file+headline ,org-constants-work-todo-path "Operations (Ops)")
-      (file "~/org/positron/template/out-of-office.org")
+      (file+headline ,(org-file "positron/positron.org")
+                     "Operations (Ops)")
+      (file "~/org/template/positron/out-of-office.org")
       :immediate-finish t
       :jump-to-captured t)
 
      ("pwn" "Network Incident" entry
-      (file+headline ,org-constants-work-todo-path "Improve Response Process")
-      (file "~/org/positron/template/network-incident.org")
+      (file+headline ,(org-file "positron/positron.org")
+                     "Improve Response Process")
+      (file "~/org/template/positron/network-incident.org")
       :immediate-finish t
       :jump-to-captured t)))
 
@@ -880,23 +882,38 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :unnarrowed t
     :no-save t)
 
+   ("bc" "Regional Council meeting" plain
+    (file "~/org/template/bahai/meeting/council-meeting.org")
+    :target
+    (file+head
+     "bahai/council/%<%Y%m%d%H%M>-regional-council.org"
+     ,(concat
+       "#+category: Council\n"
+       "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
+       "#+filetags: :todo:council:\n"
+       "#+title: Regional Council\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
    ;; ,(org-config-bahai-meeting "bc" "C2G Admin" "c2g-admin.org")
    ,(org-config-bahai-meeting "bD" "National Convention Delegate Report"
                               "national-convention-delegate-report.org")
    ,(org-config-bahai-meeting "bf" "Ali Nakhjavani Development Fund"
                               "ali-nakhjavani-development-fund.org")
-   ,(org-config-bahai-meeting "bF" "Regional Council and the Flow of Guidance"
+   ,(org-config-bahai-meeting "bF" "Regional Council and Flow of Guidance"
                               "regional-council-and-flow-of-guidance.org")
    ,(org-config-bahai-meeting "bn" "National Treasurer's Office"
                               "national-treasurers-office.org")
-   ,(org-config-bahai-meeting "br" "Regional Treasurer's Office"
+   ,(org-config-bahai-meeting "br" "Regional Financial Systems Desk"
                               "regional-treasurers-office.org")
    ,(org-config-bahai-meeting "bi" "Institute Day" "institute-day.org")
    ,(org-config-bahai-meeting "bI" "Institute Day Reflection"
                               "institute-day-reflection.org")
    ,(org-config-bahai-meeting "bT" "Tutor Training" "tutor-training.org")
    ,(org-config-bahai-meeting "bu" "Unit Convention" "unit-convention.org")
-   ,(org-config-bahai-meeting "bc" "Cluster Agencies" "cluster-agencies.org")
+   ,(org-config-bahai-meeting "bC" "Cluster Agencies" "cluster-agencies.org")
    ,(org-config-bahai-meeting "bA" "Arden Team Reflection"
                               "arden-team-reflection.org")
    ,(org-config-bahai-meeting "bS" "Institute Coordinators"
@@ -922,7 +939,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     (file "~/org/template/meeting.org")
     :target
     (file+head
-     "meeting/%<%Y%m%d%H%M>.org"
+     "positron/meeting/%<%Y%m%d%H%M>.org"
      ,(concat
        "#+category: Positron\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
@@ -934,39 +951,18 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :unnarrowed t
     :no-save t)
 
-   ,(org-config-positron-meeting "wmM" "Marketing <> Eng"  "marketing-eng.org")
-   ,(org-config-positron-meeting "wmO" "Ops <> Eng"        "ops-eng.org")
-   ,(org-config-positron-meeting "wmP" "Product <> Eng"    "product-eng.org")
-   ,(org-config-positron-meeting "wmb" "BD <> Eng"         "bd-eng.org")
-   ,(org-config-positron-meeting "wmp" "PM <> Eng"         "pm-eng.org")
+   ,(org-config-positron-meeting "wms" "Eng Standup" "eng-standup.org")
 
-   ,(org-config-positron-meeting "wma" "All Hands"         "all-hands.org")
-   ,(org-config-positron-meeting "wmc" "Chainweb Standup"  "chainweb-standup.org")
-   ,(org-config-positron-meeting "wme" "EVM Posse"         "evm-posse.org")
-   ,(org-config-positron-meeting "wmL" "EVM Product Leads" "evm-product-leads.org")
-   ,(org-config-positron-meeting "wmj" "JS Team"           "js-team.org")
-   ,(org-config-positron-meeting "wml" "Leads Strategy"    "leads-strategy.org")
-   ,(org-config-positron-meeting "wmE" "Eng Managers"      "eng-managers.org")
-   ,(org-config-positron-meeting "wms" "Eng Standup"       "eng-standup.org")
-   ,(org-config-positron-meeting "wmt" "CTO Meeting"       "cto.org")
-
-   ,(org-config-positron-meeting "wC" "Conference" "conference.org")
-   ,(org-config-positron-meeting "wO" "Offsite"    "offsite.org")
-
-   ("wh" "Hack-a-chain")
-
-   ,(org-config-positron-meeting "whr" "Hack-a-chain Indexer"
-                               "hackachain-indexer-review.org")
-   ,(org-config-positron-meeting "whs" "Hack-a-chain Standup"
-                               "hackachain-internal-standup.org")
+   ,(org-config-positron-meeting "wC" "Conference"   "conference.org")
+   ,(org-config-positron-meeting "wO" "Offsite"      "offsite.org")
 
    ("wo" "1-on-1s")
 
    ("woo" "1-on-1 meeting" plain
-    (file "~/org/positron/template/one-on-one.org")
+    (file "~/org/template/positron/one-on-one.org")
     :target
     (file+head
-     "meeting/%<%Y%m%d%H%M>-1-on-1.org"
+     "positron/meeting/%<%Y%m%d%H%M>-1-on-1.org"
      ,(concat
        "#+category: 1-on-1\n"
        "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
@@ -978,52 +974,8 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :unnarrowed t
     :no-save t)
 
-   ("woT" "1-on-1 with Team Member" plain
-    (file "~/org/positron/template/team-member.org")
-    :target
-    (file "positron/team/%<%Y%m%d%H%M>.org")
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
-
-   ("woa" "Names beginning with A")
-   ,(org-config-1-on-1-from-name "Albert Groothedde")
-   ,(org-config-1-on-1-from-name "Anastasia Bez")
-   ,(org-config-1-on-1-from-name "Annelise Osborne")
-
-   ("woe" "Names beginning with E")
-   ,(org-config-1-on-1-from-name "Edmund Noble")
-
-   ("woh" "Names beginning with H")
-   ,(org-config-1-on-1-from-name "Hafsah Asmat")
-
-   ("woj" "Names beginning with J")
-   ,(org-config-1-on-1-from-name "Javad Khalilian")
-   ,(org-config-1-on-1-from-name "Jesse Marquez")
-   ,(org-config-1-on-1-from-name "John Frost")
-   ,(org-config-1-on-1-from-name "Jose Cardona")
-   ,(org-config-1-on-1-from-name "June Boston")
-
-   ("wol" "Names beginning with L")
-   ,(org-config-1-on-1-from-name "Lars Kuhtz")
-   ,(org-config-1-on-1-from-name "Leah Bingham")
-   ,(org-config-1-on-1-from-name "Linda Ortega")
-   ,(org-config-1-on-1-from-name "Lisa Gunn")
-   ,(org-config-1-on-1-from-name "Louis Page")
-
-   ("wom" "Names beginning with M")
-   ,(org-config-1-on-1-from-name "Mike Herron")
-
-   ("wor" "Names beginning with R")
-   ,(org-config-1-on-1-from-name "Robert Soeldner")
-
-   ("wos" "Names beginning with S")
-   ,(org-config-1-on-1-from-name "Stuart Popejoy")
-   ,(org-config-1-on-1-from-name "Steven Straatemans")
-
-   ("wow" "Names beginning with W")
-   ,(org-config-1-on-1-from-name "Will Martino")
+   ("wog" "Names beginning with G")
+   ,(org-config-1-on-1-from-name "Greg Davis")
    )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

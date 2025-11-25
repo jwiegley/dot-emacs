@@ -97,10 +97,6 @@ groups:
       - Phi-4-reasoning-plus
       - Qwen3-235B-A22B-Instruct-2507
       - Qwen3-235B-A22B-Thinking-2507
-      - Qwen3-30B-A3B-Instruct-2507
-      - Qwen3-30B-A3B-Thinking-2507
-      - Qwen3-32B
-      - Qwen3-Coder-30B-A3B-Instruct
       - Qwen3-Coder-480B-A35B-Instruct
       - gpt-oss-120b
       - r1-1776-distill-llama-70b
@@ -109,6 +105,10 @@ groups:
     swap: true
     exclusive: false
     members:
+      - Qwen3-30B-A3B-Instruct-2507
+      - Qwen3-30B-A3B-Thinking-2507
+      - Qwen3-32B
+      - Qwen3-Coder-30B-A3B-Instruct
       - DeepSeek-R1-0528-Qwen3-8B
       - Qwen3-0.6B
       - Qwen3-1.7B
@@ -121,6 +121,7 @@ groups:
       - gemma-3-4b-it
       - gemma-3n-E4B-it
       - gpt-oss-20b
+      - gpt-oss-safeguard-20b
 
   embeddings:
     swap: true
@@ -397,7 +398,6 @@ general_settings:
       :model-path "~/Models/unsloth_DeepSeek-V3.1-Terminus-GGUF"
       :arguments '("--cache-type-k" "q4_1"
                    ;; "--flash-attn" "on"
-                   ;; "--cache-type-v" "q4_1"
                    "--seed" "3407"))))
 
    (make-hf-model
@@ -488,6 +488,20 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_MiniMax-M2-GGUF"
+      :hostnames '("hera"))))
+
+   (make-hf-model
+    :name 'MiniMax-M2-REAP-162B-A10B
+    :context-length 262144
+    :temperature 1.0
+    :top-p 0.95
+    :top-k 40
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/bartowski_cerebras_MiniMax-M2-REAP-162B-A10B-GGUF"
       :hostnames '("hera"))))
 
    (make-hf-model
@@ -605,8 +619,7 @@ general_settings:
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
                    "--top-k" "20"
-                   "--flash-attn" "on"
-                   "--cache-type-v" "q8_0"))))
+                   "--flash-attn" "on"))))
 
    (make-hf-model
     :name 'Qwen3-235B-A22B-Thinking-2507
@@ -626,8 +639,7 @@ general_settings:
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
                    "--top-k" "20"
-                   "--flash-attn" "on"
-                   "--cache-type-v" "q8_0"))))
+                   "--flash-attn" "on"))))
 
    (make-hf-model
     :name 'Qwen3-Coder-30B-A3B-Instruct
@@ -648,7 +660,6 @@ general_settings:
                    "--cache-type-k" "q8_0"
                    "--top-k" "20"
                    "--flash-attn" "on"
-                   "--cache-type-v" "q8_0"
                    "--batch-size" "8192"
                    "--ubatch-size" "8192"
                    "--rope-scaling" "yarn"
@@ -674,7 +685,6 @@ general_settings:
                    "--cache-type-k" "q4_1"
                    "--top-k" "20"
                    "--flash-attn" "on"
-                   "--cache-type-v" "q4_1"
                    "--rope-scaling" "yarn"
                    "--rope-scale" "4"
                    "--yarn-orig-ctx" "262144"
@@ -762,6 +772,18 @@ general_settings:
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
       :draft-model "~/Models/unsloth_gpt-oss-20b-GGUF/gpt-oss-20b-F16.gguf"
+      :cache-control t)))
+
+   (make-hf-model
+    :name 'gpt-oss-safeguard-20b
+    :context-length 131072
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_gpt-oss-safeguard-20b-GGUF"
+      :hostnames '("hera")
       :cache-control t)))
 
    (make-hf-model
@@ -1034,12 +1056,12 @@ general_settings:
     :instances
     (list
      (make-hf-instance
-      :name 'claude-opus-4-1-20250805
+      :name 'claude-opus-4-5-20251101
       :provider 'anthropic)
 
      (make-hf-instance
       :model-name 'claude-opus-cached
-      :name 'claude-opus-4-1-20250805
+      :name 'claude-opus-4-5-20251101
       :provider 'anthropic
       :cache-control t)))
 
@@ -1515,7 +1537,8 @@ Optionally generate for the given HOSTNAME."
     (insert (with-current-buffer (hf-generate-litellm-yaml)
               (buffer-string)))
     (write-file hf-litellm-path))
-  (shell-command "ssh vulcan sudo systemctl restart litellm.service"))
+  ;; (shell-command "ssh vulcan sudo systemctl restart litellm.service")
+  (shell-command "sudo systemctl --user -M litellm@ restart litellm.service"))
 
 (defun hf-reset ()
   "Reset all of the configuration files related to LLMs."
