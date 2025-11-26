@@ -4872,8 +4872,7 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
 
 #+begin_src emacs-lisp
 (use-package markdown-mode
-  :mode (("\\`README\\.md\\'" . gfm-mode)
-         ("\\.md\\'"          . markdown-mode)
+  :mode (("\\.md\\'"          . markdown-mode)
          ("\\.markdown\\'"    . markdown-mode))
   :custom
   (markdown-command "pandoc -f markdown_github+smart")
@@ -8216,53 +8215,42 @@ locations. The =default-directory= variable is not changed in the process.
   :config
   (require 'consult-omni-sources)
   (require 'consult-omni-embark)
-  (require 'consult-omni-brave-autosuggest)
-  (setq consult-omni-sources--all-modules-list
+
+  ;; Select which source modules to load
+  (setq consult-omni-sources-modules-to-load
         (list 'consult-omni-gh
-              ;; 'consult-omni-apps
-              ;; 'consult-omni-bing
-              ;; 'consult-omni-brave-autosuggest
-              ;; 'consult-omni-brave
-              ;; 'consult-omni-browser-history
-              ;; 'consult-omni-buffer
-              ;; 'consult-omni-calc
-              ;; 'consult-omni-chatgpt
-              ;; 'consult-omni-consult-notes
-              ;; 'consult-omni-dict
-              ;; 'consult-omni-doi
-              ;; 'consult-omni-duckduckgo
-              ;; 'consult-omni-elfeed
-              ;; 'consult-omni-fd
-              ;; 'consult-omni-find
-              ;; 'consult-omni-git-grep
-              ;; 'consult-omni-google
-              ;; 'consult-omni-google-autosuggest
-              ;; 'consult-omni-gptel
-              ;; 'consult-omni-grep
-              ;; 'consult-omni-invidious
-              ;; 'consult-omni-line-multi
-              ;; 'consult-omni-locate
-              ;; 'consult-omni-man
-              ;; 'consult-omni-mdfind
-              ;; 'consult-omni-mu4e
-              ;; 'consult-omni-notes
-              ;; 'consult-omni-notmuch
-              ;; 'consult-omni-numi
-              ;; 'consult-omni-openalex
-              ;; 'consult-omni-org-agenda
-              ;; 'consult-omni-pubmed
-              ;; 'consult-omni-process
-              ;; 'consult-omni-projects
-              ;; 'consult-omni-ripgrep
-              ;; 'consult-omni-ripgrep-all
-              ;; 'consult-omni-scopus
-              ;; 'consult-omni-stackoverflow
-              ;; 'consult-omni-wikipedia
-              ;; 'consult-omni-youtube
+              'consult-omni-wikipedia      ; No API key needed
+              'consult-omni-buffer         ; Search open buffers
+              'consult-omni-calc           ; Calculator
+              'consult-omni-dict           ; Dictionary lookup
+              'consult-omni-mdfind         ; macOS Spotlight
+              'consult-omni-fd             ; File search (needs fd)
+              'consult-omni-ripgrep        ; Code search (needs rg)
+              'consult-omni-org-agenda     ; Org agenda items
+              ;; 'consult-omni-google      ; Needs API key
+              ;; 'consult-omni-brave       ; Needs API key
               ))
+
+  ;; Load modules BEFORE setting multi-sources
+  (consult-omni-sources-load-modules)
+
+  ;; Source names must match loaded sources (as strings)
+  (setq consult-omni-multi-sources
+        '("Wikipedia"
+          "Buffer"
+          "Calc"
+          "Dictionary"
+          "mdfind"
+          "File"
+          "ripgrep"
+          "Org Agenda"
+          "GitHub"))
+
   (setq consult-omni-default-interactive-command #'consult-omni-multi)
-  (setq consult-omni-multi-sources '("Google" "Wikipedia"))
-  (consult-omni-sources-load-modules))
+
+  ;; Optional: preview settings
+  (setq consult-omni-show-preview t)
+  (setq consult-omni-preview-key "C-o"))
 #+end_src
 
 *** COMMENT company
@@ -9987,27 +9975,17 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
    '(
      ("\\`Spam\\'"
       (spam-contents gnus-group-spam-classification-spam)
-      (ham-process-destination . "TrainGood")
-      (spam-process-destination . "TrainSpam"))
+      (ham-process-destination . "TrainGood"))
 
      ("\\`\\(mail/\\|INBOX\\)"
-      ;; (total-expire . t)
-      ;; (expiry-wait . 365)
-      ;; (expiry-target . "Archive")
       (gcc-self . t)
       (gnus-use-scoring nil)
       (spam-process-destination . "TrainSpam"))
 
      ("list/"
-      (subscribed . t)
       (gcc-self . nil)
+      (subscribed . t)
       (spam-process-destination . "TrainSpam"))
-
-     ("list/\\(github\\|misc\\|haskell\\|emacs\\|bahai/tarjuman\\)$"
-      ;; (total-expire . t)
-      ;; (expiry-wait . 365)
-      ;; (expiry-target . delete)
-      )
 
      ("list/ledger/devel"
       (to-list . "ledger-cli@googlegroups.com"))
@@ -10033,6 +10011,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       (list-identifier . "\\[Haskell-infrastructure\\]"))
 
      ))
+  (gnus-permanently-visible-groups "INBOX")
   (gnus-read-active-file nil)
   (gnus-read-newsrc-file nil)
   (gnus-refer-article-method
@@ -10049,7 +10028,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
      ;;       (nntp-authinfo-user "jwiegley"))
      ))
   (gnus-registry-max-entries 19000)
-  (gnus-registry-ignored-groups '(("Spam" t) ("IsSpam" t) ("Archive" t)))
+  (gnus-registry-ignored-groups '(("Spam" t) ("Trash" t) ("Archive" t)))
   (gnus-save-killed-list nil)
   (gnus-save-newsrc-file nil)
   (gnus-signature-separator '("^-- $" "^-- *$" "^_____+$"))
@@ -13809,7 +13788,7 @@ middle-click to temporarily hide it.
 
 *** ox
 
-**** ox-gfm
+**** COMMENT ox-gfm
 
 #+begin_src emacs-lisp
 (use-package ox-gfm
@@ -13837,7 +13816,7 @@ middle-click to temporarily hide it.
      "pandoc -f markdown-auto_identifiers -t org" t t)))
 #+end_src
 
-**** ox-slack
+**** COMMENT ox-slack
 
 This is a simple exporter backend for [[https://orgmode.org/][Emacs org-mode]], derived from the builtin
 markdown exporter & its derived backend [[https://github.com/larstvei/ox-gfm][ox-gfm.el]]. It produces simple text
