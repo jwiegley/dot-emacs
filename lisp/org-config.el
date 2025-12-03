@@ -490,7 +490,7 @@ Uses the Positron meeting template located at ~/org/template/positron/meeting."
   "Create a Positron 1-on-1 meeting configuration with KEYS, TITLE, and FILE.
 Uses the Positron one-on-one template and adds `1-on-1-' prefix."
   (org-config-meeting-template
-   keys title file "~/org/template/positron/one-on-one" "1-on-1-"))
+   keys title file "~/org/template/positron/one-on-one" "1-on-1-" "positron"))
 
 (defsubst org-config-bahai-meeting (keys title file)
   "Create a Bahai meeting configuration with KEYS, TITLE, and FILE.
@@ -867,22 +867,9 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :unnarrowed t
     :no-save t)
 
-   ("ba" "Assembly meeting" plain
-    (file "~/org/template/bahai/meeting/assembly-meeting.org")
-    :target
-    (file+head
-     "bahai/assembly/%<%Y%m%d%H%M>-local-spiritual-assembly.org"
-     ,(concat
-       "#+category: Assembly\n"
-       "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
-       "#+filetags: :todo:assembly:\n"
-       "#+title: Local Spiritual Assembly\n"))
-    :immediate-finish t
-    :jump-to-captured t
-    :unnarrowed t
-    :no-save t)
+   ("bc" "Regional Bahá’í Council")
 
-   ("bc" "Regional Council meeting" plain
+   ("bcc" "Regional Bahá’í Council meeting" plain
     (file "~/org/template/bahai/meeting/council-meeting.org")
     :target
     (file+head
@@ -897,27 +884,61 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :unnarrowed t
     :no-save t)
 
-   ;; ,(org-config-bahai-meeting "bc" "C2G Admin" "c2g-admin.org")
-   ,(org-config-bahai-meeting "bD" "National Convention Delegate Report"
-                              "national-convention-delegate-report.org")
-   ,(org-config-bahai-meeting "bf" "Ali Nakhjavani Development Fund"
-                              "ali-nakhjavani-development-fund.org")
-   ,(org-config-bahai-meeting "bF" "Regional Council and Flow of Guidance"
-                              "regional-council-and-flow-of-guidance.org")
-   ,(org-config-bahai-meeting "bn" "National Treasurer's Office"
-                              "national-treasurers-office.org")
-   ,(org-config-bahai-meeting "br" "Regional Financial Systems Desk"
+   ,(org-config-bahai-meeting "bcf" "Regional Financial Systems Desk"
                               "regional-treasurers-office.org")
-   ,(org-config-bahai-meeting "bi" "Institute Day" "institute-day.org")
-   ,(org-config-bahai-meeting "bI" "Institute Day Reflection"
-                              "institute-day-reflection.org")
-   ,(org-config-bahai-meeting "bT" "Tutor Training" "tutor-training.org")
-   ,(org-config-bahai-meeting "bu" "Unit Convention" "unit-convention.org")
-   ,(org-config-bahai-meeting "bC" "Cluster Agencies" "cluster-agencies.org")
-   ,(org-config-bahai-meeting "bA" "Arden Team Reflection"
-                              "arden-team-reflection.org")
-   ,(org-config-bahai-meeting "bS" "Institute Coordinators"
+
+   ("ba" "Local Spiritual Assembly")
+
+   ("baa" "Local Spiritual Assembly meeting" plain
+    (file "~/org/template/bahai/meeting/assembly-meeting.org")
+    :target
+    (file+head
+     "bahai/assembly/%<%Y%m%d%H%M>-local-spiritual-assembly.org"
+     ,(concat
+       "#+category: Assembly\n"
+       "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
+       "#+filetags: :todo:assembly:\n"
+       "#+title: Local Spiritual Assembly\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
+
+   ("bA" "Assistant to the Auxiliary Boards")
+
+   ,(org-config-bahai-meeting "bAA" "Assistants' Meeting" "assistants.org")
+
+   ("bi" "Institute Coordinator")
+
+   ,(org-config-bahai-meeting "bii" "Institute Coordinators"
                               "institute-coordinators.org")
+   ,(org-config-bahai-meeting "bia" "Cluster Agencies" "cluster-agencies.org")
+   ,(org-config-bahai-meeting "bid" "Institute Day" "institute-day.org")
+   ,(org-config-bahai-meeting "bir" "Institute Day Reflection"
+                              "institute-day-reflection.org")
+   ,(org-config-bahai-meeting "bit" "Tutor Training" "tutor-training.org")
+
+   ("bI" "Training Institute Board")
+
+   ,(org-config-bahai-meeting "bII" "Training Institute Statistics"
+                              "training-institute-statistics.org")
+
+   ("bF" "Ali Nakhjavani Development Fund")
+
+   ,(org-config-bahai-meeting "bFF" "Ali Nakhjavani Development Fund"
+                              "ali-nakhjavani-development-fund.org")
+
+   ("bC" "Convention")
+
+   ,(org-config-bahai-meeting "bCC" "Unit Convention" "unit-convention.org")
+   ,(org-config-bahai-meeting "bCR" "Convention Delegate's Report"
+                              "national-convention-delegate-report.org")
+
+
+   ("bn" "Arden Team Nucleus")
+
+   ,(org-config-bahai-meeting "bnn" "Arden Team Reflection"
+                              "arden-team-reflection.org")
 
    ("w" "Work templates")
 
@@ -953,7 +974,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ,(org-config-positron-meeting "wms" "Eng Standup" "eng-standup.org")
 
-   ,(org-config-positron-meeting "wC" "Conference"   "conference.org")
+   ,(org-config-positron-meeting "wc" "Conference"   "conference.org")
    ,(org-config-positron-meeting "wO" "Offsite"      "offsite.org")
 
    ("wo" "1-on-1s")
@@ -973,6 +994,12 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :jump-to-captured t
     :unnarrowed t
     :no-save t)
+
+   ("woa" "Names beginning with A")
+   ,(org-config-1-on-1-from-name "Alexey Radul")
+
+   ("wod" "Names beginning with D")
+   ,(org-config-1-on-1-from-name "Dan Wright")
 
    ("wog" "Names beginning with G")
    ,(org-config-1-on-1-from-name "Greg Davis")

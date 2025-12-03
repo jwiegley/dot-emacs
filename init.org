@@ -1321,115 +1321,15 @@ should be terminated.
   (calendar-longitude -121.417465))
 #+end_src
 
-*** bahai-calendar
+*** badi-calendar
 
 #+begin_src emacs-lisp
-(use-package bahai-calendar
+(use-package badi-calendar
+  :load-path "lisp/badi-calendar"
   :no-require t
-  :after calendar
-  :preface
-  (defconst first-year-in-list 172)
-
-  (defconst naw-ruz
-    '((3 21 2015)
-      (3 20 2016)
-      (3 20 2017)
-      (3 21 2018)
-      (3 21 2019)
-      (3 20 2020)
-      (3 20 2021)
-      (3 21 2022)
-      (3 21 2023)
-      (3 20 2024)
-      (3 20 2025)
-      (3 21 2026)
-      (3 21 2027)
-      (3 20 2028)
-      (3 20 2029)
-      (3 20 2030)
-      (3 21 2031)
-      (3 20 2032)
-      (3 20 2033)
-      (3 20 2034)
-      (3 21 2035)
-      (3 20 2036)
-      (3 20 2037)
-      (3 20 2038)
-      (3 21 2039)
-      (3 20 2040)
-      (3 20 2041)
-      (3 20 2042)
-      (3 21 2043)
-      (3 20 2044)
-      (3 20 2045)
-      (3 20 2046)
-      (3 21 2047)
-      (3 20 2048)
-      (3 20 2049)
-      (3 20 2050)
-      (3 21 2051)
-      (3 20 2052)
-      (3 20 2053)
-      (3 20 2054)
-      (3 21 2055)
-      (3 20 2056)
-      (3 20 2057)
-      (3 20 2058)
-      (3 20 2059)
-      (3 20 2060)
-      (3 20 2061)
-      (3 20 2062)
-      (3 20 2063)
-      (3 20 2064))
-    "The days when Naw-Rúz begins, for the next fifty years.")
-
-  (defconst days-of-há
-    '(4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4 4 4 5 4
-        4 4 5 4 4 4 5 4 4 4 5 4 4 4 5 4 4 4 4 5 4 4 4 5 4))
-
-  (defconst bahai-months
-    '("Bahá"      ; 1
-      "Jalál"     ; 2
-      "Jamál"     ; 3
-      "‘Aẓamat"   ; 4
-      "Núr"       ; 5
-      "Raḥmat"    ; 6
-      "Kalimát"   ; 7
-      "Kamál"     ; 8
-      "Asmá’"     ; 9
-      "‘Izzat"    ; 10
-      "Mashíyyat" ; 11
-      "‘Ilm"      ; 12
-      "Qudrat"    ; 13
-      "Qawl"      ; 14
-      "Masá’il"   ; 15
-      "Sharaf"    ; 16
-      "Sulṭán"    ; 17
-      "Mulk"      ; 18
-      "‘Alá’"     ; 19
-      ))
-
-  (eval-when-compile
-    (require 'cal-julian)
-    (require 'diary-lib))
-
-  (defun bahai-date (month day &optional bahai-year)
-    (require 'cal-julian)
-    (require 'diary-lib)
-    (let* ((greg-year (if bahai-year
-                          (+ 1844 (1- bahai-year))
-                        (nth 2 (calendar-current-date))))
-           (year (1+ (- greg-year 1844)))
-           (first-day (cl-find-if (lambda (x) (= greg-year (nth 2 x)))
-                                  naw-ruz))
-           (greg-base (calendar-julian-to-absolute first-day))
-           (hdays (nth (- year first-year-in-list) days-of-há))
-           (offset (+ (1- day) (* 19 (1- month))
-                      (if (= month 19)
-                          hdays
-                        0)))
-           (greg-date (calendar-julian-from-absolute (+ greg-base offset))))
-      (apply #'diary-date greg-date))))
+  :demand t
+  :custom
+  (calendar-bahai-all-holidays-flag t))
 #+end_src
 
 *** holidays
@@ -2185,16 +2085,18 @@ To get the most out of Eat, you should also setup shell integration.
   :commands (ecard-display)
   :custom
   (ecard-display-contacts-page-size 3000)
-  (ecard-display-servers
-   (list (ecard-carddav-server-create
-          :url "https://radicale.vulcan.lan"
-          :version "3.0"
-          :auth
-          (lambda ()
-            (ecard-carddav-auth-basic-create
-             :username "johnw"
-             :password (lookup-password "radicale.vulcan.lan"
-                                        "johnw" 443)))))))
+  :config
+  (setq ecard-carddav-servers
+        (list (ecard-carddav-server-create
+               :url "https://radicale.vulcan.lan"
+               :version "3.0"
+               :addressbook-home-url "https://radicale.vulcan.lan/johnw/"
+               :auth
+               (lambda ()
+                 (ecard-carddav-auth-basic-create
+                  :username "johnw"
+                  :password (lookup-password "radicale.vulcan.lan"
+                                             "johnw" 443)))))))
 #+end_src
 
 ** edbi
@@ -10767,8 +10669,8 @@ variables.  This is useful for a regi `begin' frame-entry."
 http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2
 
 Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
+     ("Positron" "" "\"John Wiegley\" <jwiegley@positron.ai>" "" nil "" "")
      ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
-     ("C2G" "" "\"John Wiegley\" <john.wiegley@coppertogold.org>" "" nil "" "")
      ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>"
       "New Artisans LLC" nil ""
       "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
@@ -10777,30 +10679,30 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2
 Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")))
   (gnus-alias-identity-rules
    '( ("Ledger Mailing List"
-      ("To" "ledger-cli@googlegroups\\.com" current)
-      "Gmail")
-     ("Emacs Mailing Lists"
-      ("Cc" "\\(emacs\\|debbugs\\)" current)
-      "Gnu")
-     ("Emacs Mailing Lists"
-      ("To" "\\(emacs\\|debbugs\\)" current)
-      "Gnu")
-     ("Emacs Newsgroups"
-      ("Newsgroups" "emacs" current)
-      "Gnu")
-     ("Tarjuman"
-      ("To" "\\(tarjuman\\)" current)
-      "NewArtisans")
-     ("Haskell Groups"
-      ("Newsgroups"
-       "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)"
-       current)
-      "NewArtisans")
-     ("Haskell Mailing Lists"
-      ("To"
-       "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)"
-       current)
-      "NewArtisans")))
+       ("To" "ledger-cli@googlegroups\\.com" current)
+       "Gmail")
+      ("Emacs Mailing Lists"
+       ("Cc" "\\(emacs\\|debbugs\\)" current)
+       "Gnu")
+      ("Emacs Mailing Lists"
+       ("To" "\\(emacs\\|debbugs\\)" current)
+       "Gnu")
+      ("Emacs Newsgroups"
+       ("Newsgroups" "emacs" current)
+       "Gnu")
+      ("Tarjuman"
+       ("To" "\\(tarjuman\\)" current)
+       "NewArtisans")
+      ("Haskell Groups"
+       ("Newsgroups"
+        "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)"
+        current)
+       "NewArtisans")
+      ("Haskell Mailing Lists"
+       ("To"
+        "\\(haskell\\|ghc\\|nix\\|coq\\|acl2\\|idris\\|agda\\|ssreflect\\|risc-v\\)"
+        current)
+       "NewArtisans")))
   (gnus-alias-override-user-mail-address t)
   (gnus-alias-unknown-identity-rule 'error)
   :preface
@@ -10821,19 +10723,14 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
             (match-in-strings "emacs-.*@gnu" addrs)
             (string-match "\\(gnu\\|emacs\\)" gnus-newsgroup-name))
         (gnus-alias-use-identity "Gnu"))
-       ((or (match-in-strings "jwiegley@gmail\\.com" addrs)
-            (match-in-strings "@baesystems\\.com" addrs)
-            (string-match "\\(brass\\|safe\\|riscv\\)" gnus-newsgroup-name))
+       ((match-in-strings "jwiegley@positron\\.ai" addrs)
+        (gnus-alias-use-identity "Positron"))
+       ((match-in-strings "jwiegley@gmail\\.com" addrs)
         (gnus-alias-use-identity "Gmail"))
-       ((or (match-in-strings "john\\.wiegley@coppertogold\\.com" addrs)
-            (string-match "\\(c2g\\)" gnus-newsgroup-name))
-        (gnus-alias-use-identity "C2G"))
        ((or (match-in-strings "johnw@newartisans\\.com" addrs)
             (string-match "\\(haskell\\|coq\\|agda\\|idris\\|acl2\\)"
                           gnus-newsgroup-name))
         (gnus-alias-use-identity "NewArtisans"))
-       ((match-in-strings "john\\.wiegley@baesystems\\.com" addrs)
-        (gnus-alias-use-identity "BAE"))
        (t
         (gnus-alias-determine-identity))))))
 #+end_src
@@ -12360,8 +12257,6 @@ displays the priority part of a heading as your preferred string value.
           (org-file "calendar/google.org"))
     (cons "ajhrtkkubthrda9l40bf95hceo@group.calendar.google.com"
           (org-file "calendar/bahai.org"))
-    (cons "pse8nk29dq9ll8g7jpq0mbllf8@group.calendar.google.com"
-          (org-file "calendar/c2g.org"))
     (cons "57jh2om1vl9sv16sor1mudl030@group.calendar.google.com"
           (org-file "calendar/family.org"))
     ;; (cons "54ioufdqn31buq7et3uo1u37tlceqldh@import.calendar.google.com"
