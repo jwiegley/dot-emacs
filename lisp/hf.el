@@ -99,6 +99,7 @@ groups:
       - Qwen3-235B-A22B-Thinking-2507
       - Qwen3-Coder-480B-A35B-Instruct
       - gpt-oss-120b
+      - mlx-community/gpt-oss-120b-MXFP4-Q8
       - r1-1776-distill-llama-70b
 
   small_models:
@@ -121,7 +122,9 @@ groups:
       - gemma-3-4b-it
       - gemma-3n-E4B-it
       - gpt-oss-20b
+      - mlx-community/gpt-oss-20b-MXFP4-Q8
       - gpt-oss-safeguard-20b
+      - lmstudio-community/gpt-oss-safeguard-20b-MLX-MXFP4
 
   embeddings:
     swap: true
@@ -338,20 +341,31 @@ general_settings:
    (make-hf-model
     :name 'r1-1776-distill-llama-70b
     :context-length 131072
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.95
+    :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/bartowski_perplexity-ai_r1-1776-distill-llama-70b-GGUF")))
+      :model-path "~/Models/bartowski_perplexity-ai_r1-1776-distill-llama-70b-GGUF"
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'DeepSeek-R1-Distill-Qwen-32B
     :context-length 131072
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.95
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/lmstudio-community_DeepSeek-R1-Distill-Qwen-32B-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'DeepSeek-R1-0528
@@ -386,18 +400,24 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_DeepSeek-R1-0528-Qwen3-8B-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'DeepSeek-V3.1-Terminus
     :context-length 131072
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.95
+    :supports-function-calling t
     :instances
     (list
      (make-hf-instance
       :context-length 16384
       :model-path "~/Models/unsloth_DeepSeek-V3.1-Terminus-GGUF"
       :arguments '("--cache-type-k" "q4_1"
-                   ;; "--flash-attn" "on"
+                   "--cache-type-v" "q4_1"
                    "--seed" "3407"))))
 
    (make-hf-model
@@ -425,6 +445,7 @@ general_settings:
       :max-output-tokens 32768
       :model-path "~/Models/unsloth_Kimi-K2-Instruct-GGUF"
       :arguments '("--cache-type-k" "q4_1"
+                   "--cache-type-v" "q4_1"
                    "--seed" "3407"))))
 
    (make-hf-model
@@ -435,6 +456,7 @@ general_settings:
     :top-p 0.8
     :top-k 20
     :supports-function-calling t
+    :supports-reasoning t
     :instances
     (list
      (make-hf-instance
@@ -442,17 +464,23 @@ general_settings:
       :max-output-tokens 32768
       :model-path "~/Models/unsloth_Kimi-K2-Thinking-GGUF"
       :arguments '("--cache-type-k" "q4_1"
+                   "--cache-type-v" "q4_1"
                    "--seed" "3407"))))
 
    (make-hf-model
     :name 'Llama-4-Scout-17B-16E-Instruct
     :context-length 10485760
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.9
     :supports-function-calling t
     :instances
     (list
      (make-hf-instance
       :context-length 1048576
-      :model-path "~/Models/unsloth_Llama-4-Scout-17B-16E-Instruct-GGUF")
+      :model-path "~/Models/unsloth_Llama-4-Scout-17B-16E-Instruct-GGUF"
+      :arguments '("--cache-type-k" "q4_1"
+                   "--cache-type-v" "q4_1"))
 
      (make-hf-instance
       :name 'meta-llama/llama-4-scout-17b-16e-instruct
@@ -488,7 +516,10 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_MiniMax-M2-GGUF"
-      :hostnames '("hera"))))
+      :hostnames '("hera")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"))))
 
    (make-hf-model
     :name 'MiniMax-M2-REAP-162B-A10B
@@ -502,21 +533,32 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/bartowski_cerebras_MiniMax-M2-REAP-162B-A10B-GGUF"
-      :hostnames '("hera"))))
+      :hostnames '("hera")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"))))
 
    (make-hf-model
     :name 'Phi-4-reasoning-plus
     :context-length 32768
+    :temperature 0.6
+    :min-p 0.01
+    :top-p 0.9
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Phi-4-reasoning-plus-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--flash-attn" "on"))))
 
    (make-hf-model
     :name 'Qwen3-0.6B
     :context-length 40960
+    :temperature 0.7
+    :min-p 0.0
+    :top-p 0.8
+    :top-k 20
     :supports-function-calling t
     :supports-reasoning t
     :instances
@@ -528,6 +570,10 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-1.7B
     :context-length 40960
+    :temperature 0.7
+    :min-p 0.0
+    :top-p 0.8
+    :top-k 20
     :supports-function-calling t
     :supports-reasoning t
     :instances
@@ -539,6 +585,10 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-4B
     :context-length 40960
+    :temperature 0.7
+    :min-p 0.0
+    :top-p 0.8
+    :top-k 20
     :supports-function-calling t
     :supports-reasoning t
     :instances
@@ -550,64 +600,92 @@ general_settings:
    (make-hf-model
     :name 'Qwen3-8B
     :context-length 40960
+    :temperature 0.7
+    :min-p 0.0
+    :top-p 0.8
+    :top-k 20
     :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-8B-GGUF"
-      :hostnames '("hera" "clio")) ))
+      :hostnames '("hera" "clio"))))
 
    (make-hf-model
     :name 'Qwen3-14B
     :context-length 40960
+    :temperature 0.7
+    :min-p 0.0
+    :top-p 0.8
+    :top-k 20
     :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-14B-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'Qwen3-32B
     :context-length 40960
+    :temperature 0.7
+    :min-p 0.0
+    :top-p 0.8
+    :top-k 20
     :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-32B-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'Qwen3-30B-A3B-Instruct-2507
     :context-length 262144
+    :temperature 0.7
+    :min-p 0.0
+    :top-p 0.8
+    :top-k 20
     :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-30B-A3B-Instruct-2507-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'Qwen3-30B-A3B-Thinking-2507
     :context-length 262144
+    :temperature 0.6
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 20
     :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Qwen3-30B-A3B-Thinking-2507-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'Qwen3-235B-A22B-Instruct-2507
     :characteristics '(high local instruct)
     :context-length 262144
     :temperature 0.7
-    :min-p 0.01
+    :min-p 0.0
     :top-p 0.8
     :top-k 20
     :supports-function-calling t
@@ -618,7 +696,7 @@ general_settings:
       :model-path "~/Models/unsloth_Qwen3-235B-A22B-Instruct-2507-GGUF"
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
-                   "--top-k" "20"
+                   "--cache-type-v" "q8_0"
                    "--flash-attn" "on"))))
 
    (make-hf-model
@@ -626,7 +704,7 @@ general_settings:
     :characteristics '(high local thinking)
     :context-length 262144
     :temperature 0.6
-    :min-p 0.01
+    :min-p 0.0
     :top-p 0.95
     :top-k 20
     :supports-function-calling t
@@ -638,14 +716,14 @@ general_settings:
       :model-path "~/Models/unsloth_Qwen3-235B-A22B-Thinking-2507-GGUF"
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
-                   "--top-k" "20"
+                   "--cache-type-v" "q8_0"
                    "--flash-attn" "on"))))
 
    (make-hf-model
     :name 'Qwen3-Coder-30B-A3B-Instruct
     :context-length 262144
     :temperature 0.7
-    :min-p 0.01
+    :min-p 0.0
     :top-p 0.8
     :top-k 20
     :supports-function-calling t
@@ -658,7 +736,7 @@ general_settings:
       :cache-control t
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q8_0"
-                   "--top-k" "20"
+                   "--cache-type-v" "q8_0"
                    "--flash-attn" "on"
                    "--batch-size" "8192"
                    "--ubatch-size" "8192"
@@ -670,7 +748,7 @@ general_settings:
     :name 'Qwen3-Coder-480B-A35B-Instruct
     :context-length 262144
     :temperature 0.7
-    :min-p 0.01
+    :min-p 0.0
     :top-p 0.8
     :top-k 20
     :supports-function-calling t
@@ -683,8 +761,10 @@ general_settings:
       :cache-control t
       :arguments '("--repeat-penalty" "1.05"
                    "--cache-type-k" "q4_1"
-                   "--top-k" "20"
+                   "--cache-type-v" "q4_1"
                    "--flash-attn" "on"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "8192"
                    "--rope-scaling" "yarn"
                    "--rope-scale" "4"
                    "--yarn-orig-ctx" "262144"
@@ -697,62 +777,120 @@ general_settings:
     :top-p 0.95
     :top-k -1
     :supports-function-calling t
+    :supports-reasoning t
     :instances
     (list
      (make-hf-instance
       :max-output-tokens 40960
-      :model-path "~/Models/mradermacher_VibeThinker-1.5B-GGUF")))
+      :model-path "~/Models/mradermacher_VibeThinker-1.5B-GGUF"
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'gemma-3-1b-it
     :context-length 32768
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 64
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gemma-3-1b-it-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--flash-attn" "on"
+                   "--repeat-penalty" "1.0"))))
 
    (make-hf-model
     :name 'gemma-3-4b-it
     :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 64
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gemma-3-4b-it-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "--repeat-penalty" "1.0"))))
 
    (make-hf-model
     :name 'gemma-3-12b-it
     :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 64
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gemma-3-12b-it-GGUF"
       :draft-model "~/Models/unsloth_gemma-3-1b-it-GGUF/gemma-3-1b-it-UD-Q8_K_XL.gguf"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "--repeat-penalty" "1.0"))))
 
    (make-hf-model
     :name 'gemma-3-27b-it
     :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 64
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gemma-3-27b-it-GGUF"
       :draft-model "~/Models/unsloth_gemma-3-4b-it-GGUF/gemma-3-4b-it-UD-Q8_K_XL.gguf"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "--repeat-penalty" "1.0"))))
 
    (make-hf-model
     :name 'gemma-3n-E4B-it
     :context-length 32768
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 64
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gemma-3n-E4B-it-GGUF"
-      :hostnames '("hera" "clio"))))
+      :hostnames '("hera" "clio")
+      :arguments '("--flash-attn" "on"
+                   "--repeat-penalty" "1.0"))))
+
+   (make-hf-model
+    :name 'gpt-oss-20b-MXFP4-Q8
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :name 'mlx-community/gpt-oss-20b-MXFP4-Q8
+      :hostnames '("hera" "clio")
+      :cache-control t
+      :engine 'mlx-lm)))
 
    (make-hf-model
     :name 'gpt-oss-20b
     :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
     :supports-function-calling t
     :supports-reasoning t
     :instances
@@ -760,23 +898,76 @@ general_settings:
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
       :hostnames '("hera" "clio")
-      :cache-control t)))
+      :cache-control t
+      :arguments '(
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "-ub" "2048"
+                   "-b" "2048"
+                   ))))
+
+   (make-hf-model
+    :name 'gpt-oss-120b-MXFP4-Q8
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :name 'mlx-community/gpt-oss-120b-MXFP4-Q8
+      :hostnames '("hera")
+      :cache-control t
+      :engine 'mlx-lm)))
 
    (make-hf-model
     :name 'gpt-oss-120b
     :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
     :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
-      :draft-model "~/Models/unsloth_gpt-oss-20b-GGUF/gpt-oss-20b-F16.gguf"
-      :cache-control t)))
+      ;; :draft-model "~/Models/unsloth_gpt-oss-20b-GGUF/gpt-oss-20b-Q8_0.gguf"
+      :cache-control t
+      :arguments '(
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "-ub" "2048"
+                   "-b" "2048"
+                   )
+      )))
+
+   (make-hf-model
+    :name 'gpt-oss-safeguard-20b-MLX-MXFP4
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :name 'lmstudio-community/gpt-oss-safeguard-20b-MLX-MXFP4
+      :hostnames '("hera" "clio")
+      :cache-control t
+      :engine 'mlx-lm)))
 
    (make-hf-model
     :name 'gpt-oss-safeguard-20b
     :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
     :supports-function-calling t
     :supports-reasoning t
     :instances
@@ -784,7 +975,15 @@ general_settings:
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-safeguard-20b-GGUF"
       :hostnames '("hera")
-      :cache-control t)))
+      :cache-control t
+      :arguments '(
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "-ub" "2048"
+                   "-b" "2048"
+                   ))
+     ))
 
    (make-hf-model
     :name 'Qwen.Qwen3-Reranker-8B
@@ -794,7 +993,9 @@ general_settings:
      (make-hf-instance
       :model-path "~/Models/DevQuasar_Qwen.Qwen3-Reranker-8B-GGUF"
       :hostnames '("hera" "clio")
-      :arguments '("--reranking"))))
+      :arguments '("--reranking"
+                   "--batch-size" "4096"
+                   "--ubatch-size" "2048"))))
 
    (make-hf-model
     :name 'Qwen3-Embedding-8B
@@ -807,8 +1008,8 @@ general_settings:
       :hostnames '("hera" "clio")
       :arguments '("--embedding"
                    "--pooling" "last"
-                   "--ubatch-size" "8192"
-                   "--batch-size" "2048"))))
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"))))
 
    (make-hf-model
     :name 'bge-m3
@@ -821,8 +1022,8 @@ general_settings:
       :hostnames '("hera" "clio")
       :arguments '("--embedding"
                    "--pooling" "mean"
-                   "--ubatch-size" "8192"
-                   "--batch-size" "4096"))))
+                   "--batch-size" "8192"
+                   "--ubatch-size" "4096"))))
 
    (make-hf-model
     :name 'bge-reranker-v2-m3
@@ -833,8 +1034,8 @@ general_settings:
       :model-path "~/Models/gpustack_bge-reranker-v2-m3-GGUF"
       :hostnames '("hera" "clio")
       :arguments '("--reranking"
-                   "--ubatch-size" "8192"
-                   "--batch-size" "4096"))))
+                   "--batch-size" "8192"
+                   "--ubatch-size" "4096"))))
 
    (make-hf-model
     :name 'nomic-embed-text-v2-moe
@@ -846,7 +1047,9 @@ general_settings:
       :model-path "~/Models/nomic-ai_nomic-embed-text-v2-moe-GGUF"
       :hostnames '("hera" "clio")
       :arguments '("--embedding"
-                   "--ubatch-size" "8192"))))
+                   "--pooling" "mean"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "4096"))))
 
    (make-hf-model
     :name 'bge-base-en-v1.5
@@ -1381,7 +1584,7 @@ Optionally generate for the given HOSTNAME."
          (leader (format "
   \"%s\":
     proxy: \"http://127.0.0.1:${PORT}\"
-    cmd: >" (hf-model-name model)))
+    cmd: >" (hf-get-instance-name model instance)))
          (footer "
     checkEndpoint: /health
 "))
@@ -1407,10 +1610,10 @@ Optionally generate for the given HOSTNAME."
          (insert
           leader
           (format "
-      %s
+      %s server
         --host 127.0.0.1 --port ${PORT}
         --model %s %s"
-                  exe (hf-get-instance-model-name model instance) args)
+                  exe (hf-get-instance-name model instance) args)
           footer))))))
 
 (defun hf-generate-llama-swap-yaml (hostname)
@@ -1451,7 +1654,7 @@ Optionally generate for the given HOSTNAME."
   (let* ((hostnames (hf-instance-hostnames instance))
          (provider (hf-instance-provider instance))
          (cache-control (hf-instance-cache-control instance))
-         (model-name (hf-get-instance-model-name model instance))
+         (_model-name (hf-get-instance-model-name model instance))
          (name (hf-get-instance-name model instance))
          (kind (hf-model-kind model))
          (description (hf-model-description model))
@@ -1476,7 +1679,7 @@ Optionally generate for the given HOSTNAME."
       supports_function_calling: %s
       supports_reasoning: %s%s
 "
-                      host model-name
+                      host name
                       (if (eq 'local provider)
                           "openai"
                         provider)
@@ -1559,7 +1762,7 @@ Optionally generate for the given HOSTNAME."
 (defun hf-get-instance-gptel-backend (model instance &optional hostname)
   "Instance the llama-swap.yaml config for MODEL and INSTANCE.
 If HOSTNAME is non-nil, only generate definitions for that host."
-  (let* ((model-name (hf-get-instance-model-name model instance)))
+  (let* ((model-name (hf-get-instance-name model instance)))
     (unless (memq (hf-model-kind model) '(embedding reranker))
       (cl-loop for server in (let ((provider (hf-instance-provider instance)))
                                (if (or (null provider)
