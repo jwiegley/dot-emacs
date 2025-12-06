@@ -95,7 +95,7 @@
 (gptel-make-preset 'haiku
   :description "Anthropic's Claude Haiku"
   :backend "LiteLLM"
-  :model 'anthropic/claude-haiku
+  :model 'anthropic/claude-haiku-4-5-20251001
   :temperature 1.0)
 
 (gptel-make-preset 'haiku-max
@@ -107,13 +107,13 @@
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
   :backend "LiteLLM"
-  :model 'anthropic/claude-sonnet
+  :model 'anthropic/claude-sonnet-4-5-20250929
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
   :backend "LiteLLM"
-  :model 'anthropic/claude-sonnet
+  :model 'anthropic/claude-sonnet-4-5-20250929
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet-max
@@ -125,7 +125,7 @@
 (gptel-make-preset 'opus
   :description "Anthropic's Claude Opus, thinking"
   :backend "LiteLLM"
-  :model 'anthropic/claude-opus
+  :model 'anthropic/claude-opus-4-5-20251101
   :temperature 1.0)
 
 (gptel-make-preset 'opus-max
