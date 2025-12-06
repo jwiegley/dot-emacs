@@ -284,7 +284,7 @@ This can come from four possible sources:
   (when (and (not (active-minibuffer-window))
              (vulpea-buffer-p))
     (vulpea-ensure-filetag)
-    (when (and (string-match-p "org/\\(meeting\\|assembly\\|bahai\\)"
+    (when (and (string-match-p "org/\\(meeting\\|bahai\\|positron\\)"
                                (file-name-directory (buffer-file-name)))
                (not (member
                      (file-name-nondirectory (buffer-file-name))

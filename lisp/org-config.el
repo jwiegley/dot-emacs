@@ -484,13 +484,14 @@ for use in `org-capture-templates'."
   "Create a Positron meeting configuration with KEYS, TITLE, and FILE.
 Uses the Positron meeting template located at ~/org/template/positron/meeting."
   (org-config-meeting-template
-   keys title file "~/org/template/positron/meeting"))
+   keys title file "~/org/template/positron/meeting" nil "positron/meeting"))
 
 (defsubst org-config-positron-1-on-1 (keys title file)
   "Create a Positron 1-on-1 meeting configuration with KEYS, TITLE, and FILE.
 Uses the Positron one-on-one template and adds `1-on-1-' prefix."
   (org-config-meeting-template
-   keys title file "~/org/template/positron/one-on-one" "1-on-1-" "positron"))
+   keys title file "~/org/template/positron/one-on-one" "1-on-1-"
+   "positron/meeting"))
 
 (defsubst org-config-bahai-meeting (keys title file)
   "Create a Bahai meeting configuration with KEYS, TITLE, and FILE.
@@ -997,6 +998,9 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("woa" "Names beginning with A")
    ,(org-config-1-on-1-from-name "Alexey Radul")
+
+   ("wob" "Names beginning with B")
+   ,(org-config-1-on-1-from-name "Ben Gamari")
 
    ("wod" "Names beginning with D")
    ,(org-config-1-on-1-from-name "Dan Wright")
