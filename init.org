@@ -10051,9 +10051,20 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (gnus-group-mode . hl-line-mode)
   :custom
   (gnus-group-default-list-level 2)
-  (gnus-group-line-format "%S%p%P%M%5y: %(%B%G%B%)\n")
+  (gnus-group-line-format "%S%p%P%M%5y: %(%B%uG%B%)\n")
   (gnus-group-mode-hook '(gnus-topic-mode hl-line-mode))
-  (gnus-group-use-permanent-levels t))
+  (gnus-group-use-permanent-levels t)
+  :preface
+  (defvar gnus-group-name-map
+    '(("nnimap+imap-assembly.vulcan.lan:INBOX" . "mail/assembly"))
+    "Alist mapping real group names to display names for the Group buffer.")
+
+  (defun gnus-user-format-function-G (_arg)
+    "Return a mapped display name for the current group, or the real name."
+    (let ((mapped (assoc gnus-tmp-group gnus-group-name-map)))
+      (if mapped
+          (cdr mapped)
+        gnus-tmp-group))))
 #+end_src
 
 **** gnus-score
