@@ -86,52 +86,62 @@
   :stream t                             ;Streaming responses
   :key gptel-api-key)
 
-(gptel-make-preset 'haiku-direct
-  :description "Anthropic's Claude Haiku"
-  :backend "Claude"
-  :model 'claude-haiku-4-5-20251001
+(defvar claude-opus-model 'claude-opus-4-5-20251101)
+(defvar claude-sonnet-model 'claude-sonnet-4-5-20250929)
+(defvar claude-haiku-model 'claude-haiku-4-5-20251001)
+
+(gptel-make-preset 'opus
+  :description "Anthropic's Claude Opus, thinking"
+  :backend "LiteLLM"
+  :model (intern (format "anthropic/%s" claude-opus-model))
+  :temperature 1.0)
+
+(gptel-make-preset 'sonnet
+  :description "Anthropic's Claude Sonnet, thinking"
+  :backend "LiteLLM"
+  :model (intern (format "anthropic/%s" claude-sonnet-model))
   :temperature 1.0)
 
 (gptel-make-preset 'haiku
   :description "Anthropic's Claude Haiku"
   :backend "LiteLLM"
-  :model 'anthropic/claude-haiku-4-5-20251001
-  :temperature 1.0)
-
-(gptel-make-preset 'haiku-max
-  :description "Anthropic's Claude Haiku"
-  :backend "Claude-Anthropic"
-  :model 'claude-haiku-4-5-20251001
-  :temperature 1.0)
-
-(gptel-make-preset 'sonnet
-  :description "Anthropic's Claude Sonnet, thinking"
-  :backend "LiteLLM"
-  :model 'anthropic/claude-sonnet-4-5-20250929
-  :temperature 1.0)
-
-(gptel-make-preset 'sonnet
-  :description "Anthropic's Claude Sonnet, thinking"
-  :backend "LiteLLM"
-  :model 'anthropic/claude-sonnet-4-5-20250929
-  :temperature 1.0)
-
-(gptel-make-preset 'sonnet-max
-  :description "Anthropic's Claude Sonnet, thinking"
-  :backend "Claude-Anthropic"
-  :model 'claude-sonnet-4-5-20250929
-  :temperature 1.0)
-
-(gptel-make-preset 'opus
-  :description "Anthropic's Claude Opus, thinking"
-  :backend "LiteLLM"
-  :model 'anthropic/claude-opus-4-5-20251101
+  :model (intern (format "anthropic/%s" claude-haiku-model))
   :temperature 1.0)
 
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
   :backend "Claude-Anthropic"
-  :model 'claude-opus-4-5-20251101
+  :model claude-opus-model
+  :temperature 1.0)
+
+(gptel-make-preset 'sonnet-max
+  :description "Anthropic's Claude Sonnet, thinking"
+  :backend "Claude-Anthropic"
+  :model claude-sonnet-model
+  :temperature 1.0)
+
+(gptel-make-preset 'haiku-max
+  :description "Anthropic's Claude Haiku"
+  :backend "Claude-Anthropic"
+  :model claude-haiku-model
+  :temperature 1.0)
+
+(gptel-make-preset 'opus-direct
+  :description "Anthropic's Claude Opus"
+  :backend "Claude"
+  :model claude-opus-model
+  :temperature 1.0)
+
+(gptel-make-preset 'sonnet-direct
+  :description "Anthropic's Claude Sonnet"
+  :backend "Claude"
+  :model claude-sonnet-model
+  :temperature 1.0)
+
+(gptel-make-preset 'haiku-direct
+  :description "Anthropic's Claude Haiku"
+  :backend "Claude"
+  :model claude-haiku-model
   :temperature 1.0)
 
 ;;; Perplexity
