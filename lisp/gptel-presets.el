@@ -256,16 +256,14 @@
   :use-context nil
   :tools nil
   :parents (or
+            'gpt-oss-travel
             'sonnet
+            'opus-max
             'gpt-oss
-            'sonnet-max
             'haiku
             'haiku-max
             'haiku-direct
             'gpt
-            'minimax-m2
-            'gpt-oss-travel
-            'qwen
             ))
 
 (gptel-make-preset 'visible-buffers

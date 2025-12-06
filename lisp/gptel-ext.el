@@ -313,7 +313,12 @@ Intended to be placed in `git-commit-setup-hook'."
         (with-temp-buffer
           (vc-git-command              ;insert diff
            (current-buffer) 1 nil
-           "diff-index" "--exit-code" "--patch"
+           "diff-index"
+           "--unified=16"
+           "--patch"
+           "--minimal"
+           "--ignore-all-space"
+           "--exit-code"
            (and (magit-anything-staged-p) "--cached")
            "HEAD" "--")
 
