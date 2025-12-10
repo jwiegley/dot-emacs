@@ -1132,8 +1132,6 @@ Shows categories with their usage counts in a temporary buffer."
 
 (defvar org-ext-category-history nil)
 
-;;; jww (2025-08-30): This function should make it easy to quickly set a
-;;; category from a list of possible categories.
 (defun org-ext-set-category (category)
   "Set the category of the current Org-mode element to CATEGORY."
   (interactive

@@ -59,6 +59,12 @@
   :model 'gpt-oss-20b
   :temperature 1.0)
 
+(gptel-make-preset 'gpt-oss-mlx
+  :description "OpenAI's ChatGPT, Open Source (MLX via llama-swap)"
+  :backend "LiteLLM"
+  :model 'hera/mlx-community/gpt-oss-20b-MXFP4-Q8
+  :temperature 1.0)
+
 (gptel-make-preset 'minimax-m2
   :description "MiniMax-M2"
   :backend "LiteLLM"
@@ -245,8 +251,7 @@
   :system '(:append "
 
 - Use sequential-thinking MCP when appropriate to break down tasks further.
-- Use context7 MCP and Ref MCP whenever code examples might help.
-- Use memory-keeper MCP to record and recall conversations."))
+- Use Perplexy MCP to research subjects further on the Internet."))
 
 (gptel-make-preset 'analyze
   :description "Best model for analysis"
@@ -266,9 +271,9 @@
   :use-context nil
   :tools nil
   :parents (or
-            'gpt-oss-travel
-            'sonnet
             'opus-max
+            'sonnet
+            'gpt-oss-travel
             'gpt-oss
             'haiku
             'haiku-max
@@ -313,6 +318,11 @@
 (gptel-make-preset 'title
   :description "Create Org-mode title"
   :system 'title
+  :parents 'rewrite)
+
+(gptel-make-preset 'infer-tasks
+  :description "Infer Org-mode tasks from text"
+  :system'infer-tasks
   :parents 'rewrite)
 
 ;;; Languages

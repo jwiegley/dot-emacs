@@ -82,6 +82,17 @@ generated title, adding a space before the title if needed."
                         (insert " "))
                       (insert resp)))))))
 
+(defun gptel-ext-infer-tasks (beg end)
+  (interactive "r")
+  (gptel-with-preset 'infer-tasks
+    (gptel-request
+        (buffer-substring-no-properties beg end)
+      :callback (lambda (resp info)
+                  (when (stringp resp)
+                    (with-current-buffer (plist-get info :buffer)
+                      (goto-char (plist-get info :position))
+                      (insert resp)))))))
+
 (gptel-make-tool
  :function (lambda (location unit)
              (url-retrieve-synchronously "api.weather.com/..."

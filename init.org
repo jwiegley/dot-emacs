@@ -2955,7 +2955,8 @@ up before you execute another command."
     (interactive)
     (when (locate-dominating-file default-directory ".format")
       (format-all-mode 1)
-      (whitespace-mode 1)))
+      ;; (whitespace-mode 1)
+      ))
   :config
   (defun format-all--resolve-system (choices)
     "Get first choice matching `format-all--system-type' from CHOICES."
@@ -3380,6 +3381,7 @@ up before you execute another command."
    ("p" . gptel-ext-proofread)
    ("D" . gptel-ext-docstring)
    ("t" . gptel-ext-title)
+   ("T" . gptel-ext-infer-tasks)
    :map
    gptel-mode-map
    ("C-c C-t" . gptel-ext-clear-buffer))
@@ -7055,7 +7057,7 @@ RET in the buffer you want to undo.
                                            buffer-file-name))))
                (locate-dominating-file default-directory ".clean")
                (not (locate-dominating-file default-directory ".noclean")))
-      (whitespace-mode 1)
+      ;; (whitespace-mode 1)
       ;; For some reason, having these in settings.el gets ignored if
       ;; whitespace loads lazily.
       (setq whitespace-auto-cleanup t
@@ -8919,7 +8921,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
   (defun my-haskell-mode-hook ()
     (haskell-indentation-mode)
-    (whitespace-mode 1)
+    ;; (whitespace-mode 1)
     (bug-reference-prog-mode 1)
 
     (setq-local prettify-symbols-alist haskell-prettify-symbols-alist)
@@ -11482,7 +11484,7 @@ This is returned as a string."
          my-ctrl-c-n-map
          ("C" . org-ext-set-category))
   :hook
-  ;; (after-save . org-ext-update-team-after-save)
+  (after-save . org-ext-update-team-after-save)
   (org-mode . org-ext-setup-insert-code-block)
   (org-log-buffer-setup . org-ext-setup-insert-code-block)
   ;; (org-agenda-finalize . org-ext-report-items-to-be-reviewed)
@@ -11502,8 +11504,7 @@ This is returned as a string."
   ;;   :config
   ;;   (org-ext-gnus-drop-link-parameter "mairix"))
 
-  ;; (org-ext-update-team)
-  )
+  (org-ext-update-team))
 #+end_src
 
 *** org-config

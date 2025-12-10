@@ -52,7 +52,7 @@
   :type 'string
   :group 'hf)
 
-(defcustom hf-default-instance-name 'hera/gpt-oss-120b
+(defcustom hf-default-instance-name 'mlx-community/gpt-oss-120b-MXFP4-Q8
   "Name of default instance."
   :type 'symbol
   :group 'hf)
@@ -241,6 +241,9 @@ litellm_settings:
     host: \"10.0.2.2\"
     port: 8085
     supported_call_types: [\"acompletion\", \"atext_completion\", \"aembedding\", \"atranscription\"]
+  # Custom callback to strip Harmony analysis channel from gpt-oss models
+  callbacks:
+    - harmony_filter.harmony_filter
 
 router_settings:
   routing_strategy: \"least-busy\"
@@ -291,6 +294,38 @@ general_settings:
 
 (defconst hf-all-model-engines
   '(llama-cpp koboldcpp mlx-lm))
+
+;;; Models have several names:
+;;
+;; hf-model-name
+;; hf-model-aliases
+;; hf-instance-name
+;; hf-instance-model-name
+;;
+;; These names are used in several places:
+;;
+;; - The name of the model as reported by v1/models, which is used for
+;;   submitting queries to that model to eihter llama-swap, LiteLLM or
+;;   directly to an external model provider (Anthropic, OpenRouter, etc)
+;; - The name of the model as managed by that backend
+;; - The name of the model as submitted to the provider by the backend
+;;
+;;; llama-swap.yaml
+;;
+;; "mlx-community/gpt-oss-20b-MXFP4-Q8":
+;;   cmd: >
+;;     /etc/profiles/per-user/johnw/bin/mlx-lm server
+;;       --host 127.0.0.1 --port ${PORT}
+;;       --model mlx-community/gpt-oss-20b-MXFP4-Q8 ...
+;;
+;; "gpt-oss-20b":
+;;   cmd: >
+;;     /etc/profiles/per-user/johnw/bin/llama-server
+;;       --host 127.0.0.1 --port ${PORT}
+;;       --jinja
+;;       --model /Users/johnw/Models/unsloth_gpt-oss-20b-GGUF/gpt-oss-20b-F16.gguf ...
+;;
+;;; litellm/config.yaml
 
 (cl-defstruct hf-model
   "Configuration data for a model, and its family of instances."
@@ -720,6 +755,41 @@ general_settings:
                    "--flash-attn" "on"))))
 
    (make-hf-model
+    :name 'Qwen3-Next-80B-A3B-Instruct
+    :characteristics '(high local instruct)
+    :context-length 262144
+    :temperature 0.7
+    :min-p 0.0
+    :top-p 0.8
+    :top-k 20
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 16384
+      :model-path "~/Models/unsloth_Qwen3-Next-80B-A3B-Instruct-GGUF"
+      :arguments '("--repeat-penalty" "1.05"
+                   "--flash-attn" "on"))))
+
+   (make-hf-model
+    :name 'Qwen3-Next-80B-A3B-Thinking
+    :characteristics '(high local thinking)
+    :context-length 262144
+    :temperature 0.6
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 32768
+      :model-path "~/Models/unsloth_Qwen3-Next-80B-A3B-Thinking-GGUF"
+      :arguments '("--repeat-penalty" "1.05"
+                   "--flash-attn" "on"))))
+
+   (make-hf-model
     :name 'Qwen3-Coder-30B-A3B-Instruct
     :context-length 262144
     :temperature 0.7
@@ -974,6 +1044,28 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-safeguard-20b-GGUF"
+      :hostnames '("hera")
+      :cache-control t
+      :arguments '(
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "-ub" "2048"
+                   "-b" "2048"
+                   ))
+     ))
+
+   (make-hf-model
+    :name 'Devstral-2-123B-Instruct-2512
+    :context-length 262144
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/bartowski_mistralai_Devstral-2-123B-Instruct-2512-GGUF"
       :hostnames '("hera")
       :cache-control t
       :arguments '(
@@ -1612,6 +1704,7 @@ Optionally generate for the given HOSTNAME."
           (format "
       %s server
         --host 127.0.0.1 --port ${PORT}
+        --use-default-chat-template
         --model %s %s"
                   exe (hf-get-instance-name model instance) args)
           footer))))))
@@ -1635,19 +1728,24 @@ Optionally generate for the given HOSTNAME."
 
 (defun hf-build-llama-swap-yaml (&optional hostname)
   "Build llama-swap.yaml configuration, optionally for HOSTNAME."
-  (let ((yaml-path (if (string= hostname "vulcan")
-                       (expand-file-name "llama-swap.yaml" "/home/johnw/Models")
-                     (expand-file-name "llama-swap.yaml" hf-gguf-models))))
+  (let* ((target-host (or hostname hf-default-hostname))
+         (yaml-path (if (string= hostname "vulcan")
+                        (expand-file-name "llama-swap.yaml" "/home/johnw/Models")
+                      (expand-file-name "llama-swap.yaml" hf-gguf-models))))
+    (message "[llama-swap] Generating YAML for %s..." target-host)
     (with-temp-buffer
       (insert (with-current-buffer
-                  (hf-generate-llama-swap-yaml (or hostname hf-default-hostname))
+                  (hf-generate-llama-swap-yaml target-host)
                 (buffer-string)))
+      (message "[llama-swap] Writing to %s..." (hf-remote-path yaml-path hostname))
       (write-file (hf-remote-path yaml-path hostname)))
+    (message "[llama-swap] Stopping llama-swap on %s..." target-host)
     (if (and hostname
              (not (string= hostname hf-default-hostname)))
         (shell-command
          (format "ssh %s killall llama-swap 2>/dev/null" hostname))
-      (shell-command "killall llama-swap 2>/dev/null"))))
+      (shell-command "killall llama-swap 2>/dev/null"))
+    (message "[llama-swap] Done for %s" target-host)))
 
 (defun hf-insert-instance-litellm (model instance)
   "Instance the LiteLLM config for MODEL and INSTANCE."
@@ -1736,28 +1834,41 @@ Optionally generate for the given HOSTNAME."
 
 (defun hf-build-litellm-yaml ()
   "Build LiteLLM config.yaml configuration."
+  (message "[litellm] Generating LiteLLM configuration...")
   (with-temp-buffer
     (insert (with-current-buffer (hf-generate-litellm-yaml)
               (buffer-string)))
+    (message "[litellm] Writing to %s..." hf-litellm-path)
     (write-file hf-litellm-path))
+  (message "[litellm] Restarting LiteLLM service...")
   ;; (shell-command "ssh vulcan sudo systemctl restart litellm.service")
-  (shell-command "sudo systemctl --user -M litellm@ restart litellm.service"))
+  (shell-command "sudo systemctl --user -M litellm@ restart litellm.service")
+  (message "[litellm] Done"))
 
 (defun hf-reset ()
   "Reset all of the configuration files related to LLMs."
   (interactive)
+  (message "[hf-reset] Starting reset process...")
   ;; First check that everything is sane
+  (message "[hf-reset] Step 1/5: Checking instances...")
   (unless (= 0 (hf-check-instances))
     (error "Failed to check installed and defined instances"))
+  (message "[hf-reset] Step 1/5: Instance check complete")
   ;; Update llama-swap configurations on all machines that run models
+  (message "[hf-reset] Step 2/5: Building llama-swap.yaml for %s..."
+           hf-default-hostname)
   (hf-build-llama-swap-yaml)
+  (message "[hf-reset] Step 3/5: Building llama-swap.yaml for clio...")
   (hf-build-llama-swap-yaml "clio")
   ;; (hf-build-llama-swap-yaml "vulcan")
   ;; Update LiteLLM to refer to all local and remote models
+  (message "[hf-reset] Step 4/5: Building LiteLLM config and restarting service...")
   (hf-build-litellm-yaml)
   ;; Update GPTel with instance list, to remain in sync with LiteLLM
+  (message "[hf-reset] Step 5/5: Updating GPTel backends...")
   (setq gptel-model hf-default-instance-name
-        gptel-backend (gptel-backends-make-litellm)))
+        gptel-backend (gptel-backends-make-litellm))
+  (message "[hf-reset] Complete!"))
 
 (defun hf-get-instance-gptel-backend (model instance &optional hostname)
   "Instance the llama-swap.yaml config for MODEL and INSTANCE.
@@ -1798,21 +1909,30 @@ If HOSTNAME is non-nil, only generate definitions for that host."
   "Check all model and instances definitions."
   (interactive)
   (let ((models-hash (hf-make-models-hash))
-        (warnings 0))
+        (warnings 0)
+        (host-count (length hf-valid-hostnames))
+        (host-idx 0))
+    (message "[hf-check] Scanning installed models on %d hosts..." host-count)
     (dolist (host hf-valid-hostnames)
-      (dolist (installed (hf-installed-models host))
-        (unless (hf-get-model installed models-hash)
-          (warn "Missing model for host %s: %s" host installed)
-          (cl-incf warnings))
-        (unless
-            (catch 'found
-              (dolist (mi (hf-instances-list))
-                (cl-destructuring-bind (model . instance) mi
-                  (when (and (member host (hf-instance-hostnames instance))
-                             (eq installed (hf-model-name model)))
-                    (throw 'found instance)))))
-          (warn "Missing instance for host %s: %s" host installed)
-          (cl-incf warnings))))
+      (cl-incf host-idx)
+      (message "[hf-check]   Host %d/%d: Scanning %s..." host-idx host-count host)
+      (let ((installed-models (hf-installed-models host)))
+        (message "[hf-check]   Host %d/%d: Found %d models on %s"
+                 host-idx host-count (length installed-models) host)
+        (dolist (installed installed-models)
+          (unless (hf-get-model installed models-hash)
+            (warn "Missing model for host %s: %s" host installed)
+            (cl-incf warnings))
+          (unless
+              (catch 'found
+                (dolist (mi (hf-instances-list))
+                  (cl-destructuring-bind (model . instance) mi
+                    (when (and (member host (hf-instance-hostnames instance))
+                               (eq installed (hf-model-name model)))
+                      (throw 'found instance)))))
+            (warn "Missing instance for host %s: %s" host installed)
+            (cl-incf warnings)))))
+    (message "[hf-check] Validating %d model definitions..." (length hf-models-list))
     (dolist (model hf-models-list)
       (let ((capabilities (hf-model-capabilities model))
             (mime-types (hf-model-mime-types model))
@@ -1828,36 +1948,39 @@ If HOSTNAME is non-nil, only generate definitions for that host."
         (unless (member kind hf-all-model-kinds)
           (warn "Unknown kind: %S" kind)
           (cl-incf warnings))))
-    (dolist (mi (hf-instances-list))
-      (cl-destructuring-bind (_model . instance) mi
-        (let ((model-path (hf-instance-model-path instance))
-              (file-path (hf-instance-file-path instance))
-              (hostnames (hf-instance-hostnames instance))
-              (provider (hf-instance-provider instance))
-              (engine (hf-instance-engine instance))
-              (draft-model (hf-instance-draft-model instance)))
-          (unless (or (null model-path)
-                      (file-directory-p model-path))
-            (warn "Unknown model-path: %s" model-path)
-            (cl-incf warnings))
-          (unless (or (null file-path)
-                      (file-regular-p file-path))
-            (warn "Unknown file-path: %s" file-path)
-            (cl-incf warnings))
-          (dolist (host hostnames)
-            (unless (member host hf-valid-hostnames)
-              (warn "Unknown hostname: %s" host)
-              (cl-incf warnings)))
-          (unless (member provider hf-all-model-providers)
-            (warn "Unknown provider: %s" provider)
-            (cl-incf warnings))
-          (unless (member engine hf-all-model-engines)
-            (warn "Unknown engine: %s" engine)
-            (cl-incf warnings))
-          (unless (or (null draft-model)
-                      (file-regular-p draft-model))
-            (warn "Unknown draft-model: %S" draft-model)
-            (cl-incf warnings)))))
+    (let ((instances (hf-instances-list)))
+      (message "[hf-check] Validating %d instance definitions..." (length instances))
+      (dolist (mi instances)
+        (cl-destructuring-bind (_model . instance) mi
+          (let ((model-path (hf-instance-model-path instance))
+                (file-path (hf-instance-file-path instance))
+                (hostnames (hf-instance-hostnames instance))
+                (provider (hf-instance-provider instance))
+                (engine (hf-instance-engine instance))
+                (draft-model (hf-instance-draft-model instance)))
+            (unless (or (null model-path)
+                        (file-directory-p model-path))
+              (warn "Unknown model-path: %s" model-path)
+              (cl-incf warnings))
+            (unless (or (null file-path)
+                        (file-regular-p file-path))
+              (warn "Unknown file-path: %s" file-path)
+              (cl-incf warnings))
+            (dolist (host hostnames)
+              (unless (member host hf-valid-hostnames)
+                (warn "Unknown hostname: %s" host)
+                (cl-incf warnings)))
+            (unless (member provider hf-all-model-providers)
+              (warn "Unknown provider: %s" provider)
+              (cl-incf warnings))
+            (unless (member engine hf-all-model-engines)
+              (warn "Unknown engine: %s" engine)
+              (cl-incf warnings))
+            (unless (or (null draft-model)
+                        (file-regular-p draft-model))
+              (warn "Unknown draft-model: %S" draft-model)
+              (cl-incf warnings))))))
+    (message "[hf-check] Validation complete: %d warning(s)" warnings)
     warnings))
 
 (cl-defun hf-run-mlx (model &key (port 8081))
@@ -1934,6 +2057,7 @@ If HOSTNAME is non-nil, only generate definitions for that host."
   (cl-loop
    for base-dir in (list (hf-remote-path hf-mlx-models hostname)
                          (hf-remote-path hf-gguf-models hostname))
+   do (message "[hf-installed] Checking directory: %s" base-dir)
    when (file-exists-p base-dir)
    nconc (cl-loop
           for item in (directory-files base-dir t "^[^.]")

@@ -302,19 +302,7 @@ if the entry should be included in the agenda view."
 
 (defcustom org-config-names-regularly-reviewed
   '(
-    "Annelise"
-    "Bez"
-    "Brittaney"
-    "Emily"
-    "Jesse"
-    "June"
-    "Lars"
-    "Leah"
-    "Stuart"
-    "Travis"
-    "Linda"
-    "Hafsah"
-    "Robert"
+    "Dan"
     )
   "Tags \"regularly reviewed\" that don't need separate review."
   :type '(repeat string)
@@ -322,11 +310,7 @@ if the entry should be included in the agenda view."
 
 (defcustom org-config-categories-regularly-reviewed
   (append org-config-names-regularly-reviewed
-          '("EVM"
-            "PM"
-            "JS"
-            "Core"
-            "Assembly"
+          '("Assembly"
             "Crmichael"
             "Feast"
             "Fund"))
@@ -974,6 +958,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :no-save t)
 
    ,(org-config-positron-meeting "wms" "Eng Standup" "eng-standup.org")
+   ,(org-config-positron-meeting "wmi" "Ingest Sync" "ingest-sync.org")
 
    ,(org-config-positron-meeting "wc" "Conference"   "conference.org")
    ,(org-config-positron-meeting "wO" "Offsite"      "offsite.org")

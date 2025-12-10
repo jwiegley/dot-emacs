@@ -13,6 +13,8 @@
     ("Bahai" "Bahá’í")
     ("Bahau" "Bahá’u’lláh")
     ("Iqan" "Kitáb-i-Íqán")
+    ("Ridvan" "Riḍván")
+    ("Huquq" "Huqúqu’lláh")
     ("LSA" "Local Spiritual Assembly")
     ("NSA" "National Spiritual Assembly")
     ("UHJ" "Universal House of Justice")))
