@@ -122,6 +122,30 @@ Intended for use with `org-capture' templates."
   (when (re-search-forward ":TAGS:\\s-+\n" nil t)
     (delete-region (match-beginning 0) (match-end 0))))
 
+(defun org-ext-move-recording-audio (txt-file)
+  "Move audio file corresponding to TXT-FILE to ~/Audio/Recordings.
+Searches for audio files with the same basename as TXT-FILE but with
+common audio extensions (.m4a, .mp3, .wav, .aac, .flac). If found,
+moves the audio file to ~/Audio/Recordings."
+  (let* ((basename (file-name-sans-extension txt-file))
+         (audio-extensions '(".m4a" ".mp3" ".wav" ".aac" ".flac" ".ogg"))
+         (audio-dest-dir (expand-file-name "~/Audio/Recordings"))
+         audio-file)
+    ;; Find the first matching audio file
+    (setq audio-file
+          (cl-find-if #'file-exists-p
+                      (mapcar (lambda (ext) (concat basename ext))
+                              audio-extensions)))
+    ;; Move audio file if found
+    (when audio-file
+      (unless (file-directory-p audio-dest-dir)
+        (make-directory audio-dest-dir t))
+      (let ((dest-path (expand-file-name
+                        (file-name-nondirectory audio-file)
+                        audio-dest-dir)))
+        (rename-file audio-file dest-path t)
+        (message "Moved audio file to %s" dest-path)))))
+
 (defun org-ext-reformat-recording ()
   "Convert Just Press Record content into org TODO format.
 If the content doesn't already have a heading, creates one from the
@@ -201,6 +225,9 @@ first line of text or the content summary."
                (when (re-search-forward "^\\*\\* TODO " nil t)
                  (beginning-of-line)
                  (run-hooks 'org-capture-before-finalize-hook))))
+           ;; Move corresponding audio file to ~/Audio/Recordings
+           (org-ext-move-recording-audio note)
+           ;; Delete the text file
            (delete-file note t))
          (when (buffer-modified-p)
            (save-buffer))))))
