@@ -4863,7 +4863,8 @@ you can try all default settings to enjoy =mic-paren=.
    '("^ \\*Minibuf-.*\\*$"
      "^\\*Summary"
      "^\\*gptel-aibo:"
-     "^\\*Article" "^#"))
+     "^\\*Article" "^#"
+     "^magit: "))
   (clean-buffer-list-kill-regexps '(".*"))
   :config
   (midnight-mode t))
