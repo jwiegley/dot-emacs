@@ -49,24 +49,23 @@ Below is an example of what the final product might look like for a realistic se
 
 OPNSENSE-EXPORTER-SETUP: Add OPNsense exporter docs, config
 
-- **OPNSENSE-EXPORTER-SETUP.md**: Add comprehensive documentation for OPNsense
+- OPNSENSE-EXPORTER-SETUP.md: Add comprehensive documentation for OPNsense
   Prometheus exporter setup, including API credential configuration, required
   permissions, SOPS secret format, deployment steps, verification procedures,
   troubleshooting guide, and available metrics reference
 
-- **opnsense-exporter-quadlet.nix**: Add Podman quadlet configuration for
-  OPNsense exporter container using
-  ghcr.io/athennamind/opnsense-exporter:latest, exposing metrics on
-  localhost:9273, with SOPS-encrypted API credentials and temporary insecure
-  mode workaround for gateway collector issue
+- opnsense-exporter-quadlet.nix: Add Podman quadlet configuration for OPNsense
+  exporter container using ghcr.io/athennamind/opnsense-exporter:latest,
+  exposing metrics on localhost:9273, with SOPS-encrypted API credentials and
+  temporary insecure mode workaround for gateway collector issue
 
-- **quadlet.nix**: Import opnsense-exporter-quadlet module to enable container
+- quadlet.nix: Import opnsense-exporter-quadlet module to enable container
   service
 
-- **prometheus-monitoring.nix**: Add "opnsense" scrape job targeting
+- prometheus-monitoring.nix: Add "opnsense" scrape job targeting
   localhost:9273 with 30s interval and labels (alias="opnsense-router",
   role="gateway", device_type="router")
 
-- **secrets.yaml**: Add encrypted opnsense-exporter-secrets entry containing
-  OPNSENSE_EXPORTER_OPS_API_KEY and OPNSENSE_EXPORTER_OPS_API_SECRET environment
-  variables
+- secrets.yaml: Add encrypted opnsense-exporter-secrets entry containing
+  OPNSENSE_EXPORTER_OPS_API_KEY and OPNSENSE_EXPORTER_OPS_API_SECRET
+  environment variables
