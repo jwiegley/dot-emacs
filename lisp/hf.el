@@ -176,6 +176,13 @@ credential_list:
     credential_info:
       description: \"API Key for llama-swap on Hera\"
 
+  - credential_name: hera_vibe_proxy_credential
+    credential_values:
+      api_base: http://hera.lan:8317/v1
+      api_key: \"fake\"
+    credential_info:
+      description: \"API Key for vibe-proxy on Hera\"
+
   - credential_name: vulcan_llama_swap_credential
     credential_values:
       api_base: http://127.0.0.1:8080/v1
@@ -219,12 +226,34 @@ credential_list:
       api_key: \"%s\"
     credential_info:
       description: \"API Key for OpenRouter\"
+
+  - credential_name: positron_openai_credential
+    credential_values:
+      api_key: \"%s\"
+    credential_info:
+      description: \"API Key for OpenAI (Positron)\"
+
+  - credential_name: positron_anthropic_credential
+    credential_values:
+      api_key: \"%s\"
+    credential_info:
+      description: \"API Key for Anthropic (Positron)\"
+
+  - credential_name: positron_gemini_credential
+    credential_values:
+      api_key: \"%s\"
+    credential_info:
+      description: \"API Key for Google AI (Positron)\"
 "
             (lookup-password "api.openai.com" "johnw" 443)
             (lookup-password "api.anthropic.com" "johnw" 443)
             (lookup-password "api.perplexity.ai" "johnw" 443)
             (lookup-password "api.groq.com" "johnw" 443)
             (lookup-password "openrouter.ai" "johnw" 443)
+
+            (lookup-password "positron@api.openai.com" "jwiegley" 443)
+            (lookup-password "positron@api.anthropic.com" "jwiegley" 443)
+            (lookup-password "positron@api.gemini.com" "jwiegley" 443)
             ))
   "Function for generating credentials for LiteLLM's config.yaml file."
   :type 'function
@@ -241,9 +270,13 @@ litellm_settings:
     host: \"10.0.2.2\"
     port: 8085
     supported_call_types: [\"acompletion\", \"atext_completion\", \"aembedding\", \"atranscription\"]
-  # Custom callback to strip Harmony analysis channel from gpt-oss models
-  callbacks:
-    - harmony_filter.harmony_filter
+
+guardrails:
+  - guardrail_name: \"harmony_filter\"
+    litellm_params:
+      guardrail: harmony_filter.HarmonyResponseFilter
+      mode: \"post_call\"
+      default_on: true
 
 router_settings:
   routing_strategy: \"least-busy\"
@@ -290,7 +323,17 @@ general_settings:
   '(text-generation embedding reranker))
 
 (defconst hf-all-model-providers
-  '(local openai anthropic perplexity groq openrouter))
+  '(local
+    vibe-proxy
+    openai
+    anthropic
+    gemini
+    positron_openai
+    positron_anthropic
+    positron_gemini
+    perplexity
+    groq
+    openrouter))
 
 (defconst hf-all-model-engines
   '(llama-cpp koboldcpp mlx-lm))
@@ -551,7 +594,6 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_MiniMax-M2-GGUF"
-      :hostnames '("hera")
       :arguments '("--cache-type-k" "q8_0"
                    "--cache-type-v" "q8_0"
                    "--flash-attn" "on"))))
@@ -568,7 +610,6 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/bartowski_cerebras_MiniMax-M2-REAP-162B-A10B-GGUF"
-      :hostnames '("hera")
       :arguments '("--cache-type-k" "q8_0"
                    "--cache-type-v" "q8_0"
                    "--flash-attn" "on"))))
@@ -989,7 +1030,6 @@ general_settings:
     (list
      (make-hf-instance
       :name 'mlx-community/gpt-oss-120b-MXFP4-Q8
-      :hostnames '("hera")
       :cache-control t
       :engine 'mlx-lm)))
 
@@ -1044,7 +1084,6 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-safeguard-20b-GGUF"
-      :hostnames '("hera")
       :cache-control t
       :arguments '(
                    ;; "--cache-type-k" "q8_0"
@@ -1066,7 +1105,6 @@ general_settings:
     (list
      (make-hf-instance
       :model-path "~/Models/bartowski_mistralai_Devstral-2-123B-Instruct-2512-GGUF"
-      :hostnames '("hera")
       :cache-control t
       :arguments '(
                    ;; "--cache-type-k" "q8_0"
@@ -1076,6 +1114,66 @@ general_settings:
                    "-b" "2048"
                    ))
      ))
+
+   (make-hf-model
+    :name 'gemma-2-9b
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'google/gemma-2-9b
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'Llama-3.1-8B-Instruct
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'meta-llama/Llama-3.1-8B-Instruct
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'Mistral-7B-Instruct-v0.2
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'mistralai/Mistral-7B-Instruct-v0.2
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'Mistral-7B-Instruct-v0.3
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'mistralai/Mistral-7B-Instruct-v0.3
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'Mixtral-8x7B-Instruct-v0.1
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'mistralai/Mixtral-8x7B-Instruct-v0.1
+      :engine 'mlx-lm)))
 
    (make-hf-model
     :name 'Qwen.Qwen3-Reranker-8B
@@ -1189,72 +1287,36 @@ general_settings:
       :engine 'mlx-lm)))
 
    (make-hf-model
+    :name 'gemini-3-pro-preview
+    :description "Gemini 3 Pro (Positron)"
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'positron_gemini)))
+
+   (make-hf-model
+    :name 'gpt-5.2
+    :description "Flagship ChatGPT model for complex tasks (Positron)"
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'positron_openai)))
+
+   (make-hf-model
     :name 'gpt-4.1
-    :description "Flagship GPT model for complex tasks"
+    :description "ChatGPT model"
     :supports-function-calling t
     :instances
     (list
      (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'gpt-4.1-mini
-    :description "Balanced for intelligence, speed, and cost"
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'gpt-4.1-nano
-    :description "Fastest, most cost-effective GPT-4.1 model"
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'gpt-4o
-    :description "Fast, intelligent, flexible GPT model"
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'gpt-4o-mini
-    :description "Fast, affordable small model for focused tasks"
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'o1
-    :description "Our most powerful reasoning model"
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
+      :provider 'positron_openai)
      (make-hf-instance
       :provider 'openai)))
 
    (make-hf-model
     :name 'o1-pro
-    :description "Our most powerful reasoning model"
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'o3
     :description "Our most powerful reasoning model"
     :supports-function-calling t
     :supports-reasoning t
@@ -1274,28 +1336,8 @@ general_settings:
       :provider 'openai)))
 
    (make-hf-model
-    :name 'o3-mini
-    :description "A small model alternative to o3"
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
     :name 'o3-pro
     :description "Version of o3 with more compute for better responses"
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'o4-mini
-    :description "Faster, more affordable reasoning model"
     :supports-function-calling t
     :supports-reasoning t
     :instances
@@ -1350,6 +1392,15 @@ general_settings:
     :supports-function-calling t
     :instances
     (list
+     (make-hf-instance
+      :model-name 'claude-opus-4-5-20251101
+      :name 'claude-opus-4-5-20251101-thinking-32000
+      :provider 'vibe-proxy)
+
+     (make-hf-instance
+      :name 'claude-opus-4-5-20251101
+      :provider 'positron_anthropic)
+
      (make-hf-instance
       :name 'claude-opus-4-5-20251101
       :provider 'anthropic)
@@ -1717,7 +1768,7 @@ Optionally generate for the given HOSTNAME."
     (insert "\nmodels:")
     (dolist (mi (hf-instances-list))
       (cl-destructuring-bind (model . instance) mi
-        (when (and (eq 'local (hf-instance-provider instance))
+        (when (and (memq (hf-instance-provider instance) '(local vibe-proxy))
                    (member hostname (hf-instance-hostnames instance)))
           (hf-insert-instance-llama-swap model instance hostname))))
     (insert hf-llama-swap-epilog)
@@ -1762,7 +1813,7 @@ Optionally generate for the given HOSTNAME."
          (supports-function-calling (hf-model-supports-function-calling model))
          (supports-reasoning (hf-model-supports-reasoning model))
          (fallbacks (hf-instance-fallbacks instance)))
-    (dolist (host (if (eq 'local provider)
+    (dolist (host (if (memq provider '(local vibe-proxy))
                       hostnames
                     (list provider)))
       (insert (format "
@@ -1778,13 +1829,19 @@ Optionally generate for the given HOSTNAME."
       supports_reasoning: %s%s
 "
                       host name
-                      (if (eq 'local provider)
-                          "openai"
-                        provider)
+                      (cond ((eq 'local provider) "openai")
+                            ((eq 'vibe-proxy provider) "openai")
+                            ((string-match "positron_\\(.+\\)"
+                                           (symbol-name provider))
+                             (match-string 1 (symbol-name provider)))
+                            (t provider))
                       name
-                      (if (eq 'local provider)
-                          (concat host "_llama_swap")
-                        provider)
+                      (cond ((eq 'local provider)
+                             (concat host "_llama_swap"))
+                            ((eq 'vibe-proxy provider)
+                             (concat host "_vibe_proxy"))
+                            (t
+                             provider))
                       (concat
                        (if supports-system-message "true" "false")
                        (when cache-control
@@ -1877,7 +1934,7 @@ If HOSTNAME is non-nil, only generate definitions for that host."
     (unless (memq (hf-model-kind model) '(embedding reranker))
       (cl-loop for server in (let ((provider (hf-instance-provider instance)))
                                (if (or (null provider)
-                                       (eq 'local provider))
+                                       (memq provider '(local vibe-proxy)))
                                    (hf-instance-hostnames instance)
                                  (list provider)))
                when (or (null hostname) (string= server hostname))

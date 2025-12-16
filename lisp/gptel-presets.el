@@ -50,13 +50,15 @@
 (gptel-make-preset 'gpt-oss
   :description "OpenAI's ChatGPT, Open Source"
   :backend "LiteLLM"
-  :model 'hera/gpt-oss-120b
+  ;; :model 'hera/gpt-oss-120b
+  :model 'hera/mlx-community/gpt-oss-120b-MXFP4-Q8
   :temperature 1.0)
 
 (gptel-make-preset 'gpt-oss-travel
   :description "OpenAI's ChatGPT, Open Source (small)"
   :backend "llama-swap"
   :model 'gpt-oss-20b
+  ;; :model 'mlx-community/gpt-oss-20b-MXFP4-Q8
   :temperature 1.0)
 
 (gptel-make-preset 'gpt-oss-mlx
@@ -114,22 +116,40 @@
   :model (intern (format "anthropic/%s" claude-haiku-model))
   :temperature 1.0)
 
+;; (gptel-make-preset 'opus-max
+;;   :description "Anthropic's Claude Opus, thinking"
+;;   :backend "Claude-Anthropic"
+;;   :model claude-opus-model
+;;   :temperature 1.0)
+
+;; (gptel-make-preset 'sonnet-max
+;;   :description "Anthropic's Claude Sonnet, thinking"
+;;   :backend "Claude-Anthropic"
+;;   :model claude-sonnet-model
+;;   :temperature 1.0)
+
+;; (gptel-make-preset 'haiku-max
+;;   :description "Anthropic's Claude Haiku"
+;;   :backend "Claude-Anthropic"
+;;   :model claude-haiku-model
+;;   :temperature 1.0)
+
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
-  :backend "Claude-Anthropic"
-  :model claude-opus-model
+  :backend "LiteLLM"
+  :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet-max
   :description "Anthropic's Claude Sonnet, thinking"
-  :backend "Claude-Anthropic"
-  :model claude-sonnet-model
+  :backend "LiteLLM"
+  :model (intern (format "hera/%s-thinking-32000" claude-sonnet-model))
   :temperature 1.0)
 
 (gptel-make-preset 'haiku-max
   :description "Anthropic's Claude Haiku"
-  :backend "Claude-Anthropic"
-  :model claude-haiku-model
+  :backend "LiteLLM"
+  :model (intern (format "hera/%s" claude-haiku-model))
   :temperature 1.0)
 
 (gptel-make-preset 'opus-direct

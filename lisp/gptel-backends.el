@@ -66,12 +66,28 @@
               ("anthropic-beta"    . "output-128k-2025-02-19")
               ("anthropic-beta"    . "prompt-caching-2024-07-31"))))))
 
-(defun gptel-backends-make-clio ()
+(defun gptel-backends-llama-swap ()
   "Make GPTel backends for models hosted on Clio."
   (gptel-make-openai "llama-swap"
     :host "127.0.0.1:8080"
     :protocol "http"
-    :models (hf-gptel-backends "clio")))
+    :models (hf-gptel-backends
+             (cond ((string-match-p "clio" (system-name)) "clio")
+                   ((string-match-p "hera" (system-name)) "hera")))))
+
+(defun gptel-backends-vibe-proxy ()
+  "Make GPTel backends for models hosted on Clio."
+  (gptel-make-openai "vibe-proxy"
+    :host "127.0.0.1:8317"
+    :protocol "http"
+    :models '(claude-opus-4-5-20251101-thinking-32000)))
+
+(defun gptel-backends-rinzler ()
+  "Make GPTel backends for models hosted on Clio."
+  (gptel-make-openai "rinzler"
+    :host "127.0.0.1:9998"
+    :protocol "http"
+    :models '(llama-3.2-3b-instruct-fast-tp2)))
 
 ;; (gptel-make-openai "rag-client"
 ;;   :host "127.0.0.1:8000"
