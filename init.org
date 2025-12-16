@@ -4689,15 +4689,6 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   )
 #+end_src
 
-*** magit-autorevert
-
-#+begin_src emacs-lisp
-(use-package magit-autorevert
-  :after magit
-  :custom
-  (magit-auto-revert-mode nil))
-#+end_src
-
 *** COMMENT magit-lfs
 
 #+begin_src emacs-lisp
