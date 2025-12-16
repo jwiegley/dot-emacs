@@ -3176,8 +3176,9 @@ up before you execute another command."
 (use-package gptel-backends
   :after (gptel)
   :config
-  (when (string-match-p "clio" (system-name))
-    (gptel-backends-make-clio))
+  (gptel-backends-llama-swap)
+  ;; (when ((string-match-p "hera" (system-name)) "hera")
+  ;;   (gptel-backends-vibe-proxy))
   (setq gptel-backend (gptel-backends-make-litellm)))
 #+end_src
 
@@ -3314,7 +3315,7 @@ up before you execute another command."
   (gptel-make-claude-oauth "Claude-OAuth" :stream t))
 #+end_src
 
-*** gptel-anthropic-oauth
+*** COMMENT gptel-anthropic-oauth
 
 #+begin_src emacs-lisp
 (use-package gptel-anthropic-oauth
