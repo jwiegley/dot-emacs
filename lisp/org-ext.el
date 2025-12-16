@@ -122,6 +122,37 @@ Intended for use with `org-capture' templates."
   (when (re-search-forward ":TAGS:\\s-+\n" nil t)
     (delete-region (match-beginning 0) (match-end 0))))
 
+(defun org-ext-reformat-recording ()
+  "Convert Just Press Record content into org TODO format.
+If the content doesn't already have a heading, creates one from the
+first line of text or the content summary."
+  ;; If there's no TODO heading, create one
+  (goto-char (point-min))
+  (unless (looking-at "^\\*\\* TODO ")
+    ;; Get the first line as the heading
+    (let* ((first-line-end (save-excursion
+                             (goto-char (point-min))
+                             (end-of-line)
+                             (point)))
+           (heading (buffer-substring-no-properties (point-min) first-line-end))
+           (was-truncated nil))
+      ;; Limit heading length and clean it up
+      (when (> (length heading) 70)
+        (setq heading (concat (substring heading 0 67) "..."))
+        (setq was-truncated t))
+      (setq heading (replace-regexp-in-string "\n" " " heading))
+      ;; Delete the first line from the buffer
+      (goto-char (point-min))
+      (delete-region (point) (progn (forward-line 1) (point)))
+      ;; Insert TODO heading at the beginning (level 2 to be under Inbox)
+      (goto-char (point-min))
+      (insert "** TODO " heading "\n")
+      ;; If the heading was truncated, keep the full first line in the body
+      ;; Otherwise the first line is now gone (used entirely as heading)
+      (when was-truncated
+        ;; The original first line is still there, which is what we want
+        nil))))
+
 (defun org-ext-fit-agenda-window ()
   "Fit the window to the buffer size."
   (and (memq org-agenda-window-setup '(reorganize-frame))
@@ -129,13 +160,15 @@ Intended for use with `org-capture' templates."
        (fit-window-to-buffer)))
 
 (defadvice org-agenda (around fit-windows-for-agenda activate)
-  "Fit the Org Agenda to its buffer and import any pending Drafts."
-  (let ((notes (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil))
+  "Fit the Org Agenda to its buffer and import any pending Drafts and Recordings."
+  (let ((draft-notes (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil))
+        (recording-notes (directory-files "~/Recordings" t ".*\\.txt\\'" nil))
         url)
-    (when notes
+    (when (or draft-notes recording-notes)
       (org-ext-goto-inbox
        (lambda ()
-         (dolist (note notes)
+         ;; Process Drafts notes
+         (dolist (note draft-notes)
            (insert
             (with-temp-buffer
               (org-mode)
@@ -146,6 +179,28 @@ Intended for use with `org-capture' templates."
               (unless (bolp)
                 (insert ?\n))
               (buffer-string)))
+           (delete-file note t))
+         ;; Process Recording notes
+         (dolist (note recording-notes)
+           ;; Insert the text content and add metadata
+           (let ((start-pos (point)))
+             (insert
+              (with-temp-buffer
+                (org-mode)
+                (insert-file-contents note)
+                (goto-char (point-min))
+                ;; Format recording as TODO entry
+                (org-ext-reformat-recording)
+                (goto-char (point-max))
+                (unless (bolp)
+                  (insert ?\n))
+                (buffer-string)))
+             ;; Now we're back in the inbox file buffer, add metadata
+             (save-excursion
+               (goto-char start-pos)
+               (when (re-search-forward "^\\*\\* TODO " nil t)
+                 (beginning-of-line)
+                 (run-hooks 'org-capture-before-finalize-hook))))
            (delete-file note t))
          (when (buffer-modified-p)
            (save-buffer))))))
