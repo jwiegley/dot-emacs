@@ -5,6 +5,8 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
 (defconst org-constants-directory "~/org/")
 
 (defconst org-constants-journelly-path
@@ -25,7 +27,7 @@
 
 (defconst org-constants-todo-path (org-file "todo.org"))
 
-(defconst org-constants-positron-team-file "positron/team/202409042228-team.org"
+(defconst org-constants-positron-team-file "positron/team/202511211741-team.org"
   "File containing names of team members and links to their files.")
 
 (defconst org-constants-contacts-path (org-file "contacts.org"))
