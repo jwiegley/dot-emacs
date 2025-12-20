@@ -150,32 +150,13 @@ moves the audio file to ~/Audio/Recordings."
   "Convert Just Press Record content into org TODO format.
 If the content doesn't already have a heading, creates one from the
 first line of text or the content summary."
-  ;; If there's no TODO heading, create one
+  ;; If there's no DRAFT heading, create one
   (goto-char (point-min))
-  (unless (looking-at "^\\*\\* TODO ")
-    ;; Get the first line as the heading
-    (let* ((first-line-end (save-excursion
-                             (goto-char (point-min))
-                             (end-of-line)
-                             (point)))
-           (heading (buffer-substring-no-properties (point-min) first-line-end))
-           (was-truncated nil))
-      ;; Limit heading length and clean it up
-      (when (> (length heading) 70)
-        (setq heading (concat (substring heading 0 67) "..."))
-        (setq was-truncated t))
-      (setq heading (replace-regexp-in-string "\n" " " heading))
-      ;; Delete the first line from the buffer
-      (goto-char (point-min))
-      (delete-region (point) (progn (forward-line 1) (point)))
-      ;; Insert TODO heading at the beginning (level 2 to be under Inbox)
-      (goto-char (point-min))
-      (insert "** TODO " heading "\n")
-      ;; If the heading was truncated, keep the full first line in the body
-      ;; Otherwise the first line is now gone (used entirely as heading)
-      (when was-truncated
-        ;; The original first line is still there, which is what we want
-        nil))))
+  (unless (looking-at "^\\*\\* DRAFT ")
+    (goto-char (point-min))
+    (insert "** DRAFT ")
+    (org-insert-time-stamp (current-time) t t)
+    (insert "\n")))
 
 (defun org-ext-fit-agenda-window ()
   "Fit the window to the buffer size."
@@ -197,6 +178,7 @@ first line of text or the content summary."
               (org-mode)
               (insert-file-contents note)
               (goto-char (point-min))
+              ;; Format draft as TODO entry (I know, it's confusing)
               (org-ext-reformat-draft)
               (goto-char (point-max))
               (unless (bolp)
@@ -212,7 +194,7 @@ first line of text or the content summary."
                 (org-mode)
                 (insert-file-contents note)
                 (goto-char (point-min))
-                ;; Format recording as TODO entry
+                ;; Format recording as DRAFT entry
                 (org-ext-reformat-recording)
                 (goto-char (point-max))
                 (unless (bolp)
@@ -221,7 +203,7 @@ first line of text or the content summary."
              ;; Now we're back in the inbox file buffer, add metadata
              (save-excursion
                (goto-char start-pos)
-               (when (re-search-forward "^\\*\\* TODO " nil t)
+               (when (re-search-forward "^\\*\\* DRAFT " nil t)
                  (beginning-of-line)
                  (run-hooks 'org-capture-before-finalize-hook))))
            ;; Move corresponding audio file to ~/Audio/Recordings
@@ -834,7 +816,8 @@ history. When ARG is non-nil, skips final `fill-region' call."
 ;;; https://sachachua.com/blog/2024/10/org-mode-prompt-for-a-heading-and-then-refile-it-to-point/
 (defun org-ext-move-subtree-to-point (uuid)
   "Prompt for a heading and refile it to point using UUID.
-Narrows to heading with `org-id-find', copies subtree, and pastes at current location."
+Narrows to heading with `org-id-find', copies subtree, and pastes at
+current location."
   (interactive (list (vulpea-note-id (vulpea-select "Heading"))))
   (cl-destructuring-bind (file . pos)
       (org-id-find uuid)
@@ -1053,7 +1036,8 @@ Error when no LOCATION property exists."
         (if (featurep 'osm)
             (pcase (split-string location ",")
               (`(,lat ,lon)
-               (osm-goto (string-to-number lat) (string-to-number lon) nil)))
+               (funcall #'osm-goto (string-to-number lat)
+                        (string-to-number lon) nil)))
           (browse-url (concat "https://maps.apple.com/?q=org&ll=" location)))
       (error "Entry has no location set"))))
 
@@ -1115,7 +1099,7 @@ Triggers when three backticks are typed in sequence. Sets appropriate language."
           (and (eq ?` (aref keys (- n 1)))
                (eq ?` (aref keys (- n 2)))
                (eq ?` (aref keys (- n 3)))))
-    (backward-delete-char 3)
+    (delete-char -3)
     (let ((language
            (or (save-excursion
                  (re-search-backward "#\\+begin_src \\([^ \t\n]+\\)" nil t)
@@ -1229,7 +1213,7 @@ Shows categories with their usage counts in a temporary buffer."
 (defun org-ext-quickping (host)
   (= 0 (call-process "ping" nil nil nil "-c1" "-W5" "-q" host)))
 
-(defun org-ext-set-location (&optional arg)
+(defun org-ext-set-location (&optional _arg)
   "If possible, add location info. We know the location at home always."
   (cl-destructuring-bind (lat lon)
       (if (and nil (org-ext-quickping "192.168.3.2"))
@@ -1245,7 +1229,7 @@ Shows categories with their usage counts in a temporary buffer."
     (unless (string= lat "")
       (org-entry-put (point) "LOCATION" (concat lat "," lon)))))
 
-(defun org-ext-set-basic-properties (&optional arg)
+(defun org-ext-set-basic-properties (&optional _arg)
   (interactive "P")
   (save-excursion
     (org-ext-set-id-and-created)

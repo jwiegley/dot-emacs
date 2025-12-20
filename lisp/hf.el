@@ -244,6 +244,13 @@ credential_list:
       api_key: \"%s\"
     credential_info:
       description: \"API Key for Google AI (Positron)\"
+
+  - credential_name: positron_credential
+    credential_values:
+      api_base: https://api-dev.positron.ai/v1
+      api_key: \"%s\"
+    credential_info:
+      description: \"API Key for Posistron.ai\"
 "
             (lookup-password "api.openai.com" "johnw" 443)
             (lookup-password "api.anthropic.com" "johnw" 443)
@@ -254,6 +261,7 @@ credential_list:
             (lookup-password "positron@api.openai.com" "jwiegley" 443)
             (lookup-password "positron@api.anthropic.com" "jwiegley" 443)
             (lookup-password "positron@api.gemini.com" "jwiegley" 443)
+            (lookup-password "positron@api-dev.positron.ai" "jwiegley" 443)
             ))
   "Function for generating credentials for LiteLLM's config.yaml file."
   :type 'function
@@ -328,6 +336,7 @@ general_settings:
     openai
     anthropic
     gemini
+    positron
     positron_openai
     positron_anthropic
     positron_gemini
@@ -981,6 +990,27 @@ general_settings:
                    "--repeat-penalty" "1.0"))))
 
    (make-hf-model
+    :name 'grok-2
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_grok-2-GGUF"
+      :cache-control t
+      :arguments '(
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "-ub" "2048"
+                   "-b" "2048"
+                   ))))
+
+   (make-hf-model
     :name 'gpt-oss-20b-MXFP4-Q8
     :context-length 131072
     :temperature 1.0
@@ -1104,7 +1134,51 @@ general_settings:
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/bartowski_mistralai_Devstral-2-123B-Instruct-2512-GGUF"
+      :model-path "~/Models/unsloth_Devstral-2-123B-Instruct-2512-GGUF"
+      :cache-control t
+      :arguments '(
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "-ub" "2048"
+                   "-b" "2048"
+                   ))
+     ))
+
+   (make-hf-model
+    :name 'Devstral-Small-2-24B-Instruct-2512
+    :context-length 262144
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Devstral-Small-2-24B-Instruct-2512-GGUF"
+      :hostnames '("hera" "clio")
+      :cache-control t
+      :arguments '(
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "-ub" "2048"
+                   "-b" "2048"
+                   ))
+     ))
+
+   (make-hf-model
+    :name 'Nemotron-3-Nano-30B-A3B
+    :context-length 1048576
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Nemotron-3-Nano-30B-A3B-GGUF"
+      :hostnames '("hera" "clio")
       :cache-control t
       :arguments '(
                    ;; "--cache-type-k" "q8_0"
@@ -1137,6 +1211,18 @@ general_settings:
     (list
      (make-hf-instance
       :name 'meta-llama/Llama-3.1-8B-Instruct
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'Llama-3.2-1B
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'meta-llama/Llama-3.2-1B
       :engine 'mlx-lm)))
 
    (make-hf-model
@@ -1456,10 +1542,15 @@ general_settings:
       :provider 'groq)))
 
    (make-hf-model
-    :name 'llama-3.3-70b-versatile
+    :name 'llama-3.3-70b
     :instances
     (list
      (make-hf-instance
+      :name 'llama-3.3-70b-instruct-good-tp2
+      :provider 'positron)
+
+     (make-hf-instance
+      :name 'llama-3.3-70b-versatile
       :provider 'groq)))
 
    (make-hf-model
@@ -1831,6 +1922,7 @@ Optionally generate for the given HOSTNAME."
                       host name
                       (cond ((eq 'local provider) "openai")
                             ((eq 'vibe-proxy provider) "openai")
+                            ((eq 'positron provider) "openai")
                             ((string-match "positron_\\(.+\\)"
                                            (symbol-name provider))
                              (match-string 1 (symbol-name provider)))

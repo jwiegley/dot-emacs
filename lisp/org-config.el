@@ -477,11 +477,14 @@ Uses the Positron one-on-one template and adds `1-on-1-' prefix."
    keys title file "~/org/template/positron/one-on-one" "1-on-1-"
    "positron/meeting"))
 
-(defsubst org-config-bahai-meeting (keys title file)
+(defsubst org-config-bahai-meeting (keys title file &optional dir)
   "Create a Bahai meeting configuration with KEYS, TITLE, and FILE.
 Uses the Bahai meeting template with `bahai' tag."
   (org-config-meeting-template
-   keys title file "~/org/template/bahai/meeting" nil "bahai"))
+   keys title file "~/org/template/bahai/meeting" nil
+   (if dir
+       (concat "bahai/" dir)
+     "bahai")))
 
 (defsubst org-config-call-only (f)
   "Return a lambda to call function F interactively, ignoring arguments."
@@ -870,7 +873,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :no-save t)
 
    ,(org-config-bahai-meeting "bcf" "Regional Financial Systems Desk"
-                              "regional-treasurers-office.org")
+                              "financial-systems-desk.org" "desk")
 
    ("ba" "Local Spiritual Assembly")
 
@@ -891,27 +894,31 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("bA" "Assistant to the Auxiliary Boards")
 
-   ,(org-config-bahai-meeting "bAA" "Assistants' Meeting" "assistants.org")
+   ,(org-config-bahai-meeting "bAA" "Assistants' Meeting" "assistants.org"
+                              "assistant")
 
    ("bi" "Institute Coordinator")
 
    ,(org-config-bahai-meeting "bii" "Institute Coordinators"
-                              "institute-coordinators.org")
-   ,(org-config-bahai-meeting "bia" "Cluster Agencies" "cluster-agencies.org")
-   ,(org-config-bahai-meeting "bid" "Institute Day" "institute-day.org")
+                              "institute-coordinators.org" "coordinator")
+   ,(org-config-bahai-meeting "bia" "Cluster Agencies" "cluster-agencies.org"
+                              "coordinator")
+   ,(org-config-bahai-meeting "bid" "Institute Day" "institute-day.org"
+                              "coordinator")
    ,(org-config-bahai-meeting "bir" "Institute Day Reflection"
-                              "institute-day-reflection.org")
-   ,(org-config-bahai-meeting "bit" "Tutor Training" "tutor-training.org")
+                              "institute-day-reflection.org" "coordinator")
+   ,(org-config-bahai-meeting "bit" "Tutor Training" "tutor-training.org"
+                              "coordinator")
 
    ("bI" "Training Institute Board")
 
    ,(org-config-bahai-meeting "bII" "Training Institute Statistics"
-                              "training-institute-statistics.org")
+                              "training-institute-statistics.org" "rti-board")
 
    ("bF" "Ali Nakhjavani Development Fund")
 
    ,(org-config-bahai-meeting "bFF" "Ali Nakhjavani Development Fund"
-                              "ali-nakhjavani-development-fund.org")
+                              "ali-nakhjavani-development-fund.org" "andf")
 
    ("bC" "Convention")
 
@@ -923,7 +930,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ("bn" "Arden Team Nucleus")
 
    ,(org-config-bahai-meeting "bnn" "Arden Team Reflection"
-                              "arden-team-reflection.org")
+                              "arden-team-reflection.org" "coordinator")
 
    ("w" "Work templates")
 
