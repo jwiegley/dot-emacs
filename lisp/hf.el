@@ -286,11 +286,13 @@ guardrails:
       mode: \"post_call\"
       default_on: true
 
-router_settings:
+router_settings:%s
   routing_strategy: \"least-busy\"
   num_retries: 3
   request_timeout: 7200
   max_parallel_requests: 100
+  allowed_fails: 3
+  cooldown_time: 30
   # provider_budget_config:
   #   perplexity:
   #     budget_limit: 5
@@ -302,7 +304,8 @@ general_settings:
   maximum_spend_logs_retention_period: \"90d\"
   maximum_spend_logs_retention_interval: \"7d\"
 "
-  "Epilog for beginning of LiteLLM's config.yaml file."
+  "Epilog for LiteLLM's config.yaml file.
+Contains a %s placeholder for dynamically generated router fallbacks."
   :type 'string
   :group 'hf)
 
@@ -1084,7 +1087,8 @@ general_settings:
                    "-ub" "2048"
                    "-b" "2048"
                    )
-      )))
+      :fallbacks '(hera/claude-sonnet-4-5-20250929-thinking-32000
+                   anthropic/claude-sonnet-4-5-20250929))))
 
    (make-hf-model
     :name 'gpt-oss-safeguard-20b-MLX-MXFP4
@@ -1447,6 +1451,11 @@ general_settings:
     :instances
     (list
      (make-hf-instance
+      :model-name 'claude-haiku-4-5-20251001
+      :name 'claude-haiku-4-5-20251001
+      :provider 'vibe-proxy)
+
+     (make-hf-instance
       :name 'claude-haiku-4-5-20251001
       :provider 'anthropic)
 
@@ -1461,6 +1470,11 @@ general_settings:
     :supports-function-calling t
     :instances
     (list
+     (make-hf-instance
+      :model-name 'claude-sonnet-4-5-20250929
+      :name 'claude-sonnet-4-5-20250929-thinking-32000
+      :provider 'vibe-proxy)
+
      (make-hf-instance
       :name 'claude-sonnet-4-5-20250929
       :provider 'anthropic
@@ -1750,6 +1764,75 @@ general_settings:
   (or (hf-instance-max-output-tokens instance)
       (hf-model-max-output-tokens model)))
 
+(defun hf-lookup-fallback-instance (fallback-name)
+  "Look up the instance whose name matches FALLBACK-NAME.
+Returns a cons cell (MODEL . INSTANCE) or nil if not found."
+  (cl-loop for (model . instance) in (hf-instances-list)
+           when (eq fallback-name (hf-get-instance-name model instance))
+           return (cons model instance)))
+
+(defun hf-get-full-litellm-name (model instance)
+  "Return the full LiteLLM model name for MODEL and INSTANCE.
+For local/vibe-proxy providers, returns \"host/name\".
+For remote providers, returns \"provider/name\"."
+  (let ((provider (hf-instance-provider instance))
+        (name (hf-get-instance-name model instance)))
+    (if (memq provider '(local vibe-proxy))
+        ;; For local instances, use the first hostname
+        (format "%s/%s" (car (hf-instance-hostnames instance)) name)
+      ;; For remote providers, use the provider name
+      (format "%s/%s" provider name))))
+
+(defun hf-format-router-fallbacks ()
+  "Collect all instance fallbacks and format as router_settings YAML.
+Returns a string suitable for insertion into the LiteLLM config."
+  (let ((fallback-entries nil))
+    ;; Collect all fallback mappings
+    (dolist (mi (hf-instances-list))
+      (cl-destructuring-bind (model . instance) mi
+        (when-let* ((fallbacks (hf-instance-fallbacks instance))
+                    (provider (hf-instance-provider instance)))
+          (let ((hostnames (if (memq provider '(local vibe-proxy))
+                               (hf-instance-hostnames instance)
+                             (list provider))))
+            ;; For each host where this instance is available
+            (dolist (host hostnames)
+              (let* ((source-name (format "%s/%s"
+                                          host
+                                          (hf-get-instance-name model instance)))
+                     ;; Resolve each fallback to its full name
+                     ;; Fallbacks can be either:
+                     ;; - Full names like 'openai/gpt-4.1 (already qualified)
+                     ;; - Instance names like 'claude-sonnet-4-5-20250929-thinking-32000 (need lookup)
+                     (resolved-fallbacks
+                      (cl-loop for fb in fallbacks
+                               for fb-str = (symbol-name fb)
+                               if (string-match-p "/" fb-str)
+                               ;; Already a full name, use as-is
+                               collect fb-str
+                               else
+                               ;; Look up the instance to get full name
+                               for fb-mi = (hf-lookup-fallback-instance fb)
+                               when fb-mi
+                               collect (hf-get-full-litellm-name
+                                        (car fb-mi) (cdr fb-mi)))))
+                (when resolved-fallbacks
+                  (push (cons source-name resolved-fallbacks)
+                        fallback-entries))))))))
+    ;; Format as YAML
+    (if fallback-entries
+        (concat "\n  fallbacks:\n"
+                (mapconcat
+                 (lambda (entry)
+                   (format "    - \"%s\": [%s]"
+                           (car entry)
+                           (mapconcat (lambda (fb) (format "\"%s\"" fb))
+                                      (cdr entry)
+                                      ", ")))
+                 (nreverse fallback-entries)
+                 "\n"))
+      "")))
+
 (defsubst hf-remote-hostname-p (hostname)
   "Return non-nil if HOSTNAME is both non-nil and a remote host.
 Remote is defined by any hostname that does not match `hf-default-hostname'."
@@ -1963,7 +2046,7 @@ Optionally generate for the given HOSTNAME."
                         ""))))))
 
 (defun hf-generate-litellm-yaml ()
-  "Build llama-swap.yaml configuration for HOSTNAME."
+  "Build LiteLLM config.yaml configuration."
   (with-current-buffer (get-buffer-create "*litellm-config.yaml*")
     (erase-buffer)
     (insert hf-litellm-prolog)
@@ -1975,7 +2058,8 @@ Optionally generate for the given HOSTNAME."
         ;;   (hf-insert-instance-litellm (downcase model) instance))
         ))
     (insert (funcall hf-litellm-credentials-function))
-    (insert hf-litellm-epilog)
+    ;; Format the epilog with dynamically generated router fallbacks
+    (insert (format hf-litellm-epilog (hf-format-router-fallbacks)))
     (yaml-mode)
     (current-buffer)))
 
