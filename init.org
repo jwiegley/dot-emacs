@@ -10901,7 +10901,7 @@ This is returned as a string."
 
 #+begin_src emacs-lisp
 (use-package org
-  ;; :load-path "lisp/org-mode/lisp"
+  ;; :load-path "~/db/org-mode/lisp"
   :demand t
   :commands org-resolve-clocks
   :bind* (("C-c S" . org-store-link)
