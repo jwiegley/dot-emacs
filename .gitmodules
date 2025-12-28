@@ -151,3 +151,6 @@
 [submodule "lisp/ecard"]
 	path = lisp/ecard
 	url = https://github.com/jwiegley/ecard.git
+[submodule "lisp/org-table-loeb"]
+	path = lisp/org-table-loeb
+	url = https://github.com/jwiegley/org-table-loeb.git

@@ -13110,6 +13110,7 @@ utilities around note taking.
 
 #+begin_src emacs-lisp
 (use-package vulpea
+  :load-path "lisp/vulpea"
   :after org-roam
   :demand t
   :bind
@@ -13555,6 +13556,16 @@ properties or a symbol which is taken to be a face name.
   :config
   (advice-add 'org-timeline-insert-timeline
               :before #'my/org-timeline-insert-blank))
+#+end_src
+
+*** org-table-loeb
+
+#+begin_src emacs-lisp
+(use-package org-table-loeb
+  :load-path "lisp/org-table-loeb"
+  :after (org-table)
+  :commands
+  (org-table-loeb-install))
 #+end_src
 
 *** org-table-color

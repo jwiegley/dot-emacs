@@ -88,7 +88,6 @@ groups:
     exclusive: false
     members:
       - DeepSeek-R1-Distill-Qwen-32B
-      - DeepSeek-V3.1-Terminus
       - Kimi-K2-Instruct
       - Kimi-K2-Thinking
       - Llama-4-Maverick-17B-128E-Instruct
@@ -495,22 +494,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--cache-type-v" "q8_0"))))
 
    (make-hf-model
-    :name 'DeepSeek-V3.1-Terminus
-    :context-length 131072
-    :temperature 0.6
-    :min-p 0.01
-    :top-p 0.95
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :context-length 16384
-      :model-path "~/Models/unsloth_DeepSeek-V3.1-Terminus-GGUF"
-      :arguments '("--cache-type-k" "q4_1"
-                   "--cache-type-v" "q4_1"
-                   "--seed" "3407"))))
-
-   (make-hf-model
     :name 'DeepSeek-V3-0324-UD
     :context-length 163840
     :instances
@@ -593,6 +576,22 @@ Contains a %s placeholder for dynamically generated router fallbacks."
    ;;   (make-hf-instance
    ;;    :name 'meta-llama/llama-4-maverick:free
    ;;    :provider 'openrouter)))
+
+   (make-hf-model
+    :name 'GLM-4.7
+    :context-length 262144
+    :temperature 1.0
+    :top-p 0.95
+    :top-k 40
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_GLM-4.7-GGUF"
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"))))
 
    (make-hf-model
     :name 'MiniMax-M2
@@ -855,17 +854,35 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 65536
       :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
-      :hostnames '("hera" "clio")
+      :hostnames '("hera")
       :cache-control t
       :arguments '("--repeat-penalty" "1.05"
-                   "--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
                    "--flash-attn" "on"
-                   "--batch-size" "8192"
-                   "--ubatch-size" "8192"
-                   "--rope-scaling" "yarn"
-                   "--rope-scale" "4"
-                   "--yarn-orig-ctx" "262144"))))
+                   ;; "--batch-size" "8192"
+                   ;; "--ubatch-size" "8192"
+                   ;; "--rope-scaling" "yarn"
+                   ;; "--rope-scale" "4"
+                   ;; "--yarn-orig-ctx" "262144"
+                   ))
+
+     (make-hf-instance
+      :max-output-tokens 65536
+      :context-length 131072
+      :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
+      :hostnames '("clio")
+      :cache-control t
+      :arguments '("--repeat-penalty" "1.05"
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   ;; "--batch-size" "8192"
+                   ;; "--ubatch-size" "8192"
+                   ;; "--rope-scaling" "yarn"
+                   ;; "--rope-scale" "4"
+                   ;; "--yarn-orig-ctx" "262144"
+                   ))))
 
    (make-hf-model
     :name 'Qwen3-Coder-480B-A35B-Instruct
@@ -1985,8 +2002,7 @@ Optionally generate for the given HOSTNAME."
          (max-output-tokens (hf-get-instance-max-output-tokens model instance))
          (supports-system-message (hf-model-supports-system-message model))
          (supports-function-calling (hf-model-supports-function-calling model))
-         (supports-reasoning (hf-model-supports-reasoning model))
-         (fallbacks (hf-instance-fallbacks instance)))
+         (supports-reasoning (hf-model-supports-reasoning model)))
     (dolist (host (if (memq provider '(local vibe-proxy))
                       hostnames
                     (list provider)))
@@ -2000,7 +2016,7 @@ Optionally generate for the given HOSTNAME."
       mode: %S
       description: %S%s%s
       supports_function_calling: %s
-      supports_reasoning: %s%s
+      supports_reasoning: %s
 "
                       host name
                       (cond ((eq 'local provider) "openai")
@@ -2035,15 +2051,7 @@ Optionally generate for the given HOSTNAME."
                           (format "\n      max_output_tokens: %s" max-output-tokens)
                         "")
                       (if supports-function-calling "true" "false")
-                      (if supports-reasoning "true" "false")
-                      (if fallbacks
-                          (concat "\n      fallbacks:"
-                                  (mapconcat
-                                   (lambda (fallback-model)
-                                     (format "\n        - model_name: %s" fallback-model))
-                                   fallbacks
-                                   ""))
-                        ""))))))
+                      (if supports-reasoning "true" "false"))))))
 
 (defun hf-generate-litellm-yaml ()
   "Build LiteLLM config.yaml configuration."

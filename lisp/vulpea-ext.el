@@ -36,6 +36,7 @@
 (require 'org-roam-dailies)
 (require 'dash)
 (require 'vulpea)
+(require 'vulpea-db)
 (require 'vulpea-field)
 
 (declare-function org-with-wide-buffer "org-macs")

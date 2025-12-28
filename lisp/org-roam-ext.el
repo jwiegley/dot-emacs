@@ -32,6 +32,7 @@
 (require 'org-ext)
 (require 'org-contacts)
 (require 'vulpea)
+(require 'vulpea-db)
 (require 'vulpea-ext)
 
 (defgroup org-roam-ext nil
@@ -283,13 +284,15 @@ This can come from four possible sources:
   "Do all the dirty stuff when file is being saved."
   (when (and (not (active-minibuffer-window))
              (vulpea-buffer-p))
-    (vulpea-ensure-filetag)
-    (when (and (string-match-p "org/\\(meeting\\|bahai\\|positron\\)"
-                               (file-name-directory (buffer-file-name)))
-               (not (member
-                     (file-name-nondirectory (buffer-file-name))
-                     org-constants-protected-basenames-list)))
-      (org-roam-ext-revise-title))))
+    (save-excursion
+      (goto-char (point-min))
+      (vulpea-ensure-filetag)
+      (when (and (string-match-p "org/\\(meeting\\|bahai\\|positron\\)"
+                                 (file-name-directory (buffer-file-name)))
+                 (not (member
+                       (file-name-nondirectory (buffer-file-name))
+                       org-constants-protected-basenames-list)))
+        (org-roam-ext-revise-title)))))
 
 (defun org-roam-ext-filter-by-tag (tag-name)
   #'(lambda (node) (member tag-name (org-roam-node-tags node))))
