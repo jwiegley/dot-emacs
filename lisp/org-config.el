@@ -576,7 +576,7 @@ during org-compare sessions for immediate attention."
       "* %U\n%?"
       :prepend t)
 
-     ("P" "Person" entry
+     ("p" "Person" entry
       (file ,org-constants-contacts-path)
       "* %?
 :PROPERTIES:
@@ -624,24 +624,42 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 - [ ] $0"
       :prepend t)
 
-     ("C" "Category" entry
-      (function org-ext-up-heading)
-      "* %?
-:PROPERTIES:
-:CATEGORY: %^{CATEGORY}
-:END:"
-      :prepend t)
-
-     ("B" "Org-contact" entry
-      (file ,org-constants-contacts-path)
-      "* %^{NAME}
-:PROPERTIES:
-:PHONE:    %^{PHONE}
-:EMAIL:    %^{EMAIL}
-:END:"
-      :prepend t)
-
      ("b" "Bahá’í")
+
+     ("bf" "Bahá’í Feast" entry
+      (file+headline ,(org-file "bahai/assembly/assembly.org")
+                     "Carmichael Local Spiritual Assembly (LSA)")
+      (file "~/org/template/bahai/feast.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("be" "Bahá’í event" entry
+      ;; I don't know in advance which section it belongs in.
+      ,Inbox
+      (file "~/org/template/bahai/bahai-event.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("bE" "Recurring Bahá’í event" entry
+      ;; I don't know in advance which section it belongs in.
+      ,Inbox
+      (file "~/org/template/bahai/recurring-event.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("bg" "Flow of guidance" entry
+      (file+headline ,(org-file "bahai/assembly/assembly.org")
+                     "Increasing the flow of guidance to the grassroots")
+      (file "~/org/template/bahai/flow-of-guidance.org")
+      :immediate-finish t
+      :jump-to-captured t)
+
+     ("bp" "Program (such as community devotional)" entry
+      ;; I don't know in advance which section it belongs in.
+      ,Inbox
+      (file "~/org/template/bahai/program.org")
+      :immediate-finish t
+      :jump-to-captured t)
 
      ("bc" "Concentric circles" entry
       ,Inbox
@@ -687,9 +705,15 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
       :clock-in t
       :clock-keep t)
 
-     ("p" "Project templates")
+     ("C" "Category (entry with CATEGORY)" entry
+      (function org-ext-up-heading)
+      "* %?
+:PROPERTIES:
+:CATEGORY: %^{CATEGORY}
+:END:"
+      :prepend t)
 
-     ("pp" "PROJECT" entry
+     ("P" "Project (TODO with CATEGORY)" entry
       ,Inbox
       "* TODO %?
 :PROPERTIES:
@@ -697,68 +721,24 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 :END:"
       :prepend t)
 
-     ("pt" "Trip" entry
+     ("t" "Trip" entry
       ,Inbox
       (file "~/org/template/trip.org")
       :immediate-finish t
       :jump-to-captured t)
 
-     ("pT" "Taxes" entry
+     ("T" "Taxes" entry
       (file+headline ,org-constants-todo-path "Taxes")
       (file "~/org/template/taxes.org")
       :immediate-finish t
       :jump-to-captured t)
 
-     ("pb" "Bahá’í templates")
+     ("w" "Work")
 
-     ("pbf" "Bahá’í Feast" entry
-      (file+headline ,(org-file "bahai/assembly/assembly.org")
-                     "Carmichael Local Spiritual Assembly (LSA)")
-      (file "~/org/template/bahai/feast.org")
-      :immediate-finish t
-      :jump-to-captured t)
-
-     ("pbe" "Bahá’í event" entry
-      ;; I don't know in advance which section it belongs in.
-      ,Inbox
-      (file "~/org/template/bahai/bahai-event.org")
-      :immediate-finish t
-      :jump-to-captured t)
-
-     ("pbE" "Recurring Bahá’í event" entry
-      ;; I don't know in advance which section it belongs in.
-      ,Inbox
-      (file "~/org/template/bahai/recurring-event.org")
-      :immediate-finish t
-      :jump-to-captured t)
-
-     ("pbg" "Flow of guidance" entry
-      (file+headline ,(org-file "bahai/assembly/assembly.org")
-                     "Increasing the flow of guidance to the grassroots")
-      (file "~/org/template/bahai/flow-of-guidance.org")
-      :immediate-finish t
-      :jump-to-captured t)
-
-     ("pbp" "Program (such as community devotional)" entry
-      ;; I don't know in advance which section it belongs in.
-      ,Inbox
-      (file "~/org/template/bahai/program.org")
-      :immediate-finish t
-      :jump-to-captured t)
-
-     ("pw" "Work templates")
-
-     ("pwO" "Out of Office" entry
+     ("wO" "Out of Office" entry
       (file+headline ,(org-file "positron/positron.org")
-                     "Operations (Ops)")
+                     "Positron")
       (file "~/org/template/positron/out-of-office.org")
-      :immediate-finish t
-      :jump-to-captured t)
-
-     ("pwn" "Network Incident" entry
-      (file+headline ,(org-file "positron/positron.org")
-                     "Improve Response Process")
-      (file "~/org/template/positron/network-incident.org")
       :immediate-finish t
       :jump-to-captured t)))
 
@@ -905,8 +885,6 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
                               "coordinator")
    ,(org-config-bahai-meeting "bid" "Institute Day" "institute-day.org"
                               "coordinator")
-   ,(org-config-bahai-meeting "bir" "Institute Day Reflection"
-                              "institute-day-reflection.org" "coordinator")
    ,(org-config-bahai-meeting "bit" "Tutor Training" "tutor-training.org"
                               "coordinator")
 
