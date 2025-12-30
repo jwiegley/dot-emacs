@@ -5801,12 +5801,13 @@ append it to ENTRY."
 
   (defun emacs-post-startup-setup ()
     (delete-other-windows)
-    (find-file "~/org/home.org")
-    (magit-status "~/org")
+    ;; (find-file "~/org/home.org")
+    ;; (magit-status "~/org")
     ;; (when (quickping "imap.fastmail.com")
     (when (quickping "imap.vulcan.lan")
       (delete-other-windows)
       (call-interactively #'switch-to-gnus))
+    (call-interactively #'corsair-open-chat-buffer)
     (call-interactively #'org-ext-jump-to-agenda))
   :init
   (define-key key-translation-map (kbd "s-TAB") (kbd "C-TAB"))
@@ -11512,8 +11513,9 @@ This is returned as a string."
    ("H"   . org-config-hide)
    ("s"   . org-config-find)
    ("C-s" . org-config-find-any))
-  :hook
-  (after-init . (lambda () (org-agenda nil "a"))))
+  ;; :hook
+  ;; (after-init . (lambda () (org-agenda nil "a")))
+  )
 #+end_src
 
 *** COMMENT appt
