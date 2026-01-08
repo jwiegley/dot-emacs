@@ -1992,7 +1992,7 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
   :hook ((coq-mode haskell-mode) . dumb-jump-mode))
 #+end_src
 
-** eager-state
+** COMMENT eager-state
 
 #+begin_src emacs-lisp
 (use-package eager-state
@@ -3097,7 +3097,8 @@ up before you execute another command."
    ("C-c C-p"  . my/gptel-previous-prompt))
   :hook
   (gptel-mode . turn-off-auto-fill)
-  (gptel-mode . visual-line-fill-column-mode)
+  (gptel-mode . visual-line-mode)
+  (gptel-mode . visual-fill-column-mode)
   (gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
   (gptel-mode . my/gptel-prepare-new-chat-buffer)
   (gptel-mode . (lambda () (setq-local gptel-stream t)))
@@ -5698,13 +5699,7 @@ append it to ENTRY."
 
   (defconst display-name
     (pcase (display-pixel-width)
-      (`3840 'dell-wide)
-      (`6400 'imac)
-      (`4480 'imac)
       (`3760 'imac)
-      (`2560 'imac)
-      (`1920 'macbook-pro-vga)
-      (`1792 'macbook-pro-16)
       (`1512 'macbook-pro-14)
       ))
 
@@ -5729,40 +5724,31 @@ append it to ENTRY."
   (defun emacs-min-left ()
     (pcase display-name
       ((guard alternate-emacs)    0)
-      (`dell-wide              1000)
       (`imac (pcase (emacs-min-font-height)
                (28  20)
                (24 116)
                (21 318)                 ; <--
                (_    0)))
-      (`macbook-pro-vga         700)
-      (`macbook-pro-16          672)
       (`macbook-pro-14          396)))
 
   (defun emacs-min-height ()
     (pcase display-name
       ((guard alternate-emacs)   58)
-      (`dell-wide                64)
       (`imac (pcase (emacs-min-font-height)
                (28 50)
                (24 58)
                (21 67)                  ; <--
                (_  40)))
-      (`macbook-pro-vga          55)
-      (`macbook-pro-16           52)
       (`macbook-pro-14           43)))
 
   (defun emacs-min-width ()
     (pcase display-name
       ((guard alternate-emacs)   80)
-      (`dell-wide               202)
       (`imac (pcase (emacs-min-font-height)
                (28 180)
                (24 202)
                (21 202)                 ; <--
                (_  100)))
-      (`macbook-pro-vga         100)
-      (`macbook-pro-16          100)
       (`macbook-pro-14          100)))
 
   (defun reset-font ()
@@ -5801,14 +5787,13 @@ append it to ENTRY."
 
   (defun emacs-post-startup-setup ()
     (delete-other-windows)
-    ;; (find-file "~/org/home.org")
-    ;; (magit-status "~/org")
-    ;; (when (quickping "imap.fastmail.com")
+    (call-interactively #'corsair-open-chat-buffer)
     (when (quickping "imap.vulcan.lan")
       (delete-other-windows)
       (call-interactively #'switch-to-gnus))
-    (call-interactively #'corsair-open-chat-buffer)
-    (call-interactively #'org-ext-jump-to-agenda))
+    (call-interactively #'org-ext-jump-to-agenda)
+    (find-file "~/org/home.org")
+    (find-file-other-window "~/org/focus.org"))
   :init
   (define-key key-translation-map (kbd "s-TAB") (kbd "C-TAB"))
 
@@ -10105,6 +10090,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
               ("M-q"           . gnus-article-fill-long-lines)
               ("B <delete>"    . gnus-summary-delete-article)
               ("B <backspace>" . my-gnus-trash-article)
+              ("B f"           . my-gnus-sieve-create-filter-from-article)
               ("X m"           . my-gnus-summary-save-parts))
   :hook
   (gnus-summary-mode . hl-line-mode)
@@ -10847,6 +10833,14 @@ This is returned as a string."
       (mapconcat #'identity script "\n"))))
 #+end_src
 
+**** my-gnus-sieve
+
+#+begin_src emacs-lisp
+(use-package my-gnus-sieve
+  :after (gnus-sum gnus-sieve)
+  :commands (my-gnus-sieve-create-filter-from-article))
+#+end_src
+
 *** gnus-agent
 
 #+begin_src emacs-lisp
@@ -11513,9 +11507,8 @@ This is returned as a string."
    ("H"   . org-config-hide)
    ("s"   . org-config-find)
    ("C-s" . org-config-find-any))
-  ;; :hook
-  ;; (after-init . (lambda () (org-agenda nil "a")))
-  )
+  :hook
+  (after-init . (lambda () (org-agenda nil "a"))))
 #+end_src
 
 *** COMMENT appt

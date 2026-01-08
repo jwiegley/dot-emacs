@@ -838,7 +838,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ("bc" "Regional Bahá’í Council")
 
    ("bcc" "Regional Bahá’í Council meeting" plain
-    (file "~/org/template/bahai/meeting/council-meeting.org")
+    (file "~/org/template/bahai/meeting/regional-council.org")
     :target
     (file+head
      "bahai/council/%<%Y%m%d%H%M>-regional-council.org"

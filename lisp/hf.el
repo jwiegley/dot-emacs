@@ -52,7 +52,7 @@
   :type 'string
   :group 'hf)
 
-(defcustom hf-default-instance-name 'mlx-community/gpt-oss-120b-MXFP4-Q8
+(defcustom hf-default-instance-name 'gpt-oss-120b
   "Name of default instance."
   :type 'symbol
   :group 'hf)
@@ -83,6 +83,14 @@ startPort: 9200
 
 (defcustom hf-llama-swap-epilog "
 groups:
+  gpt_oss:
+    swap: false
+    exclusive: false
+    members:
+      - gpt-oss-120b
+      - gpt-oss-20b
+
+  # Only one of these can be loaded at a time
   large_models:
     swap: true
     exclusive: false
@@ -97,10 +105,10 @@ groups:
       - Qwen3-235B-A22B-Instruct-2507
       - Qwen3-235B-A22B-Thinking-2507
       - Qwen3-Coder-480B-A35B-Instruct
-      - gpt-oss-120b
       - mlx-community/gpt-oss-120b-MXFP4-Q8
       - r1-1776-distill-llama-70b
 
+  # Only one of these can be loaded at a time
   small_models:
     swap: true
     exclusive: false
@@ -120,11 +128,11 @@ groups:
       - gemma-3-27b-it
       - gemma-3-4b-it
       - gemma-3n-E4B-it
-      - gpt-oss-20b
       - mlx-community/gpt-oss-20b-MXFP4-Q8
       - gpt-oss-safeguard-20b
       - lmstudio-community/gpt-oss-safeguard-20b-MLX-MXFP4
 
+  # Only one of these can be loaded at a time
   embeddings:
     swap: true
     exclusive: false
@@ -137,6 +145,7 @@ groups:
       - bge-m3
       - nomic-embed-text-v2-moe
 
+  # Only one of these can be loaded at a time
   rerankings:
     swap: true
     exclusive: false
@@ -144,6 +153,7 @@ groups:
       - Qwen.Qwen3-Reranker-8B
       - bge-reranker-v2-m3
 
+  # Only one of these can be loaded at a time
   stt:
     swap: true
     exclusive: false
@@ -1220,6 +1230,18 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :name 'google/gemma-2-9b
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'Llama-3.1-8B
+    :context-length 131072
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'meta-llama/Llama-3.1-8B
       :engine 'mlx-lm)))
 
    (make-hf-model
