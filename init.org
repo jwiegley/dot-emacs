@@ -6430,6 +6430,8 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 
 #+begin_src emacs-lisp
 (use-package smerge-mode
+  :custom-face
+  (smerge-base ((t (:extend t :background "#444433"))))
   :commands smerge-mode)
 #+end_src
 
