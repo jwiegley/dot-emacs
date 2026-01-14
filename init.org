@@ -8944,22 +8944,40 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
     (advice-add 'direnv-update-directory-environment
                 :after #'my-update-cabal-repl)
 
-    (when (executable-find "ormolu")
+    (cond
+     ((executable-find "fourmolu")
       (require 'format-all)
       (define-format-all-formatter
-       ormolu
-       (:executable "ormolu")
-       (:install "stack install ormolu")
-       (:languages "Haskell" "Literate Haskell")
-       (:features)
-       (:format
-        (format-all--buffer-easy
-         executable
-         (when (buffer-file-name)
-           (list "--stdin-input-file" (buffer-file-name))))))
+          fourmolu
+        (:executable "fourmolu")
+        (:install "stack install fourmolu")
+        (:languages "Haskell" "Literate Haskell")
+        (:features)
+        (:format
+         (format-all--buffer-easy
+          executable
+          (when (buffer-file-name)
+            (list "-o" "-XImportQualifiedPost"
+                  "--stdin-input-file" (buffer-file-name))))))
+      (format-all--set-chain "Haskell" '(fourmolu))
+      ;; (format-all-mode 1)
+      )
+     ((executable-find "ormolu")
+      (require 'format-all)
+      (define-format-all-formatter
+          ormolu
+        (:executable "ormolu")
+        (:install "stack install ormolu")
+        (:languages "Haskell" "Literate Haskell")
+        (:features)
+        (:format
+         (format-all--buffer-easy
+          executable
+          (when (buffer-file-name)
+            (list "--stdin-input-file" (buffer-file-name))))))
       (format-all--set-chain "Haskell" '(ormolu))
       ;; (format-all-mode 1)
-      ))
+      )))
   :config
   (use-package align
     :defer t
