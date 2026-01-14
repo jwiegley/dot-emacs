@@ -1329,16 +1329,29 @@ should be terminated.
   :no-require t
   :demand t
   :custom
-  (calendar-bahai-all-holidays-flag t))
+  (holiday-bahai-holidays
+   '((holiday-bahai-new-year)
+     (holiday-bahai-ridvan)
+     (holiday-bahai  4  8 "Declaration of the Báb")
+     (holiday-bahai  4 13 "Ascension of Bahá’u’lláh")
+     (holiday-bahai  6 17 "Martyrdom of the Báb")
+     (holiday-bahai-twin-holy-birthdays)
+     (if calendar-bahai-all-holidays-flag
+         (append
+          (holiday-bahai 14  4 "Day of the Covenant")
+          (holiday-bahai 14  6 "Ascension of ‘Abdu’l-Bahá")))))
+  (calendar-bahai-all-holidays-flag t)
+  :config
+  (require 'cal-bahai)
+  (require 'holidays))
 #+end_src
 
-*** holidays
+*** COMMENT holidays
 
 #+begin_src emacs-lisp
 (use-package holidays
-  :defer t
+  :demand t
   :custom
-  (holiday-bahai-holidays nil)
   (holiday-hebrew-holidays nil))
 #+end_src
 
