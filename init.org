@@ -3329,6 +3329,15 @@ up before you execute another command."
          ("q" . gptel-quick)))
 #+end_src
 
+*** gptel-agent
+
+#+begin_src emacs-lisp
+(use-package gptel-agent
+  :load-path "lisp/gptel-agent"
+  :after (gptel)
+  :demand t)
+#+end_src
+
 *** COMMENT gptel-claude-oauth
 
 #+begin_src emacs-lisp
