@@ -2005,13 +2005,24 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
   :hook ((coq-mode haskell-mode) . dumb-jump-mode))
 #+end_src
 
-** COMMENT eager-state
+** eager-state
 
 #+begin_src emacs-lisp
 (use-package eager-state
   :config
-  (eager-state-mode 1)
-  (eager-state-preempt-kill-emacs-hook-mode 1))
+  (setq eager-state-kill-emacs-hook-subset
+        '(bookmark-exit-hook-internal
+          savehist-autosave
+          transient-maybe-save-history
+          org-clock-save
+          org-id-locations-save
+          save-place-kill-emacs-hook
+          recentf-save-list
+          recentf-cleanup))
+  (setq eager-state-kill-emacs-query-functions-subset
+        '(eshell-save-some-history
+          eshell-save-some-last-dir))
+  (eager-state-mode 1))
 #+end_src
 
 ** easy-kill
