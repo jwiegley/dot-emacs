@@ -87,6 +87,8 @@ groups:
     swap: false
     exclusive: false
     members:
+      - Devstral-2-123B-Instruct-2512
+      - Devstral-Small-2-24B-Instruct-2512
       - gpt-oss-120b
       - gpt-oss-20b
 
@@ -504,6 +506,15 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--cache-type-v" "q8_0"))))
 
    (make-hf-model
+    :name 'DeepSeek-V3
+    :context-length 163840
+    :instances
+    (list
+     (make-hf-instance
+      :name 'deepseek-ai/DeepSeek-V3
+      :engine 'mlx-lm)))
+
+   (make-hf-model
     :name 'DeepSeek-V3-0324-UD
     :context-length 163840
     :instances
@@ -602,6 +613,36 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :arguments '("--cache-type-k" "q8_0"
                    "--cache-type-v" "q8_0"
                    "--flash-attn" "on"))))
+
+   (make-hf-model
+    :name 'GLM-4.7-4bit
+    :context-length 262144
+    :temperature 1.0
+    :top-p 0.95
+    :top-k 40
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :name 'mlx-community/GLM-4.7-4bit
+      :cache-control t
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'GLM-4.7-FP8
+    :context-length 262144
+    :temperature 1.0
+    :top-p 0.95
+    :top-k 40
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :name 'zai-org/GLM-4.7-FP8
+      :cache-control t
+      :engine 'mlx-lm)))
 
    (make-hf-model
     :name 'MiniMax-M2
@@ -864,12 +905,12 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 65536
       :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
-      :hostnames '("hera")
       :cache-control t
       :arguments '("--repeat-penalty" "1.05"
                    ;; "--cache-type-k" "q8_0"
                    ;; "--cache-type-v" "q8_0"
                    "--flash-attn" "on"
+                   "--chat-template-file" "/Users/johnw/Models/chat_template_llamacpp.jinja"
                    ;; "--batch-size" "8192"
                    ;; "--ubatch-size" "8192"
                    ;; "--rope-scaling" "yarn"
@@ -887,6 +928,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    ;; "--cache-type-k" "q8_0"
                    ;; "--cache-type-v" "q8_0"
                    "--flash-attn" "on"
+                   "--chat-template-file" "/Users/johnw/Models/chat_template_llamacpp.jinja"
                    ;; "--batch-size" "8192"
                    ;; "--ubatch-size" "8192"
                    ;; "--rope-scaling" "yarn"
@@ -918,7 +960,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--rope-scaling" "yarn"
                    "--rope-scale" "4"
                    "--yarn-orig-ctx" "262144"
-                   "--chat-template-file" "/Users/johnw/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/chat_template.jinja"))))
+                   "--chat-template-file" "/Users/johnw/Models/chat_template_llamacpp.jinja"))))
 
    (make-hf-model
     :name 'VibeThinker-1.5B
@@ -1230,6 +1272,18 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :name 'google/gemma-2-9b
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'Seed-OSS-36B-Instruct
+    :context-length 32768
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'ByteDance-Seed/Seed-OSS-36B-Instruct
       :engine 'mlx-lm)))
 
    (make-hf-model
