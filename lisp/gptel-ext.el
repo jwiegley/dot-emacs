@@ -32,6 +32,27 @@
 (require 'gptel)
 (require 'org-ext)
 
+(defun gptel-ext-with-region (preset beg end body-fn)
+  "Send region BEG to END to gptel and process response with BODY-FN.
+PRESET is a gptel preset symbol or configuration to use for the request.
+BODY-FN is a callback function receiving the response string, called
+with point at the original request position within the entry buffer."
+  (gptel-with-preset preset
+    (gptel-request (buffer-substring-no-properties beg end)
+      :callback (lambda (resp info)
+                  (when (stringp resp)
+                    (with-current-buffer (plist-get info :buffer)
+                      (goto-char (plist-get info :position))
+                      (funcall body-fn resp)))))))
+
+(defun gptel-ext-with-org-entry (preset body-fn)
+  "Send narrowed Org entry to gptel and process response with BODY-FN.
+PRESET is a gptel preset symbol or configuration to use for the request.
+BODY-FN is a callback function receiving the response string, called
+with point at the original request position within the entry buffer."
+  (org-ext-with-entry-narrowed
+   (gptel-ext-with-region preset (point-min) (point-max) body-fn)))
+
 (defun gptel-ext-shorten ()
   "Given a selected set of Org-mode headings, shorten them."
   (interactive)
@@ -40,11 +61,12 @@
 (defun gptel-ext-breakdown ()
   "Given an Org-mode task, break it down into other tasks."
   (interactive)
-  (save-excursion
-    (org-ext-with-entry-narrowed
-     (set-mark (point-min))
+  (gptel-ext-with-org-entry
+   'breakdown
+   (lambda (resp)
      (goto-char (point-max))
-     (gptel-with-preset 'breakdown (gptel--suffix-rewrite)))))
+     (unless (eolp) (insert ?\n))
+     (insert resp))))
 
 (defun gptel-ext-proofread ()
   "Given selected text, proofread it."
@@ -56,42 +78,27 @@
   (interactive)
   (gptel-with-preset 'docstring (gptel--suffix-rewrite)))
 
-(defun gptel-ext-title (beg end)
-  "Generate a title for the region from BEG to END using gptel.
-
-Sends the text in the region to the LLM configured in the `title' preset
-and inserts the generated title at the end of the current Org heading.
-
-BEG and END define the region bounds to use as context for title
-generation.
-
-When called interactively, uses the active region. The callback
-positions point at the end of the current Org heading and inserts the
-generated title, adding a space before the title if needed."
-  (interactive "r")
-  (gptel-with-preset 'title
-    (gptel-request
-        (buffer-substring-no-properties beg end)
-      :callback (lambda (resp info)
-                  (when (stringp resp)
-                    (with-current-buffer (plist-get info :buffer)
-                      (goto-char (plist-get info :position))
-                      (org-back-to-heading)
-                      (goto-char (line-end-position))
-                      (unless (looking-back " " (line-beginning-position))
-                        (insert " "))
-                      (insert resp)))))))
+(defun gptel-ext-title ()
+  "Generate and insert an AI-generated title for the current Org entry.
+Uses `gptel-ext-with-org-entry' to request a title suggestion, then
+inserts the response at the end of the current heading line."
+  (interactive)
+  (gptel-ext-with-org-entry
+   'title
+   (lambda (resp)
+     (org-back-to-heading)
+     (goto-char (line-end-position))
+     (unless (looking-back " " (line-beginning-position))
+       (insert " "))
+     (insert resp))))
 
 (defun gptel-ext-infer-tasks (beg end)
+  "Send region to gptel using the infer-tasks preset and insert response.
+
+BEG and END define the region boundaries to send as the prompt.
+The response is inserted at point in the original buffer."
   (interactive "r")
-  (gptel-with-preset 'infer-tasks
-    (gptel-request
-        (buffer-substring-no-properties beg end)
-      :callback (lambda (resp info)
-                  (when (stringp resp)
-                    (with-current-buffer (plist-get info :buffer)
-                      (goto-char (plist-get info :position))
-                      (insert resp)))))))
+  (gptel-ext-with-region 'infer-tasks beg end #'insert))
 
 (gptel-make-tool
  :function (lambda (location unit)
