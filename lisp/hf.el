@@ -1229,7 +1229,18 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Devstral-Small-2-24B-Instruct-2512-GGUF"
-      :hostnames '("hera" "clio")
+      :cache-control t
+      :arguments '(
+                   ;; "--cache-type-k" "q8_0"
+                   ;; "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"
+                   "-ub" "2048"
+                   "-b" "2048"
+                   ))
+     (make-hf-instance
+      :model-path "~/Models/unsloth_Devstral-Small-2-24B-Instruct-2512-GGUF"
+      :hostnames '("clio")
+      :context-length 140000
       :cache-control t
       :arguments '(
                    ;; "--cache-type-k" "q8_0"
