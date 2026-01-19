@@ -2973,15 +2973,12 @@ up before you execute another command."
              format-all-mode)
   :hook
   (prog-mode . enable-format-all-if-indicated)
-  :custom
-  (format-all-formatters '(("Python" (black "--line-length" "79"))))
   :preface
   (defun enable-format-all-if-indicated ()
     (interactive)
-    (when (locate-dominating-file default-directory ".format")
-      (format-all-mode 1)
-      ;; (whitespace-mode 1)
-      ))
+    (when (or (locate-dominating-file default-directory ".format")
+              (string-match "/tron/" default-directory))
+      (format-all-mode 1)))
   :config
   (defun format-all--resolve-system (choices)
     "Get first choice matching `format-all--system-type' from CHOICES."
