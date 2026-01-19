@@ -7120,6 +7120,31 @@ RET in the buffer you want to undo.
   (winner-mode 1))
 #+end_src
 
+** wispr-flow
+
+The Wispr Flow application uses Command-V to paste transcribed text into the
+current application. This is not configurable. However, while I'm in Emacs, I
+want to be able to both use Wispr Flow and also use Command-V as Meta-V, which
+means to scroll down. To accomplish this, I use Keyboard Maestro so that when
+Command-V key is pressed — Keyboard Maestro can't tell whether it's being
+pressed by me or being virtually pressed by Wispr Flow — then it will check to
+see whether the actual modifier command is currently being held down. This is
+true if I'm doing it physically, but not true if Wispr Flow is just sending a
+key code. This allows me to use an if-else macro such that if the command key
+is being held down by me, it sends the regular Meta-V from Emacs' perspective,
+but if it's not being held down, then it's coming from Wispr Flow and can be
+Alt-V, which is to yank.
+
+#+begin_src emacs-lisp
+(use-package wispr-flow
+  :no-require t
+  :nix nil
+  :unless noninteractive
+  :demand t
+  :bind* (("M-v" . scroll-down-command)
+          ("A-v" . yank)))
+#+end_src
+
 ** wombag
 
 #+begin_src emacs-lisp
