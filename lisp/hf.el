@@ -176,9 +176,40 @@ groups:
   :type 'string
   :group 'hf)
 
-(defcustom hf-litellm-credentials-function
+(defcustom hf-litellm-environment-function
   (lambda ()
-    (format "
+    (format-spec
+     "
+environment_variables:
+  ANTHROPIC_API_KEY: \"%a\"
+  GEMINI_API_KEY: \"%g\"
+  OPENAI_API_KEY: \"%o\"
+  PERPLEXITYAI_API_KEY: \"%p\"
+  GROQ_API_KEY: \"%r\"
+  OPENROUTER_API_KEY: \"%e\"
+  POSITRON_ANTHROPIC_API_KEY: \"%A\"
+  POSITRON_GEMINI_API_KEY: \"%G\"
+  POSITRON_OPENAI_API_KEY: \"%O\"
+  POSITRON_API_KEY: \"%P\"
+"
+     `((?a . ,(lambda () (lookup-password "api.anthropic.com" "johnw" 443)))
+       (?g . ,(lambda () (lookup-password "api.gemini.com" "johnw" 443)))
+       (?o . ,(lambda () (lookup-password "api.openai.com" "johnw" 443)))
+       (?p . ,(lambda () (lookup-password "api.perplexity.ai" "johnw" 443)))
+       (?r . ,(lambda () (lookup-password "api.groq.com" "johnw" 443)))
+       (?e . ,(lambda () (lookup-password "openrouter.ai" "johnw" 443)))
+       (?A . ,(lambda () (lookup-password "positron@api.anthropic.com" "jwiegley" 443)))
+       (?G . ,(lambda () (lookup-password "positron@api.gemini.com" "jwiegley" 443)))
+       (?O . ,(lambda () (lookup-password "positron@api.openai.com" "jwiegley" 443)))
+       (?P . ,(lambda () (lookup-password "positron@api-dev.positron.ai" "jwiegley" 443)))
+       )
+     ))
+  "Function for generating credentials for LiteLLM's config.yaml file."
+  :type 'function
+  :group 'hf)
+
+(defcustom hf-litellm-credentials
+  "
 credential_list:
   - credential_name: hera_llama_swap_credential
     credential_values:
@@ -210,70 +241,59 @@ credential_list:
 
   - credential_name: openai_credential
     credential_values:
-      api_key: \"%s\"
+      api_key: os.environ/OPENAI_API_KEY
     credential_info:
       description: \"API Key for OpenAI\"
 
   - credential_name: anthropic_credential
     credential_values:
-      api_key: \"%s\"
+      api_key: os.environ/ANTHROPIC_API_KEY
     credential_info:
       description: \"API Key for Anthropic\"
 
   - credential_name: perplexity_credential
     credential_values:
-      api_key: \"%s\"
+      api_key: os.environ/PERPLEXITYAI_API_KEY
     credential_info:
       description: \"API Key for Perplexity\"
 
   - credential_name: groq_credential
     credential_values:
-      api_key: \"%s\"
+      api_key: os.environ/GROQ_API_KEY
     credential_info:
       description: \"API Key for Groq\"
 
   - credential_name: openrouter_credential
     credential_values:
-      api_key: \"%s\"
+      api_key: os.environ/OPENROUTER_API_KEY
     credential_info:
       description: \"API Key for OpenRouter\"
 
   - credential_name: positron_openai_credential
     credential_values:
-      api_key: \"%s\"
+      api_key: os.environ/POSITRON_OPENAI_API_KEY
     credential_info:
       description: \"API Key for OpenAI (Positron)\"
 
   - credential_name: positron_anthropic_credential
     credential_values:
-      api_key: \"%s\"
+      api_key: os.environ/POSITRON_ANTHROPIC_API_KEY
     credential_info:
       description: \"API Key for Anthropic (Positron)\"
 
   - credential_name: positron_gemini_credential
     credential_values:
-      api_key: \"%s\"
+      api_key: os.environ/POSITRON_GEMINI_API_KEY
     credential_info:
       description: \"API Key for Google AI (Positron)\"
 
   - credential_name: positron_credential
     credential_values:
       api_base: https://api-dev.positron.ai/v1
-      api_key: \"%s\"
+      api_key: os.environ/POSITRON_API_KEY
     credential_info:
       description: \"API Key for Posistron.ai\"
 "
-            (lookup-password "api.openai.com" "johnw" 443)
-            (lookup-password "api.anthropic.com" "johnw" 443)
-            (lookup-password "api.perplexity.ai" "johnw" 443)
-            (lookup-password "api.groq.com" "johnw" 443)
-            (lookup-password "openrouter.ai" "johnw" 443)
-
-            (lookup-password "positron@api.openai.com" "jwiegley" 443)
-            (lookup-password "positron@api.anthropic.com" "jwiegley" 443)
-            (lookup-password "positron@api.gemini.com" "jwiegley" 443)
-            (lookup-password "positron@api-dev.positron.ai" "jwiegley" 443)
-            ))
   "Function for generating credentials for LiteLLM's config.yaml file."
   :type 'function
   :group 'hf)
@@ -2159,7 +2179,8 @@ Optionally generate for the given HOSTNAME."
         ;; (unless (string= model (downcase model))
         ;;   (hf-insert-instance-litellm (downcase model) instance))
         ))
-    (insert (funcall hf-litellm-credentials-function))
+    (insert hf-litellm-credentials)
+    (insert (funcall hf-litellm-environment-function))
     ;; Format the epilog with dynamically generated router fallbacks
     (insert (format hf-litellm-epilog-spec (hf-format-router-fallbacks)))
     (yaml-mode)
