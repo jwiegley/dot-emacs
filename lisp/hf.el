@@ -2055,7 +2055,8 @@ Optionally generate for the given HOSTNAME."
       (insert (with-current-buffer
                   (hf-generate-llama-swap-yaml target-host)
                 (buffer-string)))
-      (message "[llama-swap] Writing to %s..." (hf-remote-path yaml-path hostname))
+      (message "[llama-swap] Writing to %s..."
+               (hf-remote-path yaml-path hostname))
       (write-file (hf-remote-path yaml-path hostname)))
     (message "[llama-swap] Stopping llama-swap on %s..." target-host)
     (if (and hostname
