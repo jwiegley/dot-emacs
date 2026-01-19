@@ -278,7 +278,7 @@ credential_list:
   :type 'function
   :group 'hf)
 
-(defcustom hf-litellm-epilog "
+(defcustom hf-litellm-epilog-spec "
 litellm_settings:
   request_timeout: 7200
   ssl_verify: false
@@ -2143,7 +2143,7 @@ Optionally generate for the given HOSTNAME."
         ))
     (insert (funcall hf-litellm-credentials-function))
     ;; Format the epilog with dynamically generated router fallbacks
-    (insert (format hf-litellm-epilog (hf-format-router-fallbacks)))
+    (insert (format hf-litellm-epilog-spec (hf-format-router-fallbacks)))
     (yaml-mode)
     (current-buffer)))
 
