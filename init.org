@@ -12142,6 +12142,14 @@ A group FOO is composed of contacts with the tag FOO."
         (query . ,(format "message-id:%s" message-id))
         (raw)))))
 
+  (defun org-devonthink-set-link ()
+    "Set a property for the current headline."
+    (interactive)
+    (org-ext-todoize)
+    (org-set-property (if (org-entry-get (point-marker) "URL") "URL2" "URL")
+                      (org-devonthink-get-link))
+    (org-toggle-tag "LINK" 'on))
+
   ;; Replace Gnus link type with Message
   (org-link-set-parameters "message"
 			   ;; :follow #'org-devonthink-message-open
