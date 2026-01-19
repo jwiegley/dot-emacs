@@ -338,7 +338,7 @@
 
 (gptel-make-preset 'infer-tasks
   :description "Infer Org-mode tasks from text"
-  :system'infer-tasks
+  :system 'infer-tasks
   :parents 'rewrite)
 
 ;;; Languages
