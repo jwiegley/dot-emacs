@@ -782,35 +782,199 @@ Interactive: selects from available link names."
         (delete-region (match-beginning 3) (match-end 3))))))
 
 (defun org-ext-fixup-slack (&optional arg)
-  "Clean up Slack export formatting in current buffer.
-Removes extra spacing, emojis, time markers and formats conversation
-history. When ARG is non-nil, skips final `fill-region' call."
+  "Convert Slack web export format to clean Org mode conversation format.
+
+Transforms Slack export structure where each message consists of:
+  - Timestamp link: [[https://...slack.com/.../p<timestamp>][TIME]]
+  - Author name on separate line(s) (may be absent for continuation)
+  - Message content after blank lines
+
+Into compact format:
+  [[timestamp-url][Author Name]]: message content...
+
+Handles continuation messages (same author posting multiple times in quick
+succession) by detecting when a timestamp has no author name following it
+and using the previous message's author.
+
+Performs these transformations:
+  - Combines timestamp link + author + content into single attribution line
+  - Merges consecutive messages from the same author
+  - Replaces \"John Wiegley\" with \"Me\" in author names
+  - Converts #+begin_src blocks to #+begin_example blocks
+  - Removes emoji reaction images (slack-edge.com/emoji-assets)
+  - Removes \"(edited)\" markers and inline reaction counts
+  - Removes \"Saved for later\" and quoted author references
+  - Preserves @mention links and code blocks
+  - Joins orphan punctuation to preceding lines
+  - Normalizes blank lines (single blank between messages)
+  - Works with any .slack.com domain
+
+When ARG is non-nil, skips final `fill-region' call for
+multi-line preservation."
   (interactive "P")
-  (whitespace-cleanup)
-  (goto-char (point-min))
-  (while (search-forward "\n\n \n\n" nil t)
-    (replace-match ": "))
-  (goto-char (point-min))
-  (while (search-forward " " nil t)
-    (replace-match " "))
-  (goto-char (point-min))
-  (while (search-forward " (edited)" nil t)
-    (delete-region (match-beginning 0) (match-end 0)))
-  (goto-char (point-min))
-  (while (re-search-forward "\\[\\[https://.*emoji-assets[^]]+?\\.png\\]\\]" nil t)
-    (delete-region (match-beginning 0) (match-end 0)))
-  (goto-char (point-min))
-  (while (re-search-forward
-          "^\\( *\\)\\[\\[https://kadena-io\\.slack\\.com[^]]+?\\]\\[\\(\\(Today at \\)?[0-9:]+ [AP]M\\)\\]\\]\\(\n+\\)" nil t)
-    (replace-match ": " t t nil 4)
-    (replace-match "Me" t t nil 2)
-    (delete-region (match-beginning 1) (match-end 1)))
-  (whitespace-cleanup)
-  (unless arg
+
+  ;; Phase 1: Initial cleanup of common noise patterns
+  (save-excursion
     (goto-char (point-min))
-    (while (looking-at "^#")
-      (forward-line 1))
-    (fill-region (point) (point-max))))
+    ;; Remove non-breaking spaces
+    (while (search-forward " " nil t)
+      (replace-match " "))
+    (whitespace-cleanup)
+
+    ;; Remove "(edited)" markers (with or without leading space)
+    (goto-char (point-min))
+    (while (re-search-forward " ?(edited)" nil t)
+      (replace-match ""))
+
+    ;; Remove "Saved for later" lines (with or without trailing period)
+    (goto-char (point-min))
+    (while (re-search-forward "^Saved for later\\.?\\s-*$" nil t)
+      (delete-region (match-beginning 0) (1+ (match-end 0))))
+
+    ;; Remove emoji reaction images
+    (goto-char (point-min))
+    (while (re-search-forward
+            "\\[\\[https://[^]]*?slack-edge\\.com/[^]]*?emoji[^]]+?\\]\\]"
+            nil t)
+      (delete-region (match-beginning 0) (match-end 0)))
+
+    ;; Remove lines ending with reaction counts (these are typically quoted
+    ;; references in Slack exports, not actual message content)
+    (goto-char (point-min))
+    (while (re-search-forward "[0-9]+ reactions?\\.?[ \t]*$" nil t)
+      (let ((line-start (line-beginning-position))
+            (line-end (min (1+ (line-end-position)) (point-max))))
+        (delete-region line-start line-end)
+        (goto-char line-start)))
+
+    ;; Remove standalone reaction counts (just a number on its own line)
+    (goto-char (point-min))
+    (while (re-search-forward "^[0-9]+\\s-*$" nil t)
+      (delete-region (match-beginning 0) (min (1+ (match-end 0)) (point-max))))
+
+    ;; Remove duplicate timestamp text after links (e.g., "6:54 PM." after link)
+    (goto-char (point-min))
+    (while (re-search-forward "\\]\\][0-9]+:[0-9]+ [AP]M\\.?" nil t)
+      (replace-match "]]"))
+
+    ;; Remove quoted author references (e.g., "John Wiegley:" on its own line)
+    ;; Only remove the attribution line itself, not the content that follows,
+    ;; as the content may be the actual message text
+    (goto-char (point-min))
+    (while (re-search-forward "^[A-Z][a-z]+ [A-Z][a-z]+:\\s-*\n" nil t)
+      (replace-match ""))
+
+    ;; Join orphan punctuation to previous line
+    (goto-char (point-min))
+    (while (re-search-forward "\n\n\\([?!.]\\)\\s-*$" nil t)
+      (replace-match "\\1")))
+
+  ;; Phase 2: Structure transformation - parse and rebuild messages
+  (save-excursion
+    (let ((messages nil)
+          (last-author nil))
+
+      ;; Parse all messages from buffer
+      (goto-char (point-min))
+      (while (re-search-forward
+              "^\\[\\[\\(https://[^]]*?\\.slack\\.com/archives/[^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]"
+              nil t)
+        (let* ((timestamp-url (match-string 1))
+               (msg-start (match-end 0))
+               (author nil)
+               (content nil)
+               (next-timestamp-pos (save-excursion
+                                     (if (re-search-forward
+                                          "^\\[\\[https://[^]]*?\\.slack\\.com/archives/"
+                                          nil t)
+                                         (match-beginning 0)
+                                       (point-max)))))
+
+          (goto-char msg-start)
+          (forward-line 1)
+          (while (and (< (point) next-timestamp-pos)
+                      (looking-at "^[[:space:]]*$"))
+            (forward-line 1))
+
+          (when (< (point) next-timestamp-pos)
+            (let ((first-line (string-trim
+                               (buffer-substring-no-properties
+                                (line-beginning-position)
+                                (line-end-position)))))
+              (let ((is-continuation nil))
+                (if (and (string-match-p "^[A-Z][a-z]+ [A-Z][a-z]+\\( [A-Z][a-z]+\\)?$"
+                                         first-line)
+                         (not (string-match-p "^#\\|^=\\|^\\[" first-line)))
+                    (progn
+                      (setq author first-line)
+                      (when (string-equal author "John Wiegley")
+                        (setq author "Me"))
+                      (setq last-author author)
+                      (forward-line 1)
+                      (while (and (< (point) next-timestamp-pos)
+                                  (looking-at "^[[:space:]]*$"))
+                        (forward-line 1)))
+                  (setq author (or last-author "Unknown"))
+                  (setq is-continuation t))
+
+                (when (< (point) next-timestamp-pos)
+                  (setq content (string-trim
+                                 (buffer-substring-no-properties
+                                  (point)
+                                  next-timestamp-pos))))
+
+                (when (and author (or content (not messages)))
+                  (push (list :url timestamp-url
+                              :author author
+                              :content (or content "")
+                              :continuation is-continuation)
+                        messages)))))))
+
+      ;; Rebuild buffer with transformed messages
+      (setq messages (nreverse messages))
+      (when messages
+        (delete-region (point-min) (point-max))
+        (let ((first-msg t))
+          (dolist (msg messages)
+            (let ((author (plist-get msg :author))
+                  (url (plist-get msg :url))
+                  (content (plist-get msg :content))
+                  (is-continuation (plist-get msg :continuation)))
+              (if is-continuation
+                  (when (and content (not (string-empty-p content)))
+                    (insert "\n\n" content))
+                (unless first-msg
+                  (insert "\n\n"))
+                (insert "[[" url "][" author "]]: " content)
+                (setq first-msg nil))))))))
+
+  ;; Phase 3: Convert src blocks to example blocks
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^#\\+begin_src\\(?: +[^ \n]+\\)?\\s-*$" nil t)
+      (replace-match "#+begin_example"))
+    (goto-char (point-min))
+    (while (re-search-forward "^#\\+end_src\\s-*$" nil t)
+      (replace-match "#+end_example")))
+
+  ;; Phase 4: Final cleanup
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "\n\n\n+" nil t)
+      (replace-match "\n\n"))
+    (whitespace-cleanup)
+    (goto-char (point-max))
+    (delete-blank-lines)
+    (unless (bolp)
+      (insert "\n")))
+
+  ;; Optional: Fill paragraphs (skip if ARG provided)
+  (unless arg
+    (save-excursion
+      (goto-char (point-min))
+      (while (looking-at "^#")
+        (forward-line 1))
+      (fill-region (point) (point-max)))))
 
 ;;; This function was inspired by Sacha Chua at:
 ;;; https://sachachua.com/blog/2024/10/org-mode-prompt-for-a-heading-and-then-refile-it-to-point/
