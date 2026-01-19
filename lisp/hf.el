@@ -2006,12 +2006,15 @@ Optionally generate for the given HOSTNAME."
                                            (hf-remote-hostname-p hostname)))))
          (insert
           leader
-          (format "
-      %s
+          (format-spec
+           "
+      %e
         --host 127.0.0.1 --port ${PORT}
         --jinja
-        --model %s %s"
-                  exe (hf-strip-tramp-prefix (expand-file-name path)) args)
+        --model %p %a"
+           `((?e . ,exe)
+             (?p . ,(hf-strip-tramp-prefix (expand-file-name path)))
+             (?a . ,args)))
           footer)))
       (mlx-lm
        (when-let* ((exe (let ((default-directory (hf-remote-path "~/" hostname)))
@@ -2019,12 +2022,15 @@ Optionally generate for the given HOSTNAME."
                                            (hf-remote-hostname-p hostname)))))
          (insert
           leader
-          (format "
-      %s server
+          (format-spec
+           "
+      %e server
         --host 127.0.0.1 --port ${PORT}
         --use-default-chat-template
-        --model %s %s"
-                  exe (hf-get-instance-name model instance) args)
+        --model %p %a"
+           `((?e . ,exe)
+             (?p . ,(hf-get-instance-name model instance))
+             (?a . ,args)))
           footer))))))
 
 (defun hf-generate-llama-swap-yaml (hostname)
