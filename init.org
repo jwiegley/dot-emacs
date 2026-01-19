@@ -1351,6 +1351,7 @@ should be terminated.
 #+begin_src emacs-lisp
 (use-package holidays
   :demand t
+  :nix nil
   :custom
   (holiday-hebrew-holidays nil))
 #+end_src
