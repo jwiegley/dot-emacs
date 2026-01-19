@@ -1748,7 +1748,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
   "GET request to ENDPOINT."
   (let ((url-request-method "GET")
         (url-request-extra-headers
-         `(("Authorization" . ,(format "Bearer %s" hf-api-key))
+         `(("Authorization" . ,(concat "Bearer " hf-api-key))
            ("Content-Type" . "application/json"))))
     (with-current-buffer
         (url-retrieve-synchronously
