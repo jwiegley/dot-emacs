@@ -334,6 +334,7 @@ general_settings:
   store_prompts_in_spend_logs: true
   maximum_spend_logs_retention_period: \"90d\"
   maximum_spend_logs_retention_interval: \"7d\"
+  enable_pass_through_endpoints: true
 "
   "Epilog for LiteLLM's config.yaml file.
 Contains a %s placeholder for dynamically generated router fallbacks."
