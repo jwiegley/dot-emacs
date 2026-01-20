@@ -43,6 +43,7 @@ with point at the original request position within the entry buffer."
                   (when (stringp resp)
                     (with-current-buffer (plist-get info :buffer)
                       (goto-char (plist-get info :position))
+                      (goto-char end)
                       (funcall body-fn resp)))))))
 
 (defun gptel-ext-with-org-entry (preset body-fn)
@@ -64,9 +65,9 @@ with point at the original request position within the entry buffer."
   (gptel-ext-with-org-entry
    'breakdown
    (lambda (resp)
-     (goto-char (point-max))
-     (unless (eolp) (insert ?\n))
-     (insert resp))))
+     (unless (bolp) (insert ?\n))
+     (insert resp)
+     (unless (bolp) (insert ?\n)))))
 
 (defun gptel-ext-proofread ()
   "Given selected text, proofread it."
