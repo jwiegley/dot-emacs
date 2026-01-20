@@ -877,7 +877,7 @@ multi-line preservation."
 
       ;; Preserve "* TODO" line at start if present
       (goto-char (point-min))
-      (when (looking-at "^\\* TODO.*\n")
+      (when (looking-at "^\\*+ TODO.*\n")
         (setq todo-line (match-string 0))
         (delete-region (match-beginning 0) (match-end 0)))
 
