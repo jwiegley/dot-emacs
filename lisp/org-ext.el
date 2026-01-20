@@ -872,7 +872,14 @@ multi-line preservation."
   ;; Phase 2: Structure transformation - parse and rebuild messages
   (save-excursion
     (let ((messages nil)
-          (last-author nil))
+          (last-author nil)
+          (todo-line nil))
+
+      ;; Preserve "* TODO" line at start if present
+      (goto-char (point-min))
+      (when (looking-at "^\\* TODO.*\n")
+        (setq todo-line (match-string 0))
+        (delete-region (match-beginning 0) (match-end 0)))
 
       ;; Parse all messages from buffer
       (goto-char (point-min))
@@ -934,6 +941,9 @@ multi-line preservation."
       (setq messages (nreverse messages))
       (when messages
         (delete-region (point-min) (point-max))
+        ;; Restore TODO line if it was present
+        (when todo-line
+          (insert todo-line))
         (let ((first-msg t))
           (dolist (msg messages)
             (let ((author (plist-get msg :author))
