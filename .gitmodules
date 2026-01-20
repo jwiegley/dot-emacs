@@ -154,3 +154,6 @@
 [submodule "lisp/org-table-loeb"]
 	path = lisp/org-table-loeb
 	url = https://github.com/jwiegley/org-table-loeb.git
+[submodule "lisp/gptel-agent"]
+	path = lisp/gptel-agent
+	url = https://github.com/karthink/gptel-agent.git
