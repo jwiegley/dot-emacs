@@ -439,8 +439,7 @@
 
 (gptel-make-preset 'breakdown
   :description "Break down complex Org-mode task into smaller subtasks"
-  :rewrite-directive 'breakdown
-  :rewrite-message "Shorten it as described."
+  :system 'breakdown
   :parents 'rewrite)
 
 (gptel-make-preset 'proof
