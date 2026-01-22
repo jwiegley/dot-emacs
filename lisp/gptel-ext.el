@@ -87,6 +87,7 @@ inserts the response at the end of the current heading line."
   (gptel-ext-with-org-entry
    'title
    (lambda (resp)
+     (forward-line -1)
      (org-back-to-heading)
      (goto-char (line-end-position))
      (unless (looking-back " " (line-beginning-position))
