@@ -4803,6 +4803,15 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   :after magit)
 #+end_src
 
+*** COMMENT magit-ai
+
+#+begin_src emacs-lisp
+(use-package magit-ai
+  :load-path "lisp/magit-ai"
+  :nix nil
+  :after magit)
+#+end_src
+
 ** markdown-mode
 
 #+begin_src emacs-lisp
