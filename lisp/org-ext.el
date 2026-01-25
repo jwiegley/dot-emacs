@@ -1387,19 +1387,23 @@ Shows categories with their usage counts in a temporary buffer."
 (defun org-ext-quickping (host)
   (= 0 (call-process "ping" nil nil nil "-c1" "-W5" "-q" host)))
 
+(defun org-ext-get-location ()
+  "If possible, add location info. We know the location at home always."
+  (if (and nil (org-ext-quickping "192.168.3.2"))
+      '("38.569498" "-121.388618")
+    (let ((strs
+           (split-string
+            (string-trim
+             (shell-command-to-string "CoreLocationCLI")))))
+      (if (= 2 (length strs))
+          strs
+        (message "Failed to obtain Lat/Lon!")
+        '("" "")))))
+
 (defun org-ext-set-location (&optional _arg)
   "If possible, add location info. We know the location at home always."
   (cl-destructuring-bind (lat lon)
-      (if (and nil (org-ext-quickping "192.168.3.2"))
-          '("38.569498" "-121.388618")
-        (let ((strs
-               (split-string
-                (string-trim
-                 (shell-command-to-string "CoreLocationCLI")))))
-          (if (= 2 (length strs))
-              strs
-            (message "Failed to obtain Lat/Lon!")
-            '("" ""))))
+      (org-ext-get-location)
     (unless (string= lat "")
       (org-entry-put (point) "LOCATION" (concat lat "," lon)))))
 
