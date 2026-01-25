@@ -9335,35 +9335,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                  nil)))
 #+end_src
 
-*** pact-mode
-
-#+begin_src emacs-lisp
-(use-package pact-mode
-  :mode "\\.pact\\'"
-  :commands (pact-compile)
-  :defines (pact-mode pact-mode-hook)
-  :preface
-  (eval-when-compile
-    (defvar slime-mode-map))
-  :bind (:map slime-mode-map
-              ("C-c C-c" . (lambda () (interactive)
-                             (save-excursion
-                               (call-interactively #'pact-compile)))))
-  :config
-  (use-package slime))
-#+end_src
-
-**** pact-mode-eglot
-
-#+begin_src emacs-lisp
-(use-package pact-mode-eglot
-  :no-require t
-  :after eglot
-  :hook (pact-mode . eglot-ensure)
-  :config
-  (add-to-list 'eglot-server-programs '(pact-mode . ("pact-lsp"))))
-#+end_src
-
 *** plantuml-mode
 
 #+begin_src emacs-lisp
