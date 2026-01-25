@@ -157,3 +157,6 @@
 [submodule "lisp/gptel-agent"]
 	path = lisp/gptel-agent
 	url = https://github.com/jwiegley/gptel-agent.git
+[submodule "lisp/magit-ai"]
+	path = lisp/magit-ai
+	url = https://github.com/jwiegley/magit-ai.git
