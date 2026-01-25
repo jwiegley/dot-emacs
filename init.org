@@ -1318,7 +1318,14 @@ should be terminated.
 (use-package solar
   :custom
   (calendar-latitude 38.559979)
-  (calendar-longitude -121.417465))
+  (calendar-longitude -121.417465)
+  :preface
+  (defun my-set-lat-lon ()
+    (interactive)
+    (cl-destructuring-bind (lat lon)
+        (org-ext-get-location)
+      (setq calendar-latitude (string-to-number lat)
+            calendar-longitude (string-to-number lon)))))
 #+end_src
 
 *** badi-calendar
@@ -6345,6 +6352,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
     (require 'solar)
     (require 'time))
   :config
+  (my-set-lat-lon)
   (sky-color-clock-initialize calendar-latitude))
 #+end_src
 
