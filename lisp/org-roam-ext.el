@@ -289,6 +289,7 @@ This can come from four possible sources:
       (vulpea-ensure-filetag)
       (when (and (string-match-p "org/\\(meeting\\|bahai\\|positron\\)"
                                  (file-name-directory (buffer-file-name)))
+                 (not (org-entry-get (point-min) "NOSLUG"))
                  (not (member
                        (file-name-nondirectory (buffer-file-name))
                        org-constants-protected-basenames-list)))
