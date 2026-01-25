@@ -12376,7 +12376,9 @@ displays the priority part of a heading as your preferred string value.
 (use-package org-inlinetask
   :after org
   :demand t
-  :functions (org-inlinetask-in-task-p))
+  :functions (org-inlinetask-in-task-p)
+  :custom
+  (org-inlinetask-show-first-star t))
 #+end_src
 
 *** org-mime
