@@ -2131,6 +2131,20 @@ To get the most out of Eat, you should also setup shell integration.
                                              "johnw" 443)))))))
 #+end_src
 
+*** ecard-sync
+
+#+begin_src emacs-lisp
+(use-package ecard-sync
+  :load-path "lisp/ecard"
+  :nix nil
+  :commands (ecard-sync-entry)
+  :config
+  (require 'ecard-display)
+  (setq ecard-sync-server (car ecard-carddav-servers)
+        ecard-sync-addressbook-name nil
+        ecard-sync-prefer-local nil))
+#+end_src
+
 ** edbi
 
 #+begin_src emacs-lisp
@@ -3128,7 +3142,7 @@ up before you execute another command."
   (gptel-mode . turn-off-auto-fill)
   (gptel-mode . visual-line-mode)
   (gptel-mode . visual-fill-column-mode)
-  (gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
+  ;;(gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
   (gptel-mode . my/gptel-prepare-new-chat-buffer)
   (gptel-mode . (lambda () (setq-local gptel-stream t)))
   (gptel-mode . (lambda () (setq-local gptel-use-context 'system)))
@@ -3655,12 +3669,12 @@ request:
      ;;  :command "/etc/profiles/per-user/johnw/bin/context7-mcp"
      ;;  :args ())
 
-     ("perplexity"
-      :command "uvx"
-      :args ("--isolated" "--from" "perplexity-mcp" "perplexity-mcp" "--")
-      :env (:PERPLEXITY_API_KEY
-            ,(lookup-password "api.perplexity.ai" "johnw" 80)
-            :PERPLEXITY_MODEL "sonar-pro"))
+     ;; ("perplexity"
+     ;;  :command "uvx"
+     ;;  :args ("--isolated" "--from" "perplexity-mcp" "perplexity-mcp" "--")
+     ;;  :env (:PERPLEXITY_API_KEY
+     ;;        ,(lookup-password "api.perplexity.ai" "johnw" 80)
+     ;;        :PERPLEXITY_MODEL "sonar-pro"))
 
      ;; ("browser-control"
      ;;  :command "/opt/homebrew/opt/node@22/bin/node"
@@ -4803,7 +4817,7 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   :after magit)
 #+end_src
 
-*** COMMENT magit-ai
+*** magit-ai
 
 #+begin_src emacs-lisp
 (use-package magit-ai
@@ -6999,7 +7013,9 @@ RET in the buffer you want to undo.
   (w3m-cookie-accept-bad-cookies 'ask)
   (w3m-default-display-inline-images t)
   (w3m-fill-column 100)
-  (w3m-use-cookies t))
+  (w3m-use-cookies t)
+  (w3m-command-arguments
+   '("-o" "ssl_ca_file=/Users/johnw/.config/ragflow/root_ca.crt")))
 #+end_src
 
 ** web-mode
@@ -7950,10 +7966,10 @@ independent components.
    consult-bookmark
    consult-recent-file
    consult-xref
-   consult--source-bookmark
-   consult--source-file-register
-   consult--source-recent-file
-   consult--source-project-recent-file
+   ;; consult--source-bookmark
+   ;; consult--source-file-register
+   ;; consult--source-recent-file
+   ;; consult--source-project-recent-file
    :preview-key '(:debounce 0.4 any))
 
   (autoload 'projectile-project-root "projectile")
@@ -8165,7 +8181,7 @@ locations. The =default-directory= variable is not changed in the process.
   :after consult-gh)
 #+end_src
 
-**** consult-omni
+**** COMMENT consult-omni
 
 #+begin_src emacs-lisp
 (use-package consult-omni

@@ -493,8 +493,9 @@ Returns first matching property in current entry."
 
 (defun org-ext-category-p ()
   "A category is any heading that has a CATEGORY property."
-  (and (not (org-entry-is-todo-p))
-       (org-ext-entry-get-immediate "CATEGORY")))
+  (ignore-errors
+    (and (not (org-entry-is-todo-p))
+         (org-ext-entry-get-immediate "CATEGORY"))))
 
 (defun org-ext--first-child-todo (&optional pred)
   "Internal function to find child todo entries.
@@ -517,8 +518,9 @@ Optionally accepts PRED to filter child entries."
 
 (defun org-ext-project-p ()
   "A project is any open todo that has child tasks at any level."
-  (and (org-entry-is-todo-p)
-       (org-ext-first-child-todo)))
+  (ignore-errors
+    (and (org-entry-is-todo-p)
+         (org-ext-first-child-todo))))
 
 (defsubst org-ext-top-level-project-p ()
   "A top-level project is not the child of another project."

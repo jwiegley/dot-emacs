@@ -250,8 +250,8 @@
                 ;; "context7"
                 ;; "fetch"
                 ;; "github"
-                "perplexity"
-                "sequential-thinking"
+                ;; "perplexity"
+                ;; "sequential-thinking"
                 ;; "time"
                 )
               'sync))
@@ -260,14 +260,15 @@
                     ;; "mcp-context7"
                     ;; "mcp-fetch"
                     ;; "mcp-github"
-                    "mcp-perplexity"
-                    "mcp-sequential-thinking"
+                    ;; "mcp-perplexity"
+                    ;; "mcp-sequential-thinking"
                     ;; "mcp-time"
                     ))
-  :system '(:append "
+  ;;   :system '(:append "
 
-- Use sequential-thinking MCP when appropriate to break down tasks further.
-- Use Perplexy MCP to research subjects further on the Internet."))
+  ;; - Use sequential-thinking MCP when appropriate to break down tasks further.
+  ;; - Use Perplexy MCP to research subjects further on the Internet.")
+  )
 
 (gptel-make-preset 'analyze
   :description "Best model for analysis"

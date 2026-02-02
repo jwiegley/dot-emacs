@@ -98,8 +98,7 @@ groups:
     exclusive: false
     members:
       - DeepSeek-R1-Distill-Qwen-32B
-      - Kimi-K2-Instruct
-      - Kimi-K2-Thinking
+      - Kimi-K2.5
       - Llama-4-Maverick-17B-128E-Instruct
       - Llama-4-Scout-17B-16E-Instruct
       - MiniMax-M2
@@ -302,6 +301,7 @@ credential_list:
 litellm_settings:
   request_timeout: 7200
   ssl_verify: false
+  drop_params: true
   # set_verbose: True
   cache: True
   cache_params:
@@ -536,38 +536,44 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :engine 'mlx-lm)))
 
    (make-hf-model
-    :name 'DeepSeek-V3-0324-UD
+    :name 'DeepSeek-V3.2
     :context-length 163840
     :instances
     (list
-     ;; (make-hf-instance
-     ;;  :context-length 12000
-     ;;  :model-path "~/Models/unsloth_DeepSeek-V3-0324-GGUF-UD")
-     ))
+     (make-hf-instance
+      :context-length 12000
+      :model-path "~/Models/unsloth_DeepSeek-V3.2-GGUF"
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"
+                   "--flash-attn" "on"))))
 
    (make-hf-model
-    :name 'Kimi-K2-Instruct
-    :context-length 131072
-    :temperature 0.6
+    :name 'Kimi-K2.5
+    :context-length 262144
+    :temperature 1.0
     :min-p 0.01
-    :top-p 0.8
+    :top-p 0.95
     :top-k 20
     :supports-function-calling t
     :instances
     (list
      (make-hf-instance
-      :context-length 32768
+      :context-length 98304
       :max-output-tokens 32768
-      :model-path "~/Models/unsloth_Kimi-K2-Instruct-GGUF"
-      :arguments '("--cache-type-k" "q4_1"
+      :model-path "~/Models/unsloth_Kimi-K2.5-GGUF"
+      :arguments '(
+                   "--seed" "3407"
+                   "--cache-type-k" "q4_1"
                    "--cache-type-v" "q4_1"
-                   "--seed" "3407"))))
+                   ;; "--special"
+                   ;; "--kv-unified"
+                   ))))
 
    (make-hf-model
-    :name 'Kimi-K2-Thinking
-    :context-length 131072
-    :temperature 0.6
-    :min-p 0.01
+    :name 'SERA-32B
+    :context-length 40960
+    :temperature 0.7
+    :min-p 0.0
     :top-p 0.8
     :top-k 20
     :supports-function-calling t
@@ -575,12 +581,10 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     :instances
     (list
      (make-hf-instance
-      :context-length 32768
-      :max-output-tokens 32768
-      :model-path "~/Models/unsloth_Kimi-K2-Thinking-GGUF"
-      :arguments '("--cache-type-k" "q4_1"
-                   "--cache-type-v" "q4_1"
-                   "--seed" "3407"))))
+      :model-path "~/Models/noctrex_SERA-32B-GGUF"
+      :hostnames '("hera" "clio")
+      :arguments '("--cache-type-k" "q8_0"
+                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'Llama-4-Scout-17B-16E-Instruct
@@ -1316,6 +1320,42 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :name 'ByteDance-Seed/Seed-OSS-36B-Instruct
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'chinese-alpaca-2-7b
+    :context-length 16384
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'hfl/chinese-alpaca-2-7b
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'chatglm-6b
+    :context-length 16384
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'zai-org/chatglm-6b
+      :engine 'mlx-lm)))
+
+   (make-hf-model
+    :name 'chatglm2-6b
+    :context-length 16384
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :instances
+    (list
+     (make-hf-instance
+      :name 'zai-org/chatglm2-6b
       :engine 'mlx-lm)))
 
    (make-hf-model

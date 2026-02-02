@@ -55,17 +55,13 @@
                  for kw in keywords
                  thereis
                  (or (member kw tags)
-                     (and (string= kw (org-get-category (point)))
-                          (or (null tags)
-                              (cl-every (lambda (tag) (string= tag (downcase tag)))
-                                        tags))))))
+                     (string= kw (org-get-category (point))))))
 
 (org-ql-defpred tasks-for (&rest who)
   "True if this task is assigned to, or related to, anyone in WHO."
   :body (and (apply #'org-ql--predicate-about who)
              (org-ql--predicate-todo)
-             (org-ql--predicate-shown)
-             ))
+             (org-ql--predicate-shown)))
 
 (org-ql-defpred refile-target ()
   "Return non-nil if entry is a refile target."
