@@ -918,6 +918,22 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--flash-attn" "on"))))
 
    (make-hf-model
+    :name 'Qwen3-Coder-Next
+    :context-length 262144
+    :temperature 1.0
+    :min-p 0.01
+    :top-p 0.95
+    :top-k 40
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3-Coder-Next-GGUF"
+      :cache-control t
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
     :name 'Qwen3-Coder-30B-A3B-Instruct
     :context-length 262144
     :temperature 0.7
