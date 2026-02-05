@@ -263,6 +263,20 @@
                      :context-window 200000
                      :request-params
                      (:max_tokens 64000))
+                    (claude-opus-4-6
+                     :description "Claude Opus 4.6 - Most capable"
+                     :capabilities (media tool-use cache json reasoning)
+                     :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp"
+                                  "application/pdf")
+                     :context-window 1048576
+                     :request-params
+                     (:max_tokens
+                      32000
+                      :thinking (:type "enabled"
+                                       :budget_tokens 32000)
+                      :tools [(:type "web_search_20250305"
+                                     :name "web_search"
+                                     :max_uses 5)]))
                     (claude-opus-4-5-20251101
                      :description "Claude Opus 4.5 - Most capable"
                      :capabilities (media tool-use cache json reasoning)

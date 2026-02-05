@@ -1674,21 +1674,21 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     :instances
     (list
      (make-hf-instance
-      :model-name 'claude-opus-4-5-20251101
-      :name 'claude-opus-4-5-20251101-thinking-32000
+      :model-name 'claude-opus-4-6
+      :name 'claude-opus-4-6-thinking-32000
       :provider 'vibe-proxy)
 
      (make-hf-instance
-      :name 'claude-opus-4-5-20251101
+      :name 'claude-opus-4-6
       :provider 'positron_anthropic)
 
      (make-hf-instance
-      :name 'claude-opus-4-5-20251101
+      :name 'claude-opus-4-6
       :provider 'anthropic)
 
      (make-hf-instance
       :model-name 'claude-opus-cached
-      :name 'claude-opus-4-5-20251101
+      :name 'claude-opus-4-6
       :provider 'anthropic
       :cache-control t)))
 

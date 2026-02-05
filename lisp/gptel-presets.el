@@ -90,7 +90,7 @@
   :stream t                             ;Streaming responses
   :key gptel-api-key)
 
-(defvar claude-opus-model 'claude-opus-4-5-20251101)
+(defvar claude-opus-model 'claude-opus-4-6)
 (defvar claude-sonnet-model 'claude-sonnet-4-5-20250929)
 (defvar claude-haiku-model 'claude-haiku-4-5-20251001)
 
