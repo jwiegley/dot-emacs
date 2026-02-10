@@ -3633,9 +3633,9 @@ request:
      ;;         "--user" "sa"
      ;;         "--password" ,(lookup-password "mssql.vulcan.lan" "johnw" 80)))
 
-     ("sequential-thinking"
-      :command "/etc/profiles/per-user/johnw/bin/mcp-server-sequential-thinking"
-      :args ())
+     ;; ("sequential-thinking"
+     ;;  :command "/etc/profiles/per-user/johnw/bin/mcp-server-sequential-thinking"
+     ;;  :args ())
 
      ;; ("fetch"
      ;;  :command "npx"
@@ -10633,7 +10633,10 @@ service back to vulcan.lan."
   (sc-attribs-postselect . sc-remove-if-not-mailing-list)
   :custom
   (sc-citation-leader "")
+  (sc-citation-delimiter ">")
+  (sc-citation-separator " ")
   (sc-confirm-always-p nil)
+  (sc-nested-citation-p t)
   (sc-default-attribution "")
   (sc-default-cite-frame
    '((begin

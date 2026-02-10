@@ -804,8 +804,13 @@ Performs these transformations:
   - Replaces \"John Wiegley\" with \"Me\" in author names
   - Converts #+begin_src blocks to #+begin_example blocks
   - Removes emoji reaction images (slack-edge.com/emoji-assets)
+  - Removes avatar images (ca.slack-edge.com user photos)
+  - Removes Slack link unfurl images and metadata
   - Removes \"(edited)\" markers and inline reaction counts
-  - Removes \"Saved for later\" and quoted author references
+  - Removes \"Saved for later\" lines
+  - Removes thread reply indicators and date separators
+  - Removes file attachment blocks (Binary markers + file links)
+  - Removes link unfurl attributions (\"Name:\" followed by URL)
   - Preserves @mention links and code blocks
   - Joins orphan punctuation to preceding lines
   - Normalizes blank lines (single blank between messages)
@@ -815,65 +820,153 @@ When ARG is non-nil, skips final `fill-region' call for
 multi-line preservation."
   (interactive "P")
 
-  ;; Phase 1: Initial cleanup of common noise patterns
+  ;; Phase 1: Initial cleanup of noise patterns from Slack export
   (save-excursion
+    ;; 1a. Non-breaking spaces
     (goto-char (point-min))
-    ;; Remove non-breaking spaces
     (while (search-forward " " nil t)
       (replace-match " "))
     (whitespace-cleanup)
 
-    ;; Remove "(edited)" markers (with or without leading space)
+    ;; 1b. "(edited)" markers (with or without leading space)
     (goto-char (point-min))
     (while (re-search-forward " ?(edited)" nil t)
       (replace-match ""))
 
-    ;; Remove "Saved for later" lines (with or without trailing period)
+    ;; 1c. "Saved for later" lines
     (goto-char (point-min))
     (while (re-search-forward "^Saved for later\\.?\\s-*$" nil t)
-      (delete-region (match-beginning 0) (1+ (match-end 0))))
+      (delete-region (match-beginning 0)
+                     (min (1+ (match-end 0)) (point-max))))
 
-    ;; Remove emoji reaction images
+    ;; 1d. Emoji reaction images (inline emoji from slack-edge.com)
     (goto-char (point-min))
     (while (re-search-forward
             "\\[\\[https://[^]]*?slack-edge\\.com/[^]]*?emoji[^]]+?\\]\\]"
             nil t)
       (delete-region (match-beginning 0) (match-end 0)))
 
-    ;; Remove lines ending with reaction counts (these are typically quoted
-    ;; references in Slack exports, not actual message content)
+    ;; 1e. Avatar images (ca.slack-edge.com user photos, typically small)
     (goto-char (point-min))
-    (while (re-search-forward "[0-9]+ reactions?\\.?[ \t]*$" nil t)
-      (let ((line-start (line-beginning-position))
-            (line-end (min (1+ (line-end-position)) (point-max))))
-        (delete-region line-start line-end)
-        (goto-char line-start)))
+    (while (re-search-forward
+            "\\[\\[https://ca\\.slack-edge\\.com/[^]]+\\]\\]"
+            nil t)
+      (delete-region (match-beginning 0) (match-end 0)))
 
-    ;; Remove standalone reaction counts (just a number on its own line)
+    ;; 1f. Slack link unfurl preview images (slack-imgs.com)
     (goto-char (point-min))
-    (while (re-search-forward "^[0-9]+\\s-*$" nil t)
-      (delete-region (match-beginning 0) (min (1+ (match-end 0)) (point-max))))
+    (while (re-search-forward
+            "\\[\\[https://slack-imgs\\.com/[^]]+\\]\\]"
+            nil t)
+      (delete-region (match-beginning 0) (match-end 0)))
 
-    ;; Remove duplicate timestamp text after links (e.g., "6:54 PM." after link)
+    ;; 1g. Duplicate timestamp text after links (e.g., "]]11:50 AM.")
     (goto-char (point-min))
     (while (re-search-forward "\\]\\][0-9]+:[0-9]+ [AP]M\\.?" nil t)
       (replace-match "]]"))
 
-    ;; Remove quoted author references (e.g., "John Wiegley:" on its own line)
-    ;; Only remove the attribution line itself, not the content that follows,
-    ;; as the content may be the actual message text
+    ;; 1h. Service attribution lines (Created by...|...|Added by...)
     (goto-char (point-min))
-    (while (re-search-forward "^[A-Z][a-z]+ [A-Z][a-z]+:\\s-*\n" nil t)
+    (while (re-search-forward "^.*Created by .+|.+|.*Added by.*$" nil t)
+      (delete-region (line-beginning-position)
+                     (min (1+ (line-end-position)) (point-max))))
+
+    ;; 1i. Thread reply indicators -- "N replies" and "Last reply...View thread"
+    (goto-char (point-min))
+    (while (re-search-forward "^[0-9]+ repl\\(?:y\\|ies\\)\\s-*$" nil t)
+      (delete-region (match-beginning 0)
+                     (min (1+ (match-end 0)) (point-max))))
+    (goto-char (point-min))
+    (while (re-search-forward "^Last reply.*$" nil t)
+      (delete-region (match-beginning 0)
+                     (min (1+ (match-end 0)) (point-max))))
+
+    ;; 1j. Date separator lines (standalone day names)
+    (goto-char (point-min))
+    (while (re-search-forward
+            (concat "^\\(?:"
+                    "Today\\|Yesterday"
+                    "\\|Monday\\|Tuesday\\|Wednesday"
+                    "\\|Thursday\\|Friday\\|Saturday\\|Sunday"
+                    "\\)\\s-*$")
+            nil t)
+      (delete-region (match-beginning 0)
+                     (min (1+ (match-end 0)) (point-max))))
+
+    ;; 1k. Trailing reaction/attachment/link count summaries
+    ;; e.g., ".1 reaction, 1 attachment.1 link,"
+    (goto-char (point-min))
+    (while (re-search-forward
+            "[.,]?[0-9]+ \\(?:reactions?\\|attachments?\\|links?\\)[.,].*$"
+            nil t)
       (replace-match ""))
 
-    ;; Join orphan punctuation to previous line
+    ;; 1l. Standalone reaction counts (just a number on its own line)
+    (goto-char (point-min))
+    (while (re-search-forward "^[0-9]+\\s-*$" nil t)
+      (delete-region (match-beginning 0)
+                     (min (1+ (match-end 0)) (point-max))))
+
+    ;; 1m. File attachment blocks -- multi-line links to files.slack.com
+    ;; These often appear as broken multi-line org links in the export
+    (goto-char (point-min))
+    (while (re-search-forward
+            "\\[\\[https://files\\.slack\\.com/" nil t)
+      (let ((start (match-beginning 0)))
+        ;; Find the closing ]] which may be on a later line
+        (if (re-search-forward "\\]\\]" nil t)
+            (delete-region start (match-end 0))
+          ;; No closing brackets found; delete to end of line
+          (delete-region start (line-end-position)))))
+
+    ;; 1n. Standalone "Binary" lines (file attachment markers)
+    (goto-char (point-min))
+    (while (re-search-forward "^Binary\\s-*$" nil t)
+      (delete-region (match-beginning 0)
+                     (min (1+ (match-end 0)) (point-max))))
+
+    ;; 1o. Stray closing brackets from broken multi-line links
+    (goto-char (point-min))
+    (while (re-search-forward "^\\]\\]\\s-*$" nil t)
+      (delete-region (match-beginning 0)
+                     (min (1+ (match-end 0)) (point-max))))
+
+    ;; 1p. Link unfurl attributions: "Name:" line followed by a URL-only line.
+    ;; Only remove "Name:" when the next non-blank line is a standalone link
+    ;; whose display text is also a URL (indicating a Slack link unfurl, not
+    ;; real content).
+    (goto-char (point-min))
+    (let ((case-fold-search nil))
+    (while (re-search-forward
+            "^[A-Z][a-z'-]\\{1,20\\}\\(?: [A-Z][a-z'-]\\{1,20\\}\\)*:\\s-*$"
+            nil t)
+      (let ((name-start (match-beginning 0))
+            (name-end (match-end 0)))
+        (save-excursion
+          (goto-char name-end)
+          (skip-chars-forward " \t\n")
+          (if (looking-at
+               "\\[\\[https?://[^]]+\\]\\[https?://[^]]+\\]\\]\\s-*$")
+              ;; Remove both the "Name:" line and the unfurl URL line
+              (delete-region name-start
+                            (min (1+ (match-end 0)) (point-max)))
+            ;; Not followed by URL -- leave it alone
+            (goto-char name-end))))))
+
+    ;; 1q. Join orphan punctuation to previous line
     (goto-char (point-min))
     (while (re-search-forward "\n\n\\([?!.]\\)\\s-*$" nil t)
-      (replace-match "\\1")))
+      (replace-match "\\1"))
+
+    ;; 1r. Interim cleanup of excessive blank lines
+    (goto-char (point-min))
+    (while (re-search-forward "\n\n\n+" nil t)
+      (replace-match "\n\n")))
 
   ;; Phase 2: Structure transformation - parse and rebuild messages
   (save-excursion
     (let ((messages nil)
+          (known-authors (make-hash-table :test 'equal))
           (last-author nil)
           (todo-line nil))
 
@@ -892,52 +985,83 @@ multi-line preservation."
                (msg-start (match-end 0))
                (author nil)
                (content nil)
-               (next-timestamp-pos (save-excursion
-                                     (if (re-search-forward
-                                          "^\\[\\[https://[^]]*?\\.slack\\.com/archives/"
-                                          nil t)
-                                         (match-beginning 0)
-                                       (point-max)))))
+               (next-timestamp-pos
+                (save-excursion
+                  (if (re-search-forward
+                       "^\\[\\[https://[^]]*?\\.slack\\.com/archives/"
+                       nil t)
+                      (match-beginning 0)
+                    (point-max)))))
 
           (goto-char msg-start)
           (forward-line 1)
+          ;; Skip blank lines after timestamp
           (while (and (< (point) next-timestamp-pos)
                       (looking-at "^[[:space:]]*$"))
             (forward-line 1))
 
           (when (< (point) next-timestamp-pos)
-            (let ((first-line (string-trim
-                               (buffer-substring-no-properties
-                                (line-beginning-position)
-                                (line-end-position)))))
-              (let ((is-continuation nil))
-                (if (and (string-match-p "^[A-Z][a-z]+ [A-Z][a-z]+\\( [A-Z][a-z]+\\)?$"
-                                         first-line)
-                         (not (string-match-p "^#\\|^=\\|^\\[" first-line)))
-                    (progn
-                      (setq author first-line)
-                      (when (string-equal author "John Wiegley")
-                        (setq author "Me"))
-                      (setq last-author author)
-                      (forward-line 1)
-                      (while (and (< (point) next-timestamp-pos)
-                                  (looking-at "^[[:space:]]*$"))
-                        (forward-line 1)))
-                  (setq author (or last-author "Unknown"))
-                  (setq is-continuation t))
+            (let* ((first-line
+                    (string-trim
+                     (buffer-substring-no-properties
+                      (line-beginning-position) (line-end-position))))
+                   (is-continuation nil)
+                   ;; Author detection: 1-4 capitalized words, each starting
+                   ;; with uppercase, optionally containing hyphens/apostrophes.
+                   ;; Must be short, must not contain content markers, and must
+                   ;; be followed by a blank line (author lines always are in
+                   ;; Slack exports).
+                   ;; N.B. case-fold-search must be nil so [A-Z] won't match
+                   ;; lowercase letters.
+                   (looks-like-author
+                    (let ((case-fold-search nil))
+                      (and (< (length first-line) 40)
+                           (string-match-p
+                            "^[A-Z][a-z'-]+\\(?: [A-Z][a-z'-]+\\)*$"
+                            first-line)
+                           ;; Exclude lines containing content markers
+                           (not (string-match-p "[][#:>=;()\"]" first-line))
+                           ;; Exclude known non-author words that happen to
+                           ;; be capitalized
+                           (not (member first-line
+                                        '("Binary" "Today" "Yesterday"
+                                          "Monday" "Tuesday" "Wednesday"
+                                          "Thursday" "Friday" "Saturday"
+                                          "Sunday" "Edited" "View")))
+                           ;; Author lines in Slack export are always followed
+                           ;; by a blank line before content
+                           (save-excursion
+                             (forward-line 1)
+                             (or (>= (point) next-timestamp-pos)
+                                 (looking-at "^[[:space:]]*$")))))))
 
-                (when (< (point) next-timestamp-pos)
-                  (setq content (string-trim
-                                 (buffer-substring-no-properties
-                                  (point)
-                                  next-timestamp-pos))))
+              (if looks-like-author
+                  (progn
+                    (setq author first-line)
+                    (when (string-equal author "John Wiegley")
+                      (setq author "Me"))
+                    (puthash first-line t known-authors)
+                    (setq last-author author)
+                    (forward-line 1)
+                    ;; Skip blank lines after author
+                    (while (and (< (point) next-timestamp-pos)
+                                (looking-at "^[[:space:]]*$"))
+                      (forward-line 1)))
+                (setq author (or last-author "Unknown"))
+                (setq is-continuation t))
 
-                (when (and author (or content (not messages)))
-                  (push (list :url timestamp-url
-                              :author author
-                              :content (or content "")
-                              :continuation is-continuation)
-                        messages)))))))
+              (when (< (point) next-timestamp-pos)
+                (setq content
+                      (string-trim
+                       (buffer-substring-no-properties
+                        (point) next-timestamp-pos))))
+
+              (when (and author (or content (not messages)))
+                (push (list :url timestamp-url
+                            :author author
+                            :content (or content "")
+                            :continuation is-continuation)
+                      messages))))))
 
       ;; Rebuild buffer with transformed messages
       (setq messages (nreverse messages))

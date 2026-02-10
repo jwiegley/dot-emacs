@@ -1558,6 +1558,15 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :engine 'mlx-lm)))
 
    (make-hf-model
+    :name 'gemini-2.5-pro
+    :description "Gemini 2.5 Pro (Positron)"
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'positron_gemini)))
+
+   (make-hf-model
     :name 'gemini-3-pro-preview
     :description "Gemini 3 Pro (Positron)"
     :supports-function-calling t
@@ -1567,8 +1576,8 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :provider 'positron_gemini)))
 
    (make-hf-model
-    :name 'gpt-5.2
-    :description "Flagship ChatGPT model for complex tasks (Positron)"
+    :name 'gpt-5.3-codex
+    :description "ChatGPT 5.3 Codex (Positron)"
     :supports-function-calling t
     :instances
     (list
@@ -1576,53 +1585,32 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :provider 'positron_openai)))
 
    (make-hf-model
-    :name 'gpt-4.1
+    :name 'gpt-5.2
+    :description "ChatGPT 5.2 (Positron)"
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'positron_openai)))
+
+   (make-hf-model
+    :name 'gpt-5.2-codex
+    :description "ChatGPT 5.2 Codex (Positron)"
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :provider 'positron_openai)))
+
+   (make-hf-model
+    :name 'gpt-5.1
     :description "ChatGPT model"
     :supports-function-calling t
     :instances
     (list
      (make-hf-instance
       :provider 'positron_openai)
-     (make-hf-instance
-      :provider 'openai)))
 
-   (make-hf-model
-    :name 'o1-pro
-    :description "Our most powerful reasoning model"
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'o3-deep-research
-    :description "Our most powerful reasoning model"
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'o3-pro
-    :description "Version of o3 with more compute for better responses"
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'openai)))
-
-   (make-hf-model
-    :name 'o4-mini-deep-research
-    :description "Faster, more affordable reasoning model"
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
      (make-hf-instance
       :provider 'openai)))
 
@@ -1634,17 +1622,16 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :model-name 'claude-haiku-4-5-20251001
       :name 'claude-haiku-4-5-20251001
-      :provider 'vibe-proxy)
+      :provider 'vibe-proxy
+      :cache-control t)
 
      (make-hf-instance
       :name 'claude-haiku-4-5-20251001
-      :provider 'anthropic)
+      :provider 'positron_anthropic)
 
      (make-hf-instance
-      :model-name 'claude-haiku-cached
       :name 'claude-haiku-4-5-20251001
-      :provider 'anthropic
-      :cache-control t)))
+      :provider 'anthropic)))
 
    (make-hf-model
     :name 'claude-sonnet
@@ -1654,19 +1641,16 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :model-name 'claude-sonnet-4-5-20250929
       :name 'claude-sonnet-4-5-20250929-thinking-32000
-      :provider 'vibe-proxy)
+      :provider 'vibe-proxy
+      :cache-control t)
 
      (make-hf-instance
       :name 'claude-sonnet-4-5-20250929
-      :provider 'anthropic
-      :fallbacks '(openai/gpt-4.1))
+      :provider 'positron_anthropic)
 
      (make-hf-instance
-      :model-name 'claude-sonnet-cached
       :name 'claude-sonnet-4-5-20250929
-      :provider 'anthropic
-      :fallbacks '(openai/gpt-4.1)
-      :cache-control t)))
+      :provider 'anthropic)))
 
    (make-hf-model
     :name 'claude-opus
@@ -1676,7 +1660,8 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :model-name 'claude-opus-4-6
       :name 'claude-opus-4-6-thinking-32000
-      :provider 'vibe-proxy)
+      :provider 'vibe-proxy
+      :cache-control t)
 
      (make-hf-instance
       :name 'claude-opus-4-6
@@ -1684,13 +1669,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
 
      (make-hf-instance
       :name 'claude-opus-4-6
-      :provider 'anthropic)
-
-     (make-hf-instance
-      :model-name 'claude-opus-cached
-      :name 'claude-opus-4-6
-      :provider 'anthropic
-      :cache-control t)))
+      :provider 'anthropic)))
 
    (make-hf-model
     :name 'r1-1776

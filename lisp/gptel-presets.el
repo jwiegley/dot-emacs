@@ -244,26 +244,26 @@
   :system 'default
   :confirm-tool-calls nil               ; 'auto
   :use-context 'user
-  :pre (lambda () (gptel-mcp-connect
-              '(;; "memory-keeper"
-                ;; "Ref"
-                ;; "context7"
-                ;; "fetch"
-                ;; "github"
-                ;; "perplexity"
-                ;; "sequential-thinking"
-                ;; "time"
-                )
-              'sync))
-  :tools '(:append (;; "mcp-memory-keeper"
-                    ;; "mcp-Ref"
-                    ;; "mcp-context7"
-                    ;; "mcp-fetch"
-                    ;; "mcp-github"
-                    ;; "mcp-perplexity"
-                    ;; "mcp-sequential-thinking"
-                    ;; "mcp-time"
-                    ))
+  ;; :pre (lambda () (gptel-mcp-connect
+  ;;             '(;; "memory-keeper"
+  ;;               ;; "Ref"
+  ;;               ;; "context7"
+  ;;               ;; "fetch"
+  ;;               ;; "github"
+  ;;               ;; "perplexity"
+  ;;               ;; "sequential-thinking"
+  ;;               ;; "time"
+  ;;               )
+  ;;             'sync))
+  ;; :tools '(:append (;; "mcp-memory-keeper"
+  ;;                   ;; "mcp-Ref"
+  ;;                   ;; "mcp-context7"
+  ;;                   ;; "mcp-fetch"
+  ;;                   ;; "mcp-github"
+  ;;                   ;; "mcp-perplexity"
+  ;;                   ;; "mcp-sequential-thinking"
+  ;;                   ;; "mcp-time"
+  ;;                   ))
   ;;   :system '(:append "
 
   ;; - Use sequential-thinking MCP when appropriate to break down tasks further.
