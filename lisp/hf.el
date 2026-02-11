@@ -2447,8 +2447,9 @@ If HOSTNAME is non-nil, only generate definitions for that host."
   "List all models from MLX and GGUF directories, optionally for HOSTNAME."
   (interactive)
   (cl-loop
-   for base-dir in (list (hf-remote-path hf-mlx-models hostname)
-                         (hf-remote-path hf-gguf-models hostname))
+   for base-dir in (list
+                    ;; (hf-remote-path hf-mlx-models hostname)
+                    (hf-remote-path hf-gguf-models hostname))
    do (message "[hf-installed] Checking directory: %s" base-dir)
    when (file-exists-p base-dir)
    nconc (cl-loop

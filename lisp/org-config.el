@@ -1049,6 +1049,12 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ("gg" "Regexp all tasks, all files (SLOW)"
     ,(org-config-call-only #'org-config-text-search))
 
+   ("gS" "All scheduled"
+    ((org-ql-block
+      `(and (scheduled)
+            (todo "TODO" "DOING" "WAIT" "TASK"))
+      ((org-ql-block-header "All scheduled tasks")))))
+
    ("go" "Open source tasks"
     ((org-ql-block
       `(and (or (path "OSS")
