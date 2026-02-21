@@ -101,12 +101,9 @@ groups:
       - Kimi-K2.5
       - Llama-4-Maverick-17B-128E-Instruct
       - Llama-4-Scout-17B-16E-Instruct
-      - MiniMax-M2
       - Phi-4-reasoning-plus
-      - Qwen3-235B-A22B-Instruct-2507
-      - Qwen3-235B-A22B-Thinking-2507
-      - Qwen3-Coder-480B-A35B-Instruct
       - mlx-community/gpt-oss-120b-MXFP4-Q8
+      - mlx-community/MiniMax-M2.5-4bit
       - r1-1776-distill-llama-70b
 
   # Only one of these can be loaded at a time
@@ -117,7 +114,6 @@ groups:
       - Qwen3-30B-A3B-Instruct-2507
       - Qwen3-30B-A3B-Thinking-2507
       - Qwen3-32B
-      - Qwen3-Coder-30B-A3B-Instruct
       - DeepSeek-R1-0528-Qwen3-8B
       - Qwen3-0.6B
       - Qwen3-1.7B
@@ -624,38 +620,52 @@ Contains a %s placeholder for dynamically generated router fallbacks."
    ;;    :provider 'openrouter)))
 
    (make-hf-model
-    :name 'GLM-4.7
-    :context-length 262144
-    :temperature 1.0
-    :top-p 0.95
+    :name 'GLM-4.7-REAP-218B-A32B
+    :context-length 202752
+    :temperature 0.7
+    :min-p 0.01
+    :top-p 1.0
     :top-k 40
     :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/unsloth_GLM-4.7-GGUF"
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"))))
+      :model-path "~/Models/unsloth_GLM-4.7-REAP-218B-A32B-GGUF")))
 
    (make-hf-model
-    :name 'GLM-4.7-4bit
-    :context-length 262144
-    :temperature 1.0
-    :top-p 0.95
+    :name 'GLM-4.7-Flash
+    :context-length 202752
+    :temperature 0.7
+    :min-p 0.01
+    :top-p 1.0
     :top-k 40
     :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :name 'mlx-community/GLM-4.7-4bit
+      :model-path "~/Models/unsloth_GLM-4.7-Flash-GGUF"
       :cache-control t
-      :engine 'mlx-lm)))
+      :arguments '("--repeat-penalty" "1.0"))))
 
    (make-hf-model
-    :name 'GLM-4.7-FP8
+    :name 'GLM-4.7-Flash-REAP-23B-A3B
+    :context-length 202752
+    :temperature 0.7
+    :min-p 0.01
+    :top-p 1.0
+    :top-k 40
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_GLM-4.7-Flash-REAP-23B-A3B-GGUF"
+      :hostnames '("hera" "clio"))))
+
+   (make-hf-model
+    :name 'GLM-5
     :context-length 262144
     :temperature 1.0
     :top-p 0.95
@@ -665,25 +675,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     :instances
     (list
      (make-hf-instance
-      :name 'zai-org/GLM-4.7-FP8
-      :cache-control t
-      :engine 'mlx-lm)))
-
-   (make-hf-model
-    :name 'MiniMax-M2
-    :context-length 262144
-    :temperature 1.0
-    :top-p 0.95
-    :top-k 40
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_MiniMax-M2-GGUF"
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"))))
+      :model-path "~/Models/unsloth_GLM-5-GGUF")))
 
    (make-hf-model
     :name 'MiniMax-M2-REAP-162B-A10B
@@ -700,6 +692,21 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :arguments '("--cache-type-k" "q8_0"
                    "--cache-type-v" "q8_0"
                    "--flash-attn" "on"))))
+
+   (make-hf-model
+    :name 'MiniMax-M2.5
+    :context-length 262144
+    :temperature 0.8
+    :min-p 0.01
+    :top-p 0.95
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :name 'mlx-community/MiniMax-M2.5-4bit
+      :cache-control t
+      :engine 'mlx-lm)))
 
    (make-hf-model
     :name 'Phi-4-reasoning-plus
@@ -844,45 +851,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--cache-type-v" "q8_0"))))
 
    (make-hf-model
-    :name 'Qwen3-235B-A22B-Instruct-2507
-    :characteristics '(high local instruct)
-    :context-length 262144
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :max-output-tokens 81920
-      :model-path "~/Models/unsloth_Qwen3-235B-A22B-Instruct-2507-GGUF"
-      :arguments '("--repeat-penalty" "1.05"
-                   "--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"))))
-
-   (make-hf-model
-    :name 'Qwen3-235B-A22B-Thinking-2507
-    :characteristics '(high local thinking)
-    :context-length 262144
-    :temperature 0.6
-    :min-p 0.0
-    :top-p 0.95
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :max-output-tokens 32768
-      :model-path "~/Models/unsloth_Qwen3-235B-A22B-Thinking-2507-GGUF"
-      :arguments '("--repeat-penalty" "1.05"
-                   "--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"))))
-
-   (make-hf-model
     :name 'Qwen3-Next-80B-A3B-Instruct
     :characteristics '(high local instruct)
     :context-length 262144
@@ -934,74 +902,35 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :hostnames '("hera" "clio"))))
 
    (make-hf-model
-    :name 'Qwen3-Coder-30B-A3B-Instruct
+    :name 'Qwen3-Coder-Next-REAP-40B-A3B
     :context-length 262144
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
+    :temperature 1.0
+    :min-p 0.01
+    :top-p 0.95
+    :top-k 40
     :supports-function-calling t
     :instances
     (list
      (make-hf-instance
-      :max-output-tokens 65536
-      :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
+      :max-output-tokens 131072
+      :model-path "~/Models/mradermacher_Qwen3-Coder-Next-REAP-40B-A3B-GGUF"
       :cache-control t
-      :arguments '("--repeat-penalty" "1.05"
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "--chat-template-file" "/Users/johnw/Models/chat_template_llamacpp.jinja"
-                   ;; "--batch-size" "8192"
-                   ;; "--ubatch-size" "8192"
-                   ;; "--rope-scaling" "yarn"
-                   ;; "--rope-scale" "4"
-                   ;; "--yarn-orig-ctx" "262144"
-                   ))
-
-     (make-hf-instance
-      :max-output-tokens 65536
-      :context-length 131072
-      :model-path "~/Models/unsloth_Qwen3-Coder-30B-A3B-Instruct-GGUF"
-      :hostnames '("clio")
-      :cache-control t
-      :arguments '("--repeat-penalty" "1.05"
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "--chat-template-file" "/Users/johnw/Models/chat_template_llamacpp.jinja"
-                   ;; "--batch-size" "8192"
-                   ;; "--ubatch-size" "8192"
-                   ;; "--rope-scaling" "yarn"
-                   ;; "--rope-scale" "4"
-                   ;; "--yarn-orig-ctx" "262144"
-                   ))))
+      :hostnames '("hera" "clio"))))
 
    (make-hf-model
-    :name 'Qwen3-Coder-480B-A35B-Instruct
+    :name 'Qwen3.5-397B-A17B
     :context-length 262144
-    :temperature 0.7
+    :temperature 0.6
     :min-p 0.0
-    :top-p 0.8
+    :top-p 0.95
     :top-k 20
     :supports-function-calling t
     :instances
     (list
      (make-hf-instance
-      :max-output-tokens 65536
-      :model-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF"
-      :file-path "~/Models/unsloth_Qwen3-Coder-480B-A35B-Instruct-GGUF/UD-Q4_K_XL/Qwen3-Coder-480B-A35B-Instruct-UD-Q4_K_XL-00001-of-00006.gguf"
-      :cache-control t
-      :arguments '("--repeat-penalty" "1.05"
-                   "--cache-type-k" "q4_1"
-                   "--cache-type-v" "q4_1"
-                   "--flash-attn" "on"
-                   "--batch-size" "8192"
-                   "--ubatch-size" "8192"
-                   "--rope-scaling" "yarn"
-                   "--rope-scale" "4"
-                   "--yarn-orig-ctx" "262144"
-                   "--chat-template-file" "/Users/johnw/Models/chat_template_llamacpp.jinja"))))
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-397B-A17B-GGUF"
+      :cache-control t)))
 
    (make-hf-model
     :name 'VibeThinker-1.5B
@@ -1103,27 +1032,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--repeat-penalty" "1.0"))))
 
    (make-hf-model
-    :name 'grok-2
-    :context-length 131072
-    :temperature 1.0
-    :min-p 0.0
-    :top-p 1.0
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_grok-2-GGUF"
-      :cache-control t
-      :arguments '(
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "-ub" "2048"
-                   "-b" "2048"
-                   ))))
-
-   (make-hf-model
     :name 'gpt-oss-20b-MXFP4-Q8
     :context-length 131072
     :temperature 1.0
@@ -1152,14 +1060,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-20b-GGUF"
       :hostnames '("hera" "clio")
-      :cache-control t
-      :arguments '(
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "-ub" "2048"
-                   "-b" "2048"
-                   ))))
+      :cache-control t)))
 
    (make-hf-model
     :name 'gpt-oss-120b-MXFP4-Q8
@@ -1190,15 +1091,9 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :model-path "~/Models/unsloth_gpt-oss-120b-GGUF"
       ;; :draft-model "~/Models/unsloth_gpt-oss-20b-GGUF/gpt-oss-20b-Q8_0.gguf"
       :cache-control t
-      :arguments '(
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "-ub" "2048"
-                   "-b" "2048"
-                   )
-      :fallbacks '(hera/claude-sonnet-4-5-20250929-thinking-32000
-                   anthropic/claude-sonnet-4-5-20250929))))
+      ;; :fallbacks '(hera/claude-sonnet-4-5-20250929-thinking-32000
+      ;;              anthropic/claude-sonnet-4-5-20250929)
+      )))
 
    (make-hf-model
     :name 'gpt-oss-safeguard-20b-MLX-MXFP4
@@ -1639,17 +1534,17 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     :instances
     (list
      (make-hf-instance
-      :model-name 'claude-sonnet-4-5-20250929
-      :name 'claude-sonnet-4-5-20250929-thinking-32000
+      :model-name 'claude-sonnet-4-6
+      :name 'claude-sonnet-4-6-thinking-32000
       :provider 'vibe-proxy
       :cache-control t)
 
      (make-hf-instance
-      :name 'claude-sonnet-4-5-20250929
+      :name 'claude-sonnet-4-6
       :provider 'positron_anthropic)
 
      (make-hf-instance
-      :name 'claude-sonnet-4-5-20250929
+      :name 'claude-sonnet-4-6
       :provider 'anthropic)))
 
    (make-hf-model
@@ -1783,7 +1678,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (replace-regexp-in-string "-GGUF" "")
     (replace-regexp-in-string ".*_" "")))
 
-(defconst hf-gguf-min-file-size (* 100 1024 1024))
+(defconst hf-gguf-min-file-size (* 5 1024 1024))
 
 (defun hf-get-gguf-path (model)
   "Find the best GGUF file for MODEL."
@@ -2078,6 +1973,8 @@ Optionally generate for the given HOSTNAME."
       %e
         --host 127.0.0.1 --port ${PORT}
         --jinja
+        --offline
+        --parallel 1
         --model %p %a"
            `((?e . ,exe)
              (?p . ,(hf-strip-tramp-prefix (expand-file-name path)))
@@ -2401,6 +2298,7 @@ If HOSTNAME is non-nil, only generate definitions for that host."
                "--jinja"
                "--no-webui"
                "--offline"
+               "--parallel" "1"
                "--port" (format "%d" port)
                "--model" model
                "--threads" (format "%d" hf-threads))))

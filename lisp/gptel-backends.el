@@ -81,7 +81,9 @@
     :host "127.0.0.1:8317"
     :protocol "http"
     :models '(claude-opus-4-6
-              claude-opus-4-6-thinking-32000)))
+              claude-opus-4-6-thinking-32000
+              claude-sonnet-4-6
+              claude-sonnet-4-6-thinking-32000)))
 
 (defun gptel-backends-rinzler ()
   "Make GPTel backends for models hosted on Clio."

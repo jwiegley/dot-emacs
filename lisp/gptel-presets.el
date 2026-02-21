@@ -47,7 +47,7 @@
   :description "OpenAI's ChatGPT, Open Source"
   :backend "LiteLLM"
   ;; :model 'hera/gpt-oss-120b
-  :model 'hera/mlx-community/gpt-oss-120b-MXFP4-Q8
+  :model 'hera/gpt-oss-120b
   :temperature 1.0)
 
 (gptel-make-preset 'gpt-oss-travel
@@ -60,8 +60,14 @@
 (gptel-make-preset 'gpt-oss-mlx
   :description "OpenAI's ChatGPT, Open Source (MLX via llama-swap)"
   :backend "LiteLLM"
-  :model 'hera/mlx-community/gpt-oss-20b-MXFP4-Q8
+  :model 'hera/gpt-oss-20b
   :temperature 1.0)
+
+(gptel-make-preset 'glm-4.7-flash
+  :description "GLM 4.7 Flash"
+  :backend "LiteLLM"
+  :model 'hera/GLM-4.7-Flash
+  :temperature 0.7)
 
 (gptel-make-preset 'minimax-m2
   :description "MiniMax-M2"
@@ -91,7 +97,7 @@
   :key gptel-api-key)
 
 (defvar claude-opus-model 'claude-opus-4-6)
-(defvar claude-sonnet-model 'claude-sonnet-4-5-20250929)
+(defvar claude-sonnet-model 'claude-sonnet-4-6)
 (defvar claude-haiku-model 'claude-haiku-4-5-20251001)
 
 (gptel-make-preset 'opus
@@ -132,14 +138,18 @@
 
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
-  :backend "LiteLLM"
-  :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
+  ;; :backend "LiteLLM"
+  :backend "vibe-proxy"
+  ;; :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
+  :model (intern (format "%s-thinking-32000" claude-opus-model))
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet-max
   :description "Anthropic's Claude Sonnet, thinking"
-  :backend "LiteLLM"
-  :model (intern (format "hera/%s-thinking-32000" claude-sonnet-model))
+  ;; :backend "LiteLLM"
+  :backend "vibe-proxy"
+  ;; :model (intern (format "hera/%s-thinking-32000" claude-sonnet-model))
+  :model (intern (format "%s-thinking-32000" claude-sonnet-model))
   :temperature 1.0)
 
 (gptel-make-preset 'haiku-max
@@ -224,15 +234,6 @@
 (gptel-make-preset 'high-output
   :request-params '(:merge (:max_tokens 32000)))
 
-(gptel-make-preset 'low-thinking
-  :request-params '(:merge (:thinking (:type "enabled" :budget_tokens 8000))))
-
-(gptel-make-preset 'medium-thinking
-  :request-params '(:merge (:thinking (:type "enabled" :budget_tokens 16000))))
-
-(gptel-make-preset 'high-thinking
-  :request-params '(:merge (:thinking (:type "enabled" :budget_tokens 32000))))
-
 (gptel-make-preset 'web-search
   :request-params '(:merge (:tools [(:type "web_search_20250305"
                                            :name "web_search"
@@ -272,7 +273,7 @@
 
 (gptel-make-preset 'analyze
   :description "Best model for analysis"
-  :parents '(opus-max high-thinking high-output))
+  :parents '(opus-max high-output))
 
 (gptel-make-preset 'code
   :description "Best model for generating or interpreting code"
@@ -288,10 +289,12 @@
   :use-context nil
   :tools nil
   :parents (or
+            'sonnet-max
             'opus-max
+            'glm-4.7-flash
+            'gpt-oss
             'sonnet
             'gpt-oss-travel
-            'gpt-oss
             'haiku
             'haiku-max
             'haiku-direct
