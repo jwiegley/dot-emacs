@@ -493,6 +493,7 @@ transform."
             (throw 'found t))))))
 
 (defun emacs-nix-packages ()
+  (re-search-forward "^\\[" nil t)
   (let (results)
     (while (re-search-forward emacs-nix-name-re nil t)
       (let ((commented (match-string-no-properties 1))
