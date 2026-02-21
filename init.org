@@ -11556,6 +11556,7 @@ This is returned as a string."
          ("C-c C-x O"     . org-ext-open-map-link)
          ("C-c C-x U"     . org-ext-set-url-from-clipboard)
          ("C-c C-x m"     . org-ext-insert-message-link)
+         ("C-c C-x s"     . org-ext-capture-link-to-entry)
          ("C-c C-x u"     . org-ext-todoize)
          ("C-c C-x C-,"   . org-ext-insert-structure-template-and-yank)
          ("C-c C-x C-M-y" . org-ext-yank-link)

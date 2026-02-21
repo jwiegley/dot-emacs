@@ -45,6 +45,7 @@
   "Regular expression for fast inactive time stamp matching.")
 
 (declare-function org-with-wide-buffer "org-macs")
+(declare-function org-smart-capture "org-smart-capture")
 
 (defgroup org-ext nil
   "Extra functions for use with Org-mode."
@@ -1315,6 +1316,22 @@ Preserves existing URL2 property when URL exists."
                         (concat "[[" (caar org-stored-links) "]]")
                       (gui--selection-value-internal 'CLIPBOARD)))
   (org-toggle-tag "LINK" 'on))
+
+(defun org-ext-capture-link-to-entry ()
+  "Capture a new task linked back to the current Org entry.
+Uses `org-smart-capture' to start a new capture, then sets the :LINK:
+tag and :URL: property pointing to the current entry via its ID."
+  (interactive)
+  (unless (derived-mode-p 'org-mode)
+    (user-error "Not in an Org buffer"))
+  (org-back-to-heading t)
+  (let* ((id (org-id-get-create))
+         (title (org-get-heading t t t t))
+         (url (format "[[id:%s][%s]]" id title)))
+    (org-smart-capture)
+    (org-set-property "URL" url)
+    (org-toggle-tag "LINK" 'on)
+    (insert " ")))
 
 (defun org-ext-get-inactive-time ()
   "Get time of last state change or creation as float.
