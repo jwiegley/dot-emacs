@@ -1563,6 +1563,15 @@ to them.
             text)))
 #+end_src
 
+** cov
+
+#+begin_src emacs-lisp
+(use-package cov
+  :custom
+  (cov-coverage-mode t)
+  (cov-coverage-alist '((".gcov" . gcov))))
+#+end_src
+
 ** crosshairs
 
 #+begin_src emacs-lisp
@@ -6802,6 +6811,12 @@ error prone.
   :bind
   ("C-/"   . undo-fu-only-undo)
   ("C-S-/" . undo-fu-only-redo))
+#+end_src
+
+** undercover
+
+#+begin_src emacs-lisp
+(use-package undercover :defer t)
 #+end_src
 
 ** undo-propose
