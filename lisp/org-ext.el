@@ -1317,6 +1317,16 @@ Preserves existing URL2 property when URL exists."
                       (gui--selection-value-internal 'CLIPBOARD)))
   (org-toggle-tag "LINK" 'on))
 
+(defun org-ext-set-stored-link ()
+  "Set a property for the current headline."
+  (interactive)
+  (org-ext-todoize)
+  (org-set-property (if (org-entry-get (point-marker) "URL") "URL2" "URL")
+                    (format "[[%s][%s]] "
+                            (caar org-stored-links)
+                            (cdar org-stored-links)))
+  (org-toggle-tag "LINK" 'on))
+
 (defun org-ext-capture-link-to-entry ()
   "Capture a new task linked back to the current Org entry.
 Uses `org-smart-capture' to start a new capture, then sets the :LINK:

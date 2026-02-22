@@ -3230,8 +3230,7 @@ up before you execute another command."
   :after (gptel)
   :config
   (gptel-backends-llama-swap)
-  ;; (when ((string-match-p "hera" (system-name)) "hera")
-  ;;   (gptel-backends-vibe-proxy))
+  (gptel-backends-vibe-proxy)
   (setq gptel-backend (gptel-backends-make-litellm)))
 #+end_src
 
@@ -11555,6 +11554,7 @@ This is returned as a string."
          ("C-c C-x M"     . org-ext-set-message-link)
          ("C-c C-x O"     . org-ext-open-map-link)
          ("C-c C-x U"     . org-ext-set-url-from-clipboard)
+         ("C-c C-x C-l"   . org-ext-set-stored-link)
          ("C-c C-x m"     . org-ext-insert-message-link)
          ("C-c C-x s"     . org-ext-capture-link-to-entry)
          ("C-c C-x u"     . org-ext-todoize)
