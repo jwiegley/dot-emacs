@@ -145,7 +145,7 @@
 
 #+begin_src emacs-lisp
 (defun quickping (host)
-  (= 0 (call-process "ping" nil nil nil "-c1" "-W50" "-q" host)))
+  (= 0 (call-process "ping" nil nil nil "-c1" "-W5" "-q" host)))
 #+end_src
 
 ** Push and pop window configurations
