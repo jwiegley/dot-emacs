@@ -10487,6 +10487,7 @@ is:
   (message-mail-alias-type nil)
   ;; (message-send-mail-function 'message-send-mail-with-sendmail)
   (message-send-mail-function 'message-smtpmail-send-it)
+  ;; (message-send-mail-function 'async-smtpmail-send-it)
   (message-send-mail-partially-limit nil)
   (message-sendmail-envelope-from 'header)
   (message-sendmail-extra-arguments '("--read-envelope-from"))
@@ -10521,8 +10522,10 @@ is:
 
   (defun queue-message-if-not-connected ()
     (set (make-local-variable 'gnus-agent-queue-mail)
-         (if (quickping "smtp.gmail.com") t 'always)))
+         (if (quickping smtpmail-smtp-server) t 'always)))
   :config
+  (require 'smtpmail-async)
+
   (advice-add 'gnus-summary-resend-message-edit
               :after 'my-message-header-setup-hook)))
 #+end_src
