@@ -289,8 +289,8 @@
   :use-context nil
   :tools nil
   :parents (or
-            'sonnet-max
             'opus-max
+            'sonnet-max
             'glm-4.7-flash
             'gpt-oss
             'sonnet
