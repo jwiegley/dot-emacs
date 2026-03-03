@@ -83,51 +83,39 @@ startPort: 9200
 
 (defcustom hf-llama-swap-epilog "
 groups:
-  gpt_oss:
+  always_on:
     swap: false
     exclusive: false
     members:
       - Devstral-2-123B-Instruct-2512
       - Devstral-Small-2-24B-Instruct-2512
-      - gpt-oss-120b
+      - Qwen3-Coder-Next
       - gpt-oss-20b
+      - mlx-community/gpt-oss-20b-MXFP4-Q8
+      - gpt-oss-safeguard-20b
+      - lmstudio-community/gpt-oss-safeguard-20b-MLX-MXFP4
+      - gpt-oss-120b
+      - Qwen3.5-27B
+      - Qwen3.5-9B
+      - Qwen3.5-4B
+      - Qwen3.5-2B
+      - Qwen3.5-0.8B
+      - Qwen3.5-35B-A3B
+      - Qwen3.5-122B-A10B
 
   # Only one of these can be loaded at a time
   large_models:
     swap: true
     exclusive: false
     members:
-      - DeepSeek-R1-Distill-Qwen-32B
       - Kimi-K2.5
       - Llama-4-Maverick-17B-128E-Instruct
       - Llama-4-Scout-17B-16E-Instruct
       - Phi-4-reasoning-plus
-      - mlx-community/gpt-oss-120b-MXFP4-Q8
+      - Qwen3.5-397B-A17B
+      - mlx-community/Qwen3.5-397B-A17B-nvfp4
       - mlx-community/MiniMax-M2.5-4bit
-      - r1-1776-distill-llama-70b
-
-  # Only one of these can be loaded at a time
-  small_models:
-    swap: true
-    exclusive: false
-    members:
-      - Qwen3-30B-A3B-Instruct-2507
-      - Qwen3-30B-A3B-Thinking-2507
-      - Qwen3-32B
-      - DeepSeek-R1-0528-Qwen3-8B
-      - Qwen3-0.6B
-      - Qwen3-1.7B
-      - Qwen3-14B
-      - Qwen3-4B
-      - Qwen3-8B
-      - gemma-3-12b-it
-      - gemma-3-1b-it
-      - gemma-3-27b-it
-      - gemma-3-4b-it
-      - gemma-3n-E4B-it
-      - mlx-community/gpt-oss-20b-MXFP4-Q8
-      - gpt-oss-safeguard-20b
-      - lmstudio-community/gpt-oss-safeguard-20b-MLX-MXFP4
+      - mlx-community/gpt-oss-120b-MXFP4-Q8
 
   # Only one of these can be loaded at a time
   embeddings:
@@ -457,35 +445,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
   (list
 
    (make-hf-model
-    :name 'r1-1776-distill-llama-70b
-    :context-length 131072
-    :temperature 0.6
-    :min-p 0.01
-    :top-p 0.95
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/bartowski_perplexity-ai_r1-1776-distill-llama-70b-GGUF"
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"))))
-
-   (make-hf-model
-    :name 'DeepSeek-R1-Distill-Qwen-32B
-    :context-length 131072
-    :temperature 0.6
-    :min-p 0.01
-    :top-p 0.95
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/lmstudio-community_DeepSeek-R1-Distill-Qwen-32B-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"))))
-
-   (make-hf-model
     :name 'DeepSeek-R1-0528
     :context-length 163840
     :temperature 0.6
@@ -504,23 +463,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :name 'deepseek/deepseek-r1-0528:free
       :provider 'openrouter)))
-
-   (make-hf-model
-    :name 'DeepSeek-R1-0528-Qwen3-8B
-    :context-length 131072
-    :temperature 0.6
-    :min-p 0.01
-    :top-p 0.95
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_DeepSeek-R1-0528-Qwen3-8B-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"))))
 
    (make-hf-model
     :name 'DeepSeek-V3
@@ -723,169 +665,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :arguments '("--flash-attn" "on"))))
 
    (make-hf-model
-    :name 'Qwen3-0.6B
-    :context-length 40960
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Qwen3-0.6B-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'Qwen3-1.7B
-    :context-length 40960
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Qwen3-1.7B-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'Qwen3-4B
-    :context-length 40960
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Qwen3-4B-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'Qwen3-8B
-    :context-length 40960
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Qwen3-8B-GGUF"
-      :hostnames '("hera" "clio"))))
-
-   (make-hf-model
-    :name 'Qwen3-14B
-    :context-length 40960
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Qwen3-14B-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"))))
-
-   (make-hf-model
-    :name 'Qwen3-32B
-    :context-length 40960
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Qwen3-32B-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"))))
-
-   (make-hf-model
-    :name 'Qwen3-30B-A3B-Instruct-2507
-    :context-length 262144
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Qwen3-30B-A3B-Instruct-2507-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"))))
-
-   (make-hf-model
-    :name 'Qwen3-30B-A3B-Thinking-2507
-    :context-length 262144
-    :temperature 0.6
-    :min-p 0.0
-    :top-p 0.95
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :model-path "~/Models/unsloth_Qwen3-30B-A3B-Thinking-2507-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"))))
-
-   (make-hf-model
-    :name 'Qwen3-Next-80B-A3B-Instruct
-    :characteristics '(high local instruct)
-    :context-length 262144
-    :temperature 0.7
-    :min-p 0.0
-    :top-p 0.8
-    :top-k 20
-    :supports-function-calling t
-    :instances
-    (list
-     (make-hf-instance
-      :max-output-tokens 16384
-      :model-path "~/Models/unsloth_Qwen3-Next-80B-A3B-Instruct-GGUF"
-      :arguments '("--repeat-penalty" "1.05"
-                   "--flash-attn" "on"))))
-
-   (make-hf-model
-    :name 'Qwen3-Next-80B-A3B-Thinking
-    :characteristics '(high local thinking)
-    :context-length 262144
-    :temperature 0.6
-    :min-p 0.0
-    :top-p 0.95
-    :top-k 20
-    :supports-function-calling t
-    :supports-reasoning t
-    :instances
-    (list
-     (make-hf-instance
-      :max-output-tokens 32768
-      :model-path "~/Models/unsloth_Qwen3-Next-80B-A3B-Thinking-GGUF"
-      :arguments '("--repeat-penalty" "1.05"
-                   "--flash-attn" "on"))))
-
-   (make-hf-model
     :name 'Qwen3-Coder-Next
     :context-length 262144
     :temperature 1.0
@@ -925,111 +704,303 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     :top-p 0.95
     :top-k 20
     :supports-function-calling t
+    :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :max-output-tokens 131072
+      :max-output-tokens 81920
       :model-path "~/Models/unsloth_Qwen3.5-397B-A17B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--mmproj" "/Users/johnw/Models/unsloth_Qwen3.5-397B-A17B-GGUF/mmproj-F16.gguf")
       :cache-control t)))
 
    (make-hf-model
-    :name 'VibeThinker-1.5B
-    :context-length 262144
+    :name 'Qwen3.5-397B-A17B-1M
+    :context-length 1048576
     :temperature 0.6
+    :min-p 0.0
     :top-p 0.95
-    :top-k -1
+    :top-k 20
     :supports-function-calling t
     :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :max-output-tokens 40960
-      :model-path "~/Models/mradermacher_VibeThinker-1.5B-GGUF"
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"))))
+      :max-output-tokens 81920
+      :model-path "~/Models/unsloth_Qwen3.5-397B-A17B-GGUF"
+      :arguments '("--swa-full"
+                   "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--ctx-size" "1048576"
+                   "--rope-scaling" "yarn"
+                   "--rope-scale" "4"
+                   "--yarn-orig-ctx" "262144"
+                   "--no-mmap"
+                   "--mmproj" "/Users/johnw/Models/unsloth_Qwen3.5-397B-A17B-GGUF/mmproj-F16.gguf")
+      :cache-control t)))
 
    (make-hf-model
-    :name 'gemma-3-1b-it
-    :context-length 32768
-    :temperature 1.0
+    :name 'Qwen3.5-397B-A17B-nvfp4
+    :context-length 200000
+    :temperature 0.6
     :min-p 0.0
     :top-p 0.95
-    :top-k 64
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/unsloth_gemma-3-1b-it-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--flash-attn" "on"
-                   "--repeat-penalty" "1.0"))))
+      :name 'mlx-community/Qwen3.5-397B-A17B-nvfp4
+      :max-output-tokens 81920
+      :fallbacks '(hera/Qwen3.5-397B-A17B)
+      :cache-control t
+      :engine 'mlx-lm)))
 
    (make-hf-model
-    :name 'gemma-3-4b-it
-    :context-length 131072
-    :temperature 1.0
+    :name 'Qwen3.5-122B-A10B
+    :context-length 262144
+    :temperature 0.6
     :min-p 0.0
     :top-p 0.95
-    :top-k 64
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/unsloth_gemma-3-4b-it-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "--repeat-penalty" "1.0"))))
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-122B-A10B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--mmproj"
+                   "/Users/johnw/Models/unsloth_Qwen3.5-122B-A10B-GGUF/mmproj-F16.gguf")
+      :fallbacks '(clio/Qwen3.5-35B-A3B)
+      :cache-control t)))
 
    (make-hf-model
-    :name 'gemma-3-12b-it
-    :context-length 131072
-    :temperature 1.0
+    :name 'Qwen3.5-35B-A3B
+    :context-length 262144
+    :temperature 0.6
     :min-p 0.0
     :top-p 0.95
-    :top-k 64
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/unsloth_gemma-3-12b-it-GGUF"
-      :draft-model "~/Models/unsloth_gemma-3-1b-it-GGUF/gemma-3-1b-it-UD-Q8_K_XL.gguf"
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-35B-A3B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--mmproj"
+                   "/Users/johnw/Models/unsloth_Qwen3.5-35B-A3B-GGUF/mmproj-F16.gguf")
+      :fallbacks '(clio/Qwen3.5-35B-A3B)
       :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "--repeat-penalty" "1.0"))))
+      :cache-control t)))
 
    (make-hf-model
-    :name 'gemma-3-27b-it
-    :context-length 131072
-    :temperature 1.0
+    :name 'Qwen3.5-27B
+    :context-length 262144
+    :temperature 0.6
     :min-p 0.0
     :top-p 0.95
-    :top-k 64
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/unsloth_gemma-3-27b-it-GGUF"
-      :draft-model "~/Models/unsloth_gemma-3-4b-it-GGUF/gemma-3-4b-it-UD-Q8_K_XL.gguf"
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-27B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--mmproj"
+                   "/Users/johnw/Models/unsloth_Qwen3.5-27B-GGUF/mmproj-F16.gguf")
+      :fallbacks '(clio/Qwen3.5-27B)
       :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "--repeat-penalty" "1.0"))))
+      :cache-control t)))
 
    (make-hf-model
-    :name 'gemma-3n-E4B-it
-    :context-length 32768
-    :temperature 1.0
+    :name 'Qwen3.5-27B-Instruct
+    :context-length 262144
+    :temperature 0.7
     :min-p 0.0
-    :top-p 0.95
-    :top-k 64
+    :top-p 0.8
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning nil
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/unsloth_gemma-3n-E4B-it-GGUF"
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-27B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--chat-template-kwargs" "'{\"enable_thinking\":false}'"
+                   "--mmproj"
+                   "/Users/johnw/Models/unsloth_Qwen3.5-27B-GGUF/mmproj-F16.gguf")
+      :fallbacks '(clio/Qwen3.5-27B-Instruct)
       :hostnames '("hera" "clio")
-      :arguments '("--flash-attn" "on"
-                   "--repeat-penalty" "1.0"))))
+      :cache-control t)))
+
+   (make-hf-model
+    :name 'Qwen3.5-9B
+    :context-length 262144
+    :temperature 0.6
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-9B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--mmproj"
+                   "/Users/johnw/Models/unsloth_Qwen3.5-9B-GGUF/mmproj-F16.gguf")
+      :fallbacks '(clio/Qwen3.5-9B)
+      :hostnames '("hera" "clio")
+      :cache-control t)))
+
+   (make-hf-model
+    :name 'Qwen3.5-4B
+    :context-length 262144
+    :temperature 0.6
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-4B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--mmproj"
+                   "/Users/johnw/Models/unsloth_Qwen3.5-4B-GGUF/mmproj-F16.gguf")
+      :fallbacks '(clio/Qwen3.5-4B)
+      :hostnames '("hera" "clio")
+      :cache-control t)))
+
+   (make-hf-model
+    :name 'Qwen3.5-2B
+    :context-length 262144
+    :temperature 0.6
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-2B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--mmproj"
+                   "/Users/johnw/Models/unsloth_Qwen3.5-2B-GGUF/mmproj-F16.gguf")
+      :fallbacks '(clio/Qwen3.5-2B)
+      :hostnames '("hera" "clio")
+      :cache-control t)))
+
+   (make-hf-model
+    :name 'Qwen3.5-0.8B
+    :context-length 262144
+    :temperature 0.6
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-0.8B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--mmproj"
+                   "/Users/johnw/Models/unsloth_Qwen3.5-0.8B-GGUF/mmproj-F16.gguf")
+      :fallbacks '(clio/Qwen3.5-0.8B)
+      :hostnames '("hera" "clio")
+      :cache-control t)))
 
    (make-hf-model
     :name 'gpt-oss-20b-MXFP4-Q8
@@ -1598,13 +1569,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
 
    (make-hf-model
     :name 'compound-beta
-    :instances
-    (list
-     (make-hf-instance
-      :provider 'groq)))
-
-   (make-hf-model
-    :name 'deepseek-r1-distill-llama-70b
     :instances
     (list
      (make-hf-instance
