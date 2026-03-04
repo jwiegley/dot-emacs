@@ -50,7 +50,7 @@
   :model 'hera/gpt-oss-120b
   :temperature 1.0)
 
-(gptel-make-preset 'gpt-oss-travel
+(gptel-make-preset 'gpt-oss-local
   :description "OpenAI's ChatGPT, Open Source (small)"
   :backend "llama-swap"
   :model 'gpt-oss-20b
@@ -198,35 +198,42 @@
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
   :backend "LiteLLM"
-  :model 'hera/Qwen3-235B-A22B-Thinking-2507
-  :temperature 1.0)
+  :model 'hera/Qwen3.5-397B-A17B)
+
+(gptel-make-preset 'qwen-27b
+  :description "Ali Baba's Qwen, thinking"
+  :backend "LiteLLM"
+  :model 'hera/Qwen3.5-27B)
+
+(gptel-make-preset 'qwen-27b-local
+  :description "Ali Baba's Qwen, thinking"
+  :backend "llama-swap"
+  :model 'Qwen3.5-27B)
+
+(gptel-make-preset 'qwen-27b-instruct
+  :description "Ali Baba's Qwen, non-thinking"
+  :backend "LiteLLM"
+  :model 'hera/Qwen3.5-27B-Instruct)
+
+(gptel-make-preset 'qwen-0.8b-local
+  :description "Ali Baba's Qwen, thinking"
+  :backend "llama-swap"
+  :model 'Qwen3.5-0.8B)
 
 ;;; DeepSeek
 
-(gptel-make-preset 'r1
-  :description "DeepSeek R1"
-  :backend "LiteLLM"
-  :model 'hera/DeepSeek-R1-0528
-  :temperature 0.6)
-
-(gptel-make-preset 'r1-fast
-  :description "DeepSeek R1, quick"
-  :backend "LiteLLM"
-  :model 'hera/DeepSeek-R1-0528-Qwen3-8B
-  :temperature 0.6)
-
 (gptel-make-preset 'deepseek
-  :description "DeepSeek V3.1"
+  :description "DeepSeek V3.2"
   :backend "LiteLLM"
-  :model 'hera/DeepSeek-V3.1
+  :model 'hera/DeepSeek-V3.2
   :temperature 0.6)
 
 ;;; Other
 
 (gptel-make-preset 'kimi
-  :description "Kimi K2"
+  :description "Kimi K2.5"
   :backend "LiteLLM"
-  :model 'hera/Kimi-K2-Instruct
+  :model 'hera/Kimi-K2.5
   :temperature 0.6)
 
 ;;; ALIASES ==============================================================
@@ -289,12 +296,14 @@
   :use-context nil
   :tools nil
   :parents (or
+            'qwen-27b-local
+            'qwen-27b
             'opus-max
             'sonnet-max
             'glm-4.7-flash
             'gpt-oss
             'sonnet
-            'gpt-oss-travel
+            'gpt-oss-local
             'haiku
             'haiku-max
             'haiku-direct
