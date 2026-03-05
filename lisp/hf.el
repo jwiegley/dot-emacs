@@ -75,7 +75,7 @@
 
 (defcustom hf-llama-swap-prolog "
 healthCheckTimeout: 7200
-startPort: 9200
+startPort: 9400
 "
   "Prolog for beginning of llama-swap.yaml file."
   :type 'string
