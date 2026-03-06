@@ -96,12 +96,14 @@ groups:
       - lmstudio-community/gpt-oss-safeguard-20b-MLX-MXFP4
       - gpt-oss-120b
       - Qwen3.5-27B
+      - Qwen3.5-27B-Instruct
       - Qwen3.5-9B
       - Qwen3.5-4B
       - Qwen3.5-2B
       - Qwen3.5-0.8B
       - Qwen3.5-35B-A3B
       - Qwen3.5-122B-A10B
+      - bge-m3
 
   # Only one of these can be loaded at a time
   large_models:
@@ -127,7 +129,6 @@ groups:
       - all-MiniLM-L6-v2
       - bge-base-en-v1.5
       - bge-large-en-v1.5
-      - bge-m3
       - nomic-embed-text-v2-moe
 
   # Only one of these can be loaded at a time
@@ -1511,6 +1512,12 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :cache-control t)
 
      (make-hf-instance
+      :model-name 'claude-sonnet-4-6
+      :name 'claude-sonnet-4-6
+      :provider 'vibe-proxy
+      :cache-control t)
+
+     (make-hf-instance
       :name 'claude-sonnet-4-6
       :provider 'positron_anthropic)
 
@@ -1526,6 +1533,12 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :model-name 'claude-opus-4-6
       :name 'claude-opus-4-6-thinking-32000
+      :provider 'vibe-proxy
+      :cache-control t)
+
+     (make-hf-instance
+      :model-name 'claude-opus-4-6
+      :name 'claude-opus-4-6
       :provider 'vibe-proxy
       :cache-control t)
 
@@ -1938,7 +1951,7 @@ Optionally generate for the given HOSTNAME."
         --host 127.0.0.1 --port ${PORT}
         --jinja
         --offline
-        --parallel 1
+        --parallel 4
         --model %p %a"
            `((?e . ,exe)
              (?p . ,(hf-strip-tramp-prefix (expand-file-name path)))
@@ -2262,7 +2275,7 @@ If HOSTNAME is non-nil, only generate definitions for that host."
                "--jinja"
                "--no-webui"
                "--offline"
-               "--parallel" "1"
+               "--parallel" "4"
                "--port" (format "%d" port)
                "--model" model
                "--threads" (format "%d" hf-threads))))

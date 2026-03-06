@@ -136,6 +136,12 @@
 ;;   :model claude-haiku-model
 ;;   :temperature 1.0)
 
+(gptel-make-preset 'opus-max-remote
+  :description "Anthropic's Claude Opus, thinking"
+  :backend "LiteLLM"
+  :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
+  :temperature 1.0)
+
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
   ;; :backend "LiteLLM"
@@ -296,9 +302,10 @@
   :use-context nil
   :tools nil
   :parents (or
-            'qwen-27b-local
             'qwen-27b
+            'opus-max-remote
             'opus-max
+            'qwen-27b-local
             'sonnet-max
             'glm-4.7-flash
             'gpt-oss
