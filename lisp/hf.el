@@ -419,6 +419,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
   (supports-system-message t)           ; t if model supports system messages
   (supports-function-calling nil)       ; t if model supports function calling
   (supports-reasoning nil)              ; t if model supports reasoning
+  (supports-response-schema nil)        ; t if model supports response schema
   aliases                               ; model alias names
   instances                             ; model instances
   )
@@ -664,6 +665,25 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :model-path "~/Models/unsloth_Phi-4-reasoning-plus-GGUF"
       :hostnames '("hera" "clio")
       :arguments '("--flash-attn" "on"))))
+
+   (make-hf-model
+    :name 'Qwen3-30B-A3B
+    :context-length 40000
+    :temperature 0.2
+    :min-p 0.0
+    :top-p 0.9
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning nil
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 32000
+      :model-path "~/Models/unsloth_Qwen3-30B-A3B-GGUF/Qwen3-30B-A3B-UD-Q4_K_XL.gguf"
+      :arguments '("--swa-full"
+                   "--no-mmap")
+      :hostnames '("hera" "clio")
+      :cache-control t)))
 
    (make-hf-model
     :name 'Qwen3-Coder-Next
@@ -2026,7 +2046,8 @@ Optionally generate for the given HOSTNAME."
          (max-output-tokens (hf-get-instance-max-output-tokens model instance))
          (supports-system-message (hf-model-supports-system-message model))
          (supports-function-calling (hf-model-supports-function-calling model))
-         (supports-reasoning (hf-model-supports-reasoning model)))
+         (supports-reasoning (hf-model-supports-reasoning model))
+         (supports-response-schema (hf-model-supports-response-schema model)))
     (dolist (host (if (memq provider '(local vibe-proxy))
                       hostnames
                     (list provider)))
@@ -2041,6 +2062,7 @@ Optionally generate for the given HOSTNAME."
       description: %S%s%s
       supports_function_calling: %s
       supports_reasoning: %s
+      supports_response_schema: %s
 "
                       host name
                       (cond ((eq 'local provider) "openai")
@@ -2075,7 +2097,8 @@ Optionally generate for the given HOSTNAME."
                           (format "\n      max_output_tokens: %s" max-output-tokens)
                         "")
                       (if supports-function-calling "true" "false")
-                      (if supports-reasoning "true" "false"))))))
+                      (if supports-reasoning "true" "false")
+                      (if supports-response-schema "true" "false"))))))
 
 (defun hf-generate-litellm-yaml ()
   "Build LiteLLM config.yaml configuration."

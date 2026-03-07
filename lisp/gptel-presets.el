@@ -302,9 +302,9 @@
   :use-context nil
   :tools nil
   :parents (or
-            'qwen-27b
             'opus-max-remote
             'opus-max
+            'qwen-27b
             'qwen-27b-local
             'sonnet-max
             'glm-4.7-flash
