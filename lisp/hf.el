@@ -679,7 +679,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :max-output-tokens 32000
-      :model-path "~/Models/unsloth_Qwen3-30B-A3B-GGUF/Qwen3-30B-A3B-UD-Q4_K_XL.gguf"
+      :model-path "~/Models/unsloth_Qwen3-30B-A3B-GGUF"
       :arguments '("--swa-full"
                    "--no-mmap")
       :hostnames '("hera" "clio")
@@ -900,9 +900,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--batch-size" "8192"
                    "--ubatch-size" "2048"
                    "--no-mmap"
-                   "--chat-template-kwargs" "'{\"enable_thinking\":false}'"
-                   "--mmproj"
-                   "/Users/johnw/Models/unsloth_Qwen3.5-27B-GGUF/mmproj-F16.gguf")
+                   "--chat-template-kwargs" "'{\"enable_thinking\":false}'")
       :fallbacks '(clio/Qwen3.5-27B-Instruct)
       :hostnames '("hera" "clio")
       :cache-control t)))
@@ -966,6 +964,34 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :cache-control t)))
 
    (make-hf-model
+    :name 'Qwen3.5-4B-Instruct
+    :context-length 262144
+    :temperature 0.6
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning nil
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-4B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--chat-template-kwargs" "'{\"enable_thinking\":false}'")
+      :fallbacks '(clio/Qwen3.5-4B)
+      :hostnames '("hera" "clio")
+      :cache-control t)))
+
+   (make-hf-model
     :name 'Qwen3.5-2B
     :context-length 262144
     :temperature 0.6
@@ -990,6 +1016,34 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--no-mmap"
                    "--mmproj"
                    "/Users/johnw/Models/unsloth_Qwen3.5-2B-GGUF/mmproj-F16.gguf")
+      :fallbacks '(clio/Qwen3.5-2B)
+      :hostnames '("hera" "clio")
+      :cache-control t)))
+
+   (make-hf-model
+    :name 'Qwen3.5-2B-Instruct
+    :context-length 262144
+    :temperature 0.6
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-2B-GGUF"
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--chat-template-kwargs" "'{\"enable_thinking\":false}'")
       :fallbacks '(clio/Qwen3.5-2B)
       :hostnames '("hera" "clio")
       :cache-control t)))

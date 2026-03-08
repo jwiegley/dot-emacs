@@ -216,6 +216,16 @@
   :backend "llama-swap"
   :model 'Qwen3.5-27B)
 
+(gptel-make-preset 'qwen-4b-local
+  :description "Ali Baba's Qwen, thinking"
+  :backend "llama-swap"
+  :model 'Qwen3.5-4B)
+
+(gptel-make-preset 'qwen-4b-instruct-local
+  :description "Ali Baba's Qwen"
+  :backend "llama-swap"
+  :model 'Qwen3.5-4B-Instruct)
+
 (gptel-make-preset 'qwen-27b-instruct
   :description "Ali Baba's Qwen, non-thinking"
   :backend "LiteLLM"
@@ -302,10 +312,11 @@
   :use-context nil
   :tools nil
   :parents (or
-            'opus-max-remote
             'opus-max
-            'qwen-27b
+            'qwen-4b-local
             'qwen-27b-local
+            'opus-max-remote
+            'qwen-27b
             'sonnet-max
             'glm-4.7-flash
             'gpt-oss
