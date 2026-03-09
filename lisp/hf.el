@@ -433,6 +433,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
   max-output-tokens                     ; number of tokens to predict
   cache-control                         ; supports auto-caching?
   (provider 'local)                     ; where does the model run?
+  (parallel 1)                          ; how many parallel connections to support
   (engine 'llama-cpp)                   ; if local: llama.cpp, koboldcpp, etc.
   (hostnames
    (list hf-default-hostname))          ; if local: hostname where engine runs
@@ -765,7 +766,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--draft-max" "64"
                    "--batch-size" "8192"
                    "--ubatch-size" "2048"
-                   "--ctx-size" "1048576"
                    "--rope-scaling" "yarn"
                    "--rope-scale" "4"
                    "--yarn-orig-ctx" "262144"
@@ -891,6 +891,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-27B-GGUF"
+      :parallel 2
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -1969,6 +1970,7 @@ Optionally read the path on the given HOSTNAME."
 Optionally generate for the given HOSTNAME."
   (let* ((max-output-tokens (hf-get-instance-max-output-tokens model instance))
          (context-length (hf-get-instance-context-length model instance))
+         (parallel (hf-instance-parallel instance))
          (temperature (hf-model-temperature model))
          (min-p (hf-model-min-p model))
          (top-p (hf-model-top-p model))
@@ -1997,7 +1999,8 @@ Optionally generate for the given HOSTNAME."
                    ;; mlx-lm does not specify the context size, but grows the
                    ;; context dynamically based on usage.
                    (llama-cpp (list "--ctx-size"
-                                    (number-to-string context-length)))))
+                                    (number-to-string
+                                     (* context-length parallel))))))
             (and max-output-tokens
                  (list (cl-case (hf-instance-engine instance)
                          (llama-cpp "--predict")
@@ -2025,11 +2028,12 @@ Optionally generate for the given HOSTNAME."
         --host 127.0.0.1 --port ${PORT}
         --jinja
         --offline
-        --parallel 4
+        --parallel %n
         --model %p %a"
            `((?e . ,exe)
              (?p . ,(hf-strip-tramp-prefix (expand-file-name path)))
-             (?a . ,args)))
+             (?a . ,args)
+             (?n . ,(number-to-string parallel))))
           footer)))
       (mlx-lm
        (when-let* ((exe (let ((default-directory (hf-remote-path "~/" hostname)))
@@ -2352,7 +2356,6 @@ If HOSTNAME is non-nil, only generate definitions for that host."
                "--jinja"
                "--no-webui"
                "--offline"
-               "--parallel" "4"
                "--port" (format "%d" port)
                "--model" model
                "--threads" (format "%d" hf-threads))))
