@@ -13835,7 +13835,7 @@ middle-click to temporarily hide it.
      "pandoc -f markdown-auto_identifiers -t org" t t)))
 #+end_src
 
-**** COMMENT ox-slack
+**** ox-slack
 
 This is a simple exporter backend for [[https://orgmode.org/][Emacs org-mode]], derived from the builtin
 markdown exporter & its derived backend [[https://github.com/larstvei/ox-gfm][ox-gfm.el]]. It produces simple text
