@@ -434,6 +434,9 @@ Contains a %s placeholder for dynamically generated router fallbacks."
   cache-control                         ; supports auto-caching?
   (provider 'local)                     ; where does the model run?
   (parallel 1)                          ; how many parallel connections to support
+  (cache-type-k 'f16)                   ; K-quantization
+  (cache-type-v 'f16)                   ; V-quantization
+  (kv-offload nil)                      ; --kv-offload, or if nil, --no-kv-offload
   (engine 'llama-cpp)                   ; if local: llama.cpp, koboldcpp, etc.
   (hostnames
    (list hf-default-hostname))          ; if local: hostname where engine runs
@@ -457,12 +460,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     :supports-reasoning t
     :instances
     (list
-     ;; (make-hf-instance
-     ;;  :context-length 16384
-     ;;  :model-path "~/Models/unsloth_DeepSeek-R1-0528-GGUF"
-     ;;  :arguments '("--cache-type-k" "q4_1"
-     ;;               "--seed" "3407"))
-
      (make-hf-instance
       :name 'deepseek/deepseek-r1-0528:free
       :provider 'openrouter)))
@@ -483,10 +480,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :context-length 12000
-      :model-path "~/Models/unsloth_DeepSeek-V3.2-GGUF"
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"))))
+      :model-path "~/Models/unsloth_DeepSeek-V3.2-GGUF")))
 
    (make-hf-model
     :name 'Kimi-K2.5
@@ -501,14 +495,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :context-length 98304
       :max-output-tokens 32768
-      :model-path "~/Models/unsloth_Kimi-K2.5-GGUF"
-      :arguments '(
-                   "--seed" "3407"
-                   "--cache-type-k" "q4_1"
-                   "--cache-type-v" "q4_1"
-                   ;; "--special"
-                   ;; "--kv-unified"
-                   ))))
+      :model-path "~/Models/unsloth_Kimi-K2.5-GGUF")))
 
    (make-hf-model
     :name 'SERA-32B
@@ -523,9 +510,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :model-path "~/Models/noctrex_SERA-32B-GGUF"
-      :hostnames '("hera" "clio")
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"))))
+      :hostnames '("hera" "clio"))))
 
    (make-hf-model
     :name 'Llama-4-Scout-17B-16E-Instruct
@@ -539,8 +524,8 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :context-length 1048576
       :model-path "~/Models/unsloth_Llama-4-Scout-17B-16E-Instruct-GGUF"
-      :arguments '("--cache-type-k" "q4_1"
-                   "--cache-type-v" "q4_1"))
+      :cache-type-k 'q4_1
+      :cache-type-v 'q4_1)
 
      (make-hf-instance
       :name 'meta-llama/llama-4-scout-17b-16e-instruct
@@ -633,10 +618,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     :instances
     (list
      (make-hf-instance
-      :model-path "~/Models/bartowski_cerebras_MiniMax-M2-REAP-162B-A10B-GGUF"
-      :arguments '("--cache-type-k" "q8_0"
-                   "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"))))
+      :model-path "~/Models/bartowski_cerebras_MiniMax-M2-REAP-162B-A10B-GGUF")))
 
    (make-hf-model
     :name 'MiniMax-M2.5
@@ -732,6 +714,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 81920
       :model-path "~/Models/unsloth_Qwen3.5-397B-A17B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -758,6 +741,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 81920
       :model-path "~/Models/unsloth_Qwen3.5-397B-A17B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -805,6 +789,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-122B-A10B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -833,6 +818,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-35B-A3B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -862,6 +848,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-27B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -892,6 +879,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-27B-GGUF"
       :parallel 2
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -920,6 +908,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-9B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -949,6 +938,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-4B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -978,6 +968,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-4B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -1006,6 +997,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-2B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -1035,6 +1027,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-2B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -1063,6 +1056,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-0.8B-GGUF"
+      :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
                    "--spec-type" "ngram-mod"
@@ -1170,14 +1164,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_gpt-oss-safeguard-20b-GGUF"
-      :cache-control t
-      :arguments '(
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "-ub" "2048"
-                   "-b" "2048"
-                   ))
+      :cache-control t)
      ))
 
    (make-hf-model
@@ -1191,14 +1178,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Devstral-2-123B-Instruct-2512-GGUF"
-      :cache-control t
-      :arguments '(
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "-ub" "2048"
-                   "-b" "2048"
-                   ))
+      :cache-control t)
      ))
 
    (make-hf-model
@@ -1212,26 +1192,12 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     (list
      (make-hf-instance
       :model-path "~/Models/unsloth_Devstral-Small-2-24B-Instruct-2512-GGUF"
-      :cache-control t
-      :arguments '(
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "-ub" "2048"
-                   "-b" "2048"
-                   ))
+      :cache-control t)
      (make-hf-instance
       :model-path "~/Models/unsloth_Devstral-Small-2-24B-Instruct-2512-GGUF"
       :hostnames '("clio")
       :context-length 140000
-      :cache-control t
-      :arguments '(
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "-ub" "2048"
-                   "-b" "2048"
-                   ))
+      :cache-control t)
      ))
 
    (make-hf-model
@@ -1246,14 +1212,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :model-path "~/Models/unsloth_Nemotron-3-Nano-30B-A3B-GGUF"
       :hostnames '("hera" "clio")
-      :cache-control t
-      :arguments '(
-                   ;; "--cache-type-k" "q8_0"
-                   ;; "--cache-type-v" "q8_0"
-                   "--flash-attn" "on"
-                   "-ub" "2048"
-                   "-b" "2048"
-                   ))
+      :cache-control t)
      ))
 
    (make-hf-model
@@ -1971,6 +1930,8 @@ Optionally generate for the given HOSTNAME."
   (let* ((max-output-tokens (hf-get-instance-max-output-tokens model instance))
          (context-length (hf-get-instance-context-length model instance))
          (parallel (hf-instance-parallel instance))
+         (cache-type-k (hf-instance-cache-type-k instance))
+         (cache-type-v (hf-instance-cache-type-v instance))
          (temperature (hf-model-temperature model))
          (min-p (hf-model-min-p model))
          (top-p (hf-model-top-p model))
@@ -1988,6 +1949,10 @@ Optionally generate for the given HOSTNAME."
                  (list "--top-p" (number-to-string top-p)))
             (and top-k
                  (list "--top-k" (number-to-string top-k)))
+            (and cache-type-k
+                 (list "--cache-type-k" (symbol-name cache-type-k)))
+            (and cache-type-v
+                 (list "--cache-type-v" (symbol-name cache-type-v)))
             (and-let* ((draft-model (hf-instance-draft-model instance))
                        (expanded (expand-file-name draft-model)))
               (and (file-exists-p expanded)
