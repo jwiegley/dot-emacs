@@ -104,8 +104,11 @@ groups:
       - Qwen3.5-27B
       - Qwen3.5-27B-Instruct
       - Qwen3.5-9B
+      - Qwen3.5-9B-Instruct
       - Qwen3.5-4B
+      - Qwen3.5-4B-Instruct
       - Qwen3.5-2B
+      - Qwen3.5-2B-Instruct
       - Qwen3.5-0.8B
       - Qwen3.5-35B-A3B
       - Qwen3.5-397B-A17B
@@ -443,7 +446,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
   (parallel 1)                          ; how many parallel connections to support
   (cache-type-k 'f16)                   ; K-quantization
   (cache-type-v 'f16)                   ; V-quantization
-  (kv-offload nil)                      ; --kv-offload, or if nil, --no-kv-offload
+  (kv-offload t)                        ; if nil, emit --no-kv-offload
   (engine 'llama-cpp)                   ; if local: llama.cpp, koboldcpp, etc.
   (hostnames
    (list hf-default-hostname))          ; if local: hostname where engine runs
@@ -452,6 +455,10 @@ Contains a %s placeholder for dynamically generated router fallbacks."
   draft-model                           ; if local: (optional) path to draft model
   arguments                             ; if local: arguments to engine
   fallbacks                             ; if remote: list of fallback model names
+  (cache-prompt t)                      ; if nil, emit --no-cache-prompt
+  (cache-reuse nil)                     ; integer: min chunk size for cache reuse
+  (slot-save-path nil)                  ; path for saving/restoring slot KV cache
+  (slot-prompt-similarity nil)          ; float: min prompt similarity to reuse slot
   )
 
 (defcustom hf-models-list
@@ -867,7 +874,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-27B-GGUF"
-      :parallel 2
+      :parallel 1
       :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
@@ -902,14 +909,10 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-27B-GGUF"
-      :parallel 2
+      :parallel 1
       :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
-                   "--spec-type" "ngram-mod"
-                   "--spec-ngram-size-n" "24"
-                   "--draft-min" "48"
-                   "--draft-max" "64"
                    "--batch-size" "8192"
                    "--ubatch-size" "2048"
                    "--no-mmap"
@@ -966,14 +969,10 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-9B-GGUF"
-      :parallel 2
+      :parallel 1
       :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
-                   "--spec-type" "ngram-mod"
-                   "--spec-ngram-size-n" "24"
-                   "--draft-min" "48"
-                   "--draft-max" "64"
                    "--batch-size" "8192"
                    "--ubatch-size" "2048"
                    "--no-mmap"
@@ -1033,10 +1032,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
-                   "--spec-type" "ngram-mod"
-                   "--spec-ngram-size-n" "24"
-                   "--draft-min" "48"
-                   "--draft-max" "64"
                    "--batch-size" "8192"
                    "--ubatch-size" "2048"
                    "--no-mmap"
@@ -1096,10 +1091,6 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
-                   "--spec-type" "ngram-mod"
-                   "--spec-ngram-size-n" "24"
-                   "--draft-min" "48"
-                   "--draft-max" "64"
                    "--batch-size" "8192"
                    "--ubatch-size" "2048"
                    "--no-mmap"
@@ -1651,14 +1642,16 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :model-name 'claude-opus-4-6
       :name 'claude-opus-4-6-thinking-32000
       :provider 'vibe-proxy
-      :fallbacks '(hera/Qwen3.5-27B)
+      ;; :fallbacks '(hera/Qwen3.5-27B)
+      :fallbacks '(hera/gpt-oss-120b)
       :cache-control t)
 
      (make-hf-instance
       :model-name 'claude-opus-4-6
       :name 'claude-opus-4-6
       :provider 'vibe-proxy
-      :fallbacks '(hera/Qwen3.5-27B-Instruct)
+      ;; :fallbacks '(hera/Qwen3.5-27B-Instruct)
+      :fallbacks '(hera/gpt-oss-120b)
       :cache-control t)
 
      (make-hf-instance
@@ -2018,6 +2011,11 @@ Optionally generate for the given HOSTNAME."
          (parallel (hf-instance-parallel instance))
          (cache-type-k (hf-instance-cache-type-k instance))
          (cache-type-v (hf-instance-cache-type-v instance))
+         (kv-offload (hf-instance-kv-offload instance))
+         (cache-prompt (hf-instance-cache-prompt instance))
+         (cache-reuse (hf-instance-cache-reuse instance))
+         (slot-save-path (hf-instance-slot-save-path instance))
+         (slot-prompt-similarity (hf-instance-slot-prompt-similarity instance))
          (temperature (hf-model-temperature model))
          (min-p (hf-model-min-p model))
          (top-p (hf-model-top-p model))
@@ -2049,6 +2047,24 @@ Optionally generate for the given HOSTNAME."
             (and cache-type-v
                  (not (eq engine 'vllm-mlx))
                  (list "--cache-type-v" (symbol-name cache-type-v)))
+            (and (not kv-offload)
+                 (eq engine 'llama-cpp)
+                 (list "--no-kv-offload"))
+            (and (not cache-prompt)
+                 (eq engine 'llama-cpp)
+                 (list "--no-cache-prompt"))
+            (and cache-reuse
+                 (eq engine 'llama-cpp)
+                 (list "--cache-reuse"
+                       (number-to-string cache-reuse)))
+            (and slot-save-path
+                 (eq engine 'llama-cpp)
+                 (list "--slot-save-path"
+                       (expand-file-name slot-save-path)))
+            (and slot-prompt-similarity
+                 (eq engine 'llama-cpp)
+                 (list "--slot-prompt-similarity"
+                       (number-to-string slot-prompt-similarity)))
             (and-let* ((draft-model (hf-instance-draft-model instance))
                        (expanded (expand-file-name draft-model)))
               (and (file-exists-p expanded)
