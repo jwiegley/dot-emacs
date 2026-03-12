@@ -4,6 +4,7 @@
 
 ;; Model management utility for GGUF, MLX, LMStudio, and Ollama models.
 ;; Handles downloading, importing, configuration, and serving of AI models.
+;; Supports llama-cpp, mlx-lm, and vllm-mlx serving engines.
 
 ;;; Code:
 
@@ -52,7 +53,7 @@
   :type 'string
   :group 'hf)
 
-(defcustom hf-default-instance-name 'gpt-oss-120b
+(defcustom hf-default-instance-name 'Qwen3.5-27B
   "Name of default instance."
   :type 'symbol
   :group 'hf)
@@ -70,6 +71,11 @@
 
 (defcustom hf-mlx-lm-executable "mlx-lm"
   "Path to the mlx-lm executable."
+  :type 'file
+  :group 'hf)
+
+(defcustom hf-vllm-mlx-executable "vllm-mlx"
+  "Path to the vllm-mlx executable."
   :type 'file
   :group 'hf)
 
@@ -102,7 +108,7 @@ groups:
       - Qwen3.5-2B
       - Qwen3.5-0.8B
       - Qwen3.5-35B-A3B
-      - Qwen3.5-122B-A10B
+      - Qwen3.5-397B-A17B
       - bge-m3
 
   # Only one of these can be loaded at a time
@@ -114,7 +120,6 @@ groups:
       - Llama-4-Maverick-17B-128E-Instruct
       - Llama-4-Scout-17B-16E-Instruct
       - Phi-4-reasoning-plus
-      - Qwen3.5-397B-A17B
       - mlx-community/Qwen3.5-397B-A17B-nvfp4
       - mlx-community/MiniMax-M2.5-4bit
       - mlx-community/gpt-oss-120b-MXFP4-Q8
@@ -285,6 +290,7 @@ credential_list:
 (defcustom hf-litellm-epilog-spec "
 litellm_settings:
   request_timeout: 7200
+  streaming_request_timeout: 300
   ssl_verify: false
   drop_params: true
   # set_verbose: True
@@ -306,6 +312,7 @@ router_settings:%s
   routing_strategy: \"least-busy\"
   num_retries: 3
   request_timeout: 7200
+  streaming_request_timeout: 300
   max_parallel_requests: 100
   allowed_fails: 3
   cooldown_time: 30
@@ -365,7 +372,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
     openrouter))
 
 (defconst hf-all-model-engines
-  '(llama-cpp koboldcpp mlx-lm))
+  '(llama-cpp koboldcpp mlx-lm vllm-mlx))
 
 ;;; Models have several names:
 ;;
@@ -725,7 +732,11 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--ubatch-size" "2048"
                    "--no-mmap"
                    "--mmproj" "/Users/johnw/Models/unsloth_Qwen3.5-397B-A17B-GGUF/mmproj-F16.gguf")
-      :cache-control t)))
+      :cache-control t)
+
+     (make-hf-instance
+      :name 'mlx-community/Qwen3.5-397B-A17B-4bit
+      :engine 'vllm-mlx)))
 
    (make-hf-model
     :name 'Qwen3.5-397B-A17B-1M
@@ -802,7 +813,11 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "--mmproj"
                    "/Users/johnw/Models/unsloth_Qwen3.5-122B-A10B-GGUF/mmproj-F16.gguf")
       :fallbacks '(clio/Qwen3.5-35B-A3B)
-      :cache-control t)))
+      :cache-control t)
+
+     (make-hf-instance
+      :name 'mlx-community/Qwen3.5-122B-A10B-4bit
+      :engine 'vllm-mlx)))
 
    (make-hf-model
     :name 'Qwen3.5-35B-A3B
@@ -832,7 +847,11 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "/Users/johnw/Models/unsloth_Qwen3.5-35B-A3B-GGUF/mmproj-F16.gguf")
       :fallbacks '(clio/Qwen3.5-35B-A3B)
       :hostnames '("hera" "clio")
-      :cache-control t)))
+      :cache-control t)
+
+     (make-hf-instance
+      :name 'mlx-community/Qwen3.5-35B-A3B-4bit
+      :engine 'vllm-mlx)))
 
    (make-hf-model
     :name 'Qwen3.5-27B
@@ -848,6 +867,7 @@ Contains a %s placeholder for dynamically generated router fallbacks."
      (make-hf-instance
       :max-output-tokens 131072
       :model-path "~/Models/unsloth_Qwen3.5-27B-GGUF"
+      :parallel 2
       :cache-type-k 'q8_0
       :arguments '("--swa-full"
                    ;; "--kv-unified"
@@ -862,7 +882,11 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "/Users/johnw/Models/unsloth_Qwen3.5-27B-GGUF/mmproj-F16.gguf")
       :fallbacks '(clio/Qwen3.5-27B)
       :hostnames '("hera" "clio")
-      :cache-control t)))
+      :cache-control t)
+
+     (make-hf-instance
+      :name 'mlx-community/Qwen3.5-27B-4bit
+      :engine 'vllm-mlx)))
 
    (make-hf-model
     :name 'Qwen3.5-27B-Instruct
@@ -922,6 +946,40 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "/Users/johnw/Models/unsloth_Qwen3.5-9B-GGUF/mmproj-F16.gguf")
       :fallbacks '(clio/Qwen3.5-9B)
       :hostnames '("hera" "clio")
+      :cache-control t)
+
+     (make-hf-instance
+      :name 'mlx-community/Qwen3.5-9B-4bit
+      :engine 'vllm-mlx)))
+
+   (make-hf-model
+    :name 'Qwen3.5-9B-Instruct
+    :context-length 262144
+    :temperature 0.6
+    :min-p 0.0
+    :top-p 0.95
+    :top-k 20
+    :supports-function-calling t
+    :supports-reasoning t
+    :instances
+    (list
+     (make-hf-instance
+      :max-output-tokens 131072
+      :model-path "~/Models/unsloth_Qwen3.5-9B-GGUF"
+      :parallel 2
+      :cache-type-k 'q8_0
+      :arguments '("--swa-full"
+                   ;; "--kv-unified"
+                   "--spec-type" "ngram-mod"
+                   "--spec-ngram-size-n" "24"
+                   "--draft-min" "48"
+                   "--draft-max" "64"
+                   "--batch-size" "8192"
+                   "--ubatch-size" "2048"
+                   "--no-mmap"
+                   "--chat-template-kwargs" "'{\"enable_thinking\":false}'")
+      :fallbacks '(clio/Qwen3.5-9B-Instruct)
+      :hostnames '("hera" "clio")
       :cache-control t)))
 
    (make-hf-model
@@ -952,7 +1010,11 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "/Users/johnw/Models/unsloth_Qwen3.5-4B-GGUF/mmproj-F16.gguf")
       :fallbacks '(clio/Qwen3.5-4B)
       :hostnames '("hera" "clio")
-      :cache-control t)))
+      :cache-control t)
+
+     (make-hf-instance
+      :name 'mlx-community/Qwen3.5-4B-4bit
+      :engine 'vllm-mlx)))
 
    (make-hf-model
     :name 'Qwen3.5-4B-Instruct
@@ -1011,7 +1073,11 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "/Users/johnw/Models/unsloth_Qwen3.5-2B-GGUF/mmproj-F16.gguf")
       :fallbacks '(clio/Qwen3.5-2B)
       :hostnames '("hera" "clio")
-      :cache-control t)))
+      :cache-control t)
+
+     (make-hf-instance
+      :name 'mlx-community/Qwen3.5-2B-4bit
+      :engine 'vllm-mlx)))
 
    (make-hf-model
     :name 'Qwen3.5-2B-Instruct
@@ -1070,7 +1136,11 @@ Contains a %s placeholder for dynamically generated router fallbacks."
                    "/Users/johnw/Models/unsloth_Qwen3.5-0.8B-GGUF/mmproj-F16.gguf")
       :fallbacks '(clio/Qwen3.5-0.8B)
       :hostnames '("hera" "clio")
-      :cache-control t)))
+      :cache-control t)
+
+     (make-hf-instance
+      :name 'mlx-community/Qwen3.5-0.8B-4bit
+      :engine 'vllm-mlx)))
 
    (make-hf-model
     :name 'gpt-oss-20b-MXFP4-Q8
@@ -1214,6 +1284,19 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :hostnames '("hera" "clio")
       :cache-control t)
      ))
+
+   (make-hf-model
+    :name 'NVIDIA-Nemotron-3-Super-120B-A12B
+    :context-length 1048576
+    :temperature 1.0
+    :min-p 0.0
+    :top-p 1.0
+    :supports-function-calling t
+    :instances
+    (list
+     (make-hf-instance
+      :model-path "~/Models/unsloth_NVIDIA-Nemotron-3-Super-120B-A12B-GGUF"
+      :cache-control t)))
 
    (make-hf-model
     :name 'gemma-2-9b
@@ -1568,12 +1651,14 @@ Contains a %s placeholder for dynamically generated router fallbacks."
       :model-name 'claude-opus-4-6
       :name 'claude-opus-4-6-thinking-32000
       :provider 'vibe-proxy
+      :fallbacks '(hera/Qwen3.5-27B)
       :cache-control t)
 
      (make-hf-instance
       :model-name 'claude-opus-4-6
       :name 'claude-opus-4-6
       :provider 'vibe-proxy
+      :fallbacks '(hera/Qwen3.5-27B-Instruct)
       :cache-control t)
 
      (make-hf-instance
@@ -1927,7 +2012,8 @@ Optionally read the path on the given HOSTNAME."
 (defun hf-insert-instance-llama-swap (model instance &optional hostname)
   "Instance the llama-swap.yaml config for MODEL and INSTANCE.
 Optionally generate for the given HOSTNAME."
-  (let* ((max-output-tokens (hf-get-instance-max-output-tokens model instance))
+  (let* ((engine (hf-instance-engine instance))
+         (max-output-tokens (hf-get-instance-max-output-tokens model instance))
          (context-length (hf-get-instance-context-length model instance))
          (parallel (hf-instance-parallel instance))
          (cache-type-k (hf-instance-cache-type-k instance))
@@ -1942,35 +2028,49 @@ Optionally generate for the given HOSTNAME."
            (append
             (hf-instance-arguments instance)
             (and temperature
-                 (list "--temp" (number-to-string temperature)))
+                 (cl-case engine
+                   (vllm-mlx (list "--default-temperature"
+                                   (number-to-string temperature)))
+                   (t (list "--temp" (number-to-string temperature)))))
             (and min-p
+                 (not (eq engine 'vllm-mlx))
                  (list "--min-p" (number-to-string min-p)))
             (and top-p
-                 (list "--top-p" (number-to-string top-p)))
+                 (cl-case engine
+                   (vllm-mlx (list "--default-top-p"
+                                   (number-to-string top-p)))
+                   (t (list "--top-p" (number-to-string top-p)))))
             (and top-k
+                 (not (eq engine 'vllm-mlx))
                  (list "--top-k" (number-to-string top-k)))
             (and cache-type-k
+                 (not (eq engine 'vllm-mlx))
                  (list "--cache-type-k" (symbol-name cache-type-k)))
             (and cache-type-v
+                 (not (eq engine 'vllm-mlx))
                  (list "--cache-type-v" (symbol-name cache-type-v)))
             (and-let* ((draft-model (hf-instance-draft-model instance))
                        (expanded (expand-file-name draft-model)))
               (and (file-exists-p expanded)
-                   (cl-case (hf-instance-engine instance)
+                   (cl-case engine
                      (llama-cpp (list "--model-draft" expanded))
                      (mlx-lm (list "--draft-model" expanded)))))
             (and context-length
-                 (cl-case (hf-instance-engine instance)
-                   ;; mlx-lm does not specify the context size, but grows the
-                   ;; context dynamically based on usage.
+                 (cl-case engine
+                   ;; mlx-lm and vllm-mlx do not specify the context size,
+                   ;; but grow the context dynamically based on usage.
                    (llama-cpp (list "--ctx-size"
                                     (number-to-string
                                      (* context-length parallel))))))
             (and max-output-tokens
-                 (list (cl-case (hf-instance-engine instance)
+                 (list (cl-case engine
                          (llama-cpp "--predict")
-                         (mlx-lm "--max-tokens"))
-                       (number-to-string max-output-tokens))))
+                         ((mlx-lm vllm-mlx) "--max-tokens"))
+                       (number-to-string max-output-tokens)))
+            (and (eq engine 'vllm-mlx)
+                 (> parallel 1)
+                 (list "--max-num-seqs" (number-to-string parallel)
+                       "--continuous-batching")))
            " "))
          (leader (format "
   \"%s\":
@@ -1979,7 +2079,7 @@ Optionally generate for the given HOSTNAME."
          (footer "
     checkEndpoint: /health
 "))
-    (cl-case (hf-instance-engine instance)
+    (cl-case engine
       (llama-cpp
        (when-let* ((path (hf-get-instance-gguf-path instance hostname))
                    (exe (let ((default-directory (hf-remote-path "~/" hostname)))
@@ -2012,6 +2112,20 @@ Optionally generate for the given HOSTNAME."
         --host 127.0.0.1 --port ${PORT}
         --use-default-chat-template
         --model %p %a"
+           `((?e . ,exe)
+             (?p . ,(hf-get-instance-name model instance))
+             (?a . ,args)))
+          footer)))
+      (vllm-mlx
+       (when-let* ((exe (let ((default-directory (hf-remote-path "~/" hostname)))
+                          (executable-find hf-vllm-mlx-executable
+                                           (hf-remote-hostname-p hostname)))))
+         (insert
+          leader
+          (format-spec
+           "
+      %e serve %p
+        --host 127.0.0.1 --port ${PORT} %a"
            `((?e . ,exe)
              (?p . ,(hf-get-instance-name model instance))
              (?a . ,args)))
@@ -2308,6 +2422,20 @@ If HOSTNAME is non-nil, only generate definitions for that host."
                "--port" (format "%d" port))))
     (set-process-query-on-exit-flag proc nil)
     (message "Started mlx-lm with model %s on port %d" model port)))
+
+(cl-defun hf-run-vllm-mlx (model &key (port 8081))
+  "Start vllm-mlx with a specific MODEL on the given PORT."
+  (interactive
+   (list (read-string "Model: ")
+         :port (read-number "Port: " 8081)))
+  (let ((proc (start-process
+               "vllm-mlx"
+               "*vllm-mlx*"
+               "vllm-mlx"
+               "serve" model
+               "--port" (format "%d" port))))
+    (set-process-query-on-exit-flag proc nil)
+    (message "Started vllm-mlx with model %s on port %d" model port)))
 
 (cl-defun hf-run-llama-cpp (model &key (port 8081))
   "Start llama.cpp with a specific MODEL on the given PORT."
