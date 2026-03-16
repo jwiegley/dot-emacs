@@ -160,3 +160,6 @@
 [submodule "lisp/magit-ai"]
 	path = lisp/magit-ai
 	url = https://github.com/jwiegley/magit-ai.git
+[submodule "lisp/llm-setup"]
+	path = lisp/llm-setup
+	url = https://github.com/jwiegley/llm-setup
