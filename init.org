@@ -619,17 +619,18 @@ _v_ariable       _u_ser-option
   :functions (major-mode-hydra-define))
 #+end_src
 
-** hf
+** llm-setup
 
 #+begin_src emacs-lisp
-(use-package hf
-  :defines (hf-default-instance-name)
-  :functions (hf-gptel-backends)
-  :commands (hf-build-yaml
-             hf-status
-             hf-unload
-             hf-installed-models
-             hf-check-instances))
+(use-package llm-setup
+  :load-path "lisp/llm-setup"
+  :defines (llm-setup-default-instance-name)
+  :functions (llm-setup-gptel-backends)
+  :commands (llm-setup-build-yaml
+             llm-setup-status
+             llm-setup-unload
+             llm-setup-installed-models
+             llm-setup-check-instances))
 #+end_src
 
 * Packages
@@ -723,7 +724,7 @@ It reindents after every change, making it more reliable than
   :custom
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
-     "--model" ,(format "openai/%s" hf-default-instance-name)
+     "--model" ,(format "openai/%s" llm-setup-default-instance-name)
      "--openai-api-base" "http://litellm.vulcan.lan/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
@@ -10525,7 +10526,7 @@ is:
     (set (make-local-variable 'gnus-agent-queue-mail)
          (if (quickping smtpmail-smtp-server) t 'always)))
   :config
-  (require 'smtpmail-async)
+  ;; (require 'smtpmail-async)
 
   (advice-add 'gnus-summary-resend-message-edit
               :after 'my-message-header-setup-hook)))
@@ -11189,7 +11190,7 @@ This is returned as a string."
                "WAIT(w@)" "DEFER(r!)"
                "TASK(g@)" "HABIT(h)" "APPT(a)"
                "|" "DONE(d@)" "CANCELED(x@)" "PASS(p!)")
-     (sequence "|" "SCRAP" "NOTE(n)" "LINK(l)")))
+     (sequence "|" "SCRAP" "NOTE(n)" "QUOTE(q)" "LINK(l)")))
   (org-todo-keyword-faces
    `(
      ("DRAFT"    :foreground "grey80"                 :weight bold)
@@ -11206,6 +11207,7 @@ This is returned as a string."
      ("HABIT"    :foreground ,palette-orange          :weight bold)
      ("LINK"     :foreground ,palette-orange-dark     :weight bold)
      ("NOTE"     :foreground ,palette-red-dark        :weight bold)
+     ("QUOTE"    :foreground ,palette-purple-dark     :weight bold)
      ))
   (org-tag-faces
    `(("Call"     :foreground "grey50")
@@ -12906,7 +12908,7 @@ stamp to a task, which can be used to schedule a review of the task.
     (interactive)
     (let ((todo-state (ignore-errors (org-get-todo-state))))
       (cond ((or (null todo-state)
-                 (member todo-state '("SCRAP" "NOTE" "LINK")))
+                 (member todo-state '("SCRAP" "NOTE" "QUOTE" "LINK")))
              (my/org-remove-review t))
             ((member todo-state '("DONE" "CANCELED" "PASS")))
             ((or todo-state

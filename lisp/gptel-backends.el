@@ -34,7 +34,7 @@
 (require 'gptel-openai)
 (require 'gptel-openai-extras)
 ;; (require 'gptel-anthropic)
-(require 'hf)
+(require 'llm-setup)
 
 (defconst gptel-curl--common-args
   '("--location"
@@ -55,7 +55,7 @@
     :protocol "https"
     :endpoint "/v1/chat/completions"
     :key gptel-api-key
-    :models (hf-gptel-backends)
+    :models (llm-setup-gptel-backends)
     :header
     (lambda () (when-let* ((key (gptel--get-api-key)))
             `(("x-api-key"         . ,key)
@@ -71,7 +71,7 @@
   (gptel-make-openai "llama-swap"
     :host "127.0.0.1:8080"
     :protocol "http"
-    :models (hf-gptel-backends
+    :models (llm-setup-gptel-backends
              (cond ((string-match-p "clio" (system-name)) "clio")
                    ((string-match-p "hera" (system-name)) "hera")))))
 

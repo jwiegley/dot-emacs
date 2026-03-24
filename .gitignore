@@ -16,3 +16,4 @@
 /.cache/
 /lisp/fastmail-sieve-rules-complete.el
 /gptel-agent/
+/elisp-autofmt-cache/

@@ -31,7 +31,7 @@
 (require 'solar)
 (require 'gptel)
 (require 'gptel-anthropic)
-(require 'hf)
+(require 'llm-setup)
 
 ;;; MODELS ===============================================================
 
@@ -144,10 +144,10 @@
 
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
-  ;; :backend "LiteLLM"
-  :backend "vibe-proxy"
-  ;; :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
-  :model (intern (format "%s-thinking-32000" claude-opus-model))
+  :backend "LiteLLM"
+  ;; :backend "vibe-proxy"
+  :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
+  ;; :model (intern (format "%s-thinking-32000" claude-opus-model))
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet-max
