@@ -313,10 +313,11 @@
   :tools nil
   :parents (or
             'opus-max
+            'qwen-27b-instruct
+            'qwen-27b
             'qwen-27b-local
             'qwen-4b-local
             'opus-max-remote
-            'qwen-27b
             'sonnet-max
             'glm-4.7-flash
             'gpt-oss

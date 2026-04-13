@@ -6698,6 +6698,30 @@ A collection of paredit-like functions for editing in =html-mode=.
   (add-to-list 'tramp-remote-path
                (expand-file-name "bin" (getenv "PROFILE_DIR")))
 
+  (defun my-vulcan-file-handler (op &rest args)
+    (let ((actual (replace-regexp-in-string
+                   "^/vulcan:" "/ssh:vulcan|sudo:root@vulcan:" (car args))))
+      (apply op (cons actual (cdr args)))))
+
+  (add-to-list 'file-name-handler-alist
+               '("\\`/vulcan:" . my-vulcan-file-handler))
+
+  (defun my-andoria-file-handler (op &rest args)
+    (let ((actual (replace-regexp-in-string
+                   "^/pos:" "/ssh:andoria-08:" (car args))))
+      (apply op (cons actual (cdr args)))))
+
+  (add-to-list 'file-name-handler-alist
+               '("\\`/pos:" . my-andoria-file-handler))
+
+  (defun my-vps-file-handler (op &rest args)
+    (let ((actual (replace-regexp-in-string
+                   "^/vps:" "/ssh:vps:" (car args))))
+      (apply op (cons actual (cdr args)))))
+
+  (add-to-list 'file-name-handler-alist
+               '("\\`/vps:" . my-vps-file-handler))
+
   ;; Without this change, tramp ends up sending hundreds of shell commands to
   ;; the remote side to ask what the temporary directory is.
   (put 'temporary-file-directory 'standard-value '("/tmp"))
@@ -9968,6 +9992,8 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
      ("list/ledger/devel"
       (to-list . "ledger-cli@googlegroups.com"))
+     ("list/bahai/council"
+      (to-list . "council.members@rbcca.org"))
      ("list/bahai/tarjuman"
       (to-list . "tarjuman@bahai-library.com")
       (list-identifier . "\\[tj\\]"))
@@ -11542,6 +11568,33 @@ This is returned as a string."
   (add-hook 'org-mode-hook 'org-ql-ext-completion-hook))
 #+end_src
 
+**** org-ql-semantic
+
+This code will perform a cosine-similarity vector search against a set of
+embeddings of my Org-mode entries in PostgreSQL using pgvector. This relies on
+the =org db store= functionality in my =org-jw= Haskell project, and depends to a
+rather high degree on following the precise structural conventions I use for
+my Org-mode data.
+
+#+begin_src emacs-lisp
+(use-package org-ql-semantic
+  :after (org)
+  :commands (org-ql-semantic-search)
+  :bind
+  (("M-g S" . org-ql-semantic-search))
+  :custom
+  ;; (org-ql-semantic-org-executable
+  ;;  "~/src/org-jw/dist-newstyle/build/aarch64-osx/ghc-9.10.3/org-jw-0.0.1/x/org/build/org/org")
+  (org-ql-semantic-config-file "~/org/org.yaml")
+  (org-ql-semantic-base-url "http://localhost:8080")
+  (org-ql-semantic-model "bge-m3")
+  (org-ql-semantic-api-key "unused")
+  (org-ql-semantic-default-limit 2000)
+  (org-ql-semantic-dimensions 1024)
+  (org-ql-semantic-max-distance 0.35)
+  (org-ql-semantic-db-url "postgresql://johnw@postgres.vulcan.lan:5432/org"))
+#+end_src
+
 *** org-ext
 
 #+begin_src emacs-lisp
@@ -12397,7 +12450,12 @@ displays the priority part of a heading as your preferred string value.
   :bind (:map
          org-mode-map
          ("C-c C-x #"   . org-hash-update-or-confirm)
-         ("C-c C-x C-#" . org-hash-update-or-confirm-all)))
+         ("C-c C-x C-#" . org-hash-update-or-confirm-all))
+  :diminish org-hash-mode
+  :hook (org-mode . org-hash-mode)
+  :custom
+  (org-hash-recursive nil)
+  (org-hash-update-on-save 'git))
 #+end_src
 
 **** hash-store
