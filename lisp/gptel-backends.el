@@ -57,14 +57,14 @@
     :key gptel-api-key
     :models (llm-setup-gptel-backends)
     :header
-    (lambda () (when-let* ((key (gptel--get-api-key)))
-            `(("x-api-key"         . ,key)
-              ("x-litellm-timeout" . "7200")
-              ("x-litellm-tags"    . "gptel")
-              ("anthropic-version" . "2023-06-01")
-              ("anthropic-beta"    . "pdfs-2024-09-25")
-              ("anthropic-beta"    . "output-128k-2025-02-19")
-              ("anthropic-beta"    . "prompt-caching-2024-07-31"))))))
+    (lambda (_) (when-let* ((key (gptel--get-api-key)))
+             `(("x-api-key"         . ,key)
+               ("x-litellm-timeout" . "7200")
+               ("x-litellm-tags"    . "gptel")
+               ("anthropic-version" . "2023-06-01")
+               ("anthropic-beta"    . "pdfs-2024-09-25")
+               ("anthropic-beta"    . "output-128k-2025-02-19")
+               ("anthropic-beta"    . "prompt-caching-2024-07-31"))))))
 
 (defun gptel-backends-llama-swap ()
   "Make GPTel backends for models hosted on Clio."

@@ -57,39 +57,6 @@
   ;; :model 'mlx-community/gpt-oss-20b-MXFP4-Q8
   :temperature 1.0)
 
-(gptel-make-preset 'gpt-oss-mlx
-  :description "OpenAI's ChatGPT, Open Source (MLX via llama-swap)"
-  :backend "LiteLLM"
-  :model 'hera/gpt-oss-20b
-  :temperature 1.0)
-
-(gptel-make-preset 'glm-4.7-flash
-  :description "GLM 4.7 Flash"
-  :backend "LiteLLM"
-  :model 'hera/GLM-4.7-Flash
-  :temperature 0.7)
-
-(gptel-make-preset 'minimax-m2
-  :description "MiniMax-M2"
-  :backend "LiteLLM"
-  :model 'hera/MiniMax-M2
-  :temperature 1.0
-  :prompt-transform-functions
-  `(:append
-    (list
-     ,(lambda (fsm)   ;Remove non-delimited <think>...</think> block for minimax-m2
-        (let* ((info (gptel-fsm-info fsm))
-               (callback
-                (or (plist-get info :callback) 'gptel--insert-response)))
-          (plist-put info :callback
-                     (lambda (resp info)
-                       (when (stringp resp)
-                         ;; Remove everything up to and including </think>
-                         (when-let* ((idx (string-search "</think>" resp)))
-                           ;; 8 = length of "</think>"
-                           (setq resp (substring resp (+ idx 8)))))
-                       (funcall callback resp info))))))))
-
 ;;; Anthropic
 
 (gptel-make-anthropic "Claude"          ;Any name you want
@@ -204,7 +171,7 @@
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
   :backend "LiteLLM"
-  :model 'hera/Qwen3.5-397B-A17B)
+  :model 'hera/omlx/Qwen3.5-397B-A17B-unsloth-mlx-4bit)
 
 (gptel-make-preset 'qwen-27b
   :description "Ali Baba's Qwen, thinking"
@@ -311,23 +278,7 @@
   :include-reasoning nil
   :use-context nil
   :tools nil
-  :parents (or
-            'opus-max
-            'qwen-27b-instruct
-            'qwen-27b
-            'qwen-27b-local
-            'qwen-4b-local
-            'opus-max-remote
-            'sonnet-max
-            'glm-4.7-flash
-            'gpt-oss
-            'sonnet
-            'gpt-oss-local
-            'haiku
-            'haiku-max
-            'haiku-direct
-            'gpt
-            ))
+  :parents 'qwen-27b-instruct)
 
 (gptel-make-preset 'visible-buffers
   :description "Include the full text of all buffers visible in the frame."
