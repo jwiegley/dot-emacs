@@ -4749,7 +4749,15 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   ;;                   magit-insert-tags-header
   ;;                   ))
   ;;     (remove-hook 'magit-status-headers-hook func)))
-  )
+
+  (with-eval-after-load 'magit-process
+    (add-hook 'magit-process-mode-hook
+              (lambda ()
+                (add-hook 'after-change-functions
+                          (lambda (beg end _len)
+                            (let ((inhibit-read-only t))
+                              (ansi-color-apply-on-region beg end)))
+                          nil t)))))
 #+end_src
 
 *** COMMENT magit-lfs
@@ -8823,6 +8831,13 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 (use-package redshank
   :diminish
   :hook ((lisp-mode emacs-lisp-mode) . redshank-mode))
+#+end_src
+
+**** relint
+
+#+begin_src emacs-lisp
+(use-package relint
+  :commands (relint-current-buffer))
 #+end_src
 
 **** slime
@@ -13195,8 +13210,8 @@ stamp to a task, which can be used to schedule a review of the task.
   (setq org-roam-v2-ack t)
   :config
   ;; (org-roam-db-autosync-mode)
-  ;; (unless alternate-emacs
-  ;;   (run-with-idle-timer 300 t 'org-roam-db-sync))
+  (unless alternate-emacs
+    (run-with-idle-timer 300 t 'org-roam-db-sync))
 
   (cl-defun org-roam-node-insert-section (&key source-node point properties)
     (magit-insert-section
