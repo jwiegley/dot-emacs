@@ -11596,7 +11596,7 @@ my Org-mode data.
   :after (org)
   :commands (org-ql-semantic-search)
   :bind
-  (("M-g S" . org-ql-semantic-search))
+  ("M-s s" . org-ql-semantic-search)
   :custom
   ;; (org-ql-semantic-org-executable
   ;;  "~/src/org-jw/dist-newstyle/build/aarch64-osx/ghc-9.10.3/org-jw-0.0.1/x/org/build/org/org")
@@ -11607,7 +11607,10 @@ my Org-mode data.
   (org-ql-semantic-default-limit 2000)
   (org-ql-semantic-dimensions 1024)
   (org-ql-semantic-max-distance 0.35)
-  (org-ql-semantic-db-url "postgresql://johnw@postgres.vulcan.lan:5432/org"))
+  :config
+  (setq org-ql-semantic-db-url
+        (format "postgresql://johnw:%s@postgres.vulcan.lan:5432/org"
+                (lookup-password "postgres.vulcan.lan" "johnw" 5432))))
 #+end_src
 
 *** org-ext
@@ -13365,6 +13368,7 @@ utilities around note taking.
   (:map
    my-ctrl-c-n-map
    ("J" . org-roam-dailies-capture-today)
+   ("n" . org-roam-dailies-goto-today)
    ("d" . org-roam-dailies-map)         ; this is a keymap
    :map
    org-roam-dailies-map
@@ -13397,7 +13401,6 @@ utilities around note taking.
    ("S" . org-roam-ext-import-fireflies)
    ("I" . org-roam-ext-node-insert-immediate)
    ("T" . org-roam-ext-revise-title)
-   ("n" . org-roam-ext-create-new)
    ("W" . org-roam-ext-prepare-note))
   :hook
   (before-save . org-roam-ext-sort-file-properties)

@@ -171,7 +171,7 @@
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
   :backend "LiteLLM"
-  :model 'hera/omlx/Qwen3.5-397B-A17B-unsloth-mlx-4bit)
+  :model 'hera/Qwen3.5-27B)
 
 (gptel-make-preset 'qwen-27b
   :description "Ali Baba's Qwen, thinking"

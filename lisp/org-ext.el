@@ -167,8 +167,12 @@ first line of text or the content summary."
 
 (defadvice org-agenda (around fit-windows-for-agenda activate)
   "Fit the Org Agenda to its buffer and import any pending Drafts and Recordings."
-  (let ((draft-notes (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil))
-        (recording-notes (directory-files "~/Recordings" t ".*\\.txt\\'" nil)))
+  (let ((draft-notes
+         (and (file-directory-p "~/Drafts")
+              (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil)))
+        (recording-notes
+         (and (file-directory-p "~/Recordings")
+              (directory-files "~/Recordings" t ".*\\.txt\\'" nil))))
     (when (or draft-notes recording-notes)
       (org-ext-goto-inbox
        (lambda ()

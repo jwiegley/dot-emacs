@@ -976,15 +976,28 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ,(org-config-1-on-1-from-name "Dan Wright")
 
    ("wog" "Names beginning with G")
-   ,(org-config-1-on-1-from-name "Greg Davis")
-   )
+   ,(org-config-1-on-1-from-name "Greg Davis"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  org-roam-dailies-capture-templates
- '(("d" "default" entry "* %U %?"
-    :target (file+head "%<%Y-%m-%d>.org"
-                       "#+title: %<%Y-%m-%d>\n")))
+ '(("d" "default" entry "* NOTE %?"
+    :target (file+head
+             "%<%Y%m%d>-lab-notebook.org"
+             ":PROPERTIES:
+:CREATED:  %U
+:END:
+#+date: %u
+#+category: Journal
+#+filetags: :journal:
+#+title: Lab Notebook\n")
+    :immediate-finish t
+    :after-finalize (lambda ()
+                      (org-capture-goto-last-stored)
+                      (end-of-line)
+                      (insert ? ))
+    :unnarrowed t
+    :no-save t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1193,8 +1206,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
       '(org-config-agenda-skip-entry-if
         (<= (length (replace-regexp-in-string "\\[\\[.+?\\]\\[\\(.+?\\)\\]\\]"
                                               "\\1" (org-get-heading t)))
-            72)))))
-   ))
+            72)))))))
 
 (defun org-config-find (query &optional arg)
   "Search org agenda files for entries matching QUERY.

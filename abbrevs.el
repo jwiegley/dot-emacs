@@ -16,6 +16,7 @@
     ("Iqan" "Kitáb-i-Íqán")
     ("Ridvan" "Riḍván")
     ("Huquq" "Ḥuqúqu’lláh")
+    ("RBC" "Regional Bahá’í Council")
     ("LSA" "Local Spiritual Assembly")
     ("NSA" "National Spiritual Assembly")
     ("UHJ" "Universal House of Justice")))

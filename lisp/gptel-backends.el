@@ -75,13 +75,23 @@
              (cond ((string-match-p "clio" (system-name)) "clio")
                    ((string-match-p "hera" (system-name)) "hera")))))
 
+(defun gptel-backends-omlx ()
+  "Make GPTel backends for models hosted on Clio."
+  (gptel-make-openai "omlx"
+    :host "127.0.0.1:8000"
+    :protocol "http"
+    :endpoint "/v1/chat/completions"
+    :models '(Huihui-Qwen3.5-27B-Claude-4.6-Opus-abliterated-6bit
+              Qwen3.5-27B-Claude-4.6-Opus-Distilled-MLX-6bit )
+    :key "dummy-key"))
+
 (defun gptel-backends-vibe-proxy ()
   "Make GPTel backends for models hosted on Clio."
   (gptel-make-openai "vibe-proxy"
     :host "127.0.0.1:8317"
     :protocol "http"
-    :models '(claude-opus-4-6
-              claude-opus-4-6-thinking-32000
+    :models '(claude-opus-4-7
+              claude-opus-4-7-thinking-32000
               claude-sonnet-4-6
               claude-sonnet-4-6-thinking-32000)))
 

@@ -112,12 +112,12 @@ of storing the key directly in this variable."
                  (string :tag "API key"))
   :group 'org-ql-semantic)
 
-(defcustom org-ql-semantic-dimensions nil
-  "Number of dimensions for the embedding vectors.
-When non-nil, passed as --dimensions to `org db search'."
-  :type '(choice (const :tag "Use tool default" nil)
-                 (integer :tag "Dimensions"))
-  :group 'org-ql-semantic)
+;; (defcustom org-ql-semantic-dimensions nil
+;;   "Number of dimensions for the embedding vectors.
+;; When non-nil, passed as --dimensions to `org db search'."
+;;   :type '(choice (const :tag "Use tool default" nil)
+;;                  (integer :tag "Dimensions"))
+;;   :group 'org-ql-semantic)
 
 (defcustom org-ql-semantic-files-directory nil
   "Base directory for resolving relative file paths from the database.
@@ -193,9 +193,9 @@ Note: --db-url is a `db' subcommand option and must precede `search'."
       (setq db-args (append db-args (list "--db-url" org-ql-semantic-db-url))))
     (when org-ql-semantic-api-key
       (setq search-args (append search-args (list "--api-key" org-ql-semantic-api-key))))
-    (when org-ql-semantic-dimensions
-      (setq search-args (append search-args (list "--dimensions"
-                                                   (number-to-string org-ql-semantic-dimensions)))))
+    ;; (when org-ql-semantic-dimensions
+    ;;   (setq search-args (append search-args (list "--dimensions"
+    ;;                                                (number-to-string org-ql-semantic-dimensions)))))
     (append global-args db-args search-args input-args)))
 
 (defun org-ql-semantic--run-search (query &optional limit)
