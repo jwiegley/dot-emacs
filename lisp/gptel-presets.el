@@ -63,7 +63,7 @@
   :stream t                             ;Streaming responses
   :key gptel-api-key)
 
-(defvar claude-opus-model 'claude-opus-4-6)
+(defvar claude-opus-model 'claude-opus-4-7)
 (defvar claude-sonnet-model 'claude-sonnet-4-6)
 (defvar claude-haiku-model 'claude-haiku-4-5-20251001)
 
@@ -111,10 +111,10 @@
 
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
-  :backend "LiteLLM"
-  ;; :backend "vibe-proxy"
-  :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
-  ;; :model (intern (format "%s-thinking-32000" claude-opus-model))
+  ;; :backend "LiteLLM"
+  :backend "vibe-proxy"
+  ;; :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
+  :model (intern (format "%s-thinking-32000" claude-opus-model))
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet-max
@@ -278,7 +278,10 @@
   :include-reasoning nil
   :use-context nil
   :tools nil
-  :parents 'qwen-27b-instruct)
+  :parents
+  'opus-max
+  ;; 'qwen-27b-instruct
+  )
 
 (gptel-make-preset 'visible-buffers
   :description "Include the full text of all buffers visible in the frame."
