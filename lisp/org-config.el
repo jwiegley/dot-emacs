@@ -981,7 +981,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  org-roam-dailies-capture-templates
- '(("d" "default" entry "* NOTE %?"
+ '(("d" "default" entry "* DRAFT %U\n%?"
     :target (file+head
              "%<%Y%m%d>-lab-notebook.org"
              ":PROPERTIES:
@@ -994,8 +994,8 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     :immediate-finish t
     :after-finalize (lambda ()
                       (org-capture-goto-last-stored)
-                      (end-of-line)
-                      (insert ? ))
+                      (goto-char (point-max))
+                      (unless (bolp) (insert ?\n)))
     :unnarrowed t
     :no-save t))
 
