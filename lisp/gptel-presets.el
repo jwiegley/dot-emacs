@@ -171,7 +171,10 @@
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
   :backend "LiteLLM"
-  :model 'hera/Qwen3.5-27B)
+  ;; :model 'hera/omlx/Qwen3.5-397B-A17B-unsloth-mlx-4bit
+  :model 'hera/omlx/Qwen3.6-35B-A3B-UD-MLX-4bit
+  ;; :model 'hera/Qwen3.5-27B
+  )
 
 (gptel-make-preset 'qwen-27b
   :description "Ali Baba's Qwen, thinking"
@@ -279,7 +282,8 @@
   :use-context nil
   :tools nil
   :parents
-  'opus-max
+  'qwen
+  ;; 'opus-max
   ;; 'qwen-27b-instruct
   )
 

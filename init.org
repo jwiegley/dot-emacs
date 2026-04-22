@@ -11490,6 +11490,7 @@ This is returned as a string."
      ;; work
      ("quantumtrades" face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("positron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
+     ("journal"       face (:background ,palette-cyan-darker    :foreground "#eeeeee"))
      ))
   (org-agenda-overlay-by-olp
    `(;; Headings in todo.org
@@ -13367,8 +13368,8 @@ utilities around note taking.
   :bind
   (:map
    my-ctrl-c-n-map
-   ("J" . org-roam-dailies-capture-today)
-   ("n" . org-roam-dailies-goto-today)
+   ("j" . org-roam-dailies-goto-today)
+   ("n" . org-roam-dailies-capture-today)
    ("d" . org-roam-dailies-map)         ; this is a keymap
    :map
    org-roam-dailies-map
