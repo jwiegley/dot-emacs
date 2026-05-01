@@ -95,14 +95,20 @@ Returns the pending token (a `pending' struct)."
   (gptel-with-preset 'shorten (gptel--suffix-rewrite)))
 
 (defun gptel-ext-breakdown ()
-  "Given an Org-mode task, break it down into other tasks."
+  "Given an Org-mode task, break it down into other tasks.
+Marks the end of the entry with a `pending' placeholder labeled
+\"Generating breakdown\"; when the response arrives, the placeholder is
+replaced with the breakdown text (with surrounding newlines added if
+needed so the inserted text starts and ends on its own line)."
   (interactive)
-  (gptel-ext-with-org-entry
-   'breakdown
-   (lambda (resp)
-     (unless (bolp) (insert ?\n))
-     (insert resp)
-     (unless (bolp) (insert ?\n)))))
+  (org-ext-with-entry-narrowed
+   (let* ((prompt (buffer-substring-no-properties (point-min) (point-max)))
+          (insert-pos (save-excursion
+                        (goto-char (point-max))
+                        (unless (bolp) (insert ?\n))
+                        (point))))
+     (gptel-ext-with-pending
+      'breakdown prompt "Generating breakdown" insert-pos))))
 
 (defun gptel-ext-proofread ()
   "Given selected text, proofread it."
@@ -139,9 +145,12 @@ visually separated from the existing heading text."
   "Send region to gptel using the infer-tasks preset and insert response.
 
 BEG and END define the region boundaries to send as the prompt.
-The response is inserted at point in the original buffer."
+Marks END with a `pending' placeholder labeled \"Inferring tasks\";
+when the response arrives, the placeholder is atomically replaced
+with the inferred task text."
   (interactive "r")
-  (gptel-ext-with-region 'infer-tasks beg end #'insert))
+  (let ((prompt (buffer-substring-no-properties beg end)))
+    (gptel-ext-with-pending 'infer-tasks prompt "Inferring tasks" end)))
 
 (gptel-make-tool
  :function (lambda (location unit)
