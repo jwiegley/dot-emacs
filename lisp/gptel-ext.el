@@ -31,6 +31,7 @@
 (require 'solar)
 (require 'gptel)
 (require 'org-ext)
+(require 'pending)
 
 (defun gptel-ext-with-region (preset beg end body-fn)
   "Send region BEG to END to gptel and process response with BODY-FN.
@@ -53,6 +54,40 @@ BODY-FN is a callback function receiving the response string, called
 with point at the original request position within the entry buffer."
   (org-ext-with-entry-narrowed
    (gptel-ext-with-region preset (point-min) (point-max) body-fn)))
+
+(defun gptel-ext-with-pending (preset prompt label insert-pos &optional buffer)
+  "Send PROMPT to gptel using PRESET; mark INSERT-POS in BUFFER with a
+`pending' placeholder labeled LABEL until the response arrives, then
+atomically replace the placeholder with the response.
+
+PRESET is a gptel preset symbol.  PROMPT is the prompt string.
+LABEL is a short string shown as the lighter badge (e.g. \"Generating
+title\").  INSERT-POS is a buffer position in BUFFER where the
+response will be inserted; BUFFER defaults to the current buffer.
+
+If the gptel request fails or is aborted, the placeholder is
+cancelled rather than finished, leaving no inserted text.
+
+Returns the pending token (a `pending' struct)."
+  (let* ((target-buffer (or buffer (current-buffer)))
+         (token (with-current-buffer target-buffer
+                  (pending-insert insert-pos label))))
+    (gptel-with-preset preset
+      (gptel-request prompt
+        :transforms gptel-prompt-transform-functions
+        :fsm (gptel-make-fsm :handlers gptel--rewrite-handlers)
+        :callback (lambda (resp info)
+                    (cond
+                     ((stringp resp)
+                      (pending-finish token resp))
+                     ((null resp)
+                      (pending-cancel token
+                                      (or (plist-get info :error)
+                                          :gptel-failed)))
+                     ;; Other non-string callback values (reasoning,
+                     ;; cons-cells from streaming, etc.) -- ignore.
+                     (t nil)))))
+    token))
 
 (defun gptel-ext-shorten ()
   "Given a selected set of Org-mode headings, shorten them."
@@ -80,19 +115,25 @@ with point at the original request position within the entry buffer."
   (gptel-with-preset 'docstring (gptel--suffix-rewrite)))
 
 (defun gptel-ext-title ()
-  "Generate and insert an AI-generated title for the current Org entry.
-Uses `gptel-ext-with-org-entry' to request a title suggestion, then
-inserts the response at the end of the current heading line."
+  "Generate an AI title for the current Org entry.
+Marks the end of the heading line with a `pending' placeholder
+labeled \"Generating title\"; when the gptel response arrives, the
+placeholder is atomically replaced with the title text.
+
+Adds a leading space before the placeholder if the heading line
+does not already end with whitespace, so the inserted title is
+visually separated from the existing heading text."
   (interactive)
-  (gptel-ext-with-org-entry
-   'title
-   (lambda (resp)
-     (forward-line -1)
-     (org-back-to-heading)
-     (goto-char (line-end-position))
-     (unless (looking-back " " (line-beginning-position))
-       (insert " "))
-     (insert resp))))
+  (org-ext-with-entry-narrowed
+   (let* ((prompt (buffer-substring-no-properties (point-min) (point-max)))
+          (insert-pos (save-excursion
+                        (goto-char (point-min))
+                        (org-back-to-heading)
+                        (goto-char (line-end-position))
+                        (unless (looking-back " " (line-beginning-position))
+                          (insert " "))
+                        (point))))
+     (gptel-ext-with-pending 'title prompt "Generating title" insert-pos))))
 
 (defun gptel-ext-infer-tasks (beg end)
   "Send region to gptel using the infer-tasks preset and insert response.
