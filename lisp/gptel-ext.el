@@ -381,11 +381,20 @@ This is followed by a standard magit (GNU style) changelog.
 Don't get the LLM to write the commit message itself, because it's bad
 at inferring my intent.
 
+While the AI summary is in flight, a `pending' lighter labeled
+\"Generating commit summary\" is shown at the top of the commit
+message buffer.  On success the lighter is atomically replaced with
+the AI summary text, then the magit changelog is appended below it.
+On failure the lighter is cancelled and a message reports the
+failure.
+
 Intended to be placed in `git-commit-setup-hook'."
   (unless (string-match-p "/org/" default-directory)
-    (gptel-with-preset 'commit-summary
-      (let ((commit-buffer (current-buffer))) ;commit message buffer
-
+    (let* ((commit-buffer (current-buffer)) ;commit message buffer
+           (token (with-current-buffer commit-buffer
+                    (pending-insert (point-min)
+                                    "Generating commit summary"))))
+      (gptel-with-preset 'commit-summary
         (with-temp-buffer
           (vc-git-command              ;insert diff
            (current-buffer) 1 nil
@@ -399,16 +408,38 @@ Intended to be placed in `git-commit-setup-hook'."
            "HEAD" "--")
 
           (gptel-request nil           ;Run request on diff buffer contents
-            :context commit-buffer
+            :context (cons commit-buffer token)
             :callback
             (lambda (resp info)
-              (if (not (stringp resp))
-                  (message "Git commit summary generation failed")
-                (with-current-buffer (plist-get info :context)
-                  (save-excursion
-                    (goto-char (point-min))
-                    (insert resp "\n\n")
-                    (magit-generate-changelog)))))))))))
+              (let* ((ctx (plist-get info :context))
+                     (cbuf (car ctx))
+                     (tok (cdr ctx)))
+                (cond
+                 ((stringp resp)
+                  (when (buffer-live-p cbuf)
+                    (with-current-buffer cbuf
+                      ;; Advance-type marker tracks the END of the
+                      ;; resp text once `pending-finish' inserts it
+                      ;; in place of the zero-width placeholder at
+                      ;; point-min.
+                      (let ((after (copy-marker (point-min) t)))
+                        (pending-finish tok resp)
+                        (save-excursion
+                          (goto-char after)
+                          (insert "\n\n")
+                          (magit-generate-changelog))
+                        (set-marker after nil)))))
+                 ((null resp)
+                  (let ((err (plist-get info :error)))
+                    (pending-cancel tok (or err :gptel-failed))
+                    (message "Generating commit summary failed: %s"
+                             (cond
+                              ((null err) "no response from gptel")
+                              ((stringp err) err)
+                              (t (format "%S" err))))))
+                 ;; Other non-string callback values (reasoning,
+                 ;; cons-cells from streaming, etc.) -- ignore.
+                 (t nil))))))))))
 
 (defun gptel-ext-commit-summary-install ()
   "Install `gptel-ext-commit-summary' into `git-commit-setup-hook'.
