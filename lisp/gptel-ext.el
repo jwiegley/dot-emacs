@@ -66,7 +66,8 @@ title\").  INSERT-POS is a buffer position in BUFFER where the
 response will be inserted; BUFFER defaults to the current buffer.
 
 If the gptel request fails or is aborted, the placeholder is
-cancelled rather than finished, leaving no inserted text.
+cancelled rather than finished (no text is inserted) and a `message'
+reports the failure with LABEL as the prefix.
 
 Returns the pending token (a `pending' struct)."
   (let* ((target-buffer (or buffer (current-buffer)))
@@ -81,9 +82,14 @@ Returns the pending token (a `pending' struct)."
                      ((stringp resp)
                       (pending-finish token resp))
                      ((null resp)
-                      (pending-cancel token
-                                      (or (plist-get info :error)
-                                          :gptel-failed)))
+                      (let ((err (plist-get info :error)))
+                        (pending-cancel token (or err :gptel-failed))
+                        (message "%s failed: %s"
+                                 label
+                                 (cond
+                                  ((null err) "no response from gptel")
+                                  ((stringp err) err)
+                                  (t (format "%S" err))))))
                      ;; Other non-string callback values (reasoning,
                      ;; cons-cells from streaming, etc.) -- ignore.
                      (t nil)))))
