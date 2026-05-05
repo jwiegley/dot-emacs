@@ -13,6 +13,7 @@ SUBDIRS = $(shell find $(DIRS) -maxdepth 2	\
 		       ! -name tests		\
 		       ! -name obsolete		\
 		       ! -name scripts		\
+		       ! -name tools		\
 		       -type d -print)
 
 MY_LOADPATH = -L . $(patsubst %,-L %, $(SUBDIRS))
