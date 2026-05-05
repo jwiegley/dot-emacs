@@ -285,6 +285,17 @@
 (use-package parse-csv :defer t)
 #+end_src
 
+** pending
+
+Mark buffer regions as pending an asynchronous result, with an
+animated lighter, then atomically replace the placeholder when the
+result arrives.  Used by =gptel-ext= for in-buffer LLM placeholders;
+available for any other module that wants the same UX.
+
+#+begin_src emacs-lisp
+(use-package pending :load-path "lisp/pending" :defer t)
+#+end_src
+
 ** llama
 
 #+begin_src emacs-lisp
@@ -3000,8 +3011,7 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package format-all
   :load-path "lisp/emacs-format-all-the-code"
-  :commands (format-all-buffer
-             format-all-mode)
+  :commands (format-all-buffer format-all-mode)
   :hook
   (prog-mode . enable-format-all-if-indicated)
   :preface
@@ -3017,7 +3027,27 @@ up before you execute another command."
       (cond ((atom choice)
              (cl-return choice))
             ((eql format-all--system-type (car choice))
-             (cl-return (cadr choice)))))))
+             (cl-return (cadr choice))))))
+
+  (define-format-all-formatter shfmt
+    (:executable "shfmt")
+    (:install
+     (macos "brew install shfmt")
+     (windows "scoop install shfmt"))
+    (:languages "Shell")
+    (:features)
+    (:format
+     (format-all--buffer-easy
+      executable
+      (append '("--indent" "4")
+              (if (buffer-file-name)
+                  (list "--filename" (buffer-file-name))
+                (list "-ln" (cl-case (and (eql major-mode 'sh-mode)
+                                          (boundp 'sh-shell)
+                                          (symbol-value 'sh-shell))
+                              (bash "bash")
+                              (mksh "mksh")
+                              (t "posix")))))))))
 #+end_src
 
 ** free-keys
@@ -4774,7 +4804,12 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   :after magit)
 #+end_src
 
-*** magit-todos
+*** COMMENT magit-todos
+
+Disabled because the global =magit-todos-mode= scans the worktree on
+every =magit-status= refresh, which dominated refresh latency on
+=~/srp= (~10s).  Re-enable on demand with =M-x magit-todos-list= once
+the package config below is restored.
 
 #+begin_src emacs-lisp
 (use-package magit-todos
@@ -4787,7 +4822,14 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   (magit-todos-mode 1))
 #+end_src
 
-*** forge
+*** COMMENT forge
+
+Disabled because Forge injects =forge-insert-pullreqs=,
+=forge-insert-issues=, and =forge-insert-assigned-pullreqs= into
+=magit-status-sections-hook=, and the =gitea@gitea:= remotes used
+locally don't fully resolve in the Forge adapter -- so every refresh
+paid a network/DNS cost.  Re-enable when working on a repo with a
+Forge-supported host (GitHub, GitLab, etc.).
 
 #+begin_src emacs-lisp
 (use-package forge
@@ -6722,6 +6764,14 @@ A collection of paredit-like functions for editing in =html-mode=.
   (add-to-list 'file-name-handler-alist
                '("\\`/pos:" . my-andoria-file-handler))
 
+  (defun my-git-ai-file-handler (op &rest args)
+    (let ((actual (replace-regexp-in-string
+                   "^/git-ai:" "/ssh:git-ai:" (car args))))
+      (apply op (cons actual (cdr args)))))
+
+  (add-to-list 'file-name-handler-alist
+               '("\\`/git-ai:" . my-git-ai-file-handler))
+
   (defun my-vps-file-handler (op &rest args)
     (let ((actual (replace-regexp-in-string
                    "^/vps:" "/ssh:vps:" (car args))))
@@ -8210,7 +8260,7 @@ locations. The =default-directory= variable is not changed in the process.
   (consult-gh-embark-mode +1))
 #+end_src
 
-***** consult-gh-forge
+***** COMMENT consult-gh-forge
 
 #+begin_src emacs-lisp
 (use-package consult-gh-forge
@@ -9171,7 +9221,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
 #+begin_src emacs-lisp
 (use-package ledger-mode
-  :load-path "~/src/ledger/lisp"
+  :load-path "lisp/ledger-mode"
   :mode "\\.ledger\\'"
   :commands ledger-mode
   :bind ("C-c L" . my-ledger-start-entry)
@@ -10802,11 +10852,10 @@ variables.  This is useful for a regi `begin' frame-entry."
   (gnus-alias-identity-alist
    '(("Gnu" "" "\"John Wiegley\" <johnw@gnu.org>" "" nil ""
       "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
-http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2
-
-Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
+http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      ("Positron" "" "\"John Wiegley\" <jwiegley@positron.ai>" "" nil "" "")
      ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
+     ("BIA" "" "\"John Wiegley\" <john@bia.bahai.org>" "" nil "" "")
      ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>"
       "New Artisans LLC" nil ""
       "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
@@ -11231,7 +11280,7 @@ This is returned as a string."
                "WAIT(w@)" "DEFER(r!)"
                "TASK(g@)" "HABIT(h)" "APPT(a)"
                "|" "DONE(d@)" "CANCELED(x@)" "PASS(p!)")
-     (sequence "|" "SCRAP" "NOTE(n)" "QUOTE(q)" "LINK(l)")))
+     (sequence "|" "SCRAP" "NOTE(n)" "QUOTE(q)" "PROMPT(P)" "LINK(l)")))
   (org-todo-keyword-faces
    `(
      ("DRAFT"    :foreground "grey80"                 :weight bold)
@@ -11249,6 +11298,7 @@ This is returned as a string."
      ("LINK"     :foreground ,palette-orange-dark     :weight bold)
      ("NOTE"     :foreground ,palette-red-dark        :weight bold)
      ("QUOTE"    :foreground ,palette-purple-dark     :weight bold)
+     ("PROMPT"   :foreground ,palette-purple-dark     :weight bold)
      ))
   (org-tag-faces
    `(("Call"     :foreground "grey50")
@@ -11264,9 +11314,7 @@ This is returned as a string."
   (org-use-sub-superscripts nil)
   (org-use-tag-inheritance
    '("Noon" "Day" "Eve" "Night" "Home" "Call" "Errand"
-     "assembly"
-     "council"
-     "positron"))
+     "assembly" "council" "bia" "positron" "git-ai"))
   (org-use-property-inheritance '("OVERLAY"))
   (org-yank-adjusted-subtrees t)
   :custom-face
@@ -11360,7 +11408,8 @@ This is returned as a string."
   (org-agenda-include-diary nil)
   (org-agenda-hide-tags-regexp
    (concat "\\`" (regexp-opt '("Noon" "Day" "Eve" "Night"
-                               "assembly" "council" "positron"))
+                               "assembly" "council" "bia"
+                               "positron" "git-ai"))
            "\\'"))
   (org-agenda-inhibit-startup t)
   (org-agenda-log-mode-items '(closed clock state))
@@ -11490,6 +11539,7 @@ This is returned as a string."
      ;; work
      ("quantumtrades" face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("positron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
+     ("git-ai"        face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("journal"       face (:background ,palette-cyan-darker    :foreground "#eeeeee"))
      ))
   (org-agenda-overlay-by-olp
@@ -11633,6 +11683,7 @@ my Org-mode data.
          ("C-c C-x O"     . org-ext-open-map-link)
          ("C-c C-x U"     . org-ext-set-url-from-clipboard)
          ("C-c C-x C-l"   . org-ext-set-stored-link)
+         ("C-c h"         . org-ext-insert-keyword-heading)
          ("C-c C-x m"     . org-ext-insert-message-link)
          ("C-c C-x s"     . org-ext-capture-link-to-entry)
          ("C-c C-x u"     . org-ext-todoize)
@@ -11815,10 +11866,22 @@ context.
 (use-package org-drafts
   :load-path "lisp/org-drafts"
   :after (org)
-  :bind* (("M-M" . (lambda () (interactive) (org-capture nil "d")))
-          ("H-m" . (lambda () (interactive) (org-capture nil "d"))))
+  ;; :bind* (("M-M" . (lambda () (interactive) (org-capture nil "d")))
+  ;;         ("H-m" . (lambda () (interactive) (org-capture nil "d"))))
+  :bind (:map
+         org-mode-map
+         ("C-c H" . org-drafts-act-on-region))
   :config
   (org-drafts-install))
+#+end_src
+
+***** org-drafts-ext
+
+#+begin_src emacs-lisp
+(use-package org-drafts-ext
+  :after (org-drafts gptel-ext)
+  :config
+  (org-drafts-ext-install))
 #+end_src
 
 *** org-checklist
@@ -12223,7 +12286,18 @@ A group FOO is composed of contacts with the tag FOO."
       (org-back-to-heading-or-point-min)
       (org-set-tags '("crypt"))))
   :config
-  (org-crypt-use-before-save-magic))
+  (org-crypt-use-before-save-magic)
+
+  ;; `org-encrypt-entries' uses `org-scan-tags', which walks the
+  ;; buffer with `org-element-cache-map'.  Encrypting an entry
+  ;; modifies the buffer, which invalidates the cache iterator and
+  ;; trips an "Invalid search bound (wrong side of point)" error in
+  ;; the cache.  Disable the element cache for the duration of the
+  ;; scan -- the cache will rebuild after the save completes.
+  (advice-add 'org-encrypt-entries :around
+              (lambda (orig-fn &rest args)
+                (let ((org-element-use-cache nil))
+                  (apply orig-fn args)))))
 #+end_src
 
 *** org-drill
@@ -12922,171 +12996,67 @@ stamp to a task, which can be used to schedule a review of the task.
 (use-package org-review
   :after org
   :demand t
+  :custom
+  (org-review-last-timestamp-format 'inactive)
+  (org-review-next-timestamp-format 'inactive))
+#+end_src
+
+**** org-review-ext
+
+#+begin_src emacs-lisp
+(use-package org-review-ext
+  :after (org-review)
+  :demand t
   :bind
   (:map
    my-ctrl-c-n-map
-   ("R" . my/org-reviewed-today)
-   ("r" . my/org-insert-last-and-set-next-review)
+   ("R" . org-review-ext-reviewed-today)
+   ("r" . org-review-ext-insert-last-and-set-next-review)
    :map
    org-agenda-mode-map
    :prefix-map
    my/org-review-map
    :prefix "r"
-   ("R" . my/org-reviewed-today)
-   ("r" . my/org-insert-last-and-set-next-review)
-   ("d" . review-next-day)
-   ("D" . review-next-three-days)
-   ("w" . review-next-week)
-   ("2" . review-next-two-days)
-   ("@" . review-next-two-weeks)
-   ("3" . review-next-three-days)
-   ("#" . review-next-three-weeks)
-   ("4" . review-next-four-days)
-   ("$" . review-next-four-weeks)
-   ("5" . review-next-five-days)
-   ("%" . review-next-five-weeks)
-   ("6" . review-next-six-days)
-   ("^" . review-next-six-weeks)
-   ("m" . review-next-month)
-   ("M" . review-next-two-months)
-   ("t" . review-next-two-months)
-   ("q" . review-next-quarter)
-   ("Q" . review-next-quarter)
-   ("h" . review-next-half-year)
-   ("y" . review-next-year)
-   ("Y" . review-next-two-years)
+   ("R" . org-review-ext-reviewed-today)
+   ("r" . org-review-ext-insert-last-and-set-next-review)
+   ("d" . org-review-ext-next-day)
+   ("D" . org-review-ext-next-three-days)
+   ("w" . org-review-ext-next-week)
+   ("2" . org-review-ext-next-two-days)
+   ("@" . org-review-ext-next-two-weeks)
+   ("3" . org-review-ext-next-three-days)
+   ("#" . org-review-ext-next-three-weeks)
+   ("4" . org-review-ext-next-four-days)
+   ("$" . org-review-ext-next-four-weeks)
+   ("5" . org-review-ext-next-five-days)
+   ("%" . org-review-ext-next-five-weeks)
+   ("6" . org-review-ext-next-six-days)
+   ("^" . org-review-ext-next-six-weeks)
+   ("m" . org-review-ext-next-month)
+   ("M" . org-review-ext-next-two-months)
+   ("t" . org-review-ext-next-two-months)
+   ("q" . org-review-ext-next-quarter)
+   ("Q" . org-review-ext-next-quarter)
+   ("h" . org-review-ext-next-half-year)
+   ("y" . org-review-ext-next-year)
+   ("Y" . org-review-ext-next-two-years)
    )
-  :custom
-  (org-review-last-timestamp-format 'inactive)
-  (org-review-next-timestamp-format 'inactive)
-  :preface
-  (defun my/org-review-increment-count (&rest _)
-    (interactive)
-    (let* ((where (if (equal major-mode 'org-agenda-mode)
-                      (or (org-get-at-bol 'org-marker)
-	                  (org-agenda-error))
-                    (point)))
-           (reviews (org-entry-get where "REVIEWS")))
-      (if reviews
-          (org-entry-put where "REVIEWS"
-                         (number-to-string
-                          (1+ (string-to-number reviews))))
-        (org-entry-put where "REVIEWS" "1"))))
-
-  (defun my/org-remove-review (&optional all)
-    (org-entry-delete (point) "NEXT_REVIEW")
-    (when all
-      (org-entry-delete (point) "REVIEWS")
-      (org-entry-delete (point) "LAST_REVIEW")
-      (org-schedule '(4))
-      (org-deadline '(4))))
-
-  (defun my/org-reviewed-today ()
-    (interactive)
-    (let ((todo-state (ignore-errors (org-get-todo-state))))
-      (cond ((or (null todo-state)
-                 (member todo-state '("SCRAP" "NOTE" "QUOTE" "LINK")))
-             (my/org-remove-review t))
-            ((member todo-state '("DONE" "CANCELED" "PASS")))
-            ((or todo-state
-                 (save-excursion
-                   (goto-char (point-min))
-                   (looking-at "^\\(DRAFT\\|TODO\\|TASK\\|HABIT\\|APPT\\) ")))
-             (save-excursion
-               (org-review-insert-last-review)
-               (org-review-insert-date
-                org-review-next-property-name
-	        org-review-next-timestamp-format
-	        (format-time-string (car org-time-stamp-formats)
-                                    (current-time))))))))
-
-  (defun my/org-insert-last-and-set-next-review ()
-    (interactive)
-    (org-review-insert-last-review)
-    (call-interactively #'org-review-insert-next-review))
-
-  (defun my/org-review-next (delay)
-    (let ((org-review-delay delay))
-      (org-review-insert-last-review nil)))
-
-  (defun review-next-day ()
-    (interactive)
-    (my/org-review-next "+1d")
-    (message "Next review in 1 day"))
-  (defun review-next-two-days ()
-    (interactive)
-    (my/org-review-next "+2d")
-    (message "Next review in 2 days"))
-  (defun review-next-three-days ()
-    (interactive)
-    (my/org-review-next "+3d")
-    (message "Next review in 3 days"))
-  (defun review-next-four-days ()
-    (interactive)
-    (my/org-review-next "+4d")
-    (message "Next review in 4 days"))
-  (defun review-next-five-days ()
-    (interactive)
-    (my/org-review-next "+5d")
-    (message "Next review in 5 days"))
-  (defun review-next-six-days ()
-    (interactive)
-    (my/org-review-next "+6d")
-    (message "Next review in 6 days"))
-  (defun review-next-week ()
-    (interactive)
-    (my/org-review-next "+1w")
-    (message "Next review in 1 week"))
-  (defun review-next-two-weeks ()
-    (interactive)
-    (my/org-review-next "+2w")
-    (message "Next review in 2 weeks"))
-  (defun review-next-three-weeks ()
-    (interactive)
-    (my/org-review-next "+3w")
-    (message "Next review in 3 weeks"))
-  (defun review-next-four-weeks ()
-    (interactive)
-    (my/org-review-next "+4w")
-    (message "Next review in 4 weeks"))
-  (defun review-next-five-weeks ()
-    (interactive)
-    (my/org-review-next "+5w")
-    (message "Next review in 5 weeks"))
-  (defun review-next-six-weeks ()
-    (interactive)
-    (my/org-review-next "+6w")
-    (message "Next review in 6 weeks"))
-  (defun review-next-month ()
-    (interactive)
-    (my/org-review-next "+1m")
-    (message "Next review in 1 month"))
-  (defun review-next-two-months ()
-    (interactive)
-    (my/org-review-next "+2m")
-    (message "Next review in 2 months"))
-  (defun review-next-quarter ()
-    (interactive)
-    (my/org-review-next "+3m")
-    (message "Next review in 3 months"))
-  (defun review-next-half-year ()
-    (interactive)
-    (my/org-review-next "+6m")
-    (message "Next review in 6 months"))
-  (defun review-next-year ()
-    (interactive)
-    (my/org-review-next "+1y")
-    (message "Next review in 1 year"))
-  (defun review-next-two-years ()
-    (interactive)
-    (my/org-review-next "+2y")
-    (message "Next review in 2 years"))
   :config
-  (add-hook 'org-capture-before-finalize-hook #'my/org-reviewed-today)
-  (add-hook 'org-after-todo-state-change-hook #'my/org-reviewed-today)
+  (add-hook 'org-capture-before-finalize-hook #'org-review-ext-reviewed-today)
+  (add-hook 'org-after-todo-state-change-hook #'org-review-ext-reviewed-today)
 
   (advice-add 'org-review-insert-last-review
-              :after #'my/org-review-increment-count))
+              :after #'org-review-ext-increment-count))
+#+end_src
+
+**** org-review-drafts
+
+#+begin_src emacs-lisp
+(use-package org-review-drafts
+  :no-require t
+  :after (org-drafts)
+  :hook
+  (org-drafts-after-state-change-function . org-review-ext-reviewed-today))
 #+end_src
 
 *** org-rich-yank
@@ -13365,6 +13335,8 @@ utilities around note taking.
 (use-package org-roam-dailies
   :after org-roam
   :demand t
+  :bind* (("M-M" . org-roam-dailies-capture-today)
+          ("H-m" . org-roam-dailies-capture-today))
   :bind
   (:map
    my-ctrl-c-n-map
@@ -13877,7 +13849,7 @@ middle-click to temporarily hide it.
   :after org)
 #+end_src
 
-**** orgit-forge
+**** COMMENT orgit-forge
 
 #+begin_src emacs-lisp
 (use-package orgit-forge
