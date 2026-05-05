@@ -505,7 +505,7 @@ is buffer-local and may be nil outside Org buffers."
         done)))
 
 (defun org-ql-semantic--active-entry-p (result)
-  "Return non-nil if RESULT is an open TODO, NOTE, or QUOTE entry.
+  "Return non-nil if RESULT is an open TODO, NOTE, QUOTE or PROMPT entry.
 Entries with no keyword are excluded.  Entries whose keyword is a
 done state (per `org-todo-keywords') are excluded.  All other
 keyword entries are kept."
@@ -524,8 +524,8 @@ keyword entries are kept."
 Runs `org db search' and displays the results directly in an
 `org-ql-view' buffer sorted by relevance.
 
-By default only shows entries with open TODO keywords, NOTE, or
-QUOTE.  With prefix argument ALL, shows all results."
+By default only shows entries with open TODO keywords, NOTE, QUOTE or
+PROMPT. With prefix argument ALL, shows all results."
   (interactive
    (list (read-string "Semantic search: ")
          current-prefix-arg))
