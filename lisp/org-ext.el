@@ -1596,6 +1596,51 @@ preserving the current position."
       (forward-line))
     (org-fill-paragraph)))
 
+(declare-function org-review-ext-reviewed-today "org-review-ext")
+
+(defun org-ext--fast-selection-keywords ()
+  "Return alist of (CHAR . KEYWORD) from `org-todo-keywords'.
+Only entries with an explicit fast-selection character are included."
+  (let (result)
+    (dolist (seq org-todo-keywords)
+      (dolist (kw (cdr seq))
+        (when (string-match "\\`\\([^([|]+\\)(\\([a-zA-Z]\\)" kw)
+          (push (cons (string-to-char (match-string 2 kw))
+                      (match-string 1 kw))
+                result))))
+    (nreverse result)))
+
+;;;###autoload
+(defun org-ext-insert-keyword-heading (char)
+  "Insert a new sibling heading prefixed by an Org TODO keyword.
+Prompt for CHAR using the fast-selection characters declared in
+`org-todo-keywords' (e.g. ?n for NOTE, ?q for QUOTE, ?t for TODO).
+The new heading is placed after the entire current subtree (matching
+`org-insert-heading-respect-content' semantics, which is what M-RET does
+in this configuration).  Default properties are added via
+`org-ext-set-basic-properties'; for TODO-like keywords (those still
+having a review state via `org-review-ext-reviewed-today'), a review
+date is also recorded.  Point is left after the keyword so the title
+can be typed immediately."
+  (interactive
+   (list (let ((alist (org-ext--fast-selection-keywords)))
+           (read-char-choice
+            (format "Insert heading [%s]: "
+                    (mapconcat (lambda (e) (format "%c=%s" (car e) (cdr e)))
+                               alist " "))
+            (mapcar #'car alist)))))
+  (let ((keyword (cdr (assq char (org-ext--fast-selection-keywords)))))
+    (unless keyword
+      (user-error "No TODO keyword has fast-selection character %c" char))
+    (org-back-to-heading t)
+    (org-insert-heading-respect-content)
+    (insert keyword " ")
+    (save-excursion
+      (org-back-to-heading t)
+      (org-ext-set-basic-properties)
+      (when (fboundp 'org-review-ext-reviewed-today)
+        (org-review-ext-reviewed-today)))))
+
 (provide 'org-ext)
 
 ;;; org-ext.el ends here
