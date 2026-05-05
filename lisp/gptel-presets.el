@@ -40,7 +40,7 @@
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
   :backend "LiteLLM"
-  :model 'openai/gpt-4.1
+  :model 'positron_openai/gpt-5.5
   :temperature 1.0)
 
 (gptel-make-preset 'gpt-oss
@@ -172,7 +172,7 @@
   :description "Ali Baba's Qwen, thinking"
   :backend "LiteLLM"
   ;; :model 'hera/omlx/Qwen3.5-397B-A17B-unsloth-mlx-4bit
-  :model 'hera/omlx/Qwen3.6-35B-A3B-UD-MLX-4bit
+  :model 'hera/omlx/Qwen3.6-27B-MLX-8bit
   ;; :model 'hera/Qwen3.5-27B
   )
 
@@ -282,9 +282,9 @@
   :use-context nil
   :tools nil
   :parents
-  'qwen
+  'gpt
+  ;; 'qwen
   ;; 'opus-max
-  ;; 'qwen-27b-instruct
   )
 
 (gptel-make-preset 'visible-buffers
