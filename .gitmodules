@@ -163,3 +163,9 @@
 [submodule "lisp/llm-setup"]
 	path = lisp/llm-setup
 	url = https://github.com/jwiegley/llm-setup
+[submodule "lisp/pending"]
+	path = lisp/pending
+	url = https://github.com/jwiegley/pending
+[submodule "lisp/ledger-mode"]
+	path = lisp/ledger-mode
+	url = https://github.com/ledger/ledger-mode
