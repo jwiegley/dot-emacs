@@ -37,7 +37,10 @@
         org-constants-todo-path
         (org-file "bahai/assembly/assembly.org")
         (org-file "bahai/council/council.org")
+        (org-file "bahai/bia/bia.org")
+        (org-file "bahai/c2g/c2g.org")
         (org-file "positron/positron.org")
+        (org-file "git-ai/git-ai.org")
         (org-file "quantum-trades/quantum-trades.org")))
 
 (defconst org-constants-protected-filenames-list
@@ -45,8 +48,11 @@
         (file-name-nondirectory org-constants-todo-path)
         "bahai/assembly/assembly.org"
         "bahai/council/council.org"
+        "bahai/bia/bia.org"
+        "bahai/c2g/c2g.org"
         "bahai/ruhi/ruhi-book9.org"
         "positron/positron.org"
+        "git-ai/git-ai.org"
         "quantum-trades/quantum-trades.org"
         (file-name-nondirectory org-constants-contacts-path)
         (file-name-nondirectory org-constants-journelly-path)
@@ -60,7 +66,10 @@
            '("archive.org"
              "assembly-archive.org"
              "council-archive.org"
+             "bia-archive.org"
+             "c2g-archive.org"
              "positron-archive.org"
+             "git-ai-archive.org"
              "GLSA.org"
              "badi-calendar.org"
              "bookmarks.org"

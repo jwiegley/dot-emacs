@@ -287,7 +287,7 @@ This can come from four possible sources:
     (save-excursion
       (goto-char (point-min))
       (vulpea-ensure-filetag)
-      (when (and (string-match-p "org/\\(meeting\\|bahai\\|positron\\)"
+      (when (and (string-match-p "org/\\(meeting\\|bahai\\|positron\\|git-ai\\)"
                                  (file-name-directory (buffer-file-name)))
                  (not (org-entry-get (point-min) "NOSLUG"))
                  (not (member
