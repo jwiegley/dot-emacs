@@ -1105,6 +1105,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
       ((org-ql-block-header "Tasks with unnecessary wording")))))
 
    ("gf" "Tasks for..." ,(org-config-call-only #'org-config-tasks-for-query))
+   ("gv" "With VERB"    ,(org-config-call-only #'org-ql-ext-verb-search))
 
    ("r" . "Review tasks\n")
 

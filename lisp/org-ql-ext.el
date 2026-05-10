@@ -67,6 +67,69 @@
   "Return non-nil if entry is a refile target."
   :body (org-ext-refile-heading-p))
 
+(defcustom org-ql-ext-verb-regexp
+  "\\`\\(?:([^)]+)[[:space:]]+\\)*\\([[:alpha:]]+\\):[[:space:]]"
+  "Regular expression matching headings whose title begins with a \"verb\".
+The first capture group must hold the verb itself.  The default matches
+zero or more `(Name)' prefixes followed by a single alphabetic word, a
+colon, and whitespace, e.g. `Review: Foo' or `(Nikhil) Read: Bar'."
+  :type 'regexp
+  :group 'org-ql)
+
+(defun org-ql-ext-heading-verb (&optional title)
+  "Return the verb at the start of an Org heading title, or nil.
+TITLE, if given, is matched directly; otherwise the title of the
+entry at point is used (as returned by `org-get-heading').  Any
+Org links in the title are first replaced with their description
+via `org-link-display-format' so titles like
+`[[id:abc][Review: Foo]]' are matched correctly.  The returned
+verb is normalized with `capitalize' for stable display."
+  (when-let* ((title (or title (org-get-heading t t t t)))
+              ((stringp title))
+              (text (org-link-display-format title))
+              ((string-match org-ql-ext-verb-regexp text)))
+    (capitalize (match-string 1 text))))
+
+(org-ql-defpred verb (&rest verbs)
+  "Match entries whose heading title begins with one of VERBS.
+A heading title \"begins with a verb\" when it matches
+`org-ql-ext-verb-regexp'.  Comparison is case-insensitive."
+  :body (when-let* ((found (org-ql-ext-heading-verb)))
+          (cl-loop for verb in verbs
+                   thereis (and (stringp verb)
+                                (string-equal-ignore-case verb found)))))
+
+(defvar org-ql-ext-verb-history nil
+  "Minibuffer history for `org-ql-ext-verb-search'.")
+
+(defun org-ql-ext-get-all-verbs (&optional files)
+  "Return a sorted list of unique verbs found in heading titles.
+FILES defaults to `org-agenda-files'.  Verbs are extracted by
+`org-ql-ext-heading-verb' and normalized to title case so that
+\"Review\" and \"review\" do not appear as separate completions."
+  (let ((verbs '()))
+    (org-ql-select (or files (org-agenda-files))
+      ;; Pre-filter to headings containing `WORD:' followed by space.
+      ;; This is a necessary (but not sufficient) condition for the
+      ;; full predicate, so we still re-check inside the action.
+      '(heading-regexp "[[:alpha:]]+:[[:space:]]")
+      :action (lambda ()
+                (when-let* ((verb (org-ql-ext-heading-verb)))
+                  (cl-pushnew verb verbs :test #'string=))))
+    (sort verbs #'string-lessp)))
+
+;;;###autoload
+(defun org-ql-ext-verb-search (verb)
+  "Search agenda files for entries whose heading title begins with VERB.
+Interactively, prompt for VERB with completion across the verbs
+currently in use across `org-agenda-files'."
+  (interactive
+   (list (completing-read "Verb: " (org-ql-ext-get-all-verbs)
+                          nil nil nil 'org-ql-ext-verb-history)))
+  (org-ql-search (org-agenda-files)
+    `(verb ,verb)
+    :title (format "Items with verb %S" verb)))
+
 (org-ql-defpred property-ts (property &key from to _on regexp _with-time args)
   "Match timestamps in property value."
   :normalizers ((`(,predicate-names ,property . ,rest)
