@@ -43,20 +43,6 @@
   :model 'positron_openai/gpt-5.5
   :temperature 1.0)
 
-(gptel-make-preset 'gpt-oss
-  :description "OpenAI's ChatGPT, Open Source"
-  :backend "LiteLLM"
-  ;; :model 'hera/gpt-oss-120b
-  :model 'hera/gpt-oss-120b
-  :temperature 1.0)
-
-(gptel-make-preset 'gpt-oss-local
-  :description "OpenAI's ChatGPT, Open Source (small)"
-  :backend "llama-swap"
-  :model 'gpt-oss-20b
-  ;; :model 'mlx-community/gpt-oss-20b-MXFP4-Q8
-  :temperature 1.0)
-
 ;;; Anthropic
 
 (gptel-make-anthropic "Claude"          ;Any name you want
@@ -85,30 +71,6 @@
   :model (intern (format "anthropic/%s" claude-haiku-model))
   :temperature 1.0)
 
-;; (gptel-make-preset 'opus-max
-;;   :description "Anthropic's Claude Opus, thinking"
-;;   :backend "Claude-Anthropic"
-;;   :model claude-opus-model
-;;   :temperature 1.0)
-
-;; (gptel-make-preset 'sonnet-max
-;;   :description "Anthropic's Claude Sonnet, thinking"
-;;   :backend "Claude-Anthropic"
-;;   :model claude-sonnet-model
-;;   :temperature 1.0)
-
-;; (gptel-make-preset 'haiku-max
-;;   :description "Anthropic's Claude Haiku"
-;;   :backend "Claude-Anthropic"
-;;   :model claude-haiku-model
-;;   :temperature 1.0)
-
-(gptel-make-preset 'opus-max-remote
-  :description "Anthropic's Claude Opus, thinking"
-  :backend "LiteLLM"
-  :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
-  :temperature 1.0)
-
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
   ;; :backend "LiteLLM"
@@ -123,30 +85,6 @@
   :backend "vibe-proxy"
   ;; :model (intern (format "hera/%s-thinking-32000" claude-sonnet-model))
   :model (intern (format "%s-thinking-32000" claude-sonnet-model))
-  :temperature 1.0)
-
-(gptel-make-preset 'haiku-max
-  :description "Anthropic's Claude Haiku"
-  :backend "LiteLLM"
-  :model (intern (format "hera/%s" claude-haiku-model))
-  :temperature 1.0)
-
-(gptel-make-preset 'opus-direct
-  :description "Anthropic's Claude Opus"
-  :backend "Claude"
-  :model claude-opus-model
-  :temperature 1.0)
-
-(gptel-make-preset 'sonnet-direct
-  :description "Anthropic's Claude Sonnet"
-  :backend "Claude"
-  :model claude-sonnet-model
-  :temperature 1.0)
-
-(gptel-make-preset 'haiku-direct
-  :description "Anthropic's Claude Haiku"
-  :backend "Claude"
-  :model claude-haiku-model
   :temperature 1.0)
 
 ;;; Perplexity
@@ -171,56 +109,12 @@
 (gptel-make-preset 'qwen
   :description "Ali Baba's Qwen, thinking"
   :backend "LiteLLM"
-  ;; :model 'hera/omlx/Qwen3.5-397B-A17B-unsloth-mlx-4bit
-  :model 'hera/omlx/Qwen3.6-27B-MLX-8bit
-  ;; :model 'hera/Qwen3.5-27B
-  )
+  :model 'hera/omlx/Qwen3.6-27B-MLX-8bit)
 
-(gptel-make-preset 'qwen-27b
+(gptel-make-preset 'qwen-clio
   :description "Ali Baba's Qwen, thinking"
-  :backend "LiteLLM"
-  :model 'hera/Qwen3.5-27B)
-
-(gptel-make-preset 'qwen-27b-local
-  :description "Ali Baba's Qwen, thinking"
-  :backend "llama-swap"
-  :model 'Qwen3.5-27B)
-
-(gptel-make-preset 'qwen-4b-local
-  :description "Ali Baba's Qwen, thinking"
-  :backend "llama-swap"
-  :model 'Qwen3.5-4B)
-
-(gptel-make-preset 'qwen-4b-instruct-local
-  :description "Ali Baba's Qwen"
-  :backend "llama-swap"
-  :model 'Qwen3.5-4B-Instruct)
-
-(gptel-make-preset 'qwen-27b-instruct
-  :description "Ali Baba's Qwen, non-thinking"
-  :backend "LiteLLM"
-  :model 'hera/Qwen3.5-27B-Instruct)
-
-(gptel-make-preset 'qwen-0.8b-local
-  :description "Ali Baba's Qwen, thinking"
-  :backend "llama-swap"
-  :model 'Qwen3.5-0.8B)
-
-;;; DeepSeek
-
-(gptel-make-preset 'deepseek
-  :description "DeepSeek V3.2"
-  :backend "LiteLLM"
-  :model 'hera/DeepSeek-V3.2
-  :temperature 0.6)
-
-;;; Other
-
-(gptel-make-preset 'kimi
-  :description "Kimi K2.5"
-  :backend "LiteLLM"
-  :model 'hera/Kimi-K2.5
-  :temperature 0.6)
+  :backend "oMLX"
+  :model 'Qwen3.6-35B-A3B-UD-MLX-4bit)
 
 ;;; ALIASES ==============================================================
 
