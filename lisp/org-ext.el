@@ -1535,6 +1535,27 @@ Shows categories with their usage counts in a temporary buffer."
                           nil nil nil 'org-ext-category-history)))
   (org-set-property "CATEGORY" category))
 
+(defun org-ext-agenda-set-category ()
+  "Set the CATEGORY property for the current agenda entry.
+Calls `org-ext-set-category' on the underlying Org entry, then
+refreshes the agenda since CATEGORY appears in the displayed line."
+  (interactive)
+  (org-agenda-check-no-diary)
+  (org-agenda-maybe-loop
+   #'org-ext-agenda-set-category nil nil nil
+   (let* ((hdmarker (or (org-get-at-bol 'org-hd-marker)
+                        (org-agenda-error)))
+          (buffer (marker-buffer hdmarker))
+          (pos (marker-position hdmarker))
+          (inhibit-read-only t))
+     (org-with-remote-undo buffer
+       (with-current-buffer buffer
+         (widen)
+         (goto-char pos)
+         (org-fold-show-context 'agenda)
+         (call-interactively #'org-ext-set-category)))
+     (org-agenda-redo))))
+
 (defun org-ext-set-id-and-created (&optional arg)
   (org-id-get-create arg)
   (unless (org-entry-get (point) "CREATED")

@@ -11696,6 +11696,7 @@ my Org-mode data.
          :map
          org-agenda-mode-map
          ("g" . org-ext-agenda-redo)
+         ("C" . org-ext-agenda-set-category)
          :map
          my-ctrl-c-n-map
          ("C" . org-ext-set-category))
