@@ -77,12 +77,11 @@
 
 (defun gptel-backends-omlx ()
   "Make GPTel backends for models hosted on Clio."
-  (gptel-make-openai "omlx"
+  (gptel-make-openai "oMLX"
     :host "127.0.0.1:8000"
     :protocol "http"
     :endpoint "/v1/chat/completions"
-    :models '(Huihui-Qwen3.5-27B-Claude-4.6-Opus-abliterated-6bit
-              Qwen3.5-27B-Claude-4.6-Opus-Distilled-MLX-6bit )
+    :models '(Qwen3.6-35B-A3B-UD-MLX-4bit)
     :key "dummy-key"))
 
 (defun gptel-backends-vibe-proxy ()
