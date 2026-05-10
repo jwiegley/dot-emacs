@@ -7195,6 +7195,12 @@ RET in the buffer you want to undo.
       (let ((require-final-newline t))
         (save-buffer))))
 
+  (defun my-whitespace-after-cleanup ()
+    (save-excursion
+      (goto-char (point-min))
+      (while (search-forward " " nil t)
+        (replace-match " "))))
+
   (defun maybe-turn-on-whitespace ()
     "depending on the file, maybe clean up whitespace."
     (when (and (not (or (memq major-mode '(markdown-mode))
@@ -7219,6 +7225,8 @@ RET in the buffer you want to undo.
   (add-hook 'find-file-hook #'maybe-turn-on-whitespace t)
 
   :config
+  (advice-add 'whitespace-cleanup :after #'my-whitespace-after-cleanup)
+
   (remove-hook 'find-file-hook 'whitespace-buffer)
   (remove-hook 'kill-buffer-hook 'whitespace-buffer))
 #+end_src
