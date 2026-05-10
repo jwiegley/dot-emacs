@@ -11870,6 +11870,7 @@ context.
 (use-package org-drafts
   :load-path "lisp/org-drafts"
   :after (org)
+  :demand t
   ;; :bind* (("M-M" . (lambda () (interactive) (org-capture nil "d")))
   ;;         ("H-m" . (lambda () (interactive) (org-capture nil "d"))))
   :bind (:map
