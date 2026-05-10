@@ -6745,6 +6745,9 @@ A collection of paredit-like functions for editing in =html-mode=.
   (tramp-verbose 2)
   (tramp-use-connection-share nil)
   :config
+  ;; Use the remote shell's own PATH (via ~/.profile) so executables
+  ;; installed in places like ~/.nix-profile/bin are discoverable.
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
   (add-to-list 'tramp-remote-path
                (expand-file-name "bin" (getenv "PROFILE_DIR")))
 
