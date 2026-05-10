@@ -128,7 +128,8 @@
 
 (gptel-make-preset 'default
   :description "Default setup"
-  :parents 'opus-max
+  ;; :parents 'opus-max
+  :parents 'rewrite
   :system 'default
   :confirm-tool-calls nil               ; 'auto
   :use-context 'user
