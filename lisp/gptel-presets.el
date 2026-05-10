@@ -176,7 +176,8 @@
   :use-context nil
   :tools nil
   :parents
-  'gpt
+  ;; 'gpt
+  '(qwen-clio nothink)
   ;; 'qwen
   ;; 'opus-max
   )
@@ -270,25 +271,38 @@
   :description "Search the Web using Perplexity.ai"
   ;; :parents '(here sonar)
   :parents 'sonar
-  :request-params '(:merge (:web_search_options (:search_context_size "medium"))))
+  :request-params '(:merge (:web_search_options
+                            (:search_context_size "medium"))))
 
 (gptel-make-preset 'deep
   :description "Search the Web (deeply) using Perplexity.ai"
   ;; :parents '(here sonar)
   :parents 'sonar
-  :request-params '(:merge (:web_search_options (:search_context_size "high"))))
-
-(gptel-make-preset 'think
-  :description "Search the Web (deeply) using Perplexity.ai"
-  ;; :parents '(here sonar-pro)
-  :parents 'sonar-pro
-  :request-params '(:merge (:web_search_options (:search_context_size "high"))))
+  :request-params '(:merge (:web_search_options
+                            (:search_context_size "high"))))
 
 (gptel-make-preset 'research
   :description "Perplexity.ai deep reasoning"
   ;; :parents '(here sonar-deep-research)
   :parents 'sonar-deep-research
-  :request-params '(:merge (:web_search_options (:search_context_size "high"))))
+  :request-params '(:merge (:web_search_options
+                            (:search_context_size "high"))))
+
+(gptel-make-preset 'think
+  :description "Enable reasoning/thinking"
+  :request-params '(:merge (:chat_template_kwargs
+                            (:enable_thinking
+                             t
+                             :preserve_thinking
+                             t))))
+
+(gptel-make-preset 'nothink
+  :description "Disable reasoning/thinking"
+  :request-params '(:merge (:chat_template_kwargs
+                            (:enable_thinking
+                             :json-false
+                             :preserve_thinking
+                             :json-false))))
 
 ;;; PROMPT-TRANSFORMS ====================================================
 
