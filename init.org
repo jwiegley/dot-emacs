@@ -3262,6 +3262,7 @@ up before you execute another command."
   :after (gptel)
   :config
   (gptel-backends-llama-swap)
+  (gptel-backends-omlx)
   (gptel-backends-vibe-proxy)
   (setq gptel-backend (gptel-backends-make-litellm)))
 #+end_src
