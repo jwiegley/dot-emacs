@@ -43,9 +43,6 @@
 [submodule "lisp/llm-tool-collection"]
 	path = lisp/llm-tool-collection
 	url = https://github.com/skissue/llm-tool-collection
-[submodule "lisp/emacs-asana"]
-	path = lisp/emacs-asana
-	url = https://github.com/jwiegley/emacs-asana
 [submodule "lisp/emacs-format-all-the-code"]
 	path = lisp/emacs-format-all-the-code
 	url = https://github.com/lassik/emacs-format-all-the-code
@@ -61,9 +58,6 @@
 [submodule "lisp/elisp-mcp-dev"]
 	path = lisp/elisp-mcp-dev
 	url = https://github.com/laurynas-biveinis/elisp-mcp-dev.git
-[submodule "lisp/DSel"]
-	path = lisp/DSel
-	url = https://github.com/cosmicz/DSel
 [submodule "lisp/emacs-copy-code"]
 	path = lisp/emacs-copy-code
 	url = https://github.com/jwiegley/emacs-copy-code
@@ -115,12 +109,6 @@
 [submodule "lisp/org-drafts"]
 	path = lisp/org-drafts
 	url = https://github.com/jwiegley/org-drafts
-[submodule "lisp/ragmacs"]
-	path = lisp/ragmacs
-	url = https://github.com/positron-solutions/ragmacs.git
-[submodule "lisp/macher"]
-	path = lisp/macher
-	url = https://github.com/kmontag/macher.git
 [submodule "lisp/claude-code-ide"]
 	path = lisp/claude-code-ide
 	url = https://github.com/manzaltu/claude-code-ide.el
@@ -130,15 +118,6 @@
 [submodule "lisp/wombag"]
 	path = lisp/wombag
 	url = https://github.com/karthink/wombag
-[submodule "lisp/acp"]
-	path = lisp/acp
-	url = https://github.com/xenodium/acp.el.git
-[submodule "lisp/agent-shell"]
-	path = lisp/agent-shell
-	url = https://github.com/xenodium/agent-shell.git
-[submodule "lisp/shell-maker"]
-	path = lisp/shell-maker
-	url = https://github.com/xenodium/shell-maker.git
 [submodule "lisp/gnus-harvest"]
 	path = lisp/gnus-harvest
 	url = https://github.com/jwiegley/gnus-harvest.git
@@ -154,9 +133,6 @@
 [submodule "lisp/org-table-loeb"]
 	path = lisp/org-table-loeb
 	url = https://github.com/jwiegley/org-table-loeb.git
-[submodule "lisp/gptel-agent"]
-	path = lisp/gptel-agent
-	url = https://github.com/jwiegley/gptel-agent.git
 [submodule "lisp/magit-ai"]
 	path = lisp/magit-ai
 	url = https://github.com/jwiegley/magit-ai.git
