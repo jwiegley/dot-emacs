@@ -11543,7 +11543,7 @@ This is returned as a string."
   (org-agenda-overlay-by-filetag
    `(("c2g"           face (:background ,palette-orange-darker  :foreground "#eeeeee"))
      ("bahai"         face (:background ,palette-green-darker   :foreground "#eeeeee"))
-     ("family"        face (:background ,palette-purple-darker  :foreground "#eeeeee"))
+     ("family"        face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ("finances"      face (:background ,palette-red-dark       :foreground "#eeeeee"))
      ("home"          face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ("assembly"      face (:background ,palette-teal-darker    :foreground "#eeeeee"))
@@ -11552,7 +11552,8 @@ This is returned as a string."
      ("quantumtrades" face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("positron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("git-ai"        face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
-     ("journal"       face (:background ,palette-cyan-darker    :foreground "#eeeeee"))
+     ;; drafts
+     ("journal"       face (:background ,palette-fuschia        :foreground "#ffffff"))
      ))
   (org-agenda-overlay-by-olp
    `(;; Headings in todo.org
@@ -11563,9 +11564,9 @@ This is returned as a string."
      (("Finances")    face (:background ,palette-red-dark       :foreground "#eeeeee"))
      ;; orange
      ;; yellow
-     (("Health")      face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      (("Auto")        face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      (("Home")        face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
+     (("Family")      face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      (("Nasim")       face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ;; green
      (("Bahá’í")      face (:background ,palette-green-darker   :foreground "#eeeeee"))
@@ -11575,11 +11576,20 @@ This is returned as a string."
      ;; blue
      (("Blog")        face (:background ,palette-blue-dark      :foreground "#eeeeee"))
      (("Personal")    face (:background ,palette-blue-dark      :foreground "#eeeeee"))
+     (("Health")      face (:background ,palette-blue-darker    :foreground "#eeeeee"))
      ;; indigo
      (("Computer")    face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
-     (("Open Source") face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ;; purple
-     (("Family")      face (:background ,palette-purple-darker  :foreground "#eeeeee")))))
+     (("Open Source") face (:background ,palette-purple-darker  :foreground "#eeeeee"))))
+  (org-agenda-overlay-by-category
+   `(;; Bahá’í categories
+     ("Council"   face (:background ,palette-green-darker   :foreground "#eeeeee"))
+     ;; Family categories
+     ("Nasim"     face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
+     ;; Work categories
+     ("Tron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
+     ("Ingest"    face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
+     ("Positron"  face (:background ,palette-fuschia-darker :foreground "#eeeeee")))))
 #+end_src
 
 **** org-super-agenda
