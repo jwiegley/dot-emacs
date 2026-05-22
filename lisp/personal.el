@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'mac-win)
+
 (defun my-set-custom-variable ()
   (interactive)
   (save-excursion
@@ -614,6 +616,17 @@ transform."
     (goto-char (point-min))
     (unless (eobp)
       (pop-to-buffer (current-buffer)))))
+
+(defun iTerm2-send-to-current-window (&optional arg)
+  "Send the string ARG to whichever window is presently foremost in iTerm2."
+  (interactive)
+  (do-applescript
+   (concat " tell application \"iTerm2\"\n"
+           "   tell the current session of current window\n"
+           "     write text \"" (or arg (car kill-ring)) "\" \n"
+           "   end tell\n"
+           " end tell\n"
+           " do shell script \"open -a iTerm\"\n")))
 
 (provide 'personal)
 

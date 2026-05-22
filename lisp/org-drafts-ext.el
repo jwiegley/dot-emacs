@@ -47,7 +47,12 @@ marker at the heading line.  The other arguments are unused."
       (ignore-errors (backward-kill-sexp)))
     (skip-chars-backward " \t")
     (delete-region (point) (line-end-position))
-    (gptel-ext-title)))
+    (gptel-ext-title)
+    (when current-prefix-arg
+      (iTerm2-send-to-current-window
+       (org-ext-with-entry-narrowed
+        (search-forward ":END:\n" nil t)
+        (buffer-substring-no-properties (point) (point-max)))))))
 
 ;;;###autoload
 (defun org-drafts-ext-install ()
