@@ -103,9 +103,6 @@
 [submodule "lisp/org-autolist"]
 	path = lisp/org-autolist
 	url = https://github.com/jwiegley/org-autolist.git
-[submodule "lisp/drafts"]
-	path = lisp/drafts
-	url = https://github.com/jwiegley/drafts
 [submodule "lisp/org-drafts"]
 	path = lisp/org-drafts
 	url = https://github.com/jwiegley/org-drafts
