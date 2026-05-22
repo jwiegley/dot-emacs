@@ -149,15 +149,28 @@ moves the audio file to ~/Audio/Recordings."
 
 (defun org-ext-reformat-recording ()
   "Convert Just Press Record content into org TODO format.
-If the content doesn't already have a heading, creates one from the
-first line of text or the content summary."
-  ;; If there's no DRAFT heading, create one
+If the buffer already starts with a `** DRAFT ' or `** TODO ' heading,
+do nothing (idempotent).
+
+Otherwise, if the trimmed buffer contents are a single non-empty line
+shorter than 67 characters, replace the buffer with a `** TODO <line>'
+heading and no body.
+
+In all other cases, prepend a `** DRAFT ' heading with an inactive
+timestamp (including HH:MM) at point-min, leaving the body intact."
   (goto-char (point-min))
-  (unless (looking-at "^\\*\\* DRAFT ")
-    (goto-char (point-min))
-    (insert "** DRAFT ")
-    (org-insert-time-stamp (current-time) t t)
-    (insert "\n")))
+  (unless (looking-at "^\\*\\* \\(DRAFT\\|TODO\\) ")
+    (let ((trimmed (string-trim (buffer-string))))
+      (if (and (> (length trimmed) 0)
+               (< (length trimmed) 67)
+               (not (string-match-p "\n" trimmed)))
+          (progn
+            (erase-buffer)
+            (insert "** TODO " trimmed "\n"))
+        (goto-char (point-min))
+        (insert "** DRAFT ")
+        (org-insert-time-stamp (current-time) t t)
+        (insert "\n")))))
 
 (defun org-ext-fit-agenda-window ()
   "Fit the window to the buffer size."
