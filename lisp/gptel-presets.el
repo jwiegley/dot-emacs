@@ -177,8 +177,8 @@
   :use-context nil
   :tools nil
   :parents
-  ;; 'gpt
-  '(qwen-clio nothink)
+  'gpt
+  ;; '(qwen-clio nothink)
   ;; 'qwen
   ;; 'opus-max
   )
