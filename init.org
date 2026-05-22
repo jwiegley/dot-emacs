@@ -217,12 +217,6 @@
 (use-package org-constants)
 #+end_src
 
-** acp
-
-#+begin_src emacs-lisp
-(use-package acp :load-path "lisp/acp" :defer t)
-#+end_src
-
 ** COMMENT aio
 
 #+begin_src emacs-lisp
@@ -324,12 +318,6 @@ available for any other module that wants the same UX.
 
 #+begin_src emacs-lisp
 (use-package plz :defer t)
-#+end_src
-
-** shell-maker
-
-#+begin_src emacs-lisp
-(use-package shell-maker :load-path "lisp/shell-maker" :defer t)
 #+end_src
 
 ** timeout
@@ -697,17 +685,6 @@ _v_ariable       _u_ser-option
      ("diag"   "∆")
      ("whl"    "⊳")
      ("whr"    "⊲"))))
-#+end_src
-
-** agent-shell
-
-#+begin_src emacs-lisp
-(use-package agent-shell
-  :load-path "lisp/agent-shell"
-  :commands (agent-shell-start-claude-code-agent)
-  :custom
-  (agent-shell-anthropic-key
-   (lambda () (lookup-password "api.anthropic.com" "johnw" 80))))
 #+end_src
 
 ** aggressive-indent
@@ -3389,15 +3366,6 @@ up before you execute another command."
          ("q" . gptel-quick)))
 #+end_src
 
-*** gptel-agent
-
-#+begin_src emacs-lisp
-(use-package gptel-agent
-  :load-path "lisp/gptel-agent"
-  :after (gptel)
-  :demand t)
-#+end_src
-
 *** COMMENT gptel-claude-oauth
 
 #+begin_src emacs-lisp
@@ -3573,66 +3541,6 @@ gptel’s partner, or the user’s.
               :around #'my-gptel-aibo-filter-response))
 #+end_src
 
-*** macher
-
-[[https://github.com/kmontag/macher][macher]] provides multi-file, project-aware LLM editing capabilities within
-Emacs. It allows you to send complex implementation requests and receive
-proposed changes as reviewable patches, which can include changes to multiple
-files. You can then apply the changes and/or send them back to the LLM for
-revision.
-
-The LLM receives contextual information about the current project and file, as
-well as tools to read additional project context and propose changes.
-
-macher is a lightweight Emacs-native take on the editing workflows of more
-full-featured tools like [[https://aider.chat/][Aider]] or [[https://plandex.ai/][Plandex]]. It works with any gptel backend
-that supports tool use.
-
-macher takes inspiration from gptel's flexibility and visibility. It aims for
-an unintrusive and easily-customizable UI — or you can simply add it to your
-existing workflow using gptel presets.
-
-*Typical workflow*
-
-1. *Navigate to a file* in your project and select a region of text describing
-   something you want to implement.
-2. *Send an implementation request* with =M-x macher-implement=.
-3. *Review the proposed patch* in the automatically-opened diff buffer.
-4. *Apply changes* using standard diff-mode commands (e.g. =C-c C-a= to apply
-   hunks).
-5. *Request revisions* if needed with =M-x macher-revise=.
-
-You can also use macher commands when editing files that aren't part of a
-project — see /[[https://github.com/kmontag/macher?tab=readme-ov-file#key-concepts][workspaces]]/.
-
-*Main commands*
-
-- =macher-implement= :: Send an implementation request based on selected text or
-  manual input.
-- =macher-revise= :: Send a revision request along with the contents of the
-  patch buffer.
-- =macher-discuss= :: Send a question about the current workspace.
-- =macher-abort= :: Cancel any running macher requests for the current
-  workspace.
-
-*Using gptel presets*
-
-After calling =(macher-install)=, you can use macher functionality in any gptel
-request:
-
-- =@macher= :: Full editing capabilities - workspace context + tools to read and
-  edit files
-- =@macher-ro= :: Read-only - workspace context + tools to read files only
-- =@macher-notools= :: Context only - workspace information without tools
-
-#+begin_src emacs-lisp
-(use-package macher
-  :load-path "lisp/macher"
-  :after (gptel)
-  :config
-  (macher-install))
-#+end_src
-
 *** gptel-fn-complete
 
 #+begin_src emacs-lisp
@@ -3650,7 +3558,9 @@ request:
   (mapcar (apply-partially #'apply #'gptel-make-tool)
           (llm-tool-collection-get-tag 'filesystem))
   (mapcar (apply-partially #'apply #'gptel-make-tool)
-          (llm-tool-collection-get-tag 'editing)))
+          (llm-tool-collection-get-tag 'editing))
+  (mapcar (apply-partially #'apply #'gptel-make-tool)
+          (llm-tool-collection-get-tag 'introspection)))
 #+end_src
 
 *** mcp
@@ -3782,51 +3692,6 @@ request:
 (use-package elisp-dev-mcp
   :after (mcp-server-lib)
   :load-path "lisp/elisp-mcp-dev")
-#+end_src
-
-*** ragmacs
-
-#+begin_src emacs-lisp
-(use-package ragmacs
-  :load-path "lisp/ragmacs"
-  :after (gptel claude-code-ide)
-  :demand t
-  :init
-  (gptel-make-preset 'introspect
-    :pre (lambda () (require 'ragmacs))
-    :system
-    "You are pair programming with the user in Emacs and on Emacs.
-
-Your job is to dive into Elisp code and understand the APIs and
-structure of elisp libraries and Emacs.  Use the provided tools to do
-so, but do not make duplicate tool calls for information already
-available in the chat.
-
-<tone>
-1. Be terse and to the point.  Speak directly.
-2. Explain your reasoning.
-3. Do NOT hedge or qualify.
-4. If you don't know, say you don't know.
-5. Do not offer unprompted advice or clarifications.
-6. Never apologize.
-7. Do NOT summarize your answers.
-</tone>
-
-<code_generation>
-When generating code:
-1. Always check that functions or variables you use in your code exist.
-2. Also check their calling convention and function-arity before you use them.
-3. Write code that can be tested by evaluation, and offer to evaluate
-code using the `elisp_eval` tool.
-</code_generation>
-
-<formatting>
-1. When referring to code symbols (variables, functions, tags etc) enclose them in markdown quotes.
-   Examples: `read_file`, `getResponse(url, callback)`
-   Example: `<details>...</details>`
-2. If you use LaTeX notation, enclose math in \( and \), or \[ and \] delimiters.
-</formatting>"
-    :tools '("introspection")))
 #+end_src
 
 *** claude-code-ide
@@ -5787,6 +5652,7 @@ append it to ENTRY."
    ("C-x R"   . rename-current-buffer-file)
    ("C-x M-q" . refill-paragraph)
    ("C-x d"   . delete-whitespace-rectangle)
+   ("C-x S"   . iTerm2-send-to-current-window)
    ("C-x t"   . toggle-truncate-lines)
    ("C-z"     . delete-other-windows)
    ("M-'"     . insert-pair)
@@ -9546,27 +9412,28 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
     (coq-symbol-face ((t (:inherit default-face))))
     :preface
     (eval-when-compile (defvar proof-assistant nil))
+
+    (defun my-coq-mode-hook-function ()
+      (set-input-method "Agda")
+      (holes-mode -1)
+      (abbrev-mode -1)
+      (font-lock-mode 1)
+
+      (bind-key "s-g" (lambda () (interactive) (insert "Γ")) 'coq-mode-map)
+      (bind-key "s-t" (lambda () (interactive) (insert "τ")) 'coq-mode-map)
+      (bind-key "s-r" (lambda () (interactive) (insert "ρ")) 'coq-mode-map)
+      (bind-key "s-k" (lambda () (interactive) (insert "κ")) 'coq-mode-map)
+
+      (set (make-local-variable 'fill-nobreak-predicate)
+           (lambda ()
+             (pcase (get-text-property (point) 'face)
+               ('font-lock-comment-face nil)
+               ((and (pred listp)
+                     x (guard (memq 'font-lock-comment-face x)))
+                nil)
+               (_ t)))))
     :config
-    (add-hook
-     'coq-mode-hook
-     (lambda ()
-       (set-input-method "Agda")
-       (holes-mode -1)
-       (abbrev-mode -1)
-
-       (bind-key "s-g" (lambda () (interactive) (insert "Γ")) 'coq-mode-map)
-       (bind-key "s-t" (lambda () (interactive) (insert "τ")) 'coq-mode-map)
-       (bind-key "s-r" (lambda () (interactive) (insert "ρ")) 'coq-mode-map)
-       (bind-key "s-k" (lambda () (interactive) (insert "κ")) 'coq-mode-map)
-
-       (set (make-local-variable 'fill-nobreak-predicate)
-            (lambda ()
-              (pcase (get-text-property (point) 'face)
-                ('font-lock-comment-face nil)
-                ((and (pred listp)
-                      x (guard (memq 'font-lock-comment-face x)))
-                 nil)
-                (_ t)))))))
+    (add-hook 'coq-mode-hook #'my-coq-mode-hook-function))
 
   (use-package pg-user
     :defer t
@@ -10210,6 +10077,13 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
           ;;         (nnimap-inbox "INBOX")
           ;;         (nnimap-server-port "imaps")
           ;;         (nnimap-stream ssl))
+          (nnimap "imap-bia.vulcan.lan"
+                  (nnimap-address "imap.vulcan.lan")
+                  (nnimap-user "bia")
+                  (nnimap-inbox "INBOX")
+                  (nnimap-expunge immediately)
+                  (nnimap-server-port "imaps")
+                  (nnimap-stream ssl))
           (nnimap "imap-assembly.vulcan.lan"
                   (nnimap-address "imap.vulcan.lan")
                   (nnimap-user "assembly")
@@ -10236,7 +10110,8 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (gnus-group-use-permanent-levels t)
   :preface
   (defvar gnus-group-name-map
-    '(("nnimap+imap-assembly.vulcan.lan:INBOX" . "mail/assembly"))
+    '(("nnimap+imap-assembly.vulcan.lan:INBOX" . "mail/assembly")
+      ("nnimap+imap-bia.vulcan.lan:INBOX" . "mail/bia"))
     "Alist mapping real group names to display names for the Group buffer.")
 
   (defun gnus-user-format-function-G (_arg)
@@ -11587,6 +11462,7 @@ This is returned as a string."
      ;; Family categories
      ("Nasim"     face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ;; Work categories
+     ("PROP"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("Tron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("Ingest"    face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("Positron"  face (:background ,palette-fuschia-darker :foreground "#eeeeee")))))
