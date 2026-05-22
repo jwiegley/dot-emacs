@@ -1565,6 +1565,14 @@ refreshes the agenda since CATEGORY appears in the displayed line."
 (defun org-ext-quickping (host)
   (= 0 (call-process "ping" nil nil nil "-c1" "-W5" "-q" host)))
 
+(defun org-ext-at-home-p ()
+  "Return non-nil if currently attached to the home LAN.
+Detection looks for a 192.168.1.* address on the bridge0 interface."
+  (with-temp-buffer
+    (call-process "ifconfig" nil t nil "bridge0" "inet")
+    (goto-char (point-min))
+    (search-forward "inet 192.168.1." nil t)))
+
 (defun org-ext-get-location ()
   "If possible, add location info. We know the location at home always."
   (if (and nil (org-ext-quickping "192.168.3.2"))
