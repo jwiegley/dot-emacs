@@ -1104,8 +1104,9 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
             (todo))
       ((org-ql-block-header "Tasks with unnecessary wording")))))
 
-   ("gf" "Tasks for..." ,(org-config-call-only #'org-config-tasks-for-query))
-   ("gv" "With VERB"    ,(org-config-call-only #'org-ql-ext-verb-search))
+   ("gf" "Tasks for..."    ,(org-config-call-only #'org-config-tasks-for-query))
+   ("gs" "Semantic search" ,(org-config-call-only #'org-ql-semantic-search))
+   ("gv" "With VERB"       ,(org-config-call-only #'org-ql-ext-verb-search))
 
    ("r" . "Review tasks\n")
 
