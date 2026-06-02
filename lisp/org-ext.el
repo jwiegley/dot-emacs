@@ -46,6 +46,8 @@
 
 (declare-function org-with-wide-buffer "org-macs")
 (declare-function org-smart-capture "org-smart-capture")
+(declare-function org-contacts-filter "org-contacts")
+(declare-function org-ql-ext-get-all-verbs "org-ql-ext")
 
 (defgroup org-ext nil
   "Extra functions for use with Org-mode."
@@ -221,7 +223,7 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
              ;; Now we're back in the inbox file buffer, add metadata
              (save-excursion
                (goto-char start-pos)
-               (when (re-search-forward "^\\*\\* DRAFT " nil t)
+               (when (re-search-forward "^\\*\\* \\(DRAFT\\|TODO\\) " nil t)
                  (beginning-of-line)
                  (run-hooks 'org-capture-before-finalize-hook))))
            ;; Move corresponding audio file to ~/Audio/Recordings
@@ -1548,26 +1550,182 @@ Shows categories with their usage counts in a temporary buffer."
                           nil nil nil 'org-ext-category-history)))
   (org-set-property "CATEGORY" category))
 
+;;; Setting heading attribution (contact) and verb
+;;
+;; Beyond the CATEGORY property, task headings in this configuration may
+;; carry a leading attribution and/or verb directly in their title:
+;;
+;;     TODO (Alexey) Read: Tron documentation
+;;          \______/ \__/  \_______________/
+;;          contact   verb        rest
+;;
+;; This is the grammar recognized by `org-ql-ext-verb-regexp'.  The
+;; helpers below decompose a title into those parts and reassemble it, so
+;; the attribution and verb can be set with completion (analogous to
+;; `org-ext-set-category').
+
+(defun org-ext--split-heading-title (title)
+  "Split heading TITLE into a list (CONTACTS VERB REST).
+CONTACTS is the list of attribution names taken from any leading
+`(Name)' groups.  VERB is the leading verb word, without its
+trailing colon, when the remaining text begins with `Word: ' (or
+`Word:' at end of title); otherwise nil.  REST is whatever title
+text remains.  This is the structural inverse of
+`org-ql-ext-verb-regexp'."
+  (let ((s (or title ""))
+        (contacts '())
+        (verb nil))
+    (while (string-match "\\`[[:space:]]*(\\([^)]+\\))[[:space:]]+" s)
+      (push (string-trim (match-string 1 s)) contacts)
+      (setq s (substring s (match-end 0))))
+    (when (string-match "\\`\\([[:alpha:]]+\\):\\(?:[[:space:]]+\\|\\'\\)" s)
+      (setq verb (match-string 1 s))
+      (setq s (substring s (match-end 0))))
+    (list (nreverse contacts) verb s)))
+
+(defun org-ext--join-heading-title (contacts verb rest)
+  "Reassemble CONTACTS, VERB and REST into a heading title string.
+The inverse of `org-ext--split-heading-title': CONTACTS is a list
+of attribution names rendered as `(Name)' prefixes, VERB (a string
+or nil) is rendered as `Verb:', and REST is the trailing text.
+Blank entries are dropped and surrounding whitespace normalized."
+  (let ((parts '()))
+    (dolist (name contacts)
+      (when (and (stringp name) (not (string-empty-p (string-trim name))))
+        (push (format "(%s)" (string-trim name)) parts)))
+    (when (and (stringp verb) (not (string-empty-p (string-trim verb))))
+      (push (format "%s:" (string-trim verb)) parts))
+    (setq parts (nreverse parts))
+    (string-trim
+     (concat (mapconcat #'identity parts " ")
+             (and parts " ")
+             (or rest "")))))
+
+(defun org-ext--set-heading-component (component value)
+  "Set COMPONENT of the current heading's title to VALUE.
+COMPONENT is the symbol `contact' or `verb'.  A nil or blank VALUE
+removes that component.  Setting a contact replaces any existing
+attribution; setting a verb replaces any existing verb and is
+capitalized for display consistency.  The headline is rewritten
+with `org-edit-headline', preserving the TODO keyword, priority and
+tags."
+  (org-back-to-heading t)
+  (let* ((parts (org-ext--split-heading-title (org-get-heading t t t t)))
+         (contacts (nth 0 parts))
+         (verb (nth 1 parts))
+         (rest (nth 2 parts))
+         (value (and (stringp value) (string-trim value)))
+         (blank (or (null value) (string-empty-p value))))
+    (pcase component
+      ('contact (setq contacts (unless blank (list value))))
+      ('verb (setq verb (unless blank (capitalize value))))
+      (_ (error "Unknown heading component: %S" component)))
+    (org-edit-headline (org-ext--join-heading-title contacts verb rest))))
+
+(defun org-ext--contacts-from-headings (&optional files)
+  "Return contact names used as `(Name)' attributions in agenda FILES.
+FILES defaults to `org-agenda-files'.  Names are gathered by
+decomposing each heading title with `org-ext--split-heading-title'."
+  (let ((names '()))
+    (org-ql-select (or files (org-agenda-files))
+      '(heading-regexp "([^)]+)")
+      :action
+      (lambda ()
+        (dolist (name (car (org-ext--split-heading-title
+                            (org-get-heading t t t t))))
+          (cl-pushnew name names :test #'string=))))
+    names))
+
+(defun org-ext-get-all-contacts (&optional files)
+  "Return a sorted list of contact names for completion.
+Merges the names in the `org-contacts' database with the `(Name)'
+attributions already used in headings across agenda FILES; see
+`org-ext--contacts-from-headings'."
+  (let ((names (and (fboundp 'org-contacts-filter)
+                    (ignore-errors (mapcar #'car (org-contacts-filter))))))
+    (dolist (name (org-ext--contacts-from-headings files))
+      (cl-pushnew name names :test #'string=))
+    (sort (delete-dups names) #'string-lessp)))
+
+(defvar org-ext-contact-history nil
+  "Minibuffer history for `org-ext-set-contact'.")
+
+(defun org-ext-set-contact (contact)
+  "Set the attribution of the current heading to CONTACT.
+CONTACT appears in the heading title as a leading `(CONTACT)'
+prefix, replacing any existing attribution.  An empty CONTACT
+removes the attribution.  Completion draws on the `org-contacts'
+database merged with attributions already in use; see
+`org-ext-get-all-contacts'."
+  (interactive
+   (list (completing-read "Contact: " (org-ext-get-all-contacts)
+                          nil nil nil 'org-ext-contact-history)))
+  (org-ext--set-heading-component 'contact contact))
+
+(defvar org-ext-verb-history nil
+  "Minibuffer history for `org-ext-set-verb'.")
+
+(defun org-ext-set-verb (verb)
+  "Set the leading verb of the current heading to VERB.
+The heading title is rewritten to begin with `VERB: ', replacing
+any existing verb.  An empty VERB removes it.  Completion draws on
+the verbs already in use across the agenda files; see
+`org-ql-ext-get-all-verbs'."
+  (interactive
+   (list (completing-read "Verb: "
+                          (and (fboundp 'org-ql-ext-get-all-verbs)
+                               (org-ql-ext-get-all-verbs))
+                          nil nil nil 'org-ext-verb-history)))
+  (org-ext--set-heading-component 'verb verb))
+
+(defmacro org-ext--with-agenda-entry (command &rest body)
+  "Evaluate BODY on the Org entry behind the current agenda line.
+COMMAND is the interactive agenda command symbol; it is handed to
+`org-agenda-maybe-loop' so that bulk-marked entries are each
+processed.  BODY runs in the entry's buffer, widened and made
+visible, inside `org-with-remote-undo', after which the agenda is
+rebuilt with `org-agenda-redo'."
+  (declare (indent 1) (debug (form body)))
+  `(progn
+     (org-agenda-check-no-diary)
+     (org-agenda-maybe-loop
+      ,command nil nil nil
+      (let* ((hdmarker (or (org-get-at-bol 'org-hd-marker)
+                           (org-agenda-error)))
+             (buffer (marker-buffer hdmarker))
+             (pos (marker-position hdmarker))
+             (inhibit-read-only t))
+        (org-with-remote-undo buffer
+          (with-current-buffer buffer
+            (widen)
+            (goto-char pos)
+            (org-fold-show-context 'agenda)
+            ,@body))
+        (org-agenda-redo)))))
+
 (defun org-ext-agenda-set-category ()
   "Set the CATEGORY property for the current agenda entry.
 Calls `org-ext-set-category' on the underlying Org entry, then
 refreshes the agenda since CATEGORY appears in the displayed line."
   (interactive)
-  (org-agenda-check-no-diary)
-  (org-agenda-maybe-loop
-   #'org-ext-agenda-set-category nil nil nil
-   (let* ((hdmarker (or (org-get-at-bol 'org-hd-marker)
-                        (org-agenda-error)))
-          (buffer (marker-buffer hdmarker))
-          (pos (marker-position hdmarker))
-          (inhibit-read-only t))
-     (org-with-remote-undo buffer
-       (with-current-buffer buffer
-         (widen)
-         (goto-char pos)
-         (org-fold-show-context 'agenda)
-         (call-interactively #'org-ext-set-category)))
-     (org-agenda-redo))))
+  (org-ext--with-agenda-entry #'org-ext-agenda-set-category
+    (call-interactively #'org-ext-set-category)))
+
+(defun org-ext-agenda-set-contact ()
+  "Set the contact attribution for the current agenda entry.
+Calls `org-ext-set-contact' on the underlying Org entry, then
+refreshes the agenda since the attribution appears in the heading."
+  (interactive)
+  (org-ext--with-agenda-entry #'org-ext-agenda-set-contact
+    (call-interactively #'org-ext-set-contact)))
+
+(defun org-ext-agenda-set-verb ()
+  "Set the leading verb for the current agenda entry.
+Calls `org-ext-set-verb' on the underlying Org entry, then
+refreshes the agenda since the verb appears in the heading."
+  (interactive)
+  (org-ext--with-agenda-entry #'org-ext-agenda-set-verb
+    (call-interactively #'org-ext-set-verb)))
 
 (defun org-ext-set-id-and-created (&optional arg)
   (org-id-get-create arg)
@@ -1588,7 +1746,7 @@ Detection looks for a 192.168.1.* address on the bridge0 interface."
 
 (defun org-ext-get-location ()
   "If possible, add location info. We know the location at home always."
-  (if (and nil (org-ext-quickping "192.168.3.2"))
+  (if (and nil (org-ext-at-home-p))
       '("38.569498" "-121.388618")
     (let ((strs
            (split-string
