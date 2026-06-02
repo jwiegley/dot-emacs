@@ -888,10 +888,10 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ,(org-config-bahai-meeting "bit" "Tutor Training" "tutor-training.org"
                               "coordinator")
 
-   ("bI" "Training Institute Board")
+   ("bI" "Bahá’í Internet Agency")
 
-   ,(org-config-bahai-meeting "bII" "Training Institute Statistics"
-                              "training-institute-statistics.org" "rti-board")
+   ,(org-config-bahai-meeting "bII" "Bahá’í Internet Agency"
+                              "bahai-internet-agency.org" "bia")
 
    ("bF" "Ali Nakhjavani Development Fund")
 
@@ -909,6 +909,11 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ,(org-config-bahai-meeting "bnn" "Arden Team Reflection"
                               "arden-team-reflection.org" "coordinator")
+
+   ("bT" "Training Institute Board")
+
+   ,(org-config-bahai-meeting "bTT" "Training Institute Statistics"
+                              "training-institute-statistics.org" "rti-board")
 
    ("w" "Work templates")
 
@@ -976,7 +981,10 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
    ,(org-config-1-on-1-from-name "Dan Wright")
 
    ("wog" "Names beginning with G")
-   ,(org-config-1-on-1-from-name "Greg Davis"))
+   ,(org-config-1-on-1-from-name "Greg Davis")
+
+   ("wog" "Names beginning with R")
+   ,(org-config-1-on-1-from-name "Rúnar Bjarnason"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
