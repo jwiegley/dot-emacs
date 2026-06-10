@@ -890,8 +890,20 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("bI" "Bahá’í Internet Agency")
 
-   ,(org-config-bahai-meeting "bII" "Bahá’í Internet Agency"
-                              "bahai-internet-agency.org" "bia")
+   ("bII" "Bahá’í Internet Agency" plain
+    (file "~/org/template/bahai/meeting/bahai-internet-agency.org")
+    :target
+    (file+head
+     "bahai/bia/%<%Y%m%d%H%M>-bahai-internet-agency.org"
+     ,(concat
+       "#+category: BIA\n"
+       "#+date: %(setq my/org-start-date (my/org-read-date t))\n"
+       "#+filetags: :todo:bia:\n"
+       "#+title: Bahá’í Internet Agency\n"))
+    :immediate-finish t
+    :jump-to-captured t
+    :unnarrowed t
+    :no-save t)
 
    ("bF" "Ali Nakhjavani Development Fund")
 
