@@ -1779,8 +1779,10 @@ Detection looks for a 192.168.1.* address on the bridge0 interface."
     (whitespace-cleanup)
     (goto-char (point-max))
     (delete-blank-lines)
-    (if (looking-at "^$")
-        (delete-char -1))))
+    (when (looking-at "^$")
+      (delete-char -1)))
+  (when (looking-back "TODO")
+    (insert " ")))
 
 (defun org-ext-fill-body ()
   "Fill body paragraph of the current Org heading, skipping properties.
