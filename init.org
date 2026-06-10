@@ -4752,6 +4752,13 @@ Forge-supported host (GitHub, GitLab, etc.).
   :after magit)
 #+end_src
 
+*** magit-gt
+
+#+begin_src emacs-lisp
+(use-package magit-gt
+  :after magit)
+#+end_src
+
 ** markdown-mode
 
 #+begin_src emacs-lisp
@@ -5688,6 +5695,8 @@ append it to ENTRY."
   (defconst display-name
     (pcase (display-pixel-width)
       (`3760 'imac)
+      (`2560 'imac)
+      (`2712 'macbook-pro-14)
       (`1512 'macbook-pro-14)
       ))
 
@@ -5918,9 +5927,10 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 (use-package projectile
   :diminish
   :bind* (("C-c TAB" . projectile-find-other-file)
-          ("C-c P"   . (lambda () (interactive)
-                         (projectile-cleanup-known-projects)
-                         (projectile-discover-projects-in-search-path))))
+          ;; ("C-c P"   . (lambda () (interactive)
+          ;;                (projectile-cleanup-known-projects)
+          ;;                (projectile-discover-projects-in-search-path)))
+          )
   :bind-keymap ("C-c p" . projectile-command-map)
   :custom
   (projectile-cache-file (user-data "projectile.cache"))
@@ -7107,6 +7117,13 @@ RET in the buffer you want to undo.
   :commands whitespace-cleanup-mode
   :config
   (global-whitespace-cleanup-mode 1))
+#+end_src
+
+** wikipedia
+
+#+begin_src emacs-lisp
+(use-package wikipedia-transient
+  :bind ("C-c P" . wikipedia-transient))
 #+end_src
 
 ** window-purpose
@@ -11368,14 +11385,19 @@ This is returned as a string."
             ((string= tag "Errand") (< hour 12))
             ((string= tag "Noon")   (< hour 12))
             ((string= tag "Day")    (< hour 15))
-            ((string= tag "Nasim")  (< hour 17))
+            ((string= tag "Nasim")
+             ;; At home: defer to Home Assistant (`person.nasim_wiegley'),
+             ;; matching how Node-RED on vulcan checks her presence.
+             ;; Fail closed: exclude unless HA confirms she is home.
+             ;; Away: fall back to the time heuristic.
+             (if (org-ext-at-home-p)
+                 (not (equal (org-home-assistant-state "person.nasim_wiegley")
+                             "home"))
+               (< hour 17)))
             ((string= tag "Eve")    (< hour 18))
             ((string= tag "Night")  (< hour 21))
             ((string= tag "Home")
-             (with-temp-buffer
-               (call-process "ifconfig" nil t nil "bridge0" "inet")
-               (goto-char (point-min))
-               (not (search-forward "inet 192.168.1." nil t))))
+             (not (org-ext-at-home-p)))
             ((string= tag "Net")
              (not (quickping "imap.fastmail.com"))))
            (concat "-" tag))))
@@ -11576,6 +11598,8 @@ my Org-mode data.
          ("C-c C-M-o"     . org-ext-open-all-links-in-subtree)
          ("C-c C-x B"     . org-ext-set-blocker-from-clipboard-id)
          ("C-c C-x C"     . org-ext-set-category)
+         ("C-c C-x P"     . org-ext-set-contact)
+         ("C-c C-x V"     . org-ext-set-verb)
          ("C-c C-x D"     . org-ext-update-date-field)
          ("C-c C-x M"     . org-ext-set-message-link)
          ("C-c C-x O"     . org-ext-open-map-link)
@@ -11595,9 +11619,8 @@ my Org-mode data.
          org-agenda-mode-map
          ("g" . org-ext-agenda-redo)
          ("C" . org-ext-agenda-set-category)
-         :map
-         my-ctrl-c-n-map
-         ("C" . org-ext-set-category))
+         ("P" . org-ext-agenda-set-contact)
+         ("V" . org-ext-agenda-set-verb))
   :hook
   (after-save . org-ext-update-team-after-save)
   (org-mode . org-ext-setup-insert-code-block)
@@ -11620,6 +11643,18 @@ my Org-mode data.
   ;;   (org-ext-gnus-drop-link-parameter "mairix"))
 
   (org-ext-update-team))
+#+end_src
+
+*** org-home-assistant
+
+#+begin_src emacs-lisp
+(use-package org-home-assistant
+  :commands (org-home-assistant-state
+             org-home-assistant-clear-cache)
+  :custom
+  (org-home-assistant-base-url "https://hass.vulcan.lan")
+  (org-home-assistant-token
+   (lambda () (lookup-password "hass.vulcan.lan" "johnw" 443))))
 #+end_src
 
 *** org-config
@@ -11740,10 +11775,10 @@ are provided for HTML, LaTeX and ODT, see the =org-annotate-export-*= functions.
   :after (org-capture org-ext)
   :demand t
   :hook
-  ;; Ensure ID and CREATED properties are set for new entries.
-  (org-capture-before-finalize . org-ext-set-basic-properties)
   ;; Ensure whitespace is clean for new entries.
-  (org-capture-prepare-finalize . org-ext-cleanup-whitespace))
+  (org-capture-mode . org-ext-cleanup-whitespace)
+  ;; Ensure ID and CREATED properties are set for new entries.
+  (org-capture-before-finalize . org-ext-set-basic-properties))
 #+end_src
 
 **** org-smart-capture
