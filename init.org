@@ -3694,6 +3694,33 @@ gptel’s partner, or the user’s.
   :load-path "lisp/elisp-mcp-dev")
 #+end_src
 
+**** org-wiki
+
+Read-only spike of the Org-native LLM Wiki
+(see =~/src/dot-emacs/lisp/docs/org-llm-wiki.md=).  Tools register on
+the shared "default" endpoint once per Emacs lifetime; the MCP client
+connects via emacs-mcp-stdio.sh with --server-id=default and no
+init-function, so concurrent Claude Code sessions don't race the
+registration.
+
+#+begin_src emacs-lisp
+(use-package org-wiki
+  :load-path "lisp/org-wiki"
+  :commands (org-wiki-read-node org-wiki-node-metadata))
+
+(use-package org-wiki-commands
+  :load-path "lisp/org-wiki"
+  :after (org-wiki)
+  :commands (org-wiki-find org-wiki-search
+             org-wiki-backlinks org-wiki-show-metadata))
+
+(use-package org-wiki-mcp
+  :load-path "lisp/org-wiki"
+  :after (mcp-server-lib)
+  :demand t
+  :config (org-wiki-mcp-enable))
+#+end_src
+
 *** claude-code-ide
 
 #+begin_src emacs-lisp
