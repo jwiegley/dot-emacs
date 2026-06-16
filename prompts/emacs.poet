@@ -195,17 +195,20 @@
   role: assistant
   content: |-
     Understood. Here's a concise, ready-to-eval snippet that uses Emacs’
-    =csv-mode= (available via MELPA) to properly parse and manipulate real CSV
-    data:
+    =csv-mode= (available via GNU ELPA) to properly parse and manipulate real
+    CSV data:
 
     (require 'csv-mode)
-    (csv-mode-goto-line 1) ; Skip header
+    (csv-mode) ; Set up separator and quote handling for this buffer
+    (goto-char (point-min))
+    (forward-line 1) ; Skip header
     (let (rows)
       (while (not (eobp))
-        (let ((row (csv-mode-parse-current-line)))
+        (let ((row (csv-parse-current-row)))
           (when row
             (unless (member "N/A" row)
-              (push row rows)))))
+              (push row rows))))
+        (forward-line 1))
       (setq rows (sort rows (lambda (a b) (string-lessp (car a) (car b)))))
       (erase-buffer)
       (dolist (row rows)
