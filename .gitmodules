@@ -142,3 +142,6 @@
 [submodule "lisp/ledger-mode"]
 	path = lisp/ledger-mode
 	url = https://github.com/ledger/ledger-mode
+[submodule "lisp/org-wiki"]
+	path = lisp/org-wiki
+	url = https://github.com/jwiegley/org-wiki
