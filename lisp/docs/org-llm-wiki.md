@@ -287,7 +287,7 @@ A full template is in [Appendix B](#appendix-b--schema-template-claudemd).
 
 ### 3.2 File-per-node
 
-Every wiki node is **one file with exactly one top-level Org heading**. The heading carries `:ID:`, `:HASH:`, and the other properties; the file carries `#+title:`, `#+filetags:` (must include `:wiki:`), and `#+category:`.
+Every wiki node is **one file with exactly one top-level Org heading**. The heading carries `:ID:`, `:HASH:`, and the other properties; the file carries `#+title:`, `#+filetags:` (must include `:wiki:`), and `#+category:`. (Live files additionally open with a file-level property drawer — `:ID:` plus `:CREATED:` — required by the org-jw linter; heading-carried identity remains canonical, and the read tools normalize a file-level id to the heading's.)
 
 Rationale: `org-hash` only hashes entries with an `:ID:`; one heading per file means one hash per file. Git diffs are clean; the LLM's blast radius is bounded; per-node embedding refresh is trivial; concurrent edits collide on a single file lock.
 
