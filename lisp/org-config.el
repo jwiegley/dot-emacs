@@ -1119,7 +1119,8 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
 
    ("gU" "Unnecessary wording"
     ((org-ql-block
-      '(and (heading-regexp "[^\"#-]\\<\\(the\\|an?\\)\\>")
+      '(and (or (heading-regexp "[^\"#-]\\<\\(the\\|an?\\)\\>")
+                (heading-regexp "\\.\\'"))
             (not (heading-regexp "\\(’a\\|/A\\)"))
             (todo))
       ((org-ql-block-header "Tasks with unnecessary wording")))))
