@@ -1541,8 +1541,7 @@ to them.
          ("C-c w s" . copy-as-format-slack)
          ("C-c w o" . copy-as-format-org-mode)
          ("C-c w t" . copy-as-format-telegram)
-         ("C-c w g" . copy-as-format-github)
-         ("C-c w w" . copy-as-format-whatsapp))
+         ("C-c w g" . copy-as-format-github))
   :custom
   (copy-as-format-default "slack")
   :config
