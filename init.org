@@ -3711,13 +3711,29 @@ registration.
   :load-path "lisp/org-wiki"
   :after (org-wiki)
   :commands (org-wiki-find org-wiki-search
-             org-wiki-backlinks org-wiki-show-metadata))
+             org-wiki-backlinks org-wiki-show-metadata)
+  :bind ("C-c w w" . org-wiki-command-map))
 
 (use-package org-wiki-mcp
   :load-path "lisp/org-wiki"
   :after (mcp-server-lib)
   :demand t
   :config (org-wiki-mcp-enable))
+
+(use-package org-wiki-gptel
+  :load-path "lisp/org-wiki"
+  :after (gptel org-wiki)
+  :demand t                      ; load eagerly once gptel+org-wiki are up so
+                                 ; the 'org-wiki preset and wiki_* tools exist
+                                 ; for @org-wiki and ob-gptel without first
+                                 ; running a command
+  :commands (org-wiki-ask org-wiki-chat)
+  :custom
+  (org-wiki-gptel-model 'hera/Qwen3.6-27B-Instruct)
+  :config
+  (with-eval-after-load 'org-wiki-commands
+    (define-key org-wiki-command-map (kbd "a") #'org-wiki-ask)
+    (define-key org-wiki-command-map (kbd "c") #'org-wiki-chat)))
 #+end_src
 
 *** claude-code-ide
