@@ -10009,8 +10009,8 @@ Nael is a mode for editing Lean 4 programs.
      ("list/bahai/council"
       (to-list . "council.members@rbcca.org"))
      ("list/bahai/tarjuman"
-      (to-list . "tarjuman@bahai-library.com")
-      (list-identifier . "\\[tj\\]"))
+      (to-list . "tarjuman@bahai-library-lists.org")
+      (list-identifier . "\\[\\(tj\\|Tarjuman\\)\\]"))
      ("list/bahai/assembly"
       (gcc-self . t)
       (to-list . "carmichaellsa@gmail.com"))
