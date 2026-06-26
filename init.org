@@ -3690,7 +3690,9 @@ gptel’s partner, or the user’s.
 #+begin_src emacs-lisp
 (use-package elisp-dev-mcp
   :after (mcp-server-lib)
-  :load-path "lisp/elisp-mcp-dev")
+  :load-path "lisp/elisp-mcp-dev"
+  :demand t
+  :config (elisp-dev-mcp-enable))
 #+end_src
 
 **** org-wiki
