@@ -9328,6 +9328,15 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
               ("<return>" . newline-and-indent)))
 #+end_src
 
+*** nael
+
+Nael is a mode for editing Lean 4 programs.
+
+#+begin_src emacs-lisp
+(use-package nael
+  :commands (nael-mode))
+#+end_src
+
 *** nginx-mode
 
 #+begin_src emacs-lisp
