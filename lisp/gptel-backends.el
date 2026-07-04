@@ -99,7 +99,12 @@
   (gptel-make-openai "rinzler"
     :host "127.0.0.1:59425"
     :protocol "http"
-    :models '(llama31-metal)))
+    :models '(llama31-metal))
+
+  (gptel-make-openai "rinzler-andoria-t2"
+    :host "andoria-t2:8088"
+    :protocol "http"
+    :models '(zai-org/GLM-4.7-Flash)))
 
 ;; (gptel-make-openai "rag-client"
 ;;   :host "127.0.0.1:8000"
