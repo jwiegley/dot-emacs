@@ -437,6 +437,89 @@ text will be moved into an OFFSET property."
       (org-todo "TODO")
       (org-set-tags (delete-dups (cons "LINK" (org-get-tags)))))))
 
+(defcustom org-ext-contact-tag-regexp "\\`[A-Z][a-z]+\\'"
+  "Regexp matching tags that name a person, such as \"Nikhil\".
+Matching is case-sensitive.  Tags configured in
+`org-tag-persistent-alist' or `org-tag-alist' are context tags
+such as \"Home\", never contact tags, even when they match this
+regexp; see `org-ext--contact-tag-p'."
+  :group 'org-ext
+  :type 'regexp)
+
+(defun org-ext--contact-tag-p (tag)
+  "Return non-nil if TAG names a person rather than a context.
+TAG qualifies when it matches `org-ext-contact-tag-regexp'
+case-sensitively and is not one of the tags configured in
+`org-tag-persistent-alist' or `org-tag-alist'."
+  (let ((case-fold-search nil))
+    (and (string-match-p org-ext-contact-tag-regexp tag)
+         (not (member tag
+                      (delq nil
+                            (mapcar (lambda (entry)
+                                      (and (stringp (car-safe entry))
+                                           (car-safe entry)))
+                                    (append org-tag-persistent-alist
+                                            org-tag-alist))))))))
+
+(defun org-ext--contact-tag-candidates ()
+  "Return a sorted list of known contact tags for completion.
+Tags are gathered from `org-global-tags-completion-table' across
+the agenda files and filtered with `org-ext--contact-tag-p', so
+configured context tags are excluded.  Context tags declared only
+in file-local \"#+TAGS\" keywords are not excluded."
+  (sort (cl-remove-if-not #'org-ext--contact-tag-p
+                          (mapcar #'car (org-global-tags-completion-table)))
+        #'string-lessp))
+
+(defvar org-ext-contact-tag-history nil
+  "Minibuffer history for `org-ext-switch-todo-task'.")
+
+(defun org-ext-switch-todo-task ()
+  "Switch the current entry between a TODO and a delegated TASK.
+On an entry that is not already a TASK, prompt for an assignee,
+set the TODO keyword to TASK, and replace all local contact tags
+— those satisfying `org-ext--contact-tag-p' — with the assignee's
+tag.  Empty input sets the keyword to TASK without touching tags,
+since the assignee may also be implied by the entry's CATEGORY.
+A typed-in assignee given entirely in lower or upper case is
+capitalized; anything else must already match
+`org-ext-contact-tag-regexp' or an error is signaled.
+
+On a TASK, set the keyword back to TODO and remove every local
+contact tag, without prompting.
+
+Only the entry at point is changed, even when the region is
+active.  Inherited tags are never modified, and no state change
+note is logged."
+  (interactive)
+  (save-excursion
+    (org-back-to-heading t)
+    (let ((org-inhibit-logging t)
+          (org-loop-over-headlines-in-active-region nil))
+      (if (equal (org-get-todo-state) "TASK")
+          (progn
+            (org-todo "TODO")
+            (org-set-tags (cl-remove-if #'org-ext--contact-tag-p
+                                        (org-get-tags nil t))))
+        (let ((name (string-trim
+                     (completing-read "Assignee: "
+                                      (org-ext--contact-tag-candidates)
+                                      nil nil nil
+                                      'org-ext-contact-tag-history))))
+          (unless (or (string-empty-p name)
+                      (org-ext--contact-tag-p name))
+            (when (or (string= name (downcase name))
+                      (string= name (upcase name)))
+              (setq name (capitalize name)))
+            (unless (org-ext--contact-tag-p name)
+              (user-error "Not a valid contact tag: %s" name)))
+          (org-todo "TASK")
+          (unless (string-empty-p name)
+            (org-set-tags
+             (append (cl-remove-if #'org-ext--contact-tag-p
+                                   (org-get-tags nil t))
+                     (list name)))))))))
+
 (defun org-ext-todoize-region (&optional beg end arg)
   "Add standard metadata to headlines in region BEG to END.
 See `org-ext-todoize', which uses argument ARG."
@@ -1726,6 +1809,15 @@ refreshes the agenda since the verb appears in the heading."
   (interactive)
   (org-ext--with-agenda-entry #'org-ext-agenda-set-verb
     (call-interactively #'org-ext-set-verb)))
+
+(defun org-ext-agenda-switch-todo-task ()
+  "Switch the current agenda entry between a TODO and a TASK.
+Calls `org-ext-switch-todo-task' on the underlying Org entry, then
+refreshes the agenda since both the keyword and the tags appear in
+the displayed line."
+  (interactive)
+  (org-ext--with-agenda-entry #'org-ext-agenda-switch-todo-task
+    (call-interactively #'org-ext-switch-todo-task)))
 
 (defun org-ext-set-id-and-created (&optional arg)
   (org-id-get-create arg)
