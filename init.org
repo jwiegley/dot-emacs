@@ -4834,6 +4834,14 @@ Forge-supported host (GitHub, GitLab, etc.).
                       "blob/master/data/css/github.css"))))
 #+end_src
 
+*** mdformat
+
+#+begin_src emacs-lisp
+(use-package mdformat
+  :bind (:map markdown-mode-map
+              ("C-c C-f" . mdformat-buffer)))
+#+end_src
+
 ** math-symbol-lists
 
 #+begin_src emacs-lisp
@@ -10154,6 +10162,13 @@ Nael is a mode for editing Lean 4 programs.
                   (nnimap-expunge immediately)
                   (nnimap-server-port "imaps")
                   (nnimap-stream ssl))
+          (nnimap "imap-rbcca.vulcan.lan"
+                  (nnimap-address "imap.vulcan.lan")
+                  (nnimap-user "rbcca")
+                  (nnimap-inbox "INBOX")
+                  (nnimap-expunge immediately)
+                  (nnimap-server-port "imaps")
+                  (nnimap-stream ssl))
           (nnimap "imap-assembly.vulcan.lan"
                   (nnimap-address "imap.vulcan.lan")
                   (nnimap-user "assembly")
@@ -10181,7 +10196,8 @@ Nael is a mode for editing Lean 4 programs.
   :preface
   (defvar gnus-group-name-map
     '(("nnimap+imap-assembly.vulcan.lan:INBOX" . "mail/assembly")
-      ("nnimap+imap-bia.vulcan.lan:INBOX" . "mail/bia"))
+      ("nnimap+imap-bia.vulcan.lan:INBOX" . "mail/bia")
+      ("nnimap+imap-rbcca.vulcan.lan:INBOX" . "mail/council"))
     "Alist mapping real group names to display names for the Group buffer.")
 
   (defun gnus-user-format-function-G (_arg)
@@ -11537,7 +11553,7 @@ This is returned as a string."
      ;; Family categories
      ("Nasim"     face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ;; Work categories
-     ("PROP"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
+     ("Ares"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("Tron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("Ingest"    face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("Positron"  face (:background ,palette-fuschia-darker :foreground "#eeeeee")))))
