@@ -3690,6 +3690,33 @@ gptel’s partner, or the user’s.
   (claude-code-ide-emacs-tools-setup))
 #+end_src
 
+*** anvil
+
+#+begin_src emacs-lisp
+(use-package anvil
+  :disabled t
+  :custom
+  (anvil-server-id "emacs-eval")
+  :config
+  (use-package anvil-ide)
+  (use-package anvil-ext
+    :demand t)
+  (setq anvil-optional-modules
+        '(ide elisp sexp semantic sqlite pdf cron state shell-filter context))
+  (anvil-enable)
+  (use-package anvil-server-commands
+    :config
+    (setq anvil-server-autostart-on-request t)
+    (anvil-server-start)))
+#+end_src
+
+**** anvil-ide
+
+#+begin_src emacs-lisp
+(use-package anvil-ide
+  :disabled t)
+#+end_src
+
 ** grep
 
 #+begin_src emacs-lisp

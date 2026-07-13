@@ -18,3 +18,11 @@
 /gptel-agent/
 /elisp-autofmt-cache/
 /prompts/.prompt-deploy-manifest.json
+
+# Local Anvil runtime state
+/.anvil-semantic/
+/anvil-memory-index.db*
+/anvil-org-index.db*
+/anvil-state.db*
+/anvil-worker-init.el
+/anvil-worker.log
