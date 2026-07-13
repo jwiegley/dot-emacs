@@ -11198,7 +11198,7 @@ This is returned as a string."
   (org-todo-keywords
    '((sequence "DRAFT" "TODO(t@)" "DOING(s!)"
                "WAIT(w@)" "DEFER(r!)"
-               "TASK(g@)" "HABIT(h)" "APPT(a)"
+               "TASK(k@)" "HABIT(h)" "APPT(a)"
                "|" "DONE(d@)" "CANCELED(x@)" "PASS(p!)")
      (sequence "|" "SCRAP" "NOTE(n)" "QUOTE(q)" "PROMPT(P)" "LINK(l)")))
   (org-todo-keyword-faces
@@ -11498,6 +11498,9 @@ This is returned as a string."
      ("Council"   face (:background ,palette-green-darker   :foreground "#eeeeee"))
      ;; Family categories
      ("Nasim"     face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
+     ;; Personal categories
+     ("Computer"  face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
+     ("AI"        face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ;; Work categories
      ("Ares"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("Tron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
@@ -11626,6 +11629,7 @@ my Org-mode data.
          ("C-c C-x u"     . org-ext-todoize)
          ("C-c C-x C-,"   . org-ext-insert-structure-template-and-yank)
          ("C-c C-x C-M-y" . org-ext-yank-link)
+         ("C-c C-x C-k"   . org-ext-switch-todo-task)
          ("C-c C-x C-t"   . org-ext-switch-todo-link)
          ("C-c C-x C-u"   . org-ext-todoize-region)
          ("s-N"           . org-ext-edit-link-name)
@@ -11633,6 +11637,8 @@ my Org-mode data.
          :map
          org-agenda-mode-map
          ("g" . org-ext-agenda-redo)
+         ("H" . org-habit-toggle-display-in-agenda)
+         ("K" . org-ext-agenda-switch-todo-task)
          ("C" . org-ext-agenda-set-category)
          ("P" . org-ext-agenda-set-contact)
          ("V" . org-ext-agenda-set-verb))
