@@ -8,6 +8,8 @@ I often forget. You can view that document here:
 
 https://github.com/jwiegley/dot-emacs/blob/master/init.org
 
-NOTE: I no longer use git-subtree and submodules to track dependencies.
-Instead, everything is built and managed using Nix and Nix overlays:
+NOTE: I no longer use git-subtree or submodules for most dependencies.
+Instead, packages are built and managed using Nix and Nix overlays:
 https://github.com/jwiegley/nix-config/blob/master/overlays/10-emacs.nix
+
+The sole exception is `lisp/llm-setup`, which remains a development submodule.

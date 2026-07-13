@@ -4,15 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is John Wiegley's Emacs Lisp personal configuration and packages repository. It contains custom Emacs modules, packages, and configurations organized as a collection of independent Elisp projects.
+This is John Wiegley's Emacs Lisp personal configuration repository. It contains local configuration modules plus a small number of retained project directories. Most package dependencies that once lived here as git submodules are now supplied by the Nix-managed Emacs environment; `SUBMODULE-AUTHORSHIP.md` at the repository root records that migration.
 
 ## Key Packages and Modules
 
 The repository contains several major components:
 
 - **Core Modules**: Individual `.el` files in the root directory (e.g., `cl-info.el`, `org-config.el`, `gptel-presets.el`)
-- **Packages with Subdirectories**: Larger packages with their own structure (e.g., `chess/`, `use-package/`, `async/`, `gptel/`)
-- **MCP Integration**: Model Context Protocol server library (`mcp-server-lib/`) and related tools
+- **Retained Subdirectories**: `badi-calendar/` and the sole remaining git submodule, `llm-setup/`
+- **Nix-managed Dependencies**: External packages such as GPTel, Org extensions, and MCP libraries are installed by Nix rather than checked out below `lisp/`
+- **MCP Integration**: Local adapters such as `mcp-convert.el` and `anvil-ext.el`; the legacy `mcp-server-lib` configuration is currently disabled
 - **Org-mode Extensions**: Various org-mode enhancements (`org-roam-ext.el`, `org-ql-ext.el`, `org-smart-capture.el`)
 
 ## Emacs Lisp Development Patterns
@@ -72,11 +73,9 @@ Interactive commands and mode definitions use autoload cookies:
   ...)
 ```
 
-Generate autoloads with:
-```bash
-make autoloads  # For packages with Makefiles
-eask generate autoloads  # For Eask-based packages
-```
+Generate autoloads only from a package's own source checkout, using the build
+system documented there. The local single-file modules in this directory are
+loaded by `init.org` and do not share a generated package-autoloads file.
 
 ### Dependencies and Loading
 
@@ -102,43 +101,11 @@ eask generate autoloads  # For Eask-based packages
 
 ### Building and Compilation
 
-For packages using **Eask** (e.g., `mcp-server-lib`, `async`, `elisp-mcp-dev`):
-```bash
-# Install dependencies and compile
-eask install-deps
-eask compile
-
-# Run tests
-eask test ert <test-file.el>
-
-# Run custom scripts (defined in Eask file)
-eask run test
-eask run org-lint
-```
-
-For packages using **Make** (e.g., `use-package`, `async`, `vulpea`):
-```bash
-# Compile elisp files
-make elc
-
-# Run tests
-make test
-
-# Interactive testing
-make test-interactive
-
-# Clean compiled files
-make clean
-
-# Generate autoloads
-make autoloads
-```
-
-For packages using **Cask** (e.g., `chess`):
-```bash
-cask install
-cask exec ert-runner
-```
+The former Eask, Make, and Cask package trees are not repository-local
+development targets anymore. For a Nix-managed dependency, work in its
+upstream checkout or the source pinned by the Nix overlay and use that
+project's own commands. For `llm-setup`, enter the retained submodule and
+follow its `CLAUDE.md` and `flake.nix`.
 
 ### Byte Compilation
 
@@ -179,20 +146,6 @@ emacs -batch -L . -f batch-byte-compile *.el
 
 ;; Batch mode
 (ert-run-tests-batch-and-exit)
-```
-
-**Test patterns in this repo**:
-```elisp
-;; mcp-server-lib uses custom test helpers
-(require 'mcp-server-lib-ert)
-(setq mcp-server-lib-ert-server-id "test-server")
-
-;; Tests use defconst for test data
-(defconst my-test--data "test value"
-  "Test data documentation.")
-
-;; Use regexp matchers for output
-(should (string-match-p expected-regexp actual))
 ```
 
 ## Interactive Development
@@ -276,30 +229,29 @@ emacs -batch -L . -f batch-byte-compile *.el
 ## Architecture and Code Organization
 
 ### Package Structure
-- Each major package is self-contained in its own directory
-- Packages may have their own `CLAUDE.md`, `README.org`, and build configuration
-- Many packages use Eask for modern Elisp project management
+- Most repository-local code is a single `.el` module.
+- `badi-calendar/` is a retained local tree; `llm-setup/` is the sole remaining git submodule and has its own guidance.
+- External package sources are Nix-managed and should not be assumed to exist below `lisp/`.
 
 ### MCP (Model Context Protocol) Integration
 The repository includes extensive MCP integration:
-- `mcp-server-lib/`: Core MCP server library for Elisp
-- `mcp-convert.el`: MCP conversion utilities
-- `elisp-mcp-dev/`: Development tools for MCP in Elisp
-- `mcp/`: Additional MCP-related functionality
+- `mcp-convert.el`: local MCP conversion utilities
+- `anvil-ext.el`: local Anvil compatibility and endpoint configuration
+- `mcp-server-lib` and `elisp-dev-mcp`: Nix definitions retained, but excluded from the normal environment and `COMMENT`-disabled in `init.org`
 
 ### GPTel Integration
 Significant AI/LLM integration through the `gptel` package:
-- `gptel/`: Main GPTel package
+- `gptel`: Nix-installed upstream package
 - `gptel-presets.el`, `gptel-ext.el`: Configuration and extensions
-- `gptel-claude-oauth.el`: Claude-specific authentication
-- Various prompt management in `gptel-prompts/`
+- `gptel-backends.el`, `gptel-tools.el`: Backend and tool configuration
+- Prompt files in the repository-root `prompts/` directory
 
 ### Org-mode Ecosystem
 Rich org-mode configuration and extensions:
 - `org-config.el`: Main org configuration (48KB)
 - `org-roam-ext.el`: Org-roam extensions
 - `org-smart-capture.el`: Enhanced capture templates
-- `org-context/`, `org-hash/`, `org-drafts/`: Additional org packages
+- `org-context`, `org-hash`, `org-drafts`: Nix-installed packages, with local extension modules where present
 
 ## Testing Strategy
 
@@ -307,9 +259,8 @@ When modifying packages:
 1. Check for existing test files (`*-test.el`)
 2. Run package-specific tests using the appropriate tool (Eask, Make, or Cask)
 3. Ensure byte-compilation succeeds without warnings
-4. For packages with Eask, use `eask test` command
-5. For packages with Makefiles, use `make test` and `make test-interactive`
-6. Test interactively with `M-x ert` for immediate feedback
+4. For a Nix-managed package, run its checks in the source checkout that owns its build metadata
+5. Test interactively with `M-x ert` for immediate feedback
 
 ## Common Development Tasks
 

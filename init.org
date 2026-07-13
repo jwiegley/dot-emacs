@@ -43,8 +43,7 @@
 
   (setq package-enable-at-startup nil
         load-path
-        (append (list (emacs-path "use-package"))
-                (delete-dups load-path)
+        (append (delete-dups load-path)
                 (list (emacs-path "lisp")))))
 
 (require 'use-package)
@@ -287,7 +286,7 @@ result arrives.  Used by =gptel-ext= for in-buffer LLM placeholders;
 available for any other module that wants the same UX.
 
 #+begin_src emacs-lisp
-(use-package pending :load-path "lisp/pending" :defer t)
+(use-package pending :defer t)
 #+end_src
 
 ** llama
@@ -729,7 +728,6 @@ It reindents after every change, making it more reliable than
 
 #+begin_src emacs-lisp
 (use-package alert
-  :load-path "lisp/alert"
   :autoload (alert alert-add-rule)
   :custom
   ;; (alert-default-style 'fringe)
@@ -2109,7 +2107,6 @@ To get the most out of Eat, you should also setup shell integration.
 
 #+begin_src emacs-lisp
 (use-package ecard-display
-  :load-path "lisp/ecard"
   :nix nil
   :commands (ecard-display)
   :custom
@@ -2132,7 +2129,6 @@ To get the most out of Eat, you should also setup shell integration.
 
 #+begin_src emacs-lisp
 (use-package ecard-sync
-  :load-path "lisp/ecard"
   :nix nil
   :commands (ecard-sync-entry)
   :config
@@ -2570,7 +2566,7 @@ your system."
 
 #+begin_src emacs-lisp
 (use-package erc-yank
-  :load-path "lisp/erc-yank"
+  :disabled t
   :after erc
   :bind (:map erc-mode-map
               ("C-y" . erc-yank))
@@ -2986,7 +2982,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package format-all
-  :load-path "lisp/emacs-format-all-the-code"
   :commands (format-all-buffer format-all-mode)
   :hook
   (prog-mode . enable-format-all-if-indicated)
@@ -3083,7 +3078,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package git-annex
-  :load-path "lisp/git-annex"
   :after dired
   :defer t)
 #+end_src
@@ -3107,7 +3101,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package git-undo
-  :load-path "lisp/git-undo"
   :commands git-undo)
 #+end_src
 
@@ -3139,7 +3132,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel
-  :load-path "lisp/gptel"
   :demand t
   :bind
   (("C-c u"    . gptel-menu)
@@ -3263,7 +3255,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel-emacs-tools
-  :load-path "lisp/gptel-emacs-tools"
   :after (gptel-tools))
 #+end_src
 
@@ -3271,7 +3262,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel-litellm
-  :load-path "lisp/gptel-litellm"
   :after (gptel)
   :config
   (gptel-litellm-install-sessions))
@@ -3459,7 +3449,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package ob-gptel
-  :load-path "lisp/ob-gptel"
   :config
   (add-to-list 'org-babel-load-languages '(gptel . t))
 
@@ -3470,7 +3459,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel-prompts
-  :load-path "lisp/gptel-prompts"
   :after (gptel)
   :config
   (gptel-prompts-update))
@@ -3480,7 +3468,6 @@ up before you execute another command."
 
 #+begin_src emacs-lisp
 (use-package gptel-rag
-  :load-path "lisp/gptel-rag"
   :after (gptel))
 #+end_src
 
@@ -3552,7 +3539,6 @@ gptel’s partner, or the user’s.
 
 #+begin_src emacs-lisp
 (use-package llm-tool-collection
-  :load-path "lisp/llm-tool-collection"
   :config
   (mapcar (apply-partially #'apply #'gptel-make-tool)
           (llm-tool-collection-get-tag 'filesystem))
@@ -3566,7 +3552,6 @@ gptel’s partner, or the user’s.
 
 #+begin_src emacs-lisp
 (use-package mcp-hub
-  :load-path "lisp/mcp"
   :nix mcp
   :after (gptel)
   :commands (mcp-hub)
@@ -3674,75 +3659,29 @@ gptel’s partner, or the user’s.
   :commands (mcp-convert-json-to-elisp))
 #+end_src
 
-*** mcp-server-lib
+*** COMMENT mcp-server-lib
 
 #+begin_src emacs-lisp
 (use-package mcp-server-lib
-  :load-path "lisp/mcp-server-lib"
   :demand t
   :config
   (require 'mcp-server-lib-commands)
   (mcp-server-lib-start))
 #+end_src
 
-**** elisp-mcp-dev
+**** COMMENT elisp-dev-mcp
 
 #+begin_src emacs-lisp
 (use-package elisp-dev-mcp
   :after (mcp-server-lib)
-  :load-path "lisp/elisp-mcp-dev"
   :demand t
   :config (elisp-dev-mcp-enable))
-#+end_src
-
-**** org-wiki
-
-Read-only spike of the Org-native LLM Wiki
-(see =~/src/dot-emacs/lisp/docs/org-llm-wiki.md=).  Tools register on
-the shared "default" endpoint once per Emacs lifetime; the MCP client
-connects via emacs-mcp-stdio.sh with --server-id=default and no
-init-function, so concurrent Claude Code sessions don't race the
-registration.
-
-#+begin_src emacs-lisp
-(use-package org-wiki
-  :load-path "lisp/org-wiki"
-  :commands (org-wiki-read-node org-wiki-node-metadata))
-
-(use-package org-wiki-commands
-  :load-path "lisp/org-wiki"
-  :after (org-wiki)
-  :commands (org-wiki-find org-wiki-search
-             org-wiki-backlinks org-wiki-show-metadata)
-  :bind ("C-c w w" . org-wiki-command-map))
-
-(use-package org-wiki-mcp
-  :load-path "lisp/org-wiki"
-  :after (mcp-server-lib)
-  :demand t
-  :config (org-wiki-mcp-enable))
-
-(use-package org-wiki-gptel
-  :load-path "lisp/org-wiki"
-  :after (gptel org-wiki)
-  :demand t                      ; load eagerly once gptel+org-wiki are up so
-                                 ; the 'org-wiki preset and wiki_* tools exist
-                                 ; for @org-wiki and ob-gptel without first
-                                 ; running a command
-  :commands (org-wiki-ask org-wiki-chat)
-  :custom
-  (org-wiki-gptel-model 'hera/Qwen3.6-27B-Instruct)
-  :config
-  (with-eval-after-load 'org-wiki-commands
-    (define-key org-wiki-command-map (kbd "a") #'org-wiki-ask)
-    (define-key org-wiki-command-map (kbd "c") #'org-wiki-chat)))
 #+end_src
 
 *** claude-code-ide
 
 #+begin_src emacs-lisp
 (use-package claude-code-ide
-  :load-path "lisp/claude-code-ide"
   :demand t
   :bind ("C-x c c" . claude-code-ide-menu)
   :custom
@@ -3815,16 +3754,6 @@ registration.
                            "5 minutes")
                :before (announce "Starting break time.")
                :advance (announce "Break time is over!")))))
-#+end_src
-
-** COMMENT haskell-edit
-
-#+begin_src emacs-lisp
-(use-package haskell-edit
-  :load-path "lisp/haskell-config"
-  :after haskell-mode
-  :bind (:map haskell-mode-map
-              ("C-c M-q" . haskell-edit-reformat)))
 #+end_src
 
 ** help
@@ -4495,7 +4424,6 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
 
 #+begin_src emacs-lisp
 (use-package m
-  :load-path "lisp/machines"
   :defer t)
 #+end_src
 
@@ -4791,7 +4719,6 @@ Forge-supported host (GitHub, GitLab, etc.).
 
 #+begin_src emacs-lisp
 (use-package magit-ai
-  :load-path "lisp/magit-ai"
   :nix nil
   :after magit)
 #+end_src
@@ -6125,7 +6052,6 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
 
 #+begin_src emacs-lisp
 (use-package regex-tool
-  :load-path "lisp/regex-tool"
   :commands regex-tool
   :custom
   (regex-tool-backend 'perl))
@@ -7227,7 +7153,6 @@ Alt-V, which is to yank.
 
 #+begin_src emacs-lisp
 (use-package wombag
-  :load-path "lisp/wombag"
   :nix nil
   :unless noninteractive
   :commands (wombag wombag-sync)
@@ -9106,7 +9031,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
 #+begin_src emacs-lisp
 (use-package haskell-edit
-  :load-path "lisp/haskell-config"
   :after haskell-mode
   :bind (:map haskell-mode-map
               ("C-c M-q" . haskell-edit-reformat)))
@@ -9168,7 +9092,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
 #+begin_src emacs-lisp
 (use-package ledger-mode
-  :load-path "lisp/ledger-mode"
   :mode "\\.ledger\\'"
   :commands ledger-mode
   :bind ("C-c L" . my-ledger-start-entry)
@@ -9365,7 +9288,6 @@ Nael is a mode for editing Lean 4 programs.
 
 #+begin_src emacs-lisp
 (use-package nix-update
-  :load-path "lisp/nix-update"
   :bind ("C-c U" . nix-update-fetch))
 #+end_src
 
@@ -9931,7 +9853,6 @@ Nael is a mode for editing Lean 4 programs.
 
 #+begin_src emacs-lisp
 (use-package z3
-  :load-path "lisp/emacs-z3"
   :commands (z3-get-model))
 #+end_src
 
@@ -10897,7 +10818,6 @@ Sponsor my open source on github.com/sponsors/jwiegley or patreon.com/jwiegley")
 
 #+begin_src emacs-lisp
 (use-package gnus-harvest
-  :load-path "lisp/gnus-harvest"
   :after gnus
   :custom
   (gnus-harvest-sender-alist
@@ -11500,7 +11420,6 @@ This is returned as a string."
 #+begin_src emacs-lisp
 (use-package org-agenda-overlay
   :nix nil
-  :load-path "lisp/org-agenda-overlay"
   :after org-agenda
   :demand t
   :hook
@@ -11867,7 +11786,6 @@ context.
 
 #+begin_src emacs-lisp
 (use-package org-drafts
-  :load-path "lisp/org-drafts"
   :after (org)
   :demand t
   ;; :bind* (("M-M" . (lambda () (interactive) (org-capture nil "d")))
@@ -12258,7 +12176,6 @@ A group FOO is composed of contacts with the tag FOO."
 
 #+begin_src emacs-lisp
 (use-package org-context
-  :load-path "lisp/org-context"
   :after org
   :demand t
   :bind (:map
@@ -12315,7 +12232,6 @@ A group FOO is composed of contacts with the tag FOO."
 
 #+begin_src emacs-lisp
 (use-package org-devonthink
-  :load-path "lisp/org-devonthink"
   :after org
   :demand t
   :functions (org-devonthink-open)
@@ -12542,7 +12458,6 @@ displays the priority part of a heading as your preferred string value.
 
 #+begin_src emacs-lisp
 (use-package org-hash
-  :load-path "lisp/org-hash"
   :after org
   :bind (:map
          org-mode-map
@@ -12561,7 +12476,6 @@ displays the priority part of a heading as your preferred string value.
 
 #+begin_src emacs-lisp
 (use-package hash-store
-  :load-path "lisp/hash-store"
   :after (org-hash))
 #+end_src
 
@@ -13273,7 +13187,6 @@ utilities around note taking.
 
 #+begin_src emacs-lisp
 (use-package vulpea
-  :load-path "lisp/vulpea"
   :after org-roam
   :demand t
   :bind
@@ -13298,7 +13211,6 @@ utilities around note taking.
 
 #+begin_src emacs-lisp
 (use-package vulpea-field
-  :load-path "lisp/vulpea-field"
   :after (vulpea)
   :functions (vulpea-field-setup vulpea-field-query))
 #+end_src
@@ -13727,7 +13639,6 @@ properties or a symbol which is taken to be a face name.
 
 #+begin_src emacs-lisp
 (use-package org-table-loeb
-  :load-path "lisp/org-table-loeb"
   :after (org-table)
   :commands
   (org-table-loeb-install))
@@ -14153,7 +14064,6 @@ checkbox, and moves the cursor to the end of the previous line.
 
 #+begin_src emacs-lisp
 (use-package org-autolist
-  :load-path "lisp/org-autolist"
   :diminish org-autolist-mode
   :hook (org-mode . org-autolist-mode))
 #+end_src
@@ -14187,8 +14097,45 @@ checkbox, and moves the cursor to the end of the previous line.
               ("C-c C-x C-*" . literate-calc-kill-result)))
 #+end_src
 
-** Games
+*** org-wiki
 
+Read-only spike of the Org-native LLM Wiki
+(see =~/src/dot-emacs/lisp/docs/org-llm-wiki.md=).  Interactive and GPTel
+integration remain enabled; the legacy =mcp-server-lib= adapter is disabled
+with the retired MCP server configuration above.
+
+#+begin_src emacs-lisp
+(use-package org-wiki
+  :commands (org-wiki-read-node org-wiki-node-metadata))
+
+(use-package org-wiki-commands
+  :after (org-wiki)
+  :commands (org-wiki-find org-wiki-search
+             org-wiki-backlinks org-wiki-show-metadata)
+  :bind ("C-c w w" . org-wiki-command-map))
+
+(use-package org-wiki-mcp
+  :disabled t
+  :after (mcp-server-lib)
+  :demand t
+  :config (org-wiki-mcp-enable))
+
+(use-package org-wiki-gptel
+  :after (gptel org-wiki)
+  :demand t                      ; load eagerly once gptel+org-wiki are up so
+                                 ; the 'org-wiki preset and wiki_* tools exist
+                                 ; for @org-wiki and ob-gptel without first
+                                 ; running a command
+  :commands (org-wiki-ask org-wiki-chat)
+  :custom
+  (org-wiki-gptel-model 'hera/Qwen3.6-27B-Instruct)
+  :config
+  (with-eval-after-load 'org-wiki-commands
+    (define-key org-wiki-command-map (kbd "a") #'org-wiki-ask)
+    (define-key org-wiki-command-map (kbd "c") #'org-wiki-chat)))
+#+end_src
+
+** Games
 *** 2048-game
 
 #+begin_src emacs-lisp
@@ -14301,7 +14248,6 @@ checkbox, and moves the cursor to the end of the previous line.
 
 #+begin_src emacs-lisp
 (use-package chess
-  :load-path "lisp/chess"
   :commands chess)
 #+end_src
 

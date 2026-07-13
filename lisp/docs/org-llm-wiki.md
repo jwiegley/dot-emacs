@@ -15,16 +15,18 @@
 >   implement straight from the prose.
 >
 > The current implementation status of the wiki is captured separately in
-> `org-wiki/README.md` (the read-only spike package). Sections of this
-> document that the spike has *empirically verified or corrected* are noted
-> with a "✓ verified by spike" annotation; sections still pending empirical
-> grounding are flagged with their badge alone.
+> the Nix-installed [`org-wiki` README](https://github.com/jwiegley/org-wiki#readme)
+> (the read-only spike package). Sections of this document that the spike has
+> *empirically verified or corrected* are noted with a "✓ verified by spike"
+> annotation; sections still pending empirical grounding are flagged with
+> their badge alone.
 
 > **v2.3 status note (counts updated in v2.3c).** This document is
 > architecture, not copy-paste code. The read-only MCP surface (§§ 7.1–7.5
 > reads, §7.0 plumbing, §4.1 hash property accessor) has been **empirically
-> verified by a working spike package** at `../org-wiki/`. The spike suite
-> is now 21 ERT tests (20 pass, 1 skipped without the optional org-hash)
+> verified by the working, Nix-installed
+> [`org-wiki`](https://github.com/jwiegley/org-wiki) spike package. The spike
+> suite is now 21 ERT tests (20 pass, 1 skipped without the optional org-hash)
 > against mcp-server-lib 0.4.0. Sections verified by the spike carry a
 > `✓ verified by spike` annotation; everything else inherits its status
 > from the section-status legend immediately above.
@@ -101,7 +103,7 @@ The Obsidian-and-Markdown version of this pattern is simple and works. Translati
 
 ### 1.3 What you already have
 
-Almost every primitive this wiki needs is already in your `~/src/dot-emacs/lisp/` tree, and most of it is wired up in `~/org/init.org`. The wiki is mostly glue:
+Almost every primitive this wiki needs is already supplied by the Nix-managed Emacs environment or by local configuration modules, and most of it is wired up in `~/org/init.org`. The wiki is mostly glue:
 
 - **Org-roam + Vulpea** — `~/org/` is your single roam root. Vulpea adds a stable record API (`vulpea-find`, `vulpea-create`, `vulpea-db-query`) that the wiki tooling will use in preference to raw `org-roam-*` calls.
 - **`org-ql` + `org-ql-semantic`** — predicate queries plus a `(semantic "query")` predicate backed by an external `org db search` CLI against a pgvector-equipped PostgreSQL. Your active configuration uses `bge-m3` embeddings on a local llama-cpp server at `http://localhost:8080` with the embedding table on `postgres.vulcan.lan`.
@@ -109,11 +111,11 @@ Almost every primitive this wiki needs is already in your `~/src/dot-emacs/lisp/
 - **`org-attach`** with `org-attach-id-dir = ~/org/data/` and `org-attach-method 'mv` — already excluded from `org-roam-file-exclude-regexp`; the natural home for raw binary sources if you'd rather use Org's attachment machinery than maintain a parallel `~/org/raw/` tree.
 - **`org-drafts`** — capture-time hydra dispatching DRAFT → TODO/NOTE/GPTel/Claude/Kagi/Perplexity/email/rewrite. A new hydra action will tee a draft into the wiki ingest pipeline.
 - **`gptel` ecosystem** — `gptel-rag` (RAG via external `rag-client`), `gptel-prompts` (file-backed system directives auto-reloaded from `~/src/dot-emacs/prompts/`), `gptel-tools`, `gptel-presets`, `ob-gptel` for inline org-babel LLM blocks, plus `gptel-ext-write-to-org-roam-install` which auto-routes saved chat buffers into the roam directory.
-- **`mcp-server-lib`** — already started at Emacs startup (`(mcp-server-lib-start)` in init.org). `elisp-dev-mcp` is registered against it and demonstrates the exact pattern the wiki tools will follow.
+- **`mcp-server-lib` / `elisp-dev-mcp`** — retained as exact Nix package definitions but excluded from the normal Emacs environment; their `init.org` declarations are `COMMENT`-disabled. They remain reference implementations for a future MCP adapter, but no legacy MCP endpoint is currently started or registered.
 - **`org-context`** — preserves refile lineage as `REFILE_*` properties. Free audit trail for any move the wiki initiates.
 - **`org-roam-ext`, `org-smart-capture`, `org-ql-ext`, `org-review-ext`, `org-indicators`** — supporting machinery for transcripts, capture, queries, periodic review, and view-only visual markers (good for "frozen" wiki node indicators).
 
-What's missing is a `wiki/` subtree with a schema, a set of MCP tools registered against the existing server, an ingest command, a lint command, and discipline about what the LLM may and may not touch. That's what this document specifies. **The read-only subset is already implemented** at `~/src/dot-emacs/lisp/org-wiki/` as a working spike package — see its `README.md` for what's verified empirically.
+What's missing is a `wiki/` subtree with a schema, an ingest command, a lint command, and discipline about what the LLM may and may not touch. The proposed mutation surface additionally requires re-enabling an MCP endpoint and registering the wiki tools against it. That's what this document specifies. **The read-only subset is already implemented** by the Nix-installed [`org-wiki`](https://github.com/jwiegley/org-wiki) spike package — see its `README.md` for what's verified empirically.
 
 ### 1.4 Prior art
 
@@ -321,8 +323,8 @@ This table maps each relevant init.org configuration to its wiki implication. Re
 | `before-save-hook` (Org buffers)                   | `org-roam-ext-sort-file-properties`, `org-roam-ext-pre-save-hook` | Wiki tool writes happen before save; tool re-hashes in-buffer, then saves with `org-hash--inhibit-on-save` bound. |
 | `after-save-hook` via `org-hash-mode`              | `org-hash--on-save` (scope: `'git`)         | Inhibit during wiki saves; tool maintains `:HASH:`. See §9.4. Wiki dir-locals must also set `org-hash-update-on-save nil` (§9.2 — required). |
 | `org-hash-recursive`                               | `nil`                                       | **Load-bearing gap:** non-recursive entry hashes stop at the first `**` subheading, where all wiki body content lives — body edits do not change the node hash. Must be reconciled before the mutation slice; see §9. |
-| `mcp-server-lib`                                   | started at Emacs startup                    | Wiki tools `register-tool` against the existing server. Do not start another.     |
-| `elisp-dev-mcp`                                    | registered (loads from `lisp/elisp-mcp-dev/`) | Canonical pattern to imitate — uses `mcp-server-lib-register-server` under its own `"elisp-dev-mcp"` endpoint. Wiki tools on `"default"` are invisible to a client that only connects to that endpoint; check `.mcp.json`. |
+| `mcp-server-lib`                                   | Nix definition retained; excluded and `COMMENT`-disabled | Before enabling `org-wiki-mcp`, select the package, activate one server endpoint, and register the wiki server definition against it. |
+| `elisp-dev-mcp`                                    | packaged by Nix; registration currently disabled | Canonical pattern to imitate — uses `mcp-server-lib-register-server` under its own `"elisp-dev-mcp"` endpoint. Wiki tools on `"default"` are invisible to a client that only connects to that endpoint; check the MCP client configuration. |
 | `gptel-default-mode`                               | `'org-mode`                                 | Saved chats are Org files; `gptel-ext-write-to-org-roam-install` auto-files them. |
 | `gptel-ext-write-to-org-roam-install`              | enabled                                     | Wiki ingest from chat coordinates names; do not collide with auto-file behavior.  |
 | `gptel-prompts-directory`                          | `~/src/dot-emacs/prompts/`                  | Wiki-specific prompts live here (`.poet` or `.txt`); auto-reloads on edit.        |
@@ -593,21 +595,21 @@ Neither file currently exists at `~/org/wiki/` — they are net-new at Phase 0.
 
 ## 7. MCP Tool Surface 🟡
 
-The LLM never writes Org files directly. It calls **structured RPCs** registered against the MCP server that's already running in your Emacs (`mcp-server-lib-start` is called at startup; `elisp-dev-mcp` is registered against it).
+In the proposed mutation architecture, the LLM never writes Org files directly. It calls **structured RPCs** registered against an MCP server in Emacs. That endpoint is not active in the current configuration: `mcp-server-lib` and `elisp-dev-mcp` are excluded and `COMMENT`-disabled, and `org-wiki-mcp` is disabled. Enabling this surface therefore begins by selecting those dependencies and activating a deliberate endpoint.
 
 Each RPC validates, mutates the buffer via `org-element` / `org-id` / `vulpea-*` / `org-roam-*` APIs, updates `:HASH:`, syncs the per-file roam-DB row, queues an embedding refresh, and returns a structured result with an idempotency-aware outcome.
 
-> **A note on divergence from Karpathy's model.** In Karpathy's Obsidian demo, Claude Code writes markdown files freely — the agent's job is "edit the wiki," full stop. This doc takes a *much* more structured approach: every mutation goes through a typed RPC surface with plan/apply pairs, validators, and a write-ahead log. **This is a deliberate divergence** for one reason: you're putting wiki content adjacent to a decade-spanning Org corpus that you cannot blow away and rebuild. Karpathy's setup tolerates "the agent makes mistakes; rerun ingest" because his demo wiki is disposable; your wiki shares a filesystem (and a roam DB) with files that are not. The cost of the RPC mediation is real — slower iteration, more ceremony, more code to maintain. The benefit is that lint discipline, hash integrity, and crash recovery are mechanical guarantees rather than hopes. If you ever find yourself working in a context where the agent's mistakes are cheap to roll back (a scratch wiki, an experimental subdirectory), the read-only spike (`~/src/dot-emacs/lisp/org-wiki/`) plus direct file writes via `gptel` is a perfectly reasonable Karpathy-style alternative; you don't *have* to use the RPC surface for everything.
+> **A note on divergence from Karpathy's model.** In Karpathy's Obsidian demo, Claude Code writes markdown files freely — the agent's job is "edit the wiki," full stop. This doc takes a *much* more structured approach: every mutation goes through a typed RPC surface with plan/apply pairs, validators, and a write-ahead log. **This is a deliberate divergence** for one reason: you're putting wiki content adjacent to a decade-spanning Org corpus that you cannot blow away and rebuild. Karpathy's setup tolerates "the agent makes mistakes; rerun ingest" because his demo wiki is disposable; your wiki shares a filesystem (and a roam DB) with files that are not. The cost of the RPC mediation is real — slower iteration, more ceremony, more code to maintain. The benefit is that lint discipline, hash integrity, and crash recovery are mechanical guarantees rather than hopes. If you ever find yourself working in a context where the agent's mistakes are cheap to roll back (a scratch wiki, an experimental subdirectory), the Nix-installed `org-wiki` read-only spike plus direct file writes via `gptel` is a perfectly reasonable Karpathy-style alternative; you don't *have* to use the RPC surface for everything.
 
 This is the most important safety property of the design when you do use it. **Free-form file writes are how LLMs corrupt property drawers, drop citations, duplicate IDs, and silently break wiki integrity.** Granular RPCs make those mistakes impossible by construction.
 
-### 7.0 Integration with the existing MCP server 🟡 ✓ verified by spike (register-tool API, schema-from-docstring, clause-order subtlety)
+### 7.0 Integration with a future MCP server 🟡 ✓ verified by spike (register-server API, schema-from-docstring, clause-order subtlety)
 
-The wiki tools share Emacs with the `mcp-server-lib` instance that's already started at startup. There's a subtle modeling choice here that the doc must be honest about:
+When the legacy MCP adapter is re-enabled, the wiki tools will share Emacs with its `mcp-server-lib` instance. There is a subtle modeling choice to settle before activation:
 
 **`mcp-server-lib`'s `:server-id` is not a namespace within one connection — it's a separate logical MCP endpoint.** Tools registered under `:server-id "foo"` are visible only to MCP clients that *connect to the "foo" server-id*. `elisp-dev-mcp` registers under `"elisp-dev-mcp"`; a client connected to that endpoint sees only those tools. So we have two options for how the wiki exposes its tools:
 
-- **Option α — Share `:server-id "default"` with whichever endpoint Claude Code connects to.** Wiki tool ids must be `wiki_`-prefixed (and we never use bare names like `search`) so they don't collide with other packages' tools registered to the same endpoint. The benefit: one client connection covers both `elisp-dev-mcp` (if also reorganized to `"default"`) and wiki tools. The risk: any third-party package that registers `wiki_*` tools to the same id silently ref-counts and *keeps the original handler* (documented in the `mcp-server-lib-register-server` docstring) — a future load-order bug. Note that the installed `elisp-dev-mcp` (which loads from `lisp/elisp-mcp-dev/`) registers under its **own** `"elisp-dev-mcp"` endpoint, so before relying on Option α, verify which endpoints the MCP client's config (`.mcp.json` / `emacs-mcp-stdio.sh` arguments) actually connects to — tools on `"default"` are invisible to a client that only connects to `"elisp-dev-mcp"`.
+- **Option α — Share `:server-id "default"` with whichever endpoint Claude Code connects to.** Wiki tool ids must be `wiki_`-prefixed (and we never use bare names like `search`) so they don't collide with other packages' tools registered to the same endpoint. The benefit: one client connection covers both `elisp-dev-mcp` (if also reorganized to `"default"`) and wiki tools. The risk: any third-party package that registers `wiki_*` tools to the same id silently ref-counts and *keeps the original handler* (documented in the `mcp-server-lib-register-server` docstring) — a future load-order bug. Note that the Nix-installed `elisp-dev-mcp` package registers under its **own** `"elisp-dev-mcp"` endpoint when enabled, so before relying on Option α, verify which endpoints the MCP client actually connects to — tools on `"default"` are invisible to a client that only connects to `"elisp-dev-mcp"`.
 - **Option β — Register under `:server-id "org-wiki"` and configure the MCP client to connect to *two* endpoints separately.** The benefit: complete namespace isolation. The cost: the user must list both endpoints in their MCP client config (Claude Code's `.mcp.json` or equivalent). Tools registered here are *invisible* to any client that doesn't know to ask the `"org-wiki"` endpoint.
 
 The doc recommends **Option α** (single shared endpoint, `wiki_`-prefixed ids) because it's the simpler default and the prefix discipline prevents most collisions in practice. Whichever option you pick, the registration code follows the same shape; only the `:server-id` value differs. Examples below use `"default"`; substitute `"org-wiki"` for Option β.
@@ -1487,7 +1489,7 @@ Recommendation: prefer **agent-only edit windows** (run ingest at night, late lu
 > safety machinery. The line estimate below describes the full system, not
 > this v1.
 
-Five phases. Each is independently useful; you can stop at any phase and have a working system. Phase-2 effort is meaningfully lower than v1.1 estimated because the MCP server is already running.
+Five phases. Each is independently useful; you can stop at any phase and have a working system. Phase 2 includes selecting, starting, and validating the currently disabled MCP dependencies before exposing any wiki tools.
 
 ### Phase 0 — Scaffolding (½ day) — **partially done** in the read-only spike
 
@@ -1514,9 +1516,9 @@ Five phases. Each is independently useful; you can stop at any phase and have a 
 
 ### Phase 2 — MCP tool surface (1–2 days)
 
-(Materially shorter than v1.1 estimate — MCP server is already running.)
+(Includes restoring and validating the currently disabled MCP endpoint.)
 
-- Build `org-wiki-mcp.el` using the `elisp-dev-mcp` template (one function per tool, `MCP Parameters:` docstring blocks, `mcp-server-lib-register-tool` from a single `enable` function).
+- Build `org-wiki-mcp.el` using the `elisp-dev-mcp` template (one function per tool, `MCP Parameters:` docstring blocks, `mcp-server-lib-register-server` from a single `enable` function).
 - Priority order: Discovery → Reading → Source mgmt → Structured edit (plan/apply pairs) → Maintenance → Lifecycle.
 - ERT tests per tool using patterns from `mcp-server-lib-test.el`.
 - Implement the journal, the idempotency-key cache, and the recovery pass.
@@ -1555,7 +1557,7 @@ Five phases. Each is independently useful; you can stop at any phase and have a 
 
 ### Installation seam
 
-The wiki ships as one new package under `~/src/dot-emacs/lisp/org-wiki/`:
+The wiki ships as the Nix-installed [`org-wiki`](https://github.com/jwiegley/org-wiki) package:
 
 ```elisp
 ;; in ~/org/init.org
@@ -2175,7 +2177,7 @@ five-liners over `vulpea-db-query`.
 | RAG (raw-source fallback)                      | `gptel-rag`                                                                                                         |
 | LLM system prompts as files                    | `gptel-prompts` (drop `.poet` files in `~/src/dot-emacs/prompts/`; auto-reloads)                                    |
 | Tool calls / LLM tooling                       | `gptel-tools`, `gptel-emacs-tools`                                                                                  |
-| MCP server                                     | `mcp-server-lib` — **already running**; wiki tools `register-tool` against it (no second server)                    |
+| MCP server                                     | `mcp-server-lib` — Nix definition retained but currently excluded and `COMMENT`-disabled; select and start one endpoint before enabling `org-wiki-mcp` |
 | MCP tool authoring pattern                     | `elisp-dev-mcp` — one function per tool, `MCP Parameters:` docstring block                                          |
 | Sync routine (extend with wiki tail)           | `org-roam-ext-sync` in `org-roam-ext.el` — add `org-roam-ext-sync-after-hook` for clean extension                   |
 | Per-RPC roam DB update                         | `org-roam-db-update-file`                                                                                           |

@@ -23,7 +23,7 @@ An eight-dimension multi-agent deep review (spike internals, dependency-API veri
 - **§10.1/§13 degraded mode**: org-ql-semantic signals `user-error` on backend failure rather than degrading; `wiki_search` must catch and fall back to text matching itself (the spike now does).
 - **§13.4**: the "10-minute RPC timeout" had no substrate (mcp-server-lib dispatch is synchronous, no timeout primitive); replaced with the honest mechanism set — `C-g` through `unwind-protect`, timestamped stale-sentinel cleanup (`org-wiki-lock-stale-seconds`), and crash-time `wiki_recover`.
 - **§7.0/Appendix C ported to `mcp-server-lib-register-server`** (per-tool `register-tool` is obsolete as of 0.3.0); `:description` must be a hand-written summary, never `(documentation handler)`. Stale mcp-server-lib line-number citations replaced with symbolic references.
-- **§3.4 matrix**: exclude-regexp count corrected (8 entries); capture key `w` is *taken* (Work prefix), not free; `elisp-dev-mcp` loads from `lisp/elisp-mcp-dev/` and registers its own endpoint — clients must connect to the endpoint wiki tools use.
+- **§3.4 matrix**: exclude-regexp count corrected (8 entries); capture key `w` is *taken* (Work prefix), not free; the Nix-installed `elisp-dev-mcp` package registers its own endpoint when enabled — clients must connect to the endpoint wiki tools use.
 - **§7.1**: `wiki_node_metadata` strips any `HASH_*` property unconditionally; noted that `wiki_read_node` returns the drawer by design (integrity rests on tool-only hash writes, not secrecy).
 - **§13 injection row**: wiki bodies replayed at query time must be delimited by the prompt-assembly layer, not only raw sources at ingest.
 - **§3.5**: `MIND_MAP.org` explicitly in the writable set (structured RPCs for narrative; `wiki_sync` for its dblocks).
@@ -70,7 +70,7 @@ Spike package updated to match:
 Not a patch round responding to a fifth adversarial review. The fourth review concluded the cycle of doc-only iteration had hit diminishing returns; what was needed was running code. v2.3 is the doc revision that:
 
 - **Adds section-status badges** (🟢 / 🟡 / 🔴) so the doc honestly signals what's spec-quality versus what needs empirical verification before implementation.
-- **Anchors verified claims** to a real working package: `~/src/dot-emacs/lisp/org-wiki/` is a read-only MCP spike that empirically validates the load-bearing assumptions of the design. Sections with the `✓ verified by spike` annotation have been confirmed against running code on the user's actual Emacs install.
+- **Anchors verified claims** to a real working package: the Nix-installed `org-wiki` package is a read-only MCP spike that empirically validates the load-bearing assumptions of the design. Sections with the `✓ verified by spike` annotation have been confirmed against running code on the user's actual Emacs install.
 
 Sections promoted from "claimed correct" to "empirically verified" by the spike's 18 ERT tests:
 
