@@ -97,7 +97,7 @@
 (defun gptel-backends-rinzler ()
   "Make GPTel backends for models hosted on Clio."
   (gptel-make-openai "rinzler"
-    :host "127.0.0.1:59425"
+    :host "127.0.0.1:63495"
     :protocol "http"
     :models '(llama31-metal))
 
