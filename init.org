@@ -622,9 +622,9 @@ _v_ariable       _u_ser-option
 #+begin_src emacs-lisp
 (use-package llm-setup
   :load-path "lisp/llm-setup"
-  :defines (llm-setup-default-instance-name)
   :functions (llm-setup-gptel-backends)
-  :commands (llm-setup-build-yaml
+  :commands (llm-setup-aider-model-name
+             llm-setup-build-yaml
              llm-setup-status
              llm-setup-unload
              llm-setup-installed-models
@@ -711,7 +711,7 @@ It reindents after every change, making it more reliable than
   :custom
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
-     "--model" ,(format "openai/%s" llm-setup-default-instance-name)
+     "--model" ,(llm-setup-aider-model-name)
      "--openai-api-base" "http://litellm.vulcan.lan/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
