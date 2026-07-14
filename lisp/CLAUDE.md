@@ -257,7 +257,7 @@ Rich org-mode configuration and extensions:
 
 When modifying packages:
 1. Check for existing test files (`*-test.el`)
-2. Run package-specific tests using the appropriate tool (Eask, Make, or Cask)
+2. Run repository-local `*-test.el` suites with ERT
 3. Ensure byte-compilation succeeds without warnings
 4. For a Nix-managed package, run its checks in the source checkout that owns its build metadata
 5. Test interactively with `M-x ert` for immediate feedback

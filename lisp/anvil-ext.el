@@ -55,26 +55,14 @@
 ;; patched build — the dedicated directory simply becomes the cached
 ;; directory — and keep sessions on unpatched builds safe.  Once every
 ;; machine runs the patched build, the worker-pool advices can be
-;; dropped.  The `anvil-server-dispatch-timeout' setting, dedicated-
-;; directory preference, and server-id alias below are independent
-;; configuration and remain useful.
+;; dropped.  The `anvil-server-dispatch-timeout' setting and dedicated-
+;; directory preference are independent configuration and remain useful.
 
 ;;; Code:
 
 (require 'server)
-(require 'cl-lib)
 (require 'anvil-server)
 (require 'anvil-worker)
-
-(defvar anvil-server-id "anvil")
-
-;; Register every module in one canonical table before `anvil-enable' runs.
-;; `init.org' configures the legacy real id `emacs-eval'; clients use the
-;; stable virtual id `anvil', which resolves to whichever real id the user has
-;; configured.  Do not assign the defcustom here: loading this library must not
-;; overwrite a user's Anvil configuration.
-(cl-pushnew (cons "anvil" anvil-server-id)
-            anvil-server-id-aliases :test #'equal)
 
 (defgroup anvil-ext nil
   "Extensions and fixes for anvil."
