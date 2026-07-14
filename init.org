@@ -3700,8 +3700,6 @@ gptel’s partner, or the user’s.
   :disabled t
   :config
   (use-package anvil-ide)
-  (use-package anvil-ext
-    :demand t)
   (setq anvil-optional-modules
         '(ide elisp sexp semantic sqlite pdf cron state shell-filter context))
   (anvil-enable)

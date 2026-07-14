@@ -13,7 +13,7 @@ The repository contains several major components:
 - **Core Modules**: Individual `.el` files in the root directory (e.g., `cl-info.el`, `org-config.el`, `gptel-presets.el`)
 - **Retained Subdirectories**: `badi-calendar/` and the sole remaining git submodule, `llm-setup/`
 - **Nix-managed Dependencies**: External packages such as GPTel, Org extensions, and MCP libraries are installed by Nix rather than checked out below `lisp/`
-- **MCP Integration**: Local adapters such as `mcp-convert.el` and `anvil-ext.el`; the legacy `mcp-server-lib` configuration is currently disabled
+- **MCP Integration**: Local adapters such as `mcp-convert.el`; Anvil is Nix-managed and its main-Emacs configuration is currently disabled
 - **Org-mode Extensions**: Various org-mode enhancements (`org-roam-ext.el`, `org-ql-ext.el`, `org-smart-capture.el`)
 
 ## Emacs Lisp Development Patterns
@@ -236,7 +236,7 @@ emacs -batch -L . -f batch-byte-compile *.el
 ### MCP (Model Context Protocol) Integration
 The repository includes extensive MCP integration:
 - `mcp-convert.el`: local MCP conversion utilities
-- `anvil-ext.el`: local Anvil compatibility and endpoint configuration
+- Anvil runs as a Nix-managed dedicated/headless service; the dormant main-Emacs configuration remains disabled
 - `mcp-server-lib` and `elisp-dev-mcp`: Nix definitions retained, but excluded from the normal environment and `COMMENT`-disabled in `init.org`
 
 ### GPTel Integration
