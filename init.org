@@ -3235,7 +3235,8 @@ up before you execute another command."
   (gptel-backends-llama-swap)
   (gptel-backends-omlx)
   (gptel-backends-vibe-proxy)
-  (setq gptel-backend (gptel-backends-make-litellm)))
+  (setq gptel-backend (gptel-backends-make-litellm)
+        gptel-model llm-setup-default-instance-name))
 #+end_src
 
 *** gptel-presets
@@ -14158,8 +14159,6 @@ with the retired MCP server configuration above.
                                  ; for @org-wiki and ob-gptel without first
                                  ; running a command
   :commands (org-wiki-ask org-wiki-chat)
-  :custom
-  (org-wiki-gptel-model 'hera/Qwen3.6-27B-Instruct)
   :config
   (with-eval-after-load 'org-wiki-commands
     (define-key org-wiki-command-map (kbd "a") #'org-wiki-ask)

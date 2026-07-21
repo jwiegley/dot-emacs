@@ -107,14 +107,13 @@
 ;;; Ali Baba
 
 (gptel-make-preset 'qwen
-  :description "Ali Baba's Qwen, thinking"
+  :description "Ali Baba's Qwen via LiteLLM"
   :backend "LiteLLM"
-  :model 'hera/omlx/Qwen3.6-27B-MLX-8bit)
+  :model llm-setup-default-instance-name)
 
 (gptel-make-preset 'qwen-clio
-  :description "Ali Baba's Qwen, thinking"
-  :backend "oMLX"
-  :model 'Qwen3.6-35B-A3B-UD-MLX-4bit)
+  :description "Compatibility alias for the shared Qwen default"
+  :parents 'qwen)
 
 ;;; ALIASES ==============================================================
 
@@ -176,12 +175,7 @@
   :include-reasoning nil
   :use-context nil
   :tools nil
-  :parents
-  'gpt
-  ;; '(qwen-clio nothink)
-  ;; 'qwen
-  ;; 'opus-max
-  )
+  :parents 'qwen)
 
 (gptel-make-preset 'visible-buffers
   :description "Include the full text of all buffers visible in the frame."
