@@ -43,7 +43,8 @@
 
   (setq package-enable-at-startup nil
         load-path
-        (append (delete-dups load-path)
+        (append (list (emacs-path "use-package"))
+                (delete-dups load-path)
                 (list (emacs-path "lisp")))))
 
 (require 'use-package)
@@ -622,9 +623,9 @@ _v_ariable       _u_ser-option
 #+begin_src emacs-lisp
 (use-package llm-setup
   :load-path "lisp/llm-setup"
+  :defines (llm-setup-default-instance-name)
   :functions (llm-setup-gptel-backends)
-  :commands (llm-setup-aider-model-name
-             llm-setup-build-yaml
+  :commands (llm-setup-build-yaml
              llm-setup-status
              llm-setup-unload
              llm-setup-installed-models
@@ -711,7 +712,7 @@ It reindents after every change, making it more reliable than
   :custom
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
-     "--model" ,(llm-setup-aider-model-name)
+     "--model" ,(format "openai/%s" llm-setup-default-instance-name)
      "--openai-api-base" "http://litellm.vulcan.lan/v1"
      "--api-key" ,(concat "openai="
                           (auth-source-pass-get 'secret "vulcan"))
@@ -2107,7 +2108,7 @@ To get the most out of Eat, you should also setup shell integration.
 
 #+begin_src emacs-lisp
 (use-package ecard-display
-  :nix ecard
+  :nix nil
   :commands (ecard-display)
   :custom
   (ecard-display-contacts-page-size 3000)
@@ -2129,7 +2130,7 @@ To get the most out of Eat, you should also setup shell integration.
 
 #+begin_src emacs-lisp
 (use-package ecard-sync
-  :nix ecard
+  :nix nil
   :commands (ecard-sync-entry)
   :config
   (require 'ecard-display)
@@ -2562,11 +2563,7 @@ your system."
   :after erc)
 #+end_src
 
-*** COMMENT erc-yank
-
-Retired with the submodule-to-Nix migration: =erc-yank= remains excluded from
-the normal Nix environment.  The former configuration is retained for
-reference.
+*** erc-yank
 
 #+begin_src emacs-lisp
 (use-package erc-yank
@@ -4746,6 +4743,7 @@ Forge-supported host (GitHub, GitLab, etc.).
 
 #+begin_src emacs-lisp
 (use-package magit-ai
+  :nix nil
   :after magit)
 #+end_src
 
@@ -7179,6 +7177,7 @@ Alt-V, which is to yank.
 
 #+begin_src emacs-lisp
 (use-package wombag
+  :nix nil
   :unless noninteractive
   :commands (wombag wombag-sync)
   :custom
@@ -9052,15 +9051,13 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 #+end_src
 
-**** haskell-setup
+**** haskell-edit
 
 #+begin_src emacs-lisp
-(use-package haskell-setup
-  :nix nil
-  :commands (haskell-edit-reformat)
-  :init
-  (with-eval-after-load 'haskell-mode
-    (keymap-set haskell-mode-map "C-c M-q" #'haskell-edit-reformat)))
+(use-package haskell-edit
+  :after haskell-mode
+  :bind (:map haskell-mode-map
+              ("C-c M-q" . haskell-edit-reformat)))
 #+end_src
 
 **** haskell-eglot
@@ -11446,6 +11443,7 @@ This is returned as a string."
 
 #+begin_src emacs-lisp
 (use-package org-agenda-overlay
+  :nix nil
   :after org-agenda
   :demand t
   :hook
@@ -14132,9 +14130,11 @@ checkbox, and moves the cursor to the end of the previous line.
 *** org-wiki
 
 Read-only spike of the Org-native LLM Wiki
-(see =~/src/dot-emacs/lisp/docs/org-llm-wiki.md=).  Interactive and GPTel
-integration remain enabled; the legacy =mcp-server-lib= adapter is disabled
-with the retired MCP server configuration above.
+(see =~/src/dot-emacs/lisp/docs/org-llm-wiki.md=).  Tools register on
+the shared "default" endpoint once per Emacs lifetime; the MCP client
+connects via emacs-mcp-stdio.sh with --server-id=default and no
+init-function, so concurrent Claude Code sessions don't race the
+registration.
 
 #+begin_src emacs-lisp
 (use-package org-wiki
@@ -14147,7 +14147,6 @@ with the retired MCP server configuration above.
   :bind ("C-c w w" . org-wiki-command-map))
 
 (use-package org-wiki-mcp
-  :disabled t
   :after (mcp-server-lib)
   :demand t
   :config (org-wiki-mcp-enable))
