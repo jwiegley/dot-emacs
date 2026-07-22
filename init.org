@@ -9427,7 +9427,6 @@ Nael is a mode for editing Lean 4 programs.
     (coq-compile-auto-save 'save-coq)
     (coq-compile-before-require t)
     (coq-compile-parallel-in-background t)
-    (coq-holes-minor-mode nil)
     (coq-maths-menu-enable t)
     (coq-one-command-per-line nil)
     (coq-prefer-top-of-conclusion t)
@@ -9439,7 +9438,6 @@ Nael is a mode for editing Lean 4 programs.
 
     (defun my-coq-mode-hook-function ()
       (set-input-method "Agda")
-      (holes-mode -1)
       (abbrev-mode -1)
       (font-lock-mode 1)
 
