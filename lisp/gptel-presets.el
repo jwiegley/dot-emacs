@@ -38,29 +38,10 @@
 
 ;;; OpenAI
 
-(gptel-make-openai "OpenAI"
-  :stream t
-  :key gptel-api-key
-  :models
-  '((gpt-5.6-sol
-     :description "Frontier model for complex professional work"
-     :capabilities (reasoning media tool-use json url responses-api)
-     :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp")
-     :context-window 1050
-     :input-cost 5
-     :output-cost 30
-     :cutoff-date "2026-02")))
-
-(gptel-make-preset 'sol
-  :description "OpenAI's GPT-5.6 Sol"
-  :backend "OpenAI"
-  :model 'gpt-5.6-sol
-  :temperature 1.0)
-
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
   :backend "LiteLLM"
-  :model 'positron_openai/gpt-5.5
+  :model 'positron_openai/gpt-5.6-sol
   :temperature 1.0)
 
 ;;; Anthropic
@@ -195,7 +176,7 @@
   :include-reasoning nil
   :use-context nil
   :tools nil
-  :parents 'qwen)
+  :parents 'gpt)
 
 (gptel-make-preset 'visible-buffers
   :description "Include the full text of all buffers visible in the frame."
