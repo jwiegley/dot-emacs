@@ -27,6 +27,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'gptel-request)
 ;; (require 'gptel-kagi)
 ;; (require 'gptel-ollama)
@@ -75,13 +76,25 @@
              (cond ((string-match-p "clio" (system-name)) "clio")
                    ((string-match-p "hera" (system-name)) "hera")))))
 
+(defun gptel-backends--omlx-models ()
+  "Return text-generation oMLX instance names from the model registry."
+  (cl-loop
+   for model in llm-setup-models-list nconc
+   (cl-loop
+    for instance in (llm-setup-model-instances model)
+    when
+    (and
+     (eq (llm-setup-model-kind model) 'text-generation)
+     (eq (llm-setup-instance-provider instance) 'omlx))
+    collect (llm-setup-get-instance-name model instance))))
+
 (defun gptel-backends-omlx ()
   "Make GPTel backends for models hosted on Clio."
   (gptel-make-openai "oMLX"
     :host "127.0.0.1:8000"
     :protocol "http"
     :endpoint "/v1/chat/completions"
-    :models '(Qwen3.6-35B-A3B-UD-MLX-4bit)
+    :models (gptel-backends--omlx-models)
     :key "dummy-key"))
 
 (defun gptel-backends-vibe-proxy ()
