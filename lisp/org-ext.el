@@ -125,6 +125,36 @@ Intended for use with `org-capture' templates."
   (when (re-search-forward ":TAGS:\\s-+\n" nil t)
     (delete-region (match-beginning 0) (match-end 0))))
 
+(defcustom org-ext-recording-queue-directory
+  (expand-file-name "~/.local/share/recording-transcripts")
+  "Local directory containing recording transcripts awaiting Org import."
+  :type 'directory
+  :group 'org-ext)
+
+(defcustom org-ext-recording-receipt-directory
+  (expand-file-name ".imported" org-ext-recording-queue-directory)
+  "Private acknowledgement directory for imported recording transcripts."
+  :type 'directory
+  :group 'org-ext)
+
+(defcustom org-ext-recording-inbox-directories
+  (list org-ext-recording-queue-directory
+        (expand-file-name "~/Recordings"))
+  "Directories containing recording transcript files awaiting Org import."
+  :type '(repeat directory)
+  :group 'org-ext)
+
+(defun org-ext-recording-note-files ()
+  "Return sorted recording transcripts awaiting Org import."
+  (sort
+   (delete-dups
+    (cl-mapcan
+     (lambda (directory)
+       (and (file-directory-p directory)
+            (directory-files directory t ".*\\.txt\\'" nil)))
+     org-ext-recording-inbox-directories))
+   #'string-lessp))
+
 (defun org-ext-move-recording-audio (txt-file)
   "Move audio file corresponding to TXT-FILE to ~/Audio/Recordings.
 Searches for audio files with the same basename as TXT-FILE but with
@@ -174,6 +204,72 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
         (org-insert-time-stamp (current-time) t t)
         (insert "\n")))))
 
+(defun org-ext-recording-file-hash (note)
+  "Return the SHA-256 digest of recording transcript NOTE contents."
+  (with-temp-buffer
+    (insert-file-contents-literally note)
+    (secure-hash 'sha256 (current-buffer))))
+
+(defun org-ext-recording-receipt-file (note)
+  "Return the acknowledgement path for local queue transcript NOTE."
+  (when (file-in-directory-p note org-ext-recording-queue-directory)
+    (expand-file-name
+     (concat (file-name-nondirectory note) ".sha256")
+     org-ext-recording-receipt-directory)))
+
+(defun org-ext-recording-imported-p (hash)
+  "Return non-nil when the current Org buffer already records HASH."
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward
+     (concat "^:RECORDING_TRANSCRIPT_SHA256:[ \t]+"
+             (regexp-quote hash) "[ \t]*$")
+     nil t)))
+
+(defun org-ext-write-recording-receipt (note hash)
+  "Atomically acknowledge imported queue transcript NOTE with HASH."
+  (when-let ((receipt (org-ext-recording-receipt-file note)))
+    (make-directory org-ext-recording-receipt-directory t)
+    (set-file-modes org-ext-recording-receipt-directory #o700)
+    (let ((temporary
+           (make-temp-file
+            (expand-file-name ".recording-import-"
+                              org-ext-recording-receipt-directory))))
+      (unwind-protect
+          (progn
+            (write-region (concat hash "\n") nil temporary nil 'silent)
+            (set-file-modes temporary #o600)
+            (rename-file temporary receipt t))
+        (when (file-exists-p temporary)
+          (delete-file temporary))))))
+
+(defun org-ext-import-recording-note (note)
+  "Import recording transcript NOTE, save, acknowledge, then consume it."
+  (let ((hash (org-ext-recording-file-hash note)))
+    (unless (org-ext-recording-imported-p hash)
+      (let ((start-pos (point)))
+        (insert
+         (with-temp-buffer
+           (org-mode)
+           (insert-file-contents note)
+           (goto-char (point-min))
+           (org-ext-reformat-recording)
+           (goto-char (point-max))
+           (unless (bolp)
+             (insert ?\n))
+           (buffer-string)))
+        (save-excursion
+          (goto-char start-pos)
+          (when (re-search-forward "^\\*\\* \\(DRAFT\\|TODO\\) " nil t)
+            (beginning-of-line)
+            (run-hooks 'org-capture-before-finalize-hook)
+            (org-set-property "RECORDING_TRANSCRIPT_SHA256" hash)))))
+    (when buffer-file-name
+      (save-buffer))
+    (org-ext-write-recording-receipt note hash)
+    (org-ext-move-recording-audio note)
+    (delete-file note t)))
+
 (defun org-ext-fit-agenda-window ()
   "Fit the window to the buffer size."
   (and (memq org-agenda-window-setup '(reorganize-frame))
@@ -185,9 +281,7 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
   (let ((draft-notes
          (and (file-directory-p "~/Drafts")
               (directory-files "~/Drafts" t "[0-9].*\\.txt\\'" nil)))
-        (recording-notes
-         (and (file-directory-p "~/Recordings")
-              (directory-files "~/Recordings" t ".*\\.txt\\'" nil))))
+        (recording-notes (org-ext-recording-note-files)))
     (when (or draft-notes recording-notes)
       (org-ext-goto-inbox
        (lambda ()
@@ -207,29 +301,7 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
            (delete-file note t))
          ;; Process Recording notes
          (dolist (note recording-notes)
-           ;; Insert the text content and add metadata
-           (let ((start-pos (point)))
-             (insert
-              (with-temp-buffer
-                (org-mode)
-                (insert-file-contents note)
-                (goto-char (point-min))
-                ;; Format recording as DRAFT entry
-                (org-ext-reformat-recording)
-                (goto-char (point-max))
-                (unless (bolp)
-                  (insert ?\n))
-                (buffer-string)))
-             ;; Now we're back in the inbox file buffer, add metadata
-             (save-excursion
-               (goto-char start-pos)
-               (when (re-search-forward "^\\*\\* \\(DRAFT\\|TODO\\) " nil t)
-                 (beginning-of-line)
-                 (run-hooks 'org-capture-before-finalize-hook))))
-           ;; Move corresponding audio file to ~/Audio/Recordings
-           (org-ext-move-recording-audio note)
-           ;; Delete the text file
-           (delete-file note t))
+           (org-ext-import-recording-note note))
          (when (buffer-modified-p)
            (save-buffer))))))
   ad-do-it
