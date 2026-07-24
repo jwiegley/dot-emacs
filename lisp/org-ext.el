@@ -48,6 +48,8 @@
 (declare-function org-smart-capture "org-smart-capture")
 (declare-function org-contacts-filter "org-contacts")
 (declare-function org-ql-ext-get-all-verbs "org-ql-ext")
+(declare-function mdformat-buffer "mdformat")
+(defvar org-export-filter-options-functions)
 
 (defgroup org-ext nil
   "Extra functions for use with Org-mode."
@@ -882,6 +884,52 @@ Silently opens all links until no more can be opened. For link navigation."
         (while (progn (org-next-link)
                       (not org-link--search-failed))
           (org-open-at-point))))))
+
+;;;###autoload
+(defun org-ext-copy-subtree-as-markdown ()
+  "Copy and display the current Org subtree as formatted Markdown.
+Retain the subtree root as an ATX level-one heading while omitting the
+TOC, workflow keywords, generated anchor targets, and state transitions."
+  (interactive)
+  (require 'ox-md)
+  (require 'mdformat)
+  (let ((mark-active nil)
+        (output-buffer (get-buffer-create "*Org MD Export*"))
+        markdown)
+    (with-current-buffer output-buffer
+      (let ((inhibit-read-only t))
+        (erase-buffer))
+      (text-mode))
+    (let ((org-export-filter-options-functions
+           (append
+            org-export-filter-options-functions
+            (list
+             (lambda (options _backend)
+               (dolist (setting
+                        '((:md-headline-style atx)
+                          (:md-toplevel-hlevel 1)
+                          (:with-tasks t)
+                          (:with-todo-keywords nil)
+                          (:with-toc nil)
+                          (:with-drawers (not "LOGBOOK"))))
+                 (setq options
+                       (plist-put options (car setting) (cadr setting))))
+               options)))))
+      (save-restriction
+        (org-narrow-to-subtree)
+        (setq markdown (org-export-as 'md))))
+    (setq markdown
+          (replace-regexp-in-string
+           "^-[ \t]+State \"[^\"]+\"[ \t]+from \"[^\"]+\"[^\n]*\n*" ""
+           (replace-regexp-in-string
+            "^<a id=\"[^\"]+\"></a>[ \t]*\n*" "" markdown)))
+    (with-current-buffer output-buffer
+      (insert markdown)
+      (mdformat-buffer)
+      (kill-new (buffer-string))
+      (goto-char (point-min)))
+    (pop-to-buffer output-buffer)
+    (message "Formatted Markdown subtree copied and displayed")))
 
 (defun org-ext-get-properties (&rest props)
   "Get current entry's level and specified PROPS as list.
