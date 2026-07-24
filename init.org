@@ -3144,6 +3144,8 @@ up before you execute another command."
    ("<return>" . gptel-send)
    :map
    gptel-mode-map
+   ("RET"      . gptel-send)
+   ("<return>" . gptel-send)
    ("C-c C-n"  . my/gptel-next-prompt)
    ("C-c C-p"  . my/gptel-previous-prompt))
   :hook
