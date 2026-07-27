@@ -78,6 +78,9 @@ this runs the same alternate title action as the org-drafts `P' key."
     (yank)
     (setq end (copy-marker (point) t))
     (markdown-to-org-region beg end)
+    (goto-char end)
+    (unless (bolp)
+      (insert ?\n))
     (save-restriction
       (narrow-to-region beg end)
       (let* ((tree (org-element-parse-buffer))
