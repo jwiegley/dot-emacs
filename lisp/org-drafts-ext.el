@@ -20,9 +20,10 @@
 
 ;; AI-powered extensions for `org-drafts'.  Plugs into the
 ;; `org-drafts-alt-task-body-function' extension point so that the
-;; capital `N' and `T' keys in the org-drafts hydra synthesize a title
-;; via `gptel-ext-title' instead of moving the first body line into the
-;; heading.
+;; capital `N', `T', and `P' keys in the org-drafts hydra synthesize a
+;; title via `gptel-ext-title' instead of moving the first body line into
+;; the heading.  `org-drafts-ext-paste-prompt' also turns clipboard
+;; Markdown into a titled PROMPT in one command.
 ;;
 ;; Setup:
 ;;
@@ -33,6 +34,11 @@
 
 (require 'org-drafts)
 (require 'gptel-ext)
+(require 'org-element)
+(require 'seq)
+
+(declare-function iTerm2-send-to-current-window "personal" (&optional arg))
+(declare-function markdown-to-org-region nil (start end))
 
 (defun org-drafts-ext-ai-title-body-function (heading-pos _beg _end)
   "Synthesize an AI-generated title for the heading via `gptel-ext-title'.
@@ -55,12 +61,47 @@ marker at the heading line.  The other arguments are unused."
         (buffer-substring-no-properties (point) (point-max)))))))
 
 ;;;###autoload
+(defun org-drafts-ext-paste-prompt ()
+  "Yank clipboard Markdown into the current DRAFT and make it a PROMPT.
+The inserted text is converted to Org with `markdown-to-org-region'.
+When the result contains only paragraphs, it is also filled.  Finally,
+this runs the same alternate title action as the org-drafts `P' key."
+  (interactive)
+  (unless (derived-mode-p 'org-mode)
+    (user-error "This command requires Org mode"))
+  (org-back-to-heading t)
+  (unless (equal (org-get-todo-state) "DRAFT")
+    (user-error "Current entry is not a DRAFT"))
+  (org-end-of-meta-data t)
+  (let ((beg (point-marker))
+        end)
+    (yank)
+    (setq end (copy-marker (point) t))
+    (markdown-to-org-region beg end)
+    (save-restriction
+      (narrow-to-region beg end)
+      (let* ((tree (org-element-parse-buffer))
+             (contents (org-element-contents tree))
+             (section (and (= (length contents) 1) (car contents))))
+        (when (and section
+                   (eq (org-element-type section) 'section)
+                   (seq-every-p
+                    (lambda (element)
+                      (eq (org-element-type element) 'paragraph))
+                    (org-element-contents section)))
+          (fill-region (point-min) (point-max)))))
+    (set-marker beg nil)
+    (set-marker end nil))
+  (org-drafts-prompt t))
+
+;;;###autoload
 (defun org-drafts-ext-install ()
-  "Wire `org-drafts-ext-ai-title-body-function' into the org-drafts hydra.
-After this is called, the capital `N' and `T' hydra keys convert a
-draft into NOTE/TODO with a title synthesized by `gptel-ext-title'."
+  "Install AI title actions and the Org `H-p' paste-prompt binding.
+The capital org-drafts hydra actions synthesize titles through
+`gptel-ext-title'."
   (setq org-drafts-alt-task-body-function
-        #'org-drafts-ext-ai-title-body-function))
+        #'org-drafts-ext-ai-title-body-function)
+  (define-key org-mode-map (kbd "H-p") #'org-drafts-ext-paste-prompt))
 
 (provide 'org-drafts-ext)
 
