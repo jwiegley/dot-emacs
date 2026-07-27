@@ -11560,7 +11560,7 @@ This is returned as a string."
   (("M-g O" . org-ql-ext-find-refile-targets)
    :map
    org-mode-map
-   ("C-c C-x E" . org-ql-ext-export-columnview))
+   ("C-c C-x X" . org-ql-ext-export-columnview))
   :config
   (eval-when-compile
     (require 'vertico-multiform))
@@ -11833,7 +11833,10 @@ context.
 
 #+begin_src emacs-lisp
 (use-package org-drafts-ext
-  :after (org-drafts gptel-ext)
+  :after (org-drafts)
+  :bind (:map
+         org-mode-map
+         ("C-c C-x y" . org-drafts-ext-paste-prompt))
   :config
   (org-drafts-ext-install))
 #+end_src
