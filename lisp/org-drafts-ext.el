@@ -81,35 +81,38 @@ alternate title action as the org-drafts `P' key."
   (let ((heading (point))
         (level (org-current-level)))
     (org-end-of-meta-data t)
-    (let ((beg (point-marker))
-          end)
-      (yank)
-      (setq end (copy-marker (point) t))
-      (markdown-to-org-region beg end)
-      (goto-char end)
-      (unless (bolp)
-        (insert ?\n))
-      (save-restriction
-        (narrow-to-region beg end)
-        (let* ((tree (org-element-parse-buffer))
-               (contents (org-element-contents tree))
-               (section (and (= (length contents) 1) (car contents)))
-               (plain
-                (and section
-                     (eq (org-element-type section) 'section)
-                     (seq-every-p
-                      (lambda (element)
-                        (eq (org-element-type element) 'paragraph))
-                      (org-element-contents section)))))
-          (dolist (pos (reverse (org-element-map tree 'headline
-                                  (lambda (element)
-                                    (org-element-property :begin element)))))
-            (goto-char pos)
-            (insert (make-string level ?*)))
-          (when plain
-            (fill-region (point-min) (point-max)))))
-      (set-marker beg nil)
-      (set-marker end nil))
+    (atomic-change-group
+      (let ((beg (point-marker))
+            end)
+        (yank)
+        (setq end (copy-marker (point) t))
+        (let ((status (markdown-to-org-region beg end)))
+          (unless (zerop status)
+            (user-error "Markdown conversion failed (exit %s)" status)))
+        (goto-char end)
+        (unless (bolp)
+          (insert ?\n))
+        (save-restriction
+          (narrow-to-region beg end)
+          (let* ((tree (org-element-parse-buffer))
+                 (contents (org-element-contents tree))
+                 (section (and (= (length contents) 1) (car contents)))
+                 (plain
+                  (and section
+                       (eq (org-element-type section) 'section)
+                       (seq-every-p
+                        (lambda (element)
+                          (eq (org-element-type element) 'paragraph))
+                        (org-element-contents section)))))
+            (dolist (pos (reverse (org-element-map tree 'headline
+                                    (lambda (element)
+                                      (org-element-property :begin element)))))
+              (goto-char pos)
+              (insert (make-string level ?*)))
+            (when plain
+              (fill-region (point-min) (point-max)))))
+        (set-marker beg nil)
+        (set-marker end nil)))
     (goto-char heading)
     (org-drafts-prompt t)))
 
