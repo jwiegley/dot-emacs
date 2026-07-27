@@ -11498,6 +11498,7 @@ This is returned as a string."
      ;; Personal categories
      ("Computer"  face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ("AI"        face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
+     ("Nix"       face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ;; Work categories
      ("Ares"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("Tron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
