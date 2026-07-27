@@ -8,19 +8,12 @@
 
 ;;; Code:
 
-(unless (featurep 'org-drafts)
-  (defvar org-drafts-alt-task-body-function nil)
-  (defun org-drafts-prompt (&optional _alt)
-    "Stand-in for `org-drafts-prompt' when testing without that package.")
-  (provide 'org-drafts))
-
-(unless (featurep 'gptel-ext)
-  (defun gptel-ext-title ()
-    "Stand-in for `gptel-ext-title' when testing without that package.")
-  (provide 'gptel-ext))
-
 (let ((load-prefer-newer t))
+  (require 'org-drafts)
+  (require 'gptel-ext)
   (require 'org-drafts-ext))
+
+(declare-function org-drafts-ext-paste-prompt "org-drafts-ext")
 
 (ert-deftest org-drafts-ext-test-paste-prompt ()
   (let ((old-binding (lookup-key org-mode-map (kbd "H-p")))
@@ -35,21 +28,26 @@
           (dolist (case '((heading "First **bold** line" "First *bold* line" t)
                           (property "- First item\n- Second item"
                                     "- First item\n- Second item" nil)
-                          (body "Another paragraph" "Another paragraph" t)))
+                          (body "# Nested heading" "* Nested heading" nil)))
             (with-temp-buffer
               (org-mode)
               (let* ((start (nth 0 case))
                      (markdown (nth 1 case))
                      (converted (nth 2 case))
                      (expect-fill (nth 3 case))
+                     (expected (if (eq start 'body)
+                                   "** Nested heading"
+                                 converted))
                      (org-todo-keywords
                       '((sequence "TODO" "DRAFT" "PROMPT" "|" "DONE")))
                      (kill-ring (list markdown))
                      (kill-ring-yank-pointer kill-ring)
                      (interprogram-paste-function nil)
+                     (current-prefix-arg nil)
                      received
-                     filled
-                     prompt-alt)
+                     fill-bounds
+                     fill-text
+                     title-called)
                 (org-set-regexps-and-options)
                 (insert "* DRAFT [2026-07-26 Sun 23:41]\n"
                         ":PROPERTIES:\n:ID: test\n:END:\n"
@@ -62,36 +60,36 @@
                            (lambda (beg end)
                              (setq received
                                    (buffer-substring-no-properties beg end))
-                             (delete-region beg end)
-                             (goto-char beg)
-                             (insert converted)))
+                             (shell-command-on-region
+                              beg end
+                              "pandoc -f markdown-auto_identifiers -t org"
+                              t t)))
                           ((symbol-function 'fill-region)
-                           (lambda (&rest _args) (setq filled t)))
-                          ((symbol-function 'org-drafts-prompt)
-                           (lambda (&optional alt) (setq prompt-alt alt))))
+                           (lambda (beg end &rest _args)
+                             (setq fill-bounds
+                                   (list beg end (point-min) (point-max))
+                                   fill-text
+                                   (buffer-substring-no-properties
+                                    (point-min) (point-max)))))
+                          ((symbol-function 'gptel-ext-title)
+                           (lambda () (setq title-called t))))
                   (org-drafts-ext-paste-prompt))
                 (should (equal received markdown))
-                (should (eq filled expect-fill))
-                (should (eq prompt-alt t))
+                (if expect-fill
+                    (progn
+                      (should (equal fill-text (concat expected "\n")))
+                      (should (= (nth 0 fill-bounds) (nth 2 fill-bounds)))
+                      (should (= (nth 1 fill-bounds) (nth 3 fill-bounds))))
+                  (should-not fill-bounds))
+                (should title-called)
                 (goto-char (point-min))
+                (should (looking-at-p "^\\* PROMPT$"))
                 (re-search-forward ":END:\n")
                 (should
                  (equal (buffer-substring-no-properties (point) (point-max))
-                        (concat converted "\nExisting body.\n"))))))
-          (with-temp-buffer
-            (org-mode)
-            (insert "* PROMPT [2026-07-26 Sun 23:41]\nBody\n")
-            (goto-char (point-min))
-            (let ((current-prefix-arg nil)
-                  title-called)
-              (cl-letf (((symbol-function 'gptel-ext-title)
-                         (lambda () (setq title-called t))))
-                (funcall org-drafts-alt-task-body-function
-                         (point-marker) nil nil))
-              (should title-called)
-              (should (equal (buffer-substring-no-properties
-                              (line-beginning-position) (line-end-position))
-                             "* PROMPT")))))
+                        (concat expected "\nExisting body.\n")))
+                (should (equal (car kill-ring)
+                               (concat expected "\nExisting body.")))))))
       (define-key org-mode-map (kbd "H-p") old-binding))))
 
 (provide 'org-drafts-ext-test)

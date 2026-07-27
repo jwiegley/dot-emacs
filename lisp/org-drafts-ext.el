@@ -50,7 +50,11 @@ marker at the heading line.  The other arguments are unused."
     (goto-char heading-pos)
     (goto-char (line-end-position))
     (when (eq (char-before) ?\])
-      (ignore-errors (backward-kill-sexp)))
+      (condition-case nil
+          (let ((end (point)))
+            (backward-sexp)
+            (delete-region (point) end))
+        (scan-error nil)))
     (skip-chars-backward " \t")
     (delete-region (point) (line-end-position))
     (gptel-ext-title)
@@ -64,38 +68,49 @@ marker at the heading line.  The other arguments are unused."
 (defun org-drafts-ext-paste-prompt ()
   "Yank clipboard Markdown into the current DRAFT and make it a PROMPT.
 The inserted text is converted to Org with `markdown-to-org-region'.
-When the result contains only paragraphs, it is also filled.  Finally,
-this runs the same alternate title action as the org-drafts `P' key."
+Converted headings are nested under the DRAFT; when the result contains
+only paragraphs, it is also filled.  Finally, this runs the same
+alternate title action as the org-drafts `P' key."
   (interactive)
   (unless (derived-mode-p 'org-mode)
     (user-error "This command requires Org mode"))
   (org-back-to-heading t)
   (unless (equal (org-get-todo-state) "DRAFT")
     (user-error "Current entry is not a DRAFT"))
-  (org-end-of-meta-data t)
-  (let ((beg (point-marker))
-        end)
-    (yank)
-    (setq end (copy-marker (point) t))
-    (markdown-to-org-region beg end)
-    (goto-char end)
-    (unless (bolp)
-      (insert ?\n))
-    (save-restriction
-      (narrow-to-region beg end)
-      (let* ((tree (org-element-parse-buffer))
-             (contents (org-element-contents tree))
-             (section (and (= (length contents) 1) (car contents))))
-        (when (and section
-                   (eq (org-element-type section) 'section)
-                   (seq-every-p
-                    (lambda (element)
-                      (eq (org-element-type element) 'paragraph))
-                    (org-element-contents section)))
-          (fill-region (point-min) (point-max)))))
-    (set-marker beg nil)
-    (set-marker end nil))
-  (org-drafts-prompt t))
+  (let ((heading (point))
+        (level (org-current-level)))
+    (org-end-of-meta-data t)
+    (let ((beg (point-marker))
+          end)
+      (yank)
+      (setq end (copy-marker (point) t))
+      (markdown-to-org-region beg end)
+      (goto-char end)
+      (unless (bolp)
+        (insert ?\n))
+      (save-restriction
+        (narrow-to-region beg end)
+        (let* ((tree (org-element-parse-buffer))
+               (contents (org-element-contents tree))
+               (section (and (= (length contents) 1) (car contents)))
+               (plain
+                (and section
+                     (eq (org-element-type section) 'section)
+                     (seq-every-p
+                      (lambda (element)
+                        (eq (org-element-type element) 'paragraph))
+                      (org-element-contents section)))))
+          (dolist (pos (reverse (org-element-map tree 'headline
+                                  (lambda (element)
+                                    (org-element-property :begin element)))))
+            (goto-char pos)
+            (insert (make-string level ?*)))
+          (when plain
+            (fill-region (point-min) (point-max)))))
+      (set-marker beg nil)
+      (set-marker end nil))
+    (goto-char heading)
+    (org-drafts-prompt t)))
 
 ;;;###autoload
 (defun org-drafts-ext-install ()
