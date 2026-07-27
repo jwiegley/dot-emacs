@@ -49,6 +49,7 @@ marker at the heading line.  The other arguments are unused."
   (save-excursion
     (goto-char heading-pos)
     (goto-char (line-end-position))
+    (skip-chars-backward " \t")
     (when (eq (char-before) ?\])
       (condition-case nil
           (let ((end (point)))

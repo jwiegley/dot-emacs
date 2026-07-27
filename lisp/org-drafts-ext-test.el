@@ -8,6 +8,15 @@
 
 ;;; Code:
 
+(let ((source (expand-file-name "../init.org"
+                                (file-name-directory load-file-name))))
+  (with-temp-buffer
+    (insert-file-contents source)
+    (goto-char (point-min))
+    (re-search-forward "^[ \t]*(defun markdown-to-org-region\\_>")
+    (goto-char (match-beginning 0))
+    (eval (read (current-buffer)) t)))
+
 (let ((load-prefer-newer t))
   (require 'org-drafts)
   (require 'gptel-ext)
@@ -44,27 +53,18 @@
                      (kill-ring-yank-pointer kill-ring)
                      (interprogram-paste-function nil)
                      (current-prefix-arg nil)
-                     received
                      fill-bounds
                      fill-text
                      title-called)
                 (org-set-regexps-and-options)
-                (insert "* DRAFT [2026-07-26 Sun 23:41]\n"
+                (insert "* DRAFT [2026-07-26 Sun 23:41]  \n"
                         ":PROPERTIES:\n:ID: test\n:END:\n"
-                        "Existing body.\n")
+                        "Existing **body**.\n")
                 (goto-char (point-min))
                 (pcase start
                   ('property (search-forward ":ID:"))
                   ('body (search-forward "Existing")))
-                (cl-letf (((symbol-function 'markdown-to-org-region)
-                           (lambda (beg end)
-                             (setq received
-                                   (buffer-substring-no-properties beg end))
-                             (shell-command-on-region
-                              beg end
-                              "pandoc -f markdown-auto_identifiers -t org"
-                              t t)))
-                          ((symbol-function 'fill-region)
+                (cl-letf (((symbol-function 'fill-region)
                            (lambda (beg end &rest _args)
                              (setq fill-bounds
                                    (list beg end (point-min) (point-max))
@@ -74,7 +74,6 @@
                           ((symbol-function 'gptel-ext-title)
                            (lambda () (setq title-called t))))
                   (org-drafts-ext-paste-prompt))
-                (should (equal received markdown))
                 (if expect-fill
                     (progn
                       (should (equal fill-text (concat expected "\n")))
@@ -87,9 +86,9 @@
                 (re-search-forward ":END:\n")
                 (should
                  (equal (buffer-substring-no-properties (point) (point-max))
-                        (concat expected "\nExisting body.\n")))
+                        (concat expected "\nExisting **body**.\n")))
                 (should (equal (car kill-ring)
-                               (concat expected "\nExisting body.")))))))
+                               (concat expected "\nExisting **body**.")))))))
       (define-key org-mode-map (kbd "H-p") old-binding))))
 
 (provide 'org-drafts-ext-test)
