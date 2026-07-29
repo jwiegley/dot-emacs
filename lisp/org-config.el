@@ -548,7 +548,8 @@ during org-compare sessions for immediate attention."
 
 (setq
  org-capture-templates
- (let ((Inbox '(function org-ext-goto-inbox-heading)))
+ (let ((Inbox `(file+function ,org-constants-drafts-path
+                              org-ext-goto-inbox-heading)))
    `(("a" "TODO" entry
       ,Inbox
       "* TODO %?"
