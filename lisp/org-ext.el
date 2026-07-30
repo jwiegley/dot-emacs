@@ -892,7 +892,6 @@ Retain the subtree root as an ATX level-one heading while omitting the
 TOC, workflow keywords, generated anchor targets, and state transitions."
   (interactive)
   (require 'ox-md)
-  (require 'markdown-mode)
   (require 'mdformat)
   (let ((mark-active nil)
         (output-buffer (get-buffer-create "*Org MD Export*"))
