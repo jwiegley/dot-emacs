@@ -47,7 +47,8 @@
                                 (file-name-directory load-file-name))))
   ;; Eval additional functions needed by the regression tests below,
   ;; handling defun, defsubst, and defalias forms.
-  (dolist (name '(org-ext-goto-inbox-heading
+  (dolist (name '(org-ext--import-agenda-notes
+                  org-ext-goto-inbox-heading
                   org-ext-goto-inbox
                   org-ext-agenda-show
                   org-ext-agenda-show-and-scroll-up
@@ -60,6 +61,7 @@
                   org-ext-fix-all-properties
                   org-ext-move-subtree-to-point
                   org-ext-cleanup-whitespace
+                  org-ext--cleanup-whitespace-region
                   org-ext-fixup-slack
                   org-ext-set-stored-link
                   org-ext-update-date-field
@@ -386,5 +388,118 @@
                 (should (string-empty-p (buffer-string)))))))
       (when (buffer-live-p output-buffer)
         (kill-buffer output-buffer)))))
+
+(ert-deftest org-ext-story-a-draft-survives-save-failure ()
+  (let* ((root (make-temp-file "org-ext-draft-save-" t))
+         (draft (expand-file-name "draft.txt" root))
+         (inbox (expand-file-name "inbox.org" root))
+         (original "* Inbox\n"))
+    (unwind-protect
+        (progn
+          (write-region "Draft body" nil draft nil 'silent)
+          (write-region original nil inbox nil 'silent)
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (goto-char (point-max))
+                  (cl-letf (((symbol-function 'org-ext-reformat-draft) #'ignore)
+                            ((symbol-function 'save-buffer)
+                             (lambda (&rest _) (error "injected save failure"))))
+                    (should-error
+                     (org-ext--import-agenda-notes (list draft) nil)))
+                  (should (buffer-modified-p))
+                  (should (file-exists-p draft))
+                  (should (equal original
+                                 (with-temp-buffer
+                                   (insert-file-contents inbox)
+                                   (buffer-string)))))
+              (with-current-buffer buffer
+                (set-buffer-modified-p nil))
+              (kill-buffer buffer))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-a-paste-failure-preserves-source ()
+  (let* ((root (make-temp-file "org-ext-move-subtree-" t))
+         (source-file (expand-file-name "source.org" root))
+         (original "* Source\nBody\n"))
+    (unwind-protect
+        (progn
+          (write-region original nil source-file nil 'silent)
+          (let ((source-buffer (find-file-noselect source-file)))
+            (unwind-protect
+                (with-temp-buffer
+                  (org-mode)
+                  (insert "* Destination\n")
+                  (goto-char (point-max))
+                  (setq buffer-read-only t)
+                  (cl-letf (((symbol-function 'org-id-find)
+                             (lambda (&rest _) (cons source-file 1))))
+                    (should-error (org-ext-move-subtree-to-point "source")))
+                  (with-current-buffer source-buffer
+                    (should (equal original (buffer-string)))
+                    (should-not (buffer-modified-p)))
+                  (should (equal original
+                                 (with-temp-buffer
+                                   (insert-file-contents source-file)
+                                   (buffer-string)))))
+              (kill-buffer source-buffer))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-a-capture-cleanup-stays-within-markers ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "Outside  \n"
+            "* Capture\nBody\u00a0  \n\n\n"
+            "* After\nKeep  \n")
+    (goto-char (point-min))
+    (re-search-forward "^\\* Capture$")
+    (let ((beg (copy-marker (line-beginning-position)))
+          end before after)
+      (re-search-forward "^\\* After$")
+      (setq end (copy-marker (line-beginning-position))
+            before (buffer-substring-no-properties (point-min) beg)
+            after (buffer-substring-no-properties end (point-max)))
+      (goto-char beg)
+      (let ((org-capture-plist t))
+        (cl-letf (((symbol-function 'org-capture-get)
+                   (lambda (key &optional _local)
+                     (pcase key
+                       (:begin-marker beg)
+                       (:end-marker end)))))
+          (org-ext-cleanup-whitespace)))
+      (should (equal before
+                     (buffer-substring-no-properties (point-min) beg)))
+      (should (equal after
+                     (buffer-substring-no-properties end (point-max))))
+      (should-not (string-match-p "\u00a0"
+                                  (buffer-substring-no-properties beg end)))
+      (should-not (string-match-p " +$"
+                                  (buffer-substring-no-properties beg end))))))
+
+(ert-deftest org-ext-story-a-property-drawers-are-structural ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* Example only\n"
+            "#+begin_example\n"
+            ":PROPERTIES:\n:X: y\n:END:\n"
+            "#+end_example\n")
+    (goto-char (point-min))
+    (let ((original (buffer-string)))
+      (should-not (org-ext-entire-properties-block))
+      (org-ext-move-properties-drawer)
+      (should (equal original (buffer-string))))
+    (erase-buffer)
+    (insert "* One\nBody\n:PROPERTIES:\n:A: 1\n:END:\n"
+            "* Two\nBody\n:PROPERTIES:\n:B: 2\n:END:\n")
+    (goto-char (point-max))
+    (org-back-to-heading t)
+    (org-ext-fix-all-properties)
+    (goto-char (point-min))
+    (re-search-forward "^\\* One$")
+    (forward-line)
+    (should (looking-at-p ":PROPERTIES:"))
+    (re-search-forward "^\\* Two$")
+    (forward-line)
+    (should (looking-at-p ":PROPERTIES:"))))
 
 ;;; org-ext-test.el ends here

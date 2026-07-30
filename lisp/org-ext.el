@@ -49,6 +49,7 @@
 (declare-function org-contacts-filter "org-contacts")
 (declare-function org-ql-ext-get-all-verbs "org-ql-ext")
 (declare-function mdformat-buffer "mdformat")
+(declare-function org-capture-get "org-capture" (&optional key local))
 (defvar org-export-filter-options-functions)
 
 (defgroup org-ext nil
@@ -278,6 +279,31 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
        (fboundp 'fit-window-to-buffer)
        (fit-window-to-buffer)))
 
+(defun org-ext--import-agenda-notes (draft-notes recording-notes)
+  "Import DRAFT-NOTES and RECORDING-NOTES into the current inbox.
+Draft sources are deleted only after the destination buffer has been
+saved successfully."
+  (let ((drafts-to-consume nil))
+    (dolist (note draft-notes)
+      (insert
+       (with-temp-buffer
+         (org-mode)
+         (insert-file-contents note)
+         (goto-char (point-min))
+         ;; Format draft as TODO entry (I know, it's confusing)
+         (org-ext-reformat-draft)
+         (goto-char (point-max))
+         (unless (bolp)
+           (insert ?\n))
+         (buffer-string)))
+      (push note drafts-to-consume))
+    (dolist (note recording-notes)
+      (org-ext-import-recording-note note))
+    (when (buffer-modified-p)
+      (save-buffer))
+    (dolist (note (nreverse drafts-to-consume))
+      (delete-file note t))))
+
 (defadvice org-agenda (around fit-windows-for-agenda activate)
   "Fit the Org Agenda to its buffer and import any pending Drafts and Recordings."
   (let ((draft-notes
@@ -287,25 +313,7 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
     (when (or draft-notes recording-notes)
       (org-ext-goto-inbox
        (lambda ()
-         ;; Process Drafts notes
-         (dolist (note draft-notes)
-           (insert
-            (with-temp-buffer
-              (org-mode)
-              (insert-file-contents note)
-              (goto-char (point-min))
-              ;; Format draft as TODO entry (I know, it's confusing)
-              (org-ext-reformat-draft)
-              (goto-char (point-max))
-              (unless (bolp)
-                (insert ?\n))
-              (buffer-string)))
-           (delete-file note t))
-         ;; Process Recording notes
-         (dolist (note recording-notes)
-           (org-ext-import-recording-note note))
-         (when (buffer-modified-p)
-           (save-buffer))))))
+         (org-ext--import-agenda-notes draft-notes recording-notes)))))
   ad-do-it
   (org-ext-fit-agenda-window))
 
@@ -418,13 +426,34 @@ restores the original restriction."
        ,@body)))
 
 (defun org-ext-entire-properties-block ()
-  "Return the entire properties block, inclusive of :PROPERTIES:...:END:."
-  (org-ext-with-entry-narrowed
-   (goto-char (point-min))
-   (cons (and (search-forward ":PROPERTIES:" nil t)
-              (match-beginning 0))
-         (and (re-search-forward ":END:\\s-*\n" nil t)
-              (match-end 0)))))
+  "Return (BEG . END) spanning the entry's :PROPERTIES:...:END: block.
+Return nil unless the entry has an ordered, line-anchored property
+drawer.  Property-like text inside example blocks is ignored."
+  (or (when-let ((body (org-get-property-block)))
+        (cons (save-excursion
+                (goto-char (car body))
+                (forward-line -1)
+                (point))
+              (save-excursion
+                (goto-char (cdr body))
+                (line-end-position))))
+      (org-ext-with-entry-narrowed
+       (goto-char (point-min))
+       (catch 'drawer
+         (while (re-search-forward "^:PROPERTIES:[ \t]*$" nil t)
+           (let* ((beg (match-beginning 0))
+                  (element (save-excursion
+                             (goto-char beg)
+                             (org-element-at-point))))
+             (when (and (= beg (org-element-property :begin element))
+                        (or (eq (org-element-type element) 'property-drawer)
+                            (and (eq (org-element-type element) 'drawer)
+                                 (string= (org-element-property :drawer-name element)
+                                          "PROPERTIES"))))
+               (goto-char beg)
+               (when (re-search-forward "^:END:[ \t]*$"
+                                        (org-element-property :end element) t)
+                 (throw 'drawer (cons beg (match-end 0)))))))))))
 
 (defun org-ext-move-properties-drawer ()
   "Move the PROPERTIES drawer to its proper location.
@@ -451,12 +480,15 @@ after :END:."
 
 (defun org-ext-fix-all-properties ()
   "Reposition properties blocks throughout current buffer.
-Scans all headlines and fixes misplaced property drawers."
+Scans all headlines from `point-min' and fixes misplaced property
+drawers."
   (interactive)
-  (while (re-search-forward "^\\*" nil t)
-    (ignore-errors
-      (org-ext-move-properties-drawer))
-    (forward-line 1)))
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^\\*" nil t)
+      (ignore-errors
+        (org-ext-move-properties-drawer))
+      (forward-line 1))))
 
 (defun org-ext-update-date-field ()
   "Set #+date property based on file's name timestamp.
@@ -1339,20 +1371,34 @@ multi-line preservation."
 ;;; https://sachachua.com/blog/2024/10/org-mode-prompt-for-a-heading-and-then-refile-it-to-point/
 (defun org-ext-move-subtree-to-point (uuid)
   "Prompt for a heading and refile it to point using UUID.
-Narrows to heading with `org-id-find', copies subtree, and pastes at
-current location."
+Narrows to heading with `org-id-find', copies the subtree (without
+cutting it), pastes at current location, and deletes the source only
+after the paste has succeeded."
   (interactive (list (vulpea-note-id (vulpea-select "Heading"))))
   (cl-destructuring-bind (file . pos)
       (org-id-find uuid)
-    (save-excursion
-      (with-current-buffer
-          (find-file-noselect file 'noward)
-        (save-excursion
-          (save-restriction
-            (widen)
-            (goto-char pos)
-            (org-copy-subtree 1 t))))
-      (org-paste-subtree nil nil nil t))))
+    (let (source-marker)
+      (save-excursion
+        (with-current-buffer
+            (find-file-noselect file 'noward)
+          (save-excursion
+            (save-restriction
+              (widen)
+              (goto-char pos)
+              ;; Copy without cutting; the source is consumed below only
+              ;; after `org-paste-subtree' returns normally.
+              (org-copy-subtree 1 nil)
+              (setq source-marker (point-marker)))))
+      (prog1
+          (org-paste-subtree nil nil nil t)
+        (when (and source-marker (marker-buffer source-marker))
+          (with-current-buffer (marker-buffer source-marker)
+            (save-excursion
+              (save-restriction
+                (widen)
+                (goto-char source-marker)
+                (org-back-to-heading t)
+                (org-cut-subtree))))))))))
 
 (defun org-ext-prune-log-entries (days)
   "Remove LOGBOOK entries older than DAYS days.
@@ -1983,17 +2029,40 @@ Detection looks for a 192.168.1.* address on the bridge0 interface."
     (org-ext-set-location)))
 
 (defun org-ext-cleanup-whitespace (&optional _arg)
+  "Clean NBSPs, trailing whitespace, and blank lines.
+When invoked from a capture finalize hook, restrict every
+operation to the capture region delimited by the buffer-local
+`:begin-marker' and `:end-marker' stored by `org-capture', so an
+`:unnarrowed' capture cannot mutate bytes outside the inserted
+entry.  Outside capture context, the whole accessible buffer is
+cleaned."
   (interactive)
+  (let ((beg (when (boundp 'org-capture-plist)
+               (org-capture-get :begin-marker 'local)))
+        (end (when (boundp 'org-capture-plist)
+               (org-capture-get :end-marker 'local))))
+    (if (and (markerp beg) (markerp end)
+             (marker-buffer beg) (marker-buffer end)
+             (eq (marker-buffer beg) (current-buffer))
+             (eq (marker-buffer end) (current-buffer))
+             (< (marker-position beg) (marker-position end)))
+        (save-restriction
+          (narrow-to-region beg end)
+          (org-ext--cleanup-whitespace-region))
+      (org-ext--cleanup-whitespace-region))))
+
+(defun org-ext--cleanup-whitespace-region ()
+  "Perform the NBSP/whitespace cleanup within the current narrowing."
   (save-excursion
     (goto-char (point-min))
-    (while (search-forward " " nil t)
-      (replace-match  " "))
+    (while (search-forward "\u00a0" nil t)
+      (replace-match " "))
     (whitespace-cleanup)
     (goto-char (point-max))
     (delete-blank-lines)
     (when (looking-at "^$")
       (delete-char -1)))
-  (when (looking-back "TODO")
+  (when (looking-back "TODO" (line-beginning-position))
     (insert " ")))
 
 (defun org-ext-fill-body ()
