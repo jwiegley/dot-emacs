@@ -1152,14 +1152,18 @@
               (kill-buffer source-buffer))))
       (delete-directory root t))))
 
-(ert-deftest org-ext-capture-cleanup-preserves-note-title-space ()
+(ert-deftest org-ext-capture-cleanup-normalizes-final-newline ()
   (let ((org-todo-keywords '((sequence "TODO" "|" "DONE")
                              (sequence "|" "NOTE"))))
-    (with-temp-buffer
-      (org-mode)
-      (insert "* NOTE ")
-      (org-ext--cleanup-whitespace-region)
-      (should (equal (buffer-string) "* NOTE ")))))
+    (dolist (case '(("* NOTE " . "* NOTE \n")
+                    ("* NOTE Foo" . "* NOTE Foo\n")
+                    ("* NOTE Foo\n\n\n" . "* NOTE Foo\n")))
+      (with-temp-buffer
+        (org-mode)
+        (insert (car case))
+        (org-ext--cleanup-whitespace-region)
+        (should (equal (buffer-string) (cdr case)))
+        (should (looking-at "\n\\'"))))))
 
 (ert-deftest org-ext-story-a-capture-cleanup-stays-within-markers ()
   (with-temp-buffer
@@ -1183,14 +1187,12 @@
                        (:begin-marker beg)
                        (:end-marker end)))))
           (org-ext-cleanup-whitespace)))
+      (should (equal "* Capture\nBody\n"
+                     (buffer-substring-no-properties beg end)))
       (should (equal before
                      (buffer-substring-no-properties (point-min) beg)))
       (should (equal after
-                     (buffer-substring-no-properties end (point-max))))
-      (should-not (string-match-p "\u00a0"
-                                  (buffer-substring-no-properties beg end)))
-      (should-not (string-match-p " +$"
-                                  (buffer-substring-no-properties beg end))))))
+                     (buffer-substring-no-properties end (point-max)))))))
 
 (ert-deftest org-ext-story-a-property-drawers-are-structural ()
   (with-temp-buffer
