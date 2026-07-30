@@ -407,6 +407,87 @@
       (should-error (org-ext-agenda-show))
       (should (eq current 'origin)))))
 
+(ert-deftest org-ext-story-f-open-links-use-snapshotted-markers ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* Links\n[[https://example.test/a][A]]\n[[https://example.test/b][B]]\n")
+    (goto-char (point-min))
+    (let (opened)
+      (cl-letf (((symbol-function 'org-open-at-point)
+                 (lambda (&rest _)
+                   (push (org-element-property :raw-link
+                                               (org-element-context))
+                         opened)
+                   (insert "x"))))
+        (org-ext-open-all-links-in-subtree))
+      (should (equal (sort opened #'string-lessp)
+                     '("https://example.test/a" "https://example.test/b"))))))
+
+(ert-deftest org-ext-story-f-link-name-searches-stay-local ()
+  (with-temp-buffer
+    (insert "No link here\n[[id:later][Later]]: John Smith\nBody\n")
+    (goto-char (point-min))
+    (let ((original (buffer-string)))
+      (org-ext-edit-link-name "Changed")
+      (org-ext-swap-link-name)
+      (should (equal original (buffer-string))))
+    (goto-char (point-min))
+    (erase-buffer)
+    (insert "[[id:here][Old]]\n")
+    (goto-char (point-min))
+    (org-ext-edit-link-name "New")
+    (should (equal (buffer-string) "[[id:here][New]]\n"))))
+
+(ert-deftest org-ext-story-f-unlink-is-literal-and-region-only ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "[[outside][Outside]]\n"
+            "[[target][R&D]] and [[URL]]\n"
+            "[[after][After]]\n")
+    (goto-char (point-min))
+    (forward-line 1)
+    (let ((beg (line-beginning-position))
+          (end (line-end-position)))
+      (org-ext-unlink-region beg end))
+    (should (equal (buffer-string)
+                   "[[outside][Outside]]\nR&D and URL\n[[after][After]]\n"))))
+
+(ert-deftest org-ext-story-f-removing-link-type-refreshes-parser ()
+  (let ((type "org-ext-test-link")
+        (saved (copy-tree org-link-parameters)))
+    (unwind-protect
+        (progn
+          (org-link-set-parameters type :follow #'ignore)
+          (should (assoc type org-link-parameters))
+          (with-temp-buffer
+            (org-mode)
+            (insert (format "[[%s:value]]" type))
+            (goto-char (point-min))
+            (should (eq (org-element-type (org-element-context)) 'link)))
+          (org-ext-gnus-drop-link-parameter type)
+          (should-not (assoc type org-link-parameters))
+          (with-temp-buffer
+            (org-mode)
+            (insert (format "[[%s:value]]" type))
+            (goto-char (point-min))
+            (let ((element (org-element-context)))
+              (should-not
+               (and (eq (org-element-type element) 'link)
+                    (equal (org-element-property :type element) type))))))
+      (setq org-link-parameters saved)
+      (org-link-make-regexps)
+      (org-element-update-syntax))))
+
+(ert-deftest org-ext-story-f-tag-link-uses-explicit-prefix ()
+  (let (calls)
+    (cl-letf (((symbol-function 'org-tags-view)
+               (lambda (todo-only tag)
+                 (push (list todo-only tag) calls))))
+      (org-ext-follow-tag-link "work" nil)
+      (org-ext-follow-tag-link "work" '(4)))
+    (should (equal (nreverse calls)
+                   '((t "work") (nil "work"))))))
+
 (ert-deftest org-ext-story-e-first-child-recurses-with-predicate ()
   (with-temp-buffer
     (org-mode)

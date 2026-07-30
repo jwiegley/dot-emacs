@@ -996,16 +996,32 @@ Returns count of tasks chained."
 Uses internal `org-link--search-failed' variable.
 Silently opens all links until no more can be opened. For link navigation."
   (interactive)
-  (save-excursion
-    (save-restriction
-      (org-narrow-to-subtree)
-      (goto-char (point-min))
-      (let ((inhibit-message t)
-            (message-log-max nil))
-        (setq org-link--search-failed nil)
-        (while (progn (org-next-link)
+  ;; Snapshot the position of every link in the subtree before opening
+  ;; any of them, so the side effects of `org-open-at-point' (buffer/window
+  ;; switches, narrowing, or inserted content) cannot disrupt iteration or
+  ;; cause a link to be opened twice.
+  (let (markers)
+    (save-excursion
+      (save-restriction
+        (org-narrow-to-subtree)
+        (goto-char (point-min))
+        (let ((inhibit-message t)
+              (message-log-max nil))
+          (setq org-link--search-failed nil)
+          (while (progn (org-next-link)
                       (not org-link--search-failed))
-          (org-open-at-point))))))
+            (push (point-marker) markers)))))
+    (dolist (m (nreverse markers))
+      (when (and (markerp m) (marker-buffer m))
+        (with-current-buffer (marker-buffer m)
+          (save-excursion
+            (save-restriction
+              (widen)
+              (goto-char m)
+              (let ((inhibit-message t)
+                    (message-log-max nil))
+                (org-open-at-point)))))
+        (set-marker m nil)))))
 
 ;;;###autoload
 (defun org-ext-copy-subtree-as-markdown ()
@@ -1111,7 +1127,7 @@ Interactive: selects from available link names."
    (list (completing-read "Name: " (mapcar #'car org-ext-link-names))))
   (save-excursion
     (goto-char (line-beginning-position))
-    (when (re-search-forward "\\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]" nil t)
+    (when (re-search-forward "\\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]" (line-end-position) t)
       (replace-match name t t nil 2))))
 
 (defun org-ext-swap-link-name ()
@@ -1119,7 +1135,7 @@ Interactive: selects from available link names."
   (save-excursion
     (goto-char (line-beginning-position))
     (when (re-search-forward
-           "\\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]: \\(\\([A-Za-z -]+ *\\)[^\n]*\n+\\)" nil t)
+           "\\[\\[\\([^]]+?\\)\\]\\[\\([^]]+?\\)\\]\\]: \\(\\([A-Za-z -]+ *\\)[^\n]*\n+\\)" (save-excursion (forward-line 1) (line-end-position)) t)
       (let* ((name (string-trim (match-string 4)))
              (parts (save-match-data (split-string name))))
         (when (> (length parts) 2)
@@ -1579,18 +1595,27 @@ processing unrelated buffers."
   "Remove Org link markup in region from BEG to END.
 If BEG and END not specified, operates on entire buffer.
 Replaces [[link][description]] with plain description."
-  (interactive)
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list nil nil)))
   (save-restriction
     (narrow-to-region (or beg (point-min)) (or end (point-max)))
     (goto-char (point-min))
     (while (re-search-forward org-link-bracket-re nil t)
-      (replace-match (match-string 2)))))
+      ;; Replace with the description when present, otherwise the link
+      ;; target (bare [[URL]]); use a literal replacement so backslashes
+      ;; in the text are not interpreted as \-escapes.
+      (replace-match (or (match-string 2) (match-string 1)) t t))))
 
-(defun org-ext-follow-tag-link (tag)
+(defun org-ext-follow-tag-link (tag &optional arg)
   "Display a list of TODO headlines with TAG.
-With prefix argument, also display headlines without TODO keyword.
+With a non-nil ARG (a prefix argument), also display headlines
+without a TODO keyword.  ARG is accepted explicitly rather than
+read from `current-prefix-arg', so the function can be called
+programmatically with a prefix equivalent (e.g. `(4)`).
 Uses `org-tags-view' for filtering."
-  (org-tags-view (null current-prefix-arg) tag))
+  (org-tags-view (null arg) tag))
 
 (defun org-ext-yank-link ()
   "Insert all clipboard links as plain text with custom formatting.
@@ -1604,7 +1629,14 @@ Prevents org-link from interpreting specific link types.
 Useful for cleaning up custom link handlers."
   (setq org-link-parameters
         (cl-delete-if #'(lambda (x) (string= (car x) param))
-                      org-link-parameters)))
+                      org-link-parameters))
+  ;; Refresh the compiled link regexps and the element parser syntax so
+  ;; neither the link matcher nor the Org parser still recognize the
+  ;; removed type once it is gone from `org-link-parameters'.
+  (when (fboundp 'org-link-make-regexps)
+    (org-link-make-regexps))
+  (when (fboundp 'org-element-update-syntax)
+    (org-element-update-syntax)))
 
 (defun org-ext-message-reply ()
   "Compose email reply to message linked in current Org entry.
