@@ -796,7 +796,7 @@ Optionally accepts PRED to filter child entries."
       (cl-loop for loc = (or (and (org-entry-is-todo-p)
                                   (or (null pred) (funcall pred))
                                   (point))
-                             (org-ext--first-child-todo))
+                             (org-ext--first-child-todo pred))
                if loc
                do (throw 'has-child-todo loc)
                while (org-get-next-sibling)))))
@@ -837,11 +837,17 @@ Uses `org-up-heading-safe' and `org-ext-task-p' for heading validation."
   (let ((here (point)))
     (save-excursion
       (when (org-up-heading-safe)
-        (let ((first-child (and (org-ext-task-p)
-                                (org-ext-first-child-todo))))
-          (and first-child
-               (or (/= first-child here)
-                   (org-ext-has-preceding-todo-p))))))))
+        ;; Ascend through non-TODO headings (e.g. categories) to the
+        ;; nearest TODO ancestor before looking for a preceding sibling.
+        ;; Test the immediate parent before ascending again so direct
+        ;; children are ordered too.
+        (while (and (not (org-ext-task-p))
+                    (org-up-heading-safe)))
+        (when (org-ext-task-p)
+          (let ((first-child (org-ext-first-child-todo)))
+            (and first-child
+                 (or (/= first-child here)
+                     (org-ext-has-preceding-todo-p)))))))))
 
 (defun org-ext-agenda-files-but-not-meetings ()
   "Return agenda files excluding meeting and Assembly directories.
@@ -945,8 +951,7 @@ Returns count of tasks chained."
     (goto-char beg)
     (let ((end-marker (copy-marker end))
           (ids nil)
-          (count 0)
-          (first-heading t))
+          (count 0))
       ;; First pass: collect heading IDs
       (while (and (< (point) end-marker)
                   (re-search-forward org-heading-regexp end-marker t))
@@ -954,29 +959,32 @@ Returns count of tasks chained."
           (org-back-to-heading t)
           (push (org-id-get-create) ids)))
       (setq ids (nreverse ids))
-      ;; Second pass: set BLOCKER properties
-      (goto-char beg)
-      (while (and (< (point) end-marker)
-                  (re-search-forward org-heading-regexp end-marker t))
-        (save-excursion
-          (org-back-to-heading t)
-          (if first-heading
-              (setq first-heading nil)
-            (let* ((prev-id (car ids))
-                   (blocker-prop "BLOCKER")
-                   (blocker-existing (org-entry-get nil blocker-prop 'selective))
-                   (blocker-base (or blocker-existing "ids()"))
-                   (blocker-value
-                    (with-temp-buffer
-                      (insert blocker-base)
-                      (backward-char)
-                      (when blocker-existing
-                        (insert " "))
-                      (insert "id:" prev-id)
-                      (buffer-string))))
-              (org-set-property blocker-prop blocker-value)
-              (setq count (1+ count))))
-          (setq ids (cdr ids))))
+      ;; Second pass: set BLOCKER properties.  Carry a separate
+      ;; previous-ID that is applied to the current heading before it
+      ;; is advanced to the current heading's own ID, so a heading can
+      ;; never block itself.
+      (let ((prev-id nil))
+        (goto-char beg)
+        (while (and (< (point) end-marker)
+                    (re-search-forward org-heading-regexp end-marker t))
+          (save-excursion
+            (org-back-to-heading t)
+            (when prev-id
+              (let* ((blocker-prop "BLOCKER")
+                     (blocker-existing (org-entry-get nil blocker-prop 'selective))
+                     (blocker-base (or blocker-existing "ids()"))
+                     (blocker-value
+                      (with-temp-buffer
+                        (insert blocker-base)
+                        (backward-char)
+                        (when blocker-existing
+                          (insert " "))
+                        (insert "id:" prev-id)
+                        (buffer-string))))
+                (org-set-property blocker-prop blocker-value)
+                (setq count (1+ count))))
+            (setq prev-id (car ids))
+            (setq ids (cdr ids)))))
       (set-marker end-marker nil)
       (message "Chained %d task%s with blocker dependencies"
                count (if (= count 1) "" "s"))
@@ -1932,7 +1940,8 @@ text remains.  This is the structural inverse of
   (let ((s (or title ""))
         (contacts '())
         (verb nil))
-    (while (string-match "\\`[[:space:]]*(\\([^)]+\\))[[:space:]]+" s)
+    (while (string-match
+            "\\`[[:space:]]*(\\([^)]+\\))\\(?:[[:space:]]+\\|\\'\\)" s)
       (push (string-trim (match-string 1 s)) contacts)
       (setq s (substring s (match-end 0))))
     (when (string-match "\\`\\([[:alpha:]]+\\):\\(?:[[:space:]]+\\|\\'\\)" s)
@@ -2236,16 +2245,11 @@ preserving the current position."
 (declare-function org-review-ext-reviewed-today "org-review-ext")
 
 (defun org-ext--fast-selection-keywords ()
-  "Return alist of (CHAR . KEYWORD) from `org-todo-keywords'.
-Only entries with an explicit fast-selection character are included."
-  (let (result)
-    (dolist (seq org-todo-keywords)
-      (dolist (kw (cdr seq))
-        (when (string-match "\\`\\([^([|]+\\)(\\([a-zA-Z]\\)" kw)
-          (push (cons (string-to-char (match-string 2 kw))
-                      (match-string 1 kw))
-                result))))
-    (nreverse result)))
+  "Return normalized fast-selection (CHAR . KEYWORD) pairs for this buffer."
+  (cl-loop for entry in org-todo-key-alist
+           when (and (stringp (car-safe entry))
+                     (characterp (cdr entry)))
+           collect (cons (cdr entry) (car entry))))
 
 ;;;###autoload
 (defun org-ext-insert-keyword-heading (char)

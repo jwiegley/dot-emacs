@@ -407,6 +407,87 @@
       (should-error (org-ext-agenda-show))
       (should (eq current 'origin)))))
 
+(ert-deftest org-ext-story-e-first-child-recurses-with-predicate ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* TODO Project\n"
+            "** TODO Skip\n"
+            "*** TODO Match\n"
+            "** TODO Later\n")
+    (goto-char (point-min))
+    (let ((match-pos (save-excursion
+                       (re-search-forward "^\\*\\*\\* TODO Match$")
+                       (line-beginning-position))))
+      (should (= (org-ext-first-child-todo
+                  (lambda () (equal (org-get-heading t t t t) "Match")))
+                 match-pos))
+      (should-not
+       (org-ext-first-child-todo
+        (lambda () (equal (org-get-heading t t t t) "Missing")))))))
+
+(ert-deftest org-ext-story-e-preceding-todo-finds-nearest-project ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* TODO Direct\n** TODO First\n** TODO Second\n"
+            "* TODO Nested\n** Category\n*** TODO Nested First\n*** TODO Nested Second\n")
+    (goto-char (point-min))
+    (re-search-forward "^\\*\\* TODO First$")
+    (beginning-of-line)
+    (should-not (org-ext-has-preceding-todo-p))
+    (re-search-forward "^\\*\\* TODO Second$")
+    (beginning-of-line)
+    (should (org-ext-has-preceding-todo-p))
+    (re-search-forward "^\\*\\*\\* TODO Nested First$")
+    (beginning-of-line)
+    (should-not (org-ext-has-preceding-todo-p))
+    (re-search-forward "^\\*\\*\\* TODO Nested Second$")
+    (beginning-of-line)
+    (should (org-ext-has-preceding-todo-p))))
+
+(ert-deftest org-ext-story-e-blocker-chain-never-self-references ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* TODO A\n* TODO B\n* TODO C\n")
+    (cl-letf (((symbol-function 'org-id-get-create)
+               (lambda () (org-get-heading t t t t))))
+      (org-ext-chain-blockers-in-region (point-min) (point-max)))
+    (goto-char (point-min))
+    (should-not (org-entry-get nil "BLOCKER"))
+    (outline-next-heading)
+    (should (equal (org-entry-get nil "BLOCKER") "ids(id:A)"))
+    (should-not (string-match-p "id:B" (org-entry-get nil "BLOCKER")))
+    (outline-next-heading)
+    (should (equal (org-entry-get nil "BLOCKER") "ids(id:B)"))
+    (should-not (string-match-p "id:C" (org-entry-get nil "BLOCKER")))))
+
+(ert-deftest org-ext-story-e-empty-contact-title-keeps-attribution ()
+  (should (equal (org-ext--split-heading-title "(Alice)")
+                 '(("Alice") nil "")))
+  (with-temp-buffer
+    (org-mode)
+    (insert "* TODO (Alice)\n")
+    (goto-char (point-min))
+    (org-ext--set-heading-component 'verb "read")
+    (should (equal (org-get-heading t t t t) "(Alice) Read:"))))
+
+(ert-deftest org-ext-story-e-fast-selectors-use-normalized-org-data ()
+  (let ((original (default-value 'org-todo-keywords)))
+    (unwind-protect
+        (progn
+          (set-default 'org-todo-keywords
+                       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")))
+          (with-temp-buffer
+            (org-mode)
+            (should (equal (org-ext--fast-selection-keywords)
+                           '((?t . "TODO") (?n . "NEXT") (?d . "DONE")))))
+          (set-default 'org-todo-keywords
+                       '("TODO(1)" "|" "DONE(d)"))
+          (with-temp-buffer
+            (org-mode)
+            (should (equal (org-ext--fast-selection-keywords)
+                           '((?1 . "TODO") (?d . "DONE"))))))
+      (set-default 'org-todo-keywords original))))
+
 (ert-deftest org-ext-story-d-stored-link-round-trips-or-does-nothing ()
   (with-temp-buffer
     (org-mode)
