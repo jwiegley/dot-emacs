@@ -84,8 +84,10 @@
                   org-ext-update-team
                   org-ext-linkify
                   org-ext-current-tags
+                  org-ext--command-output-with-timeout
                   org-ext-get-location
                   org-ext-insert-code-block
+                  org-ext--category-values
                   org-ext-get-all-categories
                   org-ext-get-all-categories-detailed
                   org-ext-show-all-categories
@@ -406,6 +408,168 @@
                  (error "injected agenda failure"))))
       (should-error (org-ext-agenda-show))
       (should (eq current 'origin)))))
+
+(ert-deftest org-ext-cross-cutting-current-tags-matches-headings ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* Parent :PARENT:\n** Child\n")
+    (goto-char (point-max))
+    (org-back-to-heading t)
+    (should (equal (org-ext-current-tags 1) '("PARENT")))))
+
+(ert-deftest org-ext-cross-cutting-location-command-times-out ()
+  (should (equal (org-ext--command-output-with-timeout
+                  "/bin/echo" 1 "ok")
+                 "ok\n"))
+  (let ((started (float-time)))
+    (should (equal (org-ext--command-output-with-timeout
+                    "/bin/sleep" 0.05 "1")
+                   ""))
+    (should (< (- (float-time) started) 0.5)))
+  (let ((org-ext-location-command-timeout 0.1)
+        invocation)
+    (cl-letf (((symbol-function 'org-ext--command-output-with-timeout)
+               (lambda (program timeout &rest _)
+                 (setq invocation (list program timeout))
+                 ""))
+              ((symbol-function 'message) #'ignore))
+      (should (equal (org-ext-get-location) '("" ""))))
+    (should (equal invocation '("CoreLocationCLI" 0.1)))))
+
+(ert-deftest org-ext-story-g-team-refresh-scans-from-buffer-start ()
+  (let* ((root (make-temp-file "org-ext-team-" t))
+         (file (expand-file-name "team.org" root))
+         (org-constants-positron-team-file file)
+         bindings)
+    (unwind-protect
+        (progn
+          (write-region "| [[id:1][Alice]] | a |\n| [[id:2][Bob]] | b |\n"
+                        nil file nil 'silent)
+          (let ((buffer (find-file-noselect file)))
+            (unwind-protect
+                (progn
+                  (with-current-buffer buffer
+                    (org-mode)
+                    (goto-char (point-max)))
+                  (cl-letf (((symbol-function 'org-file)
+                             (lambda (&rest _) file))
+                            ((symbol-function 'org-ext-read-names)
+                             (lambda (&rest _) nil))
+                            ((symbol-function 'org-defkey)
+                             (lambda (_map key _definition)
+                               (push (key-description key) bindings)))
+                            ((symbol-function 'message) #'ignore))
+                    (org-ext-update-team))
+                  (should (equal (sort bindings #'string-lessp)
+                                 '("s-a" "s-b"))))
+              (kill-buffer buffer))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-g-linkify-scans-quill-from-start ()
+  (with-temp-buffer
+    (insert " quill#1  VER-2  quill#3 ")
+    (org-ext-linkify)
+    (should (string-match-p (regexp-quote "[[quill:1][quill#1]]")
+                            (buffer-string)))
+    (should (string-match-p (regexp-quote "[[ver:2][VER-2]]")
+                            (buffer-string)))
+    (should (string-match-p (regexp-quote "[[quill:3][quill#3]]")
+                            (buffer-string)))))
+
+(ert-deftest org-ext-story-g-code-block-detection-is-bounded ()
+  (with-temp-buffer
+    (insert "`")
+    (org-ext-insert-code-block)
+    (should (equal (buffer-string) "`"))
+    (insert "`")
+    (org-ext-insert-code-block)
+    (should (equal (buffer-string) "``")))
+  (with-temp-buffer
+    (string-match "python" "python")
+    (insert "```")
+    (org-ext-insert-code-block)
+    (should (string-match-p "#\\+begin_src sh" (buffer-string))))
+  (with-temp-buffer
+    (insert "#+begin_src emacs-lisp\n#+end_src\n```")
+    (org-ext-insert-code-block)
+    (should (string-match-p
+             "#\\+begin_src emacs-lisp\n\n#\\+end_src\\'"
+             (buffer-string)))))
+
+(ert-deftest org-ext-story-g-category-actions-are-pure-and-single-pass ()
+  (let ((values '("Beta" "Alpha" "Alpha"))
+        current
+        (queries 0)
+        (actions 0))
+    (cl-letf (((symbol-function 'org-get-category)
+               (lambda (&rest _) current))
+              ((symbol-function 'org-ql-select)
+               (lambda (_files _query &rest args)
+                 (setq queries (1+ queries))
+                 (let ((action (plist-get args :action))
+                       result)
+                   (dolist (category values)
+                     (setq current category
+                           actions (1+ actions))
+                     (push (funcall action) result))
+                   (nreverse result)))))
+      (should (equal (org-ext-get-all-categories-detailed '("x.org") t)
+                     '(("Alpha" . 2) ("Beta" . 1))))
+      (should (equal (org-ext-get-all-categories '("x.org"))
+                     '("Alpha" "Beta"))))
+    (should (= queries 2))
+    (should (= actions 6))))
+
+(ert-deftest org-ext-story-g-agenda-exclusions-use-expanded-string-paths ()
+  (let* ((root (make-temp-file "org-ext-agenda-files-" t))
+         (directory (expand-file-name "agenda" root))
+         (one (expand-file-name "one.org" directory))
+         (two (expand-file-name "two.org" directory))
+         (list-file (expand-file-name "agenda-files" root)))
+    (unwind-protect
+        (progn
+          (make-directory directory)
+          (write-region "* One\n" nil one nil 'silent)
+          (write-region "* Two\n" nil two nil 'silent)
+          (write-region (concat one "\n" two "\n") nil list-file nil 'silent)
+          (let ((org-agenda-files list-file)
+                opened)
+            (should (equal (org-ext-agenda-files-except (copy-sequence one))
+                           (list two)))
+            (cl-letf (((symbol-function 'get-buffer) (lambda (&rest _) nil))
+                      ((symbol-function 'push-window-configuration) #'ignore)
+                      ((symbol-function 'find-file-noselect)
+                       (lambda (file &rest _)
+                         (push file opened)))
+                      ((symbol-function 'call-interactively) #'ignore)
+                      ((symbol-function 'org-agenda-filter) #'ignore)
+                      ((symbol-function 'org-ext-prep-window) #'ignore))
+              (org-ext-jump-to-agenda))
+            (should (equal (sort opened #'string-lessp)
+                           (list one two))))
+          (let ((org-agenda-files (list directory)))
+            (should (equal (sort (org-ext-agenda-files-except
+                                  (copy-sequence one))
+                                 #'string-lessp)
+                           (list two)))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-g-category-summary-rebuilds-read-only-buffer ()
+  (let ((buffer-name "*Org Categories*"))
+    (unwind-protect
+        (cl-letf (((symbol-function 'org-ext-get-all-categories-detailed)
+                   (lambda (&rest _) '(("Alpha" . 2) ("Beta" . 1))))
+                  ((symbol-function 'display-buffer) #'ignore))
+          (org-ext-show-all-categories)
+          (let ((first (with-current-buffer buffer-name
+                         (should buffer-read-only)
+                         (buffer-string))))
+            (org-ext-show-all-categories)
+            (with-current-buffer buffer-name
+              (should buffer-read-only)
+              (should (equal first (buffer-string))))))
+      (when (get-buffer buffer-name)
+        (kill-buffer buffer-name)))))
 
 (ert-deftest org-ext-story-f-open-links-use-snapshotted-markers ()
   (with-temp-buffer

@@ -407,7 +407,7 @@ Resizes specified window to 100 columns and fits buffer content."
 (defun org-ext-jump-to-agenda ()
   "Navigate to org agenda window, creating one if needed.
 Preserves window configuration and ensures proper display setup. Uses
-variable `org-agenda-files' for content sourcing."
+`org-agenda-files' to expand list-file and directory entries."
   (interactive)
   (push-window-configuration)
   (let ((buf (or (get-buffer "*Org Agenda*")
@@ -424,7 +424,7 @@ variable `org-agenda-files' for content sourcing."
                          (display-buffer buf t t)
                        (display-buffer buf)))))
       (require 'org-agenda)
-      (mapc #'find-file-noselect org-agenda-files)
+      (mapc #'find-file-noselect (org-agenda-files))
       (call-interactively #'org-agenda-list)
       (org-agenda-filter '(64))
       (funcall #'org-ext-prep-window (selected-window)))))
@@ -769,9 +769,8 @@ Returns the priority character or nil if none is present."
           (string-to-char (match-string 2)))))))
 
 (defsubst org-ext-agenda-files-except (&rest args)
-  "Return agenda files excluding those matching ARGS.
-Used to filter out special directories from agenda views."
-  (cl-set-difference org-agenda-files args))
+  "Return expanded agenda files excluding paths equal to any of ARGS."
+  (cl-set-difference (org-agenda-files) args :test #'string=))
 
 (defun org-ext-entry-get-immediate (property)
   "Get PROPERTY value without inheritance.
@@ -1573,6 +1572,7 @@ Reads names from file and defines s-KEY shortcuts to call
     (setq org-ext-link-names (org-ext-read-names file))
     (with-current-buffer (find-file-noselect file)
       (save-excursion
+        (goto-char (point-min))
         (while (re-search-forward
                 "^| \\[\\[id:.+?\\]\\[\\(.+?\\)\\]\\].+|\\s-+\\([A-Za-z0-9_]\\)\\s-+|$" nil t)
           (let ((name (match-string-no-properties 1))
@@ -1792,6 +1792,7 @@ Handles:
   (while (re-search-forward " \\(\\(VER\\|SDK\\)-\\([0-9]+\\)\\) " nil t)
     (replace-match (format " [[%s:\\3][\\2-\\3]] " (downcase (match-string 2))) t)
     (goto-char (match-end 0)))
+  (goto-char (point-min))
   (while (re-search-forward " \\(\\(quill\\)#\\([0-9]+\\)\\) " nil t)
     (replace-match (format " [[%s:\\3][\\2#\\3]] " (downcase (match-string 2))) t)
     (goto-char (match-end 0))))
@@ -1817,7 +1818,7 @@ Used for contextual tag inheritance."
                     (prog1
                         (setq depth (1- depth))
                       (not (org-up-element))))
-          (if (looking-at "^\*+\\s-+")
+          (if (looking-at "^\\*+\\s-+")
               (setq should-skip (org-get-tags))))
         should-skip))))
 
@@ -1835,18 +1836,16 @@ Uses recursive ascent with `org-up-heading-safe'."
                     (org-ext-ancestor-keywords))))))
 
 (defun org-ext-insert-code-block ()
-  "Convert triple-backtick to Org code block.
-Triggers when three backticks are typed in sequence. Sets appropriate language."
-  (when (let* ((keys (recent-keys))
-               (n (length keys)))
-          (and (eq ?` (aref keys (- n 1)))
-               (eq ?` (aref keys (- n 2)))
-               (eq ?` (aref keys (- n 3)))))
+  "Replace three backticks immediately before point with an Org source block."
+  (when (and (>= (- (point) (point-min)) 3)
+             (equal (buffer-substring-no-properties (- (point) 3) (point))
+                    "```"))
     (delete-char -3)
     (let ((language
            (or (save-excursion
-                 (re-search-backward "#\\+begin_src \\([^ \t\n]+\\)" nil t)
-                 (match-string 1))
+                 (when (re-search-backward
+                        "#\\+begin_src \\([^ \t\n]+\\)" nil t)
+                   (match-string-no-properties 1)))
                "sh")))
       (insert "#+begin_src " language "\n\n#+end_src")
       (forward-line -1))))
@@ -1856,65 +1855,42 @@ Triggers when three backticks are typed in sequence. Sets appropriate language."
 Adds `org-ext-insert-code-block' to `post-self-insert-hook'."
   (add-hook 'post-self-insert-hook #'org-ext-insert-code-block nil t))
 
+(defun org-ext--category-values (&optional files)
+  "Return the category value from each heading in FILES."
+  (org-ql-select (or files (org-agenda-files))
+    t
+    :action (lambda () (org-get-category))))
+
 (defun org-ext-get-all-categories (&optional files)
-  "Return a list of all unique categories used in org FILES.
-If FILES is nil, use `org-agenda-files'.
-Uses org-ql for efficient searching."
+  "Return a sorted list of all unique categories used in org FILES."
   (interactive)
-  (let* ((files (or files (org-agenda-files)))
-         (categories '()))
-    ;; Use org-ql to search all entries and collect their categories
-    (org-ql-select files
-      '(category) ;; Match all entries with any category
-      :action (lambda ()
-                (when-let ((cat (org-get-category)))
-                  (cl-pushnew cat categories :test #'string=))))
-    ;; Sort the categories alphabetically
-    (sort categories #'string<)))
+  (sort (delete-dups (delq nil (org-ext--category-values files))) #'string<))
 
 (defun org-ext-get-all-categories-detailed (&optional files include-counts)
-  "Return all unique categories used in org FILES.
-If FILES is nil, use `org-agenda-files'.
-If INCLUDE-COUNTS is non-nil, return an alist of (category . count) pairs.
-Uses org-ql for efficient searching."
+  "Return unique categories, optionally with counts, from org FILES."
   (interactive (list nil t))
-  (let* ((files (or files (org-agenda-files)))
-         (categories (if include-counts
-                         (make-hash-table :test #'equal)
-                       '())))
-    ;; Use org-ql to search all entries
-    (org-ql-select files
-      t ;; Match all entries
-      :action (lambda ()
-                (when-let ((cat (org-get-category)))
-                  (if include-counts
-                      (puthash cat (1+ (gethash cat categories 0)) categories)
-                    (cl-pushnew cat categories :test #'string=)))))
-    ;; Process and return results
+  (let ((categories (delq nil (org-ext--category-values files))))
     (if include-counts
-        (let ((result '()))
-          (maphash (lambda (cat count)
-                     (push (cons cat count) result))
-                   categories)
+        (let ((counts (make-hash-table :test #'equal))
+              result)
+          (dolist (category categories)
+            (puthash category (1+ (gethash category counts 0)) counts))
+          (maphash (lambda (category count)
+                     (push (cons category count) result))
+                   counts)
           (sort result (lambda (a b) (string< (car a) (car b)))))
-      (sort categories #'string<))))
+      (sort (delete-dups categories) #'string<))))
 
 (defun org-ext-get-categories-by-file (&optional files)
-  "Return an alist of (file . categories) for org FILES.
-If FILES is nil, use `org-agenda-files'.
-Each file is mapped to a list of unique categories used in that file."
-  (interactive)
-  (let* ((files (or files (org-agenda-files)))
-         (result '()))
-    (dolist (file files)
-      (let ((file-categories '()))
-        (org-ql-select file
-          t ;; Match all entries
-          :action (lambda ()
-                    (when-let ((cat (org-get-category)))
-                      (cl-pushnew cat file-categories :test #'string=))))
-        (when file-categories
-          (push (cons file (sort file-categories #'string<)) result))))
+  "Return an alist of (file . categories) for org FILES."
+  (let (result)
+    (dolist (file (or files (org-agenda-files)))
+      (let ((categories
+             (sort (delete-dups
+                    (delq nil (org-ext--category-values (list file))))
+                   #'string<)))
+        (when categories
+          (push (cons file categories) result))))
     (nreverse result)))
 
 (defun org-ext-show-all-categories ()
@@ -1925,17 +1901,18 @@ Shows categories with their usage counts in a temporary buffer."
          (total-categories (length categories-with-counts))
          (total-entries (apply #'+ (mapcar #'cdr categories-with-counts))))
     (with-current-buffer (get-buffer-create "*Org Categories*")
-      (erase-buffer)
-      (insert (format "Org Categories Summary\n"))
-      (insert (format "======================\n"))
-      (insert (format "Total categories: %d\n" total-categories))
-      (insert (format "Total categorized entries: %d\n\n" total-entries))
-      (insert "Category                     Count\n")
-      (insert "--------                     -----\n")
-      (dolist (cat-count categories-with-counts)
-        (insert (format "%-28s %5d\n" (car cat-count) (cdr cat-count))))
-      (goto-char (point-min))
-      (read-only-mode 1)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert "Org Categories Summary\n")
+        (insert "======================\n")
+        (insert (format "Total categories: %d\n" total-categories))
+        (insert (format "Total categorized entries: %d\n\n" total-entries))
+        (insert "Category                     Count\n")
+        (insert "--------                     -----\n")
+        (dolist (cat-count categories-with-counts)
+          (insert (format "%-28s %5d\n" (car cat-count) (cdr cat-count))))
+        (goto-char (point-min))
+        (read-only-mode 1))
       (display-buffer (current-buffer)))))
 
 (defvar org-ext-category-history nil)
@@ -2197,14 +2174,54 @@ Detection looks for a 192.168.1.* address on the bridge0 interface."
     (goto-char (point-min))
     (search-forward "inet 192.168.1." nil t)))
 
+(defcustom org-ext-location-command-timeout 2
+  "Seconds to wait for CoreLocationCLI during capture finalization."
+  :type 'number
+  :group 'org-ext)
+
+(defun org-ext--command-output-with-timeout (program timeout &rest args)
+  "Run PROGRAM with ARGS, returning stdout or an empty string after TIMEOUT."
+  (with-temp-buffer
+    (let ((deadline (+ (float-time) timeout))
+          process
+          timed-out)
+      (condition-case nil
+          (progn
+            (setq process
+                  (make-process
+                   :name "org-ext-command"
+                   :buffer (current-buffer)
+                   :command (cons program args)
+                   :connection-type 'pipe
+                   :sentinel #'ignore
+                   :noquery t))
+            (while (and (process-live-p process) (not timed-out))
+              (let ((remaining (- deadline (float-time))))
+                (if (<= remaining 0)
+                    (setq timed-out t)
+                  (accept-process-output process remaining))))
+            (when (process-live-p process)
+              (setq timed-out t)
+              (delete-process process))
+            (if (and (not timed-out)
+                     (eq (process-status process) 'exit)
+                     (= (process-exit-status process) 0))
+                (buffer-string)
+              ""))
+        (error
+         (when (and process (process-live-p process))
+           (delete-process process))
+         "")))))
+
 (defun org-ext-get-location ()
-  "If possible, add location info. We know the location at home always."
+  "Return current latitude and longitude, or empty strings on failure."
   (if (and nil (org-ext-at-home-p))
       '("38.569498" "-121.388618")
     (let ((strs
            (split-string
             (string-trim
-             (shell-command-to-string "CoreLocationCLI")))))
+             (org-ext--command-output-with-timeout
+              "CoreLocationCLI" org-ext-location-command-timeout)))))
       (if (= 2 (length strs))
           strs
         (message "Failed to obtain Lat/Lon!")
