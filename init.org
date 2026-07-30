@@ -11834,6 +11834,7 @@ context.
 #+begin_src emacs-lisp
 (use-package org-drafts-ext
   :after (org-drafts)
+  :demand t
   :bind (:map
          org-mode-map
          ("C-c C-x y" . org-drafts-ext-paste-prompt))
