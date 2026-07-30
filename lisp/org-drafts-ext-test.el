@@ -8,6 +8,9 @@
 
 ;;; Code:
 
+(defconst org-drafts-ext-test-directory
+  (file-name-directory (or load-file-name buffer-file-name)))
+
 (let ((source (expand-file-name "../init.org"
                                 (file-name-directory load-file-name))))
   (with-temp-buffer
@@ -114,6 +117,17 @@
               (should (equal (buffer-string) original))
               (should (equal (car kill-ring) text)))))
       (define-key org-mode-map (kbd "H-p") old-binding))))
+
+(ert-deftest org-drafts-ext-test-init-demands-extension ()
+  "The extension must load before capital org-drafts actions are used."
+  (with-temp-buffer
+    (insert-file-contents
+     (expand-file-name "../init.org" org-drafts-ext-test-directory))
+    (goto-char (point-min))
+    (re-search-forward "^(use-package org-drafts-ext\\_>")
+    (let ((end (save-excursion
+                 (re-search-forward "^#\\+end_src" nil t))))
+      (should (re-search-forward "^[ \\t]*:demand t$" end t)))))
 
 (provide 'org-drafts-ext-test)
 ;;; org-drafts-ext-test.el ends here
