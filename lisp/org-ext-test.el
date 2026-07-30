@@ -3,12 +3,20 @@
 (require 'ert)
 (require 'cl-lib)
 (require 'org)
+(require 'org-agenda)
 (require 'ox-md)
 (require 'mdformat)
 
 (defvar org-ext-recording-queue-directory)
 (defvar org-ext-recording-receipt-directory)
 (defvar org-ext-recording-inbox-directories)
+(defvar org-capture-plist)
+(defvar org-constants-drafts-path)
+(defvar org-constants-positron-team-file)
+(defvar org-ext-location-command-timeout)
+
+(defconst org-ext-test-directory
+  (file-name-directory (or load-file-name buffer-file-name)))
 
 (let ((source (expand-file-name "org-ext.el"
                                 (file-name-directory load-file-name))))
@@ -24,6 +32,7 @@
       (goto-char (match-beginning 0))
       (eval (read (current-buffer)) t))
     (dolist (name '(org-ext-copy-subtree-as-markdown
+                    org-ext-move-recording-audio
                     org-ext-recording-file-hash
                     org-ext-recording-receipt-file
                     org-ext-recording-imported-p
@@ -34,6 +43,72 @@
         (goto-char (match-beginning 0))
         (eval (read (current-buffer)) t)))))
 
+(let ((source (expand-file-name "org-ext.el"
+                                (file-name-directory load-file-name))))
+  ;; Eval additional functions needed by the regression tests below,
+  ;; handling defun, defsubst, and defalias forms.
+  (dolist (name '(org-ext-goto-inbox-heading
+                  org-ext-goto-inbox
+                  org-ext-agenda-show
+                  org-ext-agenda-show-and-scroll-up
+                  org-ext-jump-to-agenda
+                  org-ext--with-agenda-entry
+                  org-ext-entry-span
+                  org-ext-with-entry-narrowed
+                  org-ext-entire-properties-block
+                  org-ext-move-properties-drawer
+                  org-ext-fix-all-properties
+                  org-ext-move-subtree-to-point
+                  org-ext-cleanup-whitespace
+                  org-ext-fixup-slack
+                  org-ext-set-stored-link
+                  org-ext-update-date-field
+                  org-ext-todoize
+                  org-ext-set-id-and-created
+                  org-ext-with-property-search
+                  org-ext-get-inactive-time
+                  org-ext-parent-priority
+                  org-ext-ancestor-keywords
+                  org-ext-open-all-links-in-subtree
+                  org-ext-edit-link-name
+                  org-ext-swap-link-name
+                  org-ext-unlink-region
+                  org-ext-follow-tag-link
+                  org-ext-gnus-drop-link-parameter
+                  org-ext-update-team
+                  org-ext-linkify
+                  org-ext-current-tags
+                  org-ext-get-location
+                  org-ext-insert-code-block
+                  org-ext-get-all-categories
+                  org-ext-get-all-categories-detailed
+                  org-ext-show-all-categories
+                  org-ext-agenda-files-except
+                  org-ext-chain-blockers-in-region
+                  org-ext--split-heading-title
+                  org-ext--join-heading-title
+                  org-ext--set-heading-component
+                  org-ext--fast-selection-keywords
+                  org-ext--first-child-todo
+                  org-ext-first-child-todo
+                  org-ext-has-preceding-todo-p
+                  org-ext-task-p))
+    (with-temp-buffer
+      (insert-file-contents source)
+      (goto-char (point-min))
+      (let ((found nil))
+        (dolist (re (list (format "^(defun %s\\_>" name)
+                          (format "^(defmacro %s\\_>" name)
+                          (format "^(defsubst %s\\_>" name)
+                          (format "^(defalias '%s\\_>" name)))
+          (unless found
+            (goto-char (point-min))
+            (when (re-search-forward re nil t)
+              (setq found t)
+              (goto-char (match-beginning 0))
+              (eval (read (current-buffer)) t))))
+        (unless found
+          (error "could not load %s from org-ext.el" name))))))
 (ert-deftest org-ext-recording-note-files-combines-local-and-legacy-inboxes ()
   (let* ((root (make-temp-file "org-ext-recordings-" t))
          (legacy (expand-file-name "legacy" root))
