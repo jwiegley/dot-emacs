@@ -529,14 +529,39 @@ drawers."
       (forward-line 1))))
 
 (defun org-ext-update-date-field ()
-  "Set #+date property based on file's name timestamp.
-Extracts date from filename pattern YYYYMMDD and formats as inactive timestamp."
+  "Set #+date field from the file's leading YYYYMMDD name timestamp.
+Extract the leading eight digits from `buffer-file-name', validate
+them as a calendar date, and replace the value of the first
+`#+date:' line with that date as an inactive timestamp.  When the
+base name has no leading YYYYMMDD, or the digits do not form a
+valid date, the field is left untouched — `current-time' is never
+substituted, so a mocked \"today\" cannot mismatch the filename."
   (interactive)
   (save-excursion
     (goto-char (point-min))
     (when (re-search-forward "^#\\+date:\\s-*\\(.+\\)" nil t)
-      (delete-region (match-beginning 1) (match-end 1))
-      (org-insert-time-stamp (current-time) t t))))
+      (let ((beg (match-beginning 1))
+            (end (match-end 1))
+            (name (and buffer-file-name
+                   (file-name-nondirectory buffer-file-name))))
+        (when (and name
+                   (string-match
+                    "\\`\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)"
+                    name))
+          (let* ((year (string-to-number (match-string 1 name)))
+                 (month (string-to-number (match-string 2 name)))
+                 (day (string-to-number (match-string 3 name)))
+                 (date (condition-case nil
+                           (encode-time
+                            (list 0 0 0 day month year nil -1 nil))
+                         (error nil)))
+                 (decoded (and date (decode-time date))))
+            (when (and decoded
+                       (= day (nth 3 decoded))
+                       (= month (nth 4 decoded))
+                       (= year (nth 5 decoded)))
+              (delete-region beg end)
+              (org-insert-time-stamp date t t))))))))
 
 (defun org-ext-reformat-time (&optional beg end)
   "Reformat time string in selected region (BEG to END) to org standard.
@@ -568,6 +593,12 @@ text will be moved into an OFFSET property."
   (when (equal arg '(16))
     (let ((org-inhibit-logging t))
       (org-todo "TODO")))
+  ;; Invoke the ID worker explicitly with the prefix argument so a
+  ;; `\[universal-argument]' regenerates an existing ID.  Doing this before
+  ;; the nullary capture hooks run means a hook that calls
+  ;; `org-ext-set-id-and-created' with no argument becomes a no-op
+  ;; rather than racing the explicit call.
+  (org-ext-set-id-and-created (when (equal arg '(4)) arg))
   (run-hooks 'org-capture-before-finalize-hook))
 
 (defun org-ext-switch-todo-link (&optional _arg)
@@ -686,7 +717,20 @@ See `org-ext-todoize', which uses argument ARG."
          (completing-read "Value: "
                           (org-property-values org-ext-property-search-name))))
   (let ((org-use-property-inheritance
-         (append org-use-property-inheritance '("WITH"))))
+         (let ((inherit org-use-property-inheritance))
+           ;; Normalize the four legal forms of
+           ;; `org-use-property-inheritance' before adding WITH, so a
+           ;; nil, t, single regexp string, or list value all yield a
+           ;; proper list containing "WITH" rather than corrupting the
+           ;; variable (e.g. appending to t, or to a regexp string).
+           (cond
+            ((null inherit) '("WITH"))
+            ((eq inherit t) t)
+            ((stringp inherit)
+             (concat "\\(?:" inherit "\\|\\`WITH\\'\\)"))
+            ((consp inherit)
+             (delete-dups (append inherit '("WITH"))))
+            (t '("WITH"))))))
     (org-tags-view
      t (format "%s={%s}&TODO={TODO\\|WAIT\\|TASK}" property value))))
 
@@ -716,13 +760,13 @@ Intended for use with yasnippet or similar expansion systems."
 
 (defun org-ext-parent-priority ()
   "Get priority from closest parent heading.
-Returns priority letter (A-C) or nil if none found."
+Returns the priority character or nil if none is present."
   (save-excursion
-    (org-up-heading-safe)
-    (save-match-data
-      (beginning-of-line)
-      (and (looking-at org-heading-regexp)
-	   (org-get-priority (match-string 0))))))
+    (when (org-up-heading-safe)
+      (save-match-data
+        (beginning-of-line)
+        (when (re-search-forward org-priority-regexp (line-end-position) t)
+          (string-to-char (match-string 2)))))))
 
 (defsubst org-ext-agenda-files-except (&rest args)
   "Return agenda files excluding those matching ARGS.
@@ -1634,14 +1678,29 @@ Preserves existing URL2 property when URL exists."
   (org-toggle-tag "LINK" 'on))
 
 (defun org-ext-set-stored-link ()
-  "Set a property for the current headline."
+  "Set the URL/URL2 property from the most recently stored link.
+Require `org-stored-links' to be non-empty before mutating; signal
+`user-error' otherwise so the entry is never left half-todoized.  The
+link is rendered with `org-link-make-string', which builds a correctly
+bracketed `[[link][desc]]' form from Org's `(link desc)' entry shape.
+Description is taken from `(cadr (car org-stored-links))' rather than
+`cdar', which would yield a one-element list when the entry is a
+two-element list (as `org-store-link' and `org-protocol-store-link'
+produce)."
   (interactive)
-  (org-ext-todoize)
-  (org-set-property (if (org-entry-get (point-marker) "URL") "URL2" "URL")
-                    (format "[[%s][%s]] "
-                            (caar org-stored-links)
-                            (cdar org-stored-links)))
-  (org-toggle-tag "LINK" 'on))
+  (let ((entry (car org-stored-links)))
+    (unless (and entry
+                 (stringp (car-safe entry))
+                 (not (string-empty-p (car entry))))
+      (user-error "No stored link available"))
+    (org-ext-todoize)
+    (let ((link (car entry))
+          (desc (cadr entry)))
+      (org-set-property (if (org-entry-get (point-marker) "URL") "URL2" "URL")
+                        (if (and (stringp desc) (not (string-empty-p desc)))
+                            (org-link-make-string link desc)
+                          (org-link-make-string link)))
+      (org-toggle-tag "LINK" 'on))))
 
 (defun org-ext-capture-link-to-entry ()
   "Capture a new task linked back to the current Org entry.
@@ -1660,14 +1719,13 @@ tag and :URL: property pointing to the current entry via its ID."
     (insert " ")))
 
 (defun org-ext-get-inactive-time ()
-  "Get time of last state change or creation as float.
-Uses `org-encode-time' and `org-time-string-to-time' for conversion.
-Falls back to current time when no valid timestamp found."
-  (float-time (org-time-string-to-time
-               (or (org-entry-get (point) "TIMESTAMP")
-                   (org-entry-get (point) "TIMESTAMP_IA")
-                   (org-entry-get (point) "CREATED")
-                   (debug)))))
+  "Return the entry timestamp as a float, or the current time when absent."
+  (let ((timestamp (or (org-entry-get (point) "TIMESTAMP")
+                       (org-entry-get (point) "TIMESTAMP_IA")
+                       (org-entry-get (point) "CREATED"))))
+    (if timestamp
+        (float-time (org-time-string-to-time timestamp))
+      (float-time))))
 
 (defun org-ext-open-map-link ()
   "Open Apple Maps with location coordinates from LOCATION property.
@@ -1728,11 +1786,13 @@ Used for contextual tag inheritance."
 Returns list of todo states from parent headings above current entry.
 Uses recursive ascent with `org-up-heading-safe'."
   (save-excursion
-    (let ((had-parent (org-up-heading-safe)))
+    ;; Cons the parent's state only after a successful ascent, so a
+    ;; top-level TODO yields nil and a single TODO parent yields one
+    ;; keyword with no duplicate of the parent.
+    (when (org-up-heading-safe)
       (delete nil
               (cons (org-get-todo-state)
-                    (when had-parent
-                      (org-ext-ancestor-keywords)))))))
+                    (org-ext-ancestor-keywords))))))
 
 (defun org-ext-insert-code-block ()
   "Convert triple-backtick to Org code block.
@@ -2074,6 +2134,12 @@ the displayed line."
     (call-interactively #'org-ext-switch-todo-task)))
 
 (defun org-ext-set-id-and-created (&optional arg)
+  "Ensure the current heading has an ID and a CREATED timestamp.
+Call `org-id-get-create' with ARG, which forces regeneration of an
+existing ID only when ARG is non-nil (e.g. a raw `\[universal-argument]').
+Then set the CREATED inactive timestamp property unless one already
+exists.  `arg' defaults to nil so a nullary call from a finalize
+hook never overwrites an existing ID."
   (org-id-get-create arg)
   (unless (org-entry-get (point) "CREATED")
     (org-entry-put (point) "CREATED"
