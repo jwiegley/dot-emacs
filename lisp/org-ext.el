@@ -166,12 +166,21 @@ moves the audio file to ~/Audio/Recordings."
   (let* ((basename (file-name-sans-extension txt-file))
          (audio-extensions '(".m4a" ".mp3" ".wav" ".aac" ".flac" ".ogg"))
          (audio-dest-dir (expand-file-name "~/Audio/Recordings"))
+         ;; A transcript named "x.m4a.txt" strips to "x.m4a", so the
+         ;; audio file is the stripped name itself.  Test it directly when
+         ;; it already carries a supported audio extension, before
+         ;; trying the synthesized "<base>.<ext>" candidates.
+         (candidates
+          (append
+           (let ((ext (file-name-extension basename)))
+             (and ext
+                  (member (downcase (concat "." ext)) audio-extensions)
+                  (list basename)))
+           (mapcar (lambda (ext) (concat basename ext))
+                   audio-extensions)))
          audio-file)
     ;; Find the first matching audio file
-    (setq audio-file
-          (cl-find-if #'file-exists-p
-                      (mapcar (lambda (ext) (concat basename ext))
-                              audio-extensions)))
+    (setq audio-file (cl-find-if #'file-exists-p candidates))
     ;; Move audio file if found
     (when audio-file
       (unless (file-directory-p audio-dest-dir)
@@ -246,32 +255,51 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
         (when (file-exists-p temporary)
           (delete-file temporary))))))
 
+(defun org-ext--recording-hashes ()
+  "Return hashes already recorded in the current Org buffer."
+  (let ((hashes (make-hash-table :test #'equal)))
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward
+              "^:RECORDING_TRANSCRIPT_SHA256:[ \t]+\\([[:xdigit:]]\\{64\\}\\)[ \t]*$"
+              nil t)
+        (puthash (match-string-no-properties 1) t hashes)))
+    hashes))
+
+(defun org-ext--insert-recording-note (note hash)
+  "Insert recording transcript NOTE and associate it with HASH."
+  (let ((start-pos (point)))
+    (insert
+     (with-temp-buffer
+       (org-mode)
+       (insert-file-contents note)
+       (goto-char (point-min))
+       (org-ext-reformat-recording)
+       (goto-char (point-max))
+       (unless (bolp)
+         (insert ?\n))
+       (buffer-string)))
+    (save-excursion
+      (goto-char start-pos)
+      (when (re-search-forward "^\\*\\* \\(DRAFT\\|TODO\\) " nil t)
+        (beginning-of-line)
+        (run-hooks 'org-capture-before-finalize-hook)
+        (org-set-property "RECORDING_TRANSCRIPT_SHA256" hash)))))
+
+(defun org-ext--consume-recording-note (note hash)
+  "Acknowledge imported recording NOTE with HASH, then consume it."
+  (org-ext-write-recording-receipt note hash)
+  (org-ext-move-recording-audio note)
+  (delete-file note t))
+
 (defun org-ext-import-recording-note (note)
   "Import recording transcript NOTE, save, acknowledge, then consume it."
   (let ((hash (org-ext-recording-file-hash note)))
     (unless (org-ext-recording-imported-p hash)
-      (let ((start-pos (point)))
-        (insert
-         (with-temp-buffer
-           (org-mode)
-           (insert-file-contents note)
-           (goto-char (point-min))
-           (org-ext-reformat-recording)
-           (goto-char (point-max))
-           (unless (bolp)
-             (insert ?\n))
-           (buffer-string)))
-        (save-excursion
-          (goto-char start-pos)
-          (when (re-search-forward "^\\*\\* \\(DRAFT\\|TODO\\) " nil t)
-            (beginning-of-line)
-            (run-hooks 'org-capture-before-finalize-hook)
-            (org-set-property "RECORDING_TRANSCRIPT_SHA256" hash)))))
+      (org-ext--insert-recording-note note hash))
     (when buffer-file-name
       (save-buffer))
-    (org-ext-write-recording-receipt note hash)
-    (org-ext-move-recording-audio note)
-    (delete-file note t)))
+    (org-ext--consume-recording-note note hash)))
 
 (defun org-ext-fit-agenda-window ()
   "Fit the window to the buffer size."
@@ -283,7 +311,9 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
   "Import DRAFT-NOTES and RECORDING-NOTES into the current inbox.
 Draft sources are deleted only after the destination buffer has been
 saved successfully."
-  (let ((drafts-to-consume nil))
+  (let ((drafts-to-consume nil)
+        (recordings-to-consume nil)
+        (imported (and recording-notes (org-ext--recording-hashes))))
     (dolist (note draft-notes)
       (insert
        (with-temp-buffer
@@ -298,9 +328,15 @@ saved successfully."
          (buffer-string)))
       (push note drafts-to-consume))
     (dolist (note recording-notes)
-      (org-ext-import-recording-note note))
+      (let ((hash (org-ext-recording-file-hash note)))
+        (unless (gethash hash imported)
+          (org-ext--insert-recording-note note hash)
+          (puthash hash t imported))
+        (push (cons note hash) recordings-to-consume)))
     (when (buffer-modified-p)
       (save-buffer))
+    (dolist (recording (nreverse recordings-to-consume))
+      (org-ext--consume-recording-note (car recording) (cdr recording)))
     (dolist (note (nreverse drafts-to-consume))
       (delete-file note t))))
 
@@ -1283,12 +1319,22 @@ multi-line preservation."
                                           "Monday" "Tuesday" "Wednesday"
                                           "Thursday" "Friday" "Saturday"
                                           "Sunday" "Edited" "View")))
-                           ;; Author lines in Slack export are always followed
-                           ;; by a blank line before content
+                           ;; A new one-word capitalized line is ambiguous
+                           ;; content.  Accept it as an author only after that
+                           ;; exact name has already been established.
+                           (or (string-match-p " " first-line)
+                               (gethash first-line known-authors))
+                           ;; Author lines are separated from nonempty content
+                           ;; by at least one blank line.
                            (save-excursion
                              (forward-line 1)
-                             (or (>= (point) next-timestamp-pos)
-                                 (looking-at "^[[:space:]]*$")))))))
+                             (and (< (point) next-timestamp-pos)
+                                  (looking-at "^[[:space:]]*$")
+                                  (progn
+                                    (while (and (< (point) next-timestamp-pos)
+                                                (looking-at "^[[:space:]]*$"))
+                                      (forward-line 1))
+                                    (< (point) next-timestamp-pos))))))))
 
               (if looks-like-author
                   (progn

@@ -37,6 +37,9 @@
                     org-ext-recording-receipt-file
                     org-ext-recording-imported-p
                     org-ext-write-recording-receipt
+                    org-ext--recording-hashes
+                    org-ext--insert-recording-note
+                    org-ext--consume-recording-note
                     org-ext-import-recording-note))
       (goto-char (point-min))
       (when (re-search-forward (format "^(defun %s\\_>" name) nil t)
@@ -388,6 +391,134 @@
                 (should (string-empty-p (buffer-string)))))))
       (when (buffer-live-p output-buffer)
         (kill-buffer output-buffer)))))
+
+(ert-deftest org-ext-story-b-compound-recording-suffix ()
+  (let* ((root (make-temp-file "org-ext-audio-suffix-" t))
+         (transcript (expand-file-name "x.m4a.txt" root))
+         (audio (expand-file-name "x.m4a" root))
+         (destination (expand-file-name "destination" root))
+         (real-expand (symbol-function 'expand-file-name)))
+    (unwind-protect
+        (progn
+          (write-region "transcript" nil transcript nil 'silent)
+          (write-region "audio" nil audio nil 'silent)
+          (cl-letf (((symbol-function 'expand-file-name)
+                     (lambda (name &optional directory)
+                       (if (equal name "~/Audio/Recordings")
+                           destination
+                         (funcall real-expand name directory)))))
+            (org-ext-move-recording-audio transcript))
+          (should-not (file-exists-p audio))
+          (should (equal "audio"
+                         (with-temp-buffer
+                           (insert-file-contents
+                            (expand-file-name "x.m4a" destination))
+                           (buffer-string)))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-b-recordings-scan-and-save-once ()
+  (let* ((root (make-temp-file "org-ext-recording-batch-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name ".imported" queue))
+         (inbox (expand-file-name "inbox.org" root))
+         (notes (mapcar (lambda (name) (expand-file-name name queue))
+                        '("one.txt" "two.txt" "three.txt")))
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (cl-mapc (lambda (note body)
+                     (write-region body nil note nil 'silent))
+                   notes '("One" "Two" "Three"))
+          (write-region "" nil inbox nil 'silent)
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (let ((real-scan (symbol-function 'org-ext--recording-hashes))
+                        (real-save (symbol-function 'save-buffer))
+                        (scans 0)
+                        (saves 0))
+                    (cl-letf (((symbol-function 'org-ext--recording-hashes)
+                               (lambda ()
+                                 (setq scans (1+ scans))
+                                 (funcall real-scan)))
+                              ((symbol-function 'save-buffer)
+                               (lambda (&rest args)
+                                 (setq saves (1+ saves))
+                                 (apply real-save args)))
+                              ((symbol-function 'org-ext-move-recording-audio)
+                               #'ignore))
+                      (org-ext--import-agenda-notes nil notes))
+                    (should (= scans 1))
+                    (should (= saves 1)))
+                  (goto-char (point-min))
+                  (should (= (how-many "^\\*\\* TODO ") 3)))
+              (kill-buffer buffer)))
+          (dolist (note notes)
+            (should-not (file-exists-p note))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-b-recording-batch-retries-after-save-failure ()
+  (let* ((root (make-temp-file "org-ext-recording-retry-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name ".imported" queue))
+         (inbox (expand-file-name "inbox.org" root))
+         (notes (mapcar (lambda (name) (expand-file-name name queue))
+                        '("one.txt" "two.txt" "three.txt")))
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (cl-mapc (lambda (note body)
+                     (write-region body nil note nil 'silent))
+                   notes '("One" "Two" "Three"))
+          (write-region "" nil inbox nil 'silent)
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (cl-letf (((symbol-function 'save-buffer)
+                             (lambda (&rest _) (error "injected save failure")))
+                            ((symbol-function 'org-ext-move-recording-audio)
+                             #'ignore))
+                    (should-error
+                     (org-ext--import-agenda-notes nil notes)))
+                  (dolist (note notes)
+                    (should (file-exists-p note)))
+                  (should-not (file-exists-p receipts))
+                  (cl-letf (((symbol-function 'org-ext-move-recording-audio)
+                             #'ignore))
+                    (org-ext--import-agenda-notes nil notes))
+                  (goto-char (point-min))
+                  (should (= (how-many "^\\*\\* TODO ") 3)))
+              (kill-buffer buffer)))
+          (dolist (note notes)
+            (should-not (file-exists-p note))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-b-slack-one-word-continuation-is-content ()
+  (with-temp-buffer
+    (insert "[[https://acme.slack.com/archives/C/p1][10:00]]\n"
+            "Alice Smith\n\nFirst message\n\n"
+            "[[https://acme.slack.com/archives/C/p2][10:01]]\n"
+            "Thanks\n\n"
+            "[[https://acme.slack.com/archives/C/p3][10:02]]\n"
+            "Bob Jones\n\nFollowing message\n")
+    (org-ext-fixup-slack t)
+    (should (string-match-p
+             (regexp-quote
+              "[[https://acme.slack.com/archives/C/p1][Alice Smith]]: First message")
+             (buffer-string)))
+    (should (string-match-p "\n\nThanks\n\n" (buffer-string)))
+    (should (string-match-p
+             (regexp-quote
+              "[[https://acme.slack.com/archives/C/p3][Bob Jones]]: Following message")
+             (buffer-string)))))
 
 (ert-deftest org-ext-story-a-draft-survives-save-failure ()
   (let* ((root (make-temp-file "org-ext-draft-save-" t))
