@@ -64,6 +64,7 @@ Checks for proper file structure: blank line after header, Inbox heading
 at top level. Signals error if formatting is incorrect."
   (let ((path (file-name-nondirectory org-constants-drafts-path)))
     (set-buffer (find-file-noselect org-constants-drafts-path))
+    (widen)
     (goto-char (point-min))
     (while (looking-at "^[:#]")
       (forward-line 1))
@@ -74,7 +75,7 @@ at top level. Signals error if formatting is incorrect."
       (error "Missing Inbox heading at start of %s" path))))
 
 (defun org-ext-goto-inbox (&optional func)
-  "Navigate to the Inbox section in todo file.
+  "Navigate to the Inbox section in the drafts file.
 When optional FUNC is provided, execute it within the Inbox context.
 Interactively opens the file and positions cursor at first todo item."
   (interactive)
@@ -82,7 +83,7 @@ Interactively opens the file and positions cursor at first todo item."
       (funcall (if func
                    #'find-file-noselect
                  #'find-file)
-               org-constants-todo-path)
+               org-constants-drafts-path)
     (if func
         (save-excursion
           (org-ext-goto-inbox-heading)
@@ -357,17 +358,18 @@ saved successfully."
   "Display Org file containing item at point."
   (interactive "P")
   (let ((win (selected-window)))
-    (if (and (window-live-p org-agenda-show-window)
-	     (eq this-command last-command))
-	(progn
-	  (select-window org-agenda-show-window)
-	  (ignore-errors (scroll-up)))
-      (org-agenda-goto)
-      (org-fold-show-entry 'hide-drawers)
-      (narrow-to-region (org-entry-beginning-position)
-			(org-entry-end-position))
-      (setq org-agenda-show-window (selected-window)))
-    (select-window win)))
+    (unwind-protect
+        (if (and (window-live-p org-agenda-show-window)
+                 (eq this-command last-command))
+            (progn
+              (select-window org-agenda-show-window)
+              (ignore-errors (scroll-up)))
+          (org-agenda-goto)
+          (org-with-wide-buffer
+           (org-fold-show-entry 'hide-drawers))
+          (setq org-agenda-show-window (selected-window)))
+      (when (window-live-p win)
+        (select-window win)))))
 
 (defun org-ext-agenda-show-and-scroll-up (&optional arg)
   "Display Org file containing item at point.
@@ -384,11 +386,11 @@ but fold drawers."
       (org-agenda-goto t)
       (org-fold-show-entry 'hide-drawers)
       (if arg
-          (org-with-wide-buffer
+          (org-cycle-hide-drawers 'children)
+        (org-with-wide-buffer
 	   (narrow-to-region (org-entry-beginning-position)
 			     (org-entry-end-position))
-	   (org-fold-show-all '(drawers)))
-	(org-cycle-hide-drawers 'children))
+	   (org-fold-show-all '(drawers))))
       (setq org-agenda-show-window (selected-window)))
     (select-window win)))
 
@@ -1973,30 +1975,70 @@ the verbs already in use across the agenda files; see
                           nil nil nil 'org-ext-verb-history)))
   (org-ext--set-heading-component 'verb verb))
 
+(defun org-ext--collect-agenda-markers ()
+  "Return a snapshot list of heading markers for the current agenda selection.
+
+Covers three Org selection mechanisms, in priority order: bulk-marked
+entries (`org-agenda-bulk-marked-entries'), an active region (when
+`org-agenda-loop-over-headlines-in-active-region' is set), or just the
+current agenda line.  Markers are copied so that a later
+`org-agenda-redo' cannot invalidate the iteration while BODY runs."
+  (let (markers)
+    (cond
+     ((and (boundp 'org-agenda-bulk-marked-entries)
+           org-agenda-bulk-marked-entries)
+      (dolist (m org-agenda-bulk-marked-entries)
+        (when (and (markerp m) (marker-buffer m))
+          (push (copy-marker m) markers)))
+      (nreverse markers))
+     ((and org-agenda-loop-over-headlines-in-active-region
+           (org-region-active-p))
+      (save-excursion
+        (goto-char (region-beginning))
+        (let ((end (move-marker (make-marker) (region-end))))
+          (unwind-protect
+              (progn
+                (while (< (point) end)
+                  (let ((m (org-get-at-bol 'org-hd-marker)))
+                    (when (and m (marker-buffer m))
+                      (push (copy-marker m) markers)))
+                  (org-agenda-next-item 1))
+                (nreverse markers))
+            (set-marker end nil)))))
+     (t
+      (let ((m (or (org-get-at-bol 'org-hd-marker)
+                  (org-agenda-error))))
+        (when (and m (marker-buffer m))
+          (list (copy-marker m))))))))
+
 (defmacro org-ext--with-agenda-entry (command &rest body)
-  "Evaluate BODY on the Org entry behind the current agenda line.
-COMMAND is the interactive agenda command symbol; it is handed to
-`org-agenda-maybe-loop' so that bulk-marked entries are each
-processed.  BODY runs in the entry's buffer, widened and made
-visible, inside `org-with-remote-undo', after which the agenda is
-rebuilt with `org-agenda-redo'."
+  "Evaluate BODY on the Org entry(ies) behind the current agenda line.
+COMMAND is the interactive agenda command symbol; it is retained so
+callers remain self-describing.  Source markers are snapshotted via
+`org-ext--collect-agenda-markers' before any mutation, so an agenda
+rebuild cannot disrupt iteration over region-selected or bulk-marked
+entries.  BODY runs in each entry's buffer, widened and made visible,
+inside `org-with-remote-undo'; the agenda is rebuilt once with
+`org-agenda-redo' after every selected entry has been processed."
   (declare (indent 1) (debug (form body)))
+  (ignore command)
   `(progn
      (org-agenda-check-no-diary)
-     (org-agenda-maybe-loop
-      ,command nil nil nil
-      (let* ((hdmarker (or (org-get-at-bol 'org-hd-marker)
-                           (org-agenda-error)))
-             (buffer (marker-buffer hdmarker))
-             (pos (marker-position hdmarker))
-             (inhibit-read-only t))
-        (org-with-remote-undo buffer
-          (with-current-buffer buffer
-            (widen)
-            (goto-char pos)
-            (org-fold-show-context 'agenda)
-            ,@body))
-        (org-agenda-redo)))))
+     (let ((--org-ext-markers (org-ext--collect-agenda-markers)))
+       (dolist (hdmarker --org-ext-markers)
+         (let* ((buffer (marker-buffer hdmarker))
+                (pos (marker-position hdmarker))
+                (inhibit-read-only t))
+           (when buffer
+             (org-with-remote-undo buffer
+               (with-current-buffer buffer
+                 (widen)
+                 (goto-char pos)
+                 (org-fold-show-context 'agenda)
+                 ,@body)))))
+       (dolist (m --org-ext-markers)
+         (when (markerp m) (set-marker m nil)))
+       (org-agenda-redo))))
 
 (defun org-ext-agenda-set-category ()
   "Set the CATEGORY property for the current agenda entry.

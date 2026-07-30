@@ -56,6 +56,7 @@
                   org-ext-agenda-show
                   org-ext-agenda-show-and-scroll-up
                   org-ext-jump-to-agenda
+                  org-ext--collect-agenda-markers
                   org-ext--with-agenda-entry
                   org-ext-entry-span
                   org-ext-with-entry-narrowed
@@ -391,6 +392,144 @@
                 (should (string-empty-p (buffer-string)))))))
       (when (buffer-live-p output-buffer)
         (kill-buffer output-buffer)))))
+
+(ert-deftest org-ext-cross-cutting-agenda-show-restores-window-on-error ()
+  (let ((current 'origin)
+        (org-agenda-show-window nil))
+    (cl-letf (((symbol-function 'selected-window) (lambda () current))
+              ((symbol-function 'window-live-p) (lambda (window) (and window t)))
+              ((symbol-function 'select-window)
+               (lambda (window &rest _) (setq current window)))
+              ((symbol-function 'org-agenda-goto)
+               (lambda (&rest _)
+                 (setq current 'source)
+                 (error "injected agenda failure"))))
+      (should-error (org-ext-agenda-show))
+      (should (eq current 'origin)))))
+
+(ert-deftest org-ext-story-c-agenda-selections-snapshot-and-redraw-once ()
+  (let ((source (generate-new-buffer " *org-ext-agenda-source*"))
+        (agenda (generate-new-buffer " *org-ext-agenda*"))
+        markers
+        (redraws 0))
+    (unwind-protect
+        (progn
+          (with-current-buffer source
+            (org-mode)
+            (insert "* A\n* B\n* C\n* D\n")
+            (goto-char (point-min))
+            (dotimes (_ 4)
+              (push (copy-marker (line-beginning-position)) markers)
+              (forward-line))
+            (setq markers (nreverse markers)))
+          (with-current-buffer agenda
+            (insert (propertize "A\n" 'org-hd-marker (nth 0 markers))
+                    (propertize "B\n" 'org-hd-marker (nth 1 markers))
+                    (propertize "C\n" 'org-hd-marker (nth 2 markers))
+                    (propertize "D\n" 'org-hd-marker (nth 3 markers)))
+            (goto-char (point-min))
+            (set-mark (point-max))
+            (activate-mark)
+            (let ((org-agenda-loop-over-headlines-in-active-region t)
+                  (org-agenda-bulk-marked-entries nil))
+              (cl-letf (((symbol-function 'org-region-active-p)
+                         (lambda () t))
+                        ((symbol-function 'org-agenda-next-item)
+                         (lambda (&optional _) (forward-line)))
+                        ((symbol-function 'org-agenda-check-no-diary) #'ignore)
+                        ((symbol-function 'org-fold-show-context) #'ignore)
+                        ((symbol-function 'org-agenda-redo)
+                         (lambda (&rest _) (setq redraws (1+ redraws)))))
+                (org-ext--with-agenda-entry #'ignore
+                  (org-set-property "TOUCHED" "yes"))))
+            (let ((org-agenda-bulk-marked-entries
+                   (list (nth 2 markers) (nth 3 markers)))
+                  (org-agenda-loop-over-headlines-in-active-region nil))
+              (cl-letf (((symbol-function 'org-agenda-check-no-diary) #'ignore)
+                        ((symbol-function 'org-fold-show-context) #'ignore)
+                        ((symbol-function 'org-agenda-redo)
+                         (lambda (&rest _) (setq redraws (1+ redraws)))))
+                (org-ext--with-agenda-entry #'ignore
+                  (org-set-property "TOUCHED" "yes")))))
+          (should (= redraws 2))
+          (with-current-buffer source
+            (goto-char (point-min))
+            (dotimes (_ 4)
+              (should (equal (org-entry-get nil "TOUCHED") "yes"))
+              (outline-next-heading))))
+      (dolist (marker markers)
+        (set-marker marker nil))
+      (kill-buffer source)
+      (kill-buffer agenda))))
+
+(ert-deftest org-ext-story-c-inbox-navigation-widens-drafts-buffer ()
+  (let* ((root (make-temp-file "org-ext-inbox-" t))
+         (drafts (expand-file-name "drafts.org" root))
+         (org-constants-drafts-path drafts))
+    (unwind-protect
+        (progn
+          (write-region "#+title: Drafts\n\n* Inbox\n* Other\n"
+                        nil drafts nil 'silent)
+          (let ((buffer (find-file-noselect drafts)))
+            (unwind-protect
+                (progn
+                  (with-current-buffer buffer
+                    (org-mode)
+                    (goto-char (point-max))
+                    (forward-line -1)
+                    (narrow-to-region (line-beginning-position) (point-max)))
+                  (with-temp-buffer
+                    (org-ext-goto-inbox-heading)
+                    (should (eq (current-buffer) buffer))
+                    (should-not (buffer-narrowed-p))
+                    (should (looking-at-p "^\\* Inbox$")))
+                  (with-current-buffer buffer
+                    (goto-char (point-max))
+                    (forward-line -1)
+                    (narrow-to-region (line-beginning-position) (point-max)))
+                  (let (callback-buffer callback-wide)
+                    (org-ext-goto-inbox
+                     (lambda ()
+                       (setq callback-buffer (current-buffer)
+                             callback-wide (not (buffer-narrowed-p)))))
+                    (should (eq callback-buffer buffer))
+                    (should callback-wide)))
+              (with-current-buffer buffer
+                (set-buffer-modified-p nil))
+              (kill-buffer buffer)))
+          (with-temp-buffer
+            (insert-file-contents
+             (expand-file-name "org-config.el" org-ext-test-directory))
+            (should (re-search-forward
+                     (concat
+                      (regexp-quote "(file+function ,org-constants-drafts-path")
+                      "[[:space:]\n]+"
+                      (regexp-quote "org-ext-goto-inbox-heading)"))
+                     nil t))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-c-drawer-prefix-matches-docstring ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* Entry\n:PROPERTIES:\n:X: y\n:END:\n")
+    (let ((org-agenda-show-window nil)
+          events)
+      (cl-letf (((symbol-function 'org-agenda-goto) #'ignore)
+                ((symbol-function 'org-fold-show-entry) #'ignore)
+                ((symbol-function 'org-cycle-hide-drawers)
+                 (lambda (&rest _) (push 'hide events)))
+                ((symbol-function 'org-fold-show-all)
+                 (lambda (&rest _) (push 'show events)))
+                ((symbol-function 'org-entry-beginning-position)
+                 (lambda () (point-min)))
+                ((symbol-function 'org-entry-end-position)
+                 (lambda () (point-max))))
+        (org-ext-agenda-show-and-scroll-up '(4))
+        (should (equal events '(hide)))
+        (setq events nil
+              org-agenda-show-window nil)
+        (org-ext-agenda-show-and-scroll-up nil)
+        (should (equal events '(show)))))))
 
 (ert-deftest org-ext-story-b-compound-recording-suffix ()
   (let* ((root (make-temp-file "org-ext-audio-suffix-" t))
