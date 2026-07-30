@@ -1152,6 +1152,15 @@
               (kill-buffer source-buffer))))
       (delete-directory root t))))
 
+(ert-deftest org-ext-capture-cleanup-preserves-note-title-space ()
+  (let ((org-todo-keywords '((sequence "TODO" "|" "DONE")
+                             (sequence "|" "NOTE"))))
+    (with-temp-buffer
+      (org-mode)
+      (insert "* NOTE ")
+      (org-ext--cleanup-whitespace-region)
+      (should (equal (buffer-string) "* NOTE ")))))
+
 (ert-deftest org-ext-story-a-capture-cleanup-stays-within-markers ()
   (with-temp-buffer
     (org-mode)

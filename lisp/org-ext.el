@@ -2274,7 +2274,8 @@ cleaned."
     (delete-blank-lines)
     (when (looking-at "^$")
       (delete-char -1)))
-  (when (looking-back "TODO" (line-beginning-position))
+  (when (looking-back (regexp-opt org-todo-keywords-1)
+                      (line-beginning-position))
     (insert " ")))
 
 (defun org-ext-fill-body ()
