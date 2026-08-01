@@ -61,7 +61,6 @@ is bundled with Emacs 30.
 | `git-undo` | https://github.com/jwiegley/git-undo-el.git | `1e94d2dad39f` |
 | `gnus-harvest` | https://github.com/jwiegley/gnus-harvest.git | `29b406e1ed5a` |
 | `gptel-emacs-tools` | https://github.com/jwiegley/gptel-emacs-tools | `1ae5e496ea7f` |
-| `gptel-litellm` | https://github.com/jwiegley/gptel-litellm | `c6b8603816dd` |
 | `gptel-prompts` | https://github.com/jwiegley/gptel-prompts.git | `be29a9aa471e` |
 | `gptel-rag` | https://github.com/jwiegley/gptel-rag | `eadf31e78ffc` |
 | `hash-store` | https://github.com/jwiegley/hash-store | `2074c01f0517` |

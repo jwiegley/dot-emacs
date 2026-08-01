@@ -40,8 +40,8 @@
 
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
-  :backend "LiteLLM"
-  :model 'positron_openai/gpt-5.6-sol
+  :backend "ChatGPT"
+  :model 'gpt-5.6-sol
   :temperature 1.0)
 
 ;;; Anthropic
@@ -56,25 +56,24 @@
 
 (gptel-make-preset 'opus
   :description "Anthropic's Claude Opus, thinking"
-  :backend "LiteLLM"
-  :model (intern (format "anthropic/%s" claude-opus-model))
+  :backend "Claude"
+  :model claude-opus-model
   :temperature 1.0)
 
 (gptel-make-preset 'sonnet
   :description "Anthropic's Claude Sonnet, thinking"
-  :backend "LiteLLM"
-  :model (intern (format "anthropic/%s" claude-sonnet-model))
+  :backend "Claude"
+  :model claude-sonnet-model
   :temperature 1.0)
 
 (gptel-make-preset 'haiku
   :description "Anthropic's Claude Haiku"
-  :backend "LiteLLM"
-  :model (intern (format "anthropic/%s" claude-haiku-model))
+  :backend "Claude"
+  :model claude-haiku-model
   :temperature 1.0)
 
 (gptel-make-preset 'opus-max
   :description "Anthropic's Claude Opus, thinking"
-  ;; :backend "LiteLLM"
   :backend "vibe-proxy"
   ;; :model (intern (format "hera/%s-thinking-32000" claude-opus-model))
   :model (intern (format "%s-thinking-32000" claude-opus-model))
@@ -82,7 +81,6 @@
 
 (gptel-make-preset 'sonnet-max
   :description "Anthropic's Claude Sonnet, thinking"
-  ;; :backend "LiteLLM"
   :backend "vibe-proxy"
   ;; :model (intern (format "hera/%s-thinking-32000" claude-sonnet-model))
   :model (intern (format "%s-thinking-32000" claude-sonnet-model))
@@ -92,24 +90,24 @@
 
 (gptel-make-preset 'sonar
   :description "Perplexity.ai sonar-pro"
-  :backend "LiteLLM"
-  :model 'perplexity/sonar-pro)
+  :backend "Perplexity"
+  :model 'sonar-pro)
 
 (gptel-make-preset 'sonar-pro
   :description "Perplexity.ai sonar-reasoning-pro"
-  :backend "LiteLLM"
-  :model 'perplexity/sonar-reasoning-pro)
+  :backend "Perplexity"
+  :model 'sonar-reasoning-pro)
 
 (gptel-make-preset 'sonar-deep-research
   :description "Perplexity.ai sonar-deep-research"
-  :backend "LiteLLM"
-  :model 'perplexity/sonar-deep-research)
+  :backend "Perplexity"
+  :model 'sonar-deep-research)
 
 ;;; Ali Baba
 
 (gptel-make-preset 'qwen
-  :description "Ali Baba's Qwen via LiteLLM"
-  :backend "LiteLLM"
+  :description "Ali Baba's Qwen via local oMLX"
+  :backend "oMLX"
   :model llm-setup-default-instance-name)
 
 (gptel-make-preset 'qwen-clio

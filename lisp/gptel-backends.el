@@ -34,6 +34,7 @@
 ;; (require 'gptel-gemini)
 (require 'gptel-openai)
 (require 'gptel-openai-extras)
+(require 'auth-source-pass)
 ;; (require 'gptel-anthropic)
 (require 'llm-setup)
 
@@ -48,24 +49,6 @@
     "-XPOST"
     "-D-")
   "Arguments always passed to Curl for gptel queries.")
-
-(defun gptel-backends-make-litellm ()
-  "Make GPTel backends for LiteLLM hosted models."
-  (gptel-make-openai "LiteLLM"
-    :host "litellm.vulcan.lan"
-    :protocol "https"
-    :endpoint "/v1/chat/completions"
-    :key gptel-api-key
-    :models (llm-setup-gptel-backends)
-    :header
-    (lambda (_) (when-let* ((key (gptel--get-api-key)))
-             `(("x-api-key"         . ,key)
-               ("x-litellm-timeout" . "7200")
-               ("x-litellm-tags"    . "gptel")
-               ("anthropic-version" . "2023-06-01")
-               ("anthropic-beta"    . "pdfs-2024-09-25")
-               ("anthropic-beta"    . "output-128k-2025-02-19")
-               ("anthropic-beta"    . "prompt-caching-2024-07-31"))))))
 
 (defun gptel-backends-llama-swap ()
   "Make GPTel backends for models hosted on Clio."
@@ -89,13 +72,22 @@
     collect (llm-setup-get-instance-name model instance))))
 
 (defun gptel-backends-omlx ()
-  "Make GPTel backends for models hosted on Clio."
+  "Make a GPTel backend for models hosted by local oMLX."
   (gptel-make-openai "oMLX"
     :host "127.0.0.1:8000"
     :protocol "http"
     :endpoint "/v1/chat/completions"
     :models (gptel-backends--omlx-models)
     :key "dummy-key"))
+
+(defun gptel-backends-perplexity ()
+  "Make a GPTel backend for the direct Perplexity API."
+  (gptel-make-openai "Perplexity"
+    :host "api.perplexity.ai"
+    :protocol "https"
+    :endpoint "/chat/completions"
+    :key (lambda () (auth-source-pass-get 'secret "api.perplexity.ai"))
+    :models '(sonar-pro sonar-reasoning-pro sonar-deep-research)))
 
 (defun gptel-backends-vibe-proxy ()
   "Make GPTel backends for models hosted on Clio."

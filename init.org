@@ -713,9 +713,8 @@ It reindents after every change, making it more reliable than
   (aider-args
    `("-c" "~/.config/aider/config.yaml"
      "--model" ,(format "openai/%s" llm-setup-default-instance-name)
-     "--openai-api-base" "http://litellm.vulcan.lan/v1"
-     "--api-key" ,(concat "openai="
-                          (auth-source-pass-get 'secret "vulcan"))
+     "--openai-api-base" "http://localhost:8000/v1"
+     "--api-key" "openai=dummy-key"
      "--no-show-model-warnings"
      "--no-auto-accept-architect"
      "--no-auto-commits"
@@ -3233,8 +3232,9 @@ up before you execute another command."
   :config
   (gptel-backends-llama-swap)
   (gptel-backends-omlx)
+  (gptel-backends-perplexity)
   (gptel-backends-vibe-proxy)
-  (setq gptel-backend (gptel-backends-make-litellm)
+  (setq gptel-backend (gptel-backends-omlx)
         gptel-model llm-setup-default-instance-name))
 #+end_src
 
@@ -3259,15 +3259,6 @@ up before you execute another command."
 #+begin_src emacs-lisp
 (use-package gptel-emacs-tools
   :after (gptel-tools))
-#+end_src
-
-*** gptel-litellm
-
-#+begin_src emacs-lisp
-(use-package gptel-litellm
-  :after (gptel)
-  :config
-  (gptel-litellm-install-sessions))
 #+end_src
 
 *** gptel-org

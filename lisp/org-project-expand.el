@@ -78,7 +78,7 @@
 
 (defcustom org-project-expand-preset 'sonnet
   "GPTel preset to use for project expansion.
-Defaults to `sonnet' which uses Claude Sonnet via LiteLLM.
+Defaults to `sonnet' which uses the direct Claude API.
 Set to nil to use current `gptel-backend' and `gptel-model'."
   :type '(choice (const :tag "Claude Sonnet" sonnet)
                  (const :tag "Use current defaults" nil)
