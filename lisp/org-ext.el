@@ -321,7 +321,6 @@ saved successfully."
          (org-mode)
          (insert-file-contents note)
          (goto-char (point-min))
-         ;; Format draft as TODO entry (I know, it's confusing)
          (org-ext-reformat-draft)
          (goto-char (point-max))
          (unless (bolp)
