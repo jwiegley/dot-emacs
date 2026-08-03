@@ -38,6 +38,10 @@
 
 ;;; OpenAI
 
+(gptel-make-openai "ChatGPT"
+  :stream t
+  :key gptel-api-key)
+
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
   :backend "ChatGPT"
