@@ -3231,9 +3231,8 @@ up before you execute another command."
   :after (gptel)
   :config
   (gptel-backends-llama-swap)
-  (gptel-backends-omlx)
-  (gptel-backends-perplexity)
-  (gptel-backends-vibe-proxy)
+  ;; (gptel-backends-perplexity)
+  ;; (gptel-backends-vibe-proxy)
   (setq gptel-backend (gptel-backends-omlx)
         gptel-model llm-setup-default-instance-name))
 #+end_src
@@ -10742,6 +10741,7 @@ http://newartisans.com                          60E1 46C4 BD1A 7AC1 4BA2")
      ("Positron" "" "\"John Wiegley\" <jwiegley@positron.ai>" "" nil "" "")
      ("Gmail" "" "\"John Wiegley\" <jwiegley@gmail.com>" "" nil "" "")
      ("BIA" "" "\"John Wiegley\" <john@bia.bahai.org>" "" nil "" "")
+     ("Council" "" "\"John Wiegley\" <jwiegley@rbcca.org>" "" nil "" "")
      ("NewArtisans" "" "\"John Wiegley\" <johnw@newartisans.com>"
       "New Artisans LLC" nil ""
       "John Wiegley                  GPG fingerprint = 4710 CF98 AF9B 327B B80F
@@ -11467,6 +11467,7 @@ This is returned as a string."
      ("Computer"  face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ("AI"        face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ("Nix"       face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
+     ("NixOS"     face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ("category"  face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ("gptel"     face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ;; Work categories
