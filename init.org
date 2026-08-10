@@ -625,11 +625,10 @@ _v_ariable       _u_ser-option
   :load-path "lisp/llm-setup"
   :defines (llm-setup-default-instance-name)
   :functions (llm-setup-gptel-backends)
-  :commands (llm-setup-build-yaml
-             llm-setup-status
-             llm-setup-unload
-             llm-setup-installed-models
-             llm-setup-check-instances))
+  :commands (llm-setup-reset
+             llm-setup-check-instances
+             llm-setup-run-llama-swap
+             llm-setup-installed-models))
 #+end_src
 
 * Packages
