@@ -3229,10 +3229,11 @@ up before you execute another command."
 (use-package gptel-backends
   :after (gptel)
   :config
+  (gptel-backends-omlx)
   (gptel-backends-llama-swap)
   ;; (gptel-backends-perplexity)
   ;; (gptel-backends-vibe-proxy)
-  (setq gptel-backend (gptel-backends-omlx)
+  (setq gptel-backend (gptel-backends-hermes)
         gptel-model llm-setup-default-instance-name))
 #+end_src
 
@@ -5775,6 +5776,15 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package pgmacs
   :commands (pgmacs))
+#+end_src
+
+** pgmacs
+
+#+begin_src emacs-lisp
+(use-package pi-coding-agent
+  :commands (pi-coding-agent)
+  :config
+  (defalias 'pi 'pi-coding-agent))
 #+end_src
 
 ** plstore

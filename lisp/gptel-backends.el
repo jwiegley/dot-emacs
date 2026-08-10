@@ -100,7 +100,7 @@
               claude-sonnet-4-6-thinking-32000)))
 
 (defun gptel-backends-rinzler ()
-  "Make GPTel backends for models hosted on Clio."
+  "Make GPTel backends for Rinzler models."
   (gptel-make-openai "rinzler"
     :host "127.0.0.1:63495"
     :protocol "http"
@@ -110,6 +110,14 @@
     :host "andoria-t2:8088"
     :protocol "http"
     :models '(zai-org/GLM-4.7-Flash)))
+
+(defun gptel-backends-hermes ()
+  "Make GPTel backends for Hermes Agent on Vulcan."
+  (gptel-make-openai "hermes"
+    :host "hermes.vulcan.lan"
+    :protocol "https"
+    :key (lambda () (auth-source-pass-get 'secret "api.hermes.com"))
+    :models '(hermes-agent)))
 
 ;; (gptel-make-openai "rag-client"
 ;;   :host "127.0.0.1:8000"

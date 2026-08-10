@@ -45,7 +45,7 @@
 (gptel-make-preset 'gpt
   :description "OpenAI's ChatGPT"
   :backend "ChatGPT"
-  :model 'gpt-5.6-sol
+  :model 'gpt-5.6-terra
   :temperature 1.0)
 
 ;;; Anthropic

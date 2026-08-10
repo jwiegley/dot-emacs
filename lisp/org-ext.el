@@ -1062,6 +1062,9 @@ TOC, workflow keywords, generated anchor targets, and state transitions."
     (with-current-buffer output-buffer
       (insert markdown)
       (mdformat-buffer)
+      (goto-char (point-max))
+      (while (looking-at "^")
+        (backward-delete-char 1))
       (kill-new (buffer-string))
       (goto-char (point-min)))
     (pop-to-buffer output-buffer)
