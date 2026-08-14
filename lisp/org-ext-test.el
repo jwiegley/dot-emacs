@@ -10,6 +10,7 @@
 (defvar org-ext-recording-queue-directory)
 (defvar org-ext-recording-receipt-directory)
 (defvar org-ext-recording-inbox-directories)
+(defvar org-ext-recording-claim-directory-name ".org-recording-import")
 (defvar org-capture-plist)
 (defvar org-constants-drafts-path)
 (defvar org-constants-positron-team-file)
@@ -22,6 +23,13 @@
                                 (file-name-directory load-file-name))))
   (with-temp-buffer
     (insert-file-contents source)
+    (dolist (name '(org-ext-recording-queue-directory
+                    org-ext-recording-receipt-directory
+                    org-ext-recording-inbox-directories))
+      (goto-char (point-min))
+      (when (re-search-forward (format "^(defcustom %s\\_>" name) nil t)
+        (goto-char (match-beginning 0))
+        (eval (read (current-buffer)) t)))
     (goto-char (point-min))
     (unless (re-search-forward "^(defun org-ext-recording-note-files\\_>" nil t)
       (error "org-ext-recording-note-files is missing"))
@@ -32,7 +40,13 @@
       (goto-char (match-beginning 0))
       (eval (read (current-buffer)) t))
     (dolist (name '(org-ext-copy-subtree-as-markdown
-                    org-ext-move-recording-audio
+                    org-ext--recording-regular-file-p
+                    org-ext--recording-inbox-directory
+                    org-ext--recording-claim-directory
+                    org-ext--recording-note-paths
+                    org-ext--claim-recording-note
+                    org-ext--restore-recording-note
+                    org-ext-recording-note-snapshot
                     org-ext-recording-file-hash
                     org-ext-recording-receipt-file
                     org-ext-recording-imported-p
@@ -117,22 +131,113 @@
               (eval (read (current-buffer)) t))))
         (unless found
           (error "could not load %s from org-ext.el" name))))))
-(ert-deftest org-ext-recording-note-files-combines-local-and-legacy-inboxes ()
+
+(ert-deftest org-ext-recording-defaults-use-primary-and-legacy-inboxes ()
+  (let* ((primary (expand-file-name "~/Recordings"))
+         (legacy (expand-file-name "~/.local/share/recording-transcripts"))
+         (receipts (expand-file-name ".imported" legacy))
+         (org-ext-recording-queue-directory primary))
+    (should
+     (equal (eval (car (get 'org-ext-recording-queue-directory
+                            'standard-value)) t)
+            primary))
+    (should
+     (equal (eval (car (get 'org-ext-recording-receipt-directory
+                            'standard-value)) t)
+            receipts))
+    (should
+     (equal (eval (car (get 'org-ext-recording-inbox-directories
+                            'standard-value)) t)
+            (list primary legacy)))))
+
+(ert-deftest org-ext-recording-note-files-scans-and-receipts-both-inboxes ()
   (let* ((root (make-temp-file "org-ext-recordings-" t))
          (legacy (expand-file-name "legacy" root))
-         (queue (expand-file-name "queue" root))
-         (legacy-note (expand-file-name "legacy.m4a.txt" legacy))
-         (queued-note (expand-file-name "queued.m4a.txt" queue)))
+         (primary (expand-file-name "primary" root))
+         (receipts (expand-file-name "receipts" root))
+         (legacy-note (expand-file-name "shared.m4a.txt" legacy))
+         (primary-note (expand-file-name "shared.m4a.txt" primary))
+         (outside-note (expand-file-name "outside.txt" root))
+         (legacy-receipt nil)
+         (primary-receipt nil)
+         (org-ext-recording-queue-directory primary)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list primary legacy)))
     (unwind-protect
         (progn
           (make-directory legacy)
-          (make-directory queue)
+          (make-directory primary)
           (write-region "legacy" nil legacy-note nil 'silent)
-          (write-region "queued" nil queued-note nil 'silent)
-          (write-region "audio" nil (expand-file-name "ignored.m4a" queue) nil 'silent)
-          (let ((org-ext-recording-inbox-directories (list queue legacy)))
-            (should (equal (org-ext-recording-note-files)
-                           (sort (list legacy-note queued-note) #'string-lessp)))))
+          (write-region "primary" nil primary-note nil 'silent)
+          (write-region "outside" nil outside-note nil 'silent)
+          (write-region "audio" nil (expand-file-name "ignored.m4a" primary)
+                        nil 'silent)
+          (should (equal (org-ext-recording-note-files)
+                         (sort (list legacy-note primary-note) #'string-lessp)))
+          (setq legacy-receipt (org-ext-recording-receipt-file legacy-note)
+                primary-receipt (org-ext-recording-receipt-file primary-note))
+          (should-not (equal legacy-receipt primary-receipt))
+          (should (string-prefix-p
+                   (file-name-as-directory (expand-file-name receipts))
+                   (expand-file-name legacy-receipt)))
+          (should (string-prefix-p
+                   (file-name-as-directory (expand-file-name receipts))
+                   (expand-file-name primary-receipt)))
+          (should (equal primary-receipt
+                         (expand-file-name "shared.m4a.txt.sha256" receipts)))
+          (org-ext-write-recording-receipt primary-note "primary-hash")
+          (org-ext-write-recording-receipt legacy-note "legacy-hash")
+          (should (equal (with-temp-buffer
+                           (insert-file-contents primary-receipt)
+                           (buffer-string))
+                         "primary-hash\n"))
+          (should (equal (with-temp-buffer
+                           (insert-file-contents legacy-receipt)
+                           (buffer-string))
+                         "legacy-hash\n"))
+          (should-not (org-ext-recording-receipt-file outside-note)))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-recording-note-files-prefers-claimed-source ()
+  (let* ((root (make-temp-file "org-ext-recording-claim-scan-" t))
+         (queue (expand-file-name "queue" root))
+         (claim-directory
+          (expand-file-name org-ext-recording-claim-directory-name queue))
+         (pending (expand-file-name "same.m4a.txt" queue))
+         (claimed (expand-file-name "same.m4a.txt" claim-directory))
+         (receipts (expand-file-name "receipts" root))
+         (receipt (expand-file-name "same.m4a.txt.sha256" receipts))
+         (inbox (expand-file-name "inbox.org" root))
+         (hash nil)
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory claim-directory t)
+          (write-region "replacement" nil pending nil 'silent)
+          (write-region "claimed" nil claimed nil 'silent)
+          (setq hash (org-ext-recording-file-hash claimed))
+          (should (equal (org-ext-recording-note-files) (list claimed)))
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (org-ext-import-recording-note
+                   (car (org-ext-recording-note-files)))
+                  (should (search-backward "claimed" nil t)))
+              (kill-buffer buffer)))
+          (should-not (file-exists-p claimed))
+          (should (equal (with-temp-buffer
+                           (insert-file-contents pending)
+                           (buffer-string))
+                         "replacement"))
+          (should (equal (with-temp-buffer
+                           (insert-file-contents receipt)
+                           (buffer-string))
+                         (concat hash "\n")))
+          (should (equal (org-ext-recording-note-files) (list pending))))
       (delete-directory root t))))
 
 (ert-deftest org-ext-import-recording-note-is-exactly-once ()
@@ -140,11 +245,17 @@
          (queue (expand-file-name "queue" root))
          (receipts (expand-file-name ".imported" queue))
          (note (expand-file-name "17-28-31.m4a.txt" queue))
+         (claimed (expand-file-name
+                   "17-28-31.m4a.txt"
+                   (expand-file-name org-ext-recording-claim-directory-name
+                                     queue)))
          (inbox (expand-file-name "inbox.org" root))
          (hash nil)
          (hook-runs 0)
+         (events nil)
          (org-ext-recording-queue-directory queue)
-         (org-ext-recording-receipt-directory receipts))
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
     (unwind-protect
         (progn
           (make-directory queue)
@@ -159,12 +270,35 @@
                   (org-mode)
                   (setq-local org-capture-before-finalize-hook
                               (list (lambda () (setq hook-runs (1+ hook-runs)))))
-                  (cl-letf (((symbol-function 'org-ext-move-recording-audio) #'ignore))
-                    (org-ext-import-recording-note note))
+                  (let ((receipt (expand-file-name
+                                  "17-28-31.m4a.txt.sha256" receipts))
+                        (real-save (symbol-function 'save-buffer))
+                        (real-receipt
+                         (symbol-function 'org-ext-write-recording-receipt))
+                        (real-delete (symbol-function 'delete-file)))
+                    (cl-letf (((symbol-function 'save-buffer)
+                               (lambda (&rest args)
+                                 (should-not (file-exists-p receipt))
+                                 (push 'save events)
+                                 (apply real-save args)))
+                              ((symbol-function
+                                'org-ext-write-recording-receipt)
+                               (lambda (&rest args)
+                                 (push 'receipt events)
+                                 (apply real-receipt args)))
+                              ((symbol-function 'delete-file)
+                               (lambda (file &optional trash)
+                                 (when (equal file claimed)
+                                   (should-not trash)
+                                   (should (file-exists-p receipt))
+                                   (push 'delete events))
+                                 (funcall real-delete file trash))))
+                      (org-ext-import-recording-note note)))
                   (should (equal (buffer-string)
                                  (format "** TODO Buy milk\n:PROPERTIES:\n:RECORDING_TRANSCRIPT_SHA256: %s\n:END:\n" hash)))
                   (should-not (buffer-modified-p)))
               (kill-buffer buffer)))
+          (should (equal (nreverse events) '(save receipt delete)))
           (should (= hook-runs 1))
           (should-not (file-exists-p note))
           (should (equal (with-temp-buffer
@@ -180,8 +314,7 @@
           (let ((buffer (find-file-noselect inbox)))
             (unwind-protect
                 (with-current-buffer buffer
-                  (cl-letf (((symbol-function 'org-ext-move-recording-audio) #'ignore))
-                    (org-ext-import-recording-note note))
+                  (org-ext-import-recording-note note)
                   (goto-char (point-min))
                   (should (= (how-many "^\\*\\* TODO Buy milk$") 1)))
               (kill-buffer buffer)))
@@ -194,7 +327,8 @@
          (receipts (expand-file-name ".imported" queue))
          (note (expand-file-name "failure.m4a.txt" queue))
          (org-ext-recording-queue-directory queue)
-         (org-ext-recording-receipt-directory receipts))
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
     (unwind-protect
         (progn
           (make-directory queue)
@@ -203,11 +337,124 @@
             (org-mode)
             (setq buffer-file-name (expand-file-name "inbox.org" root))
             (cl-letf (((symbol-function 'save-buffer)
-                       (lambda (&rest _) (error "injected save failure")))
-                      ((symbol-function 'org-ext-move-recording-audio) #'ignore))
+                       (lambda (&rest _) (error "injected save failure"))))
               (should-error (org-ext-import-recording-note note))))
           (should (file-exists-p note))
           (should-not (file-exists-p receipts)))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-import-recording-note-keeps-concurrent-replacement ()
+  (let* ((root (make-temp-file "org-ext-recording-replaced-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name ".imported" queue))
+         (note (expand-file-name "replaced.m4a.txt" queue))
+         (receipt (expand-file-name "replaced.m4a.txt.sha256" receipts))
+         (inbox (expand-file-name "inbox.org" root))
+         (hash nil)
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (write-region "Original transcript" nil note nil 'silent)
+          (setq hash (org-ext-recording-file-hash note))
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (let ((real-save (symbol-function 'save-buffer)))
+                    (cl-letf (((symbol-function 'save-buffer)
+                               (lambda (&rest args)
+                                 (prog1 (apply real-save args)
+                                   (write-region "Replacement transcript"
+                                                 nil note nil 'silent)))))
+                      (org-ext-import-recording-note note))))
+              (kill-buffer buffer)))
+          (should (equal (with-temp-buffer
+                           (insert-file-contents note)
+                           (buffer-string))
+                         "Replacement transcript"))
+          (should (equal (with-temp-buffer
+                           (insert-file-contents receipt)
+                           (buffer-string))
+                         (concat hash "\n")))
+          (should (with-temp-buffer
+                    (insert-file-contents inbox)
+                    (re-search-forward "Original transcript" nil t))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-import-recording-note-decodes-utf-8-snapshot ()
+  (let* ((root (make-temp-file "org-ext-recording-unicode-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name ".imported" queue))
+         (note (expand-file-name "unicode.m4a.txt" queue))
+         (inbox (expand-file-name "inbox.org" root))
+         (text "café ☕")
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (let ((coding-system-for-write 'utf-8-unix))
+            (write-region text nil note nil 'silent))
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (org-ext-import-recording-note note)
+                  (should (string-match-p (regexp-quote text)
+                                          (buffer-string))))
+              (kill-buffer buffer)))
+          (should (with-temp-buffer
+                    (insert-file-contents inbox)
+                    (search-forward text nil t)))
+          (should-not (file-exists-p note)))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-import-recording-note-requires-file-backed-destination ()
+  (let* ((root (make-temp-file "org-ext-recording-no-destination-" t))
+         (queue (expand-file-name "queue" root))
+         (note (expand-file-name "pending.m4a.txt" queue))
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory
+          (expand-file-name ".imported" queue))
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (write-region "Keep pending" nil note nil 'silent)
+          (with-temp-buffer
+            (org-mode)
+            (should-error (org-ext-import-recording-note note))
+            (should-error (org-ext--import-agenda-notes nil (list note)))
+            (should (equal (buffer-string) "")))
+          (should (file-exists-p note)))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-import-recording-note-rejects-unrecognized-source ()
+  (let* ((root (make-temp-file "org-ext-recording-outside-" t))
+         (queue (expand-file-name "queue" root))
+         (note (expand-file-name "outside.m4a.txt" root))
+         (inbox (expand-file-name "inbox.org" root))
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory
+          (expand-file-name ".imported" queue))
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (write-region "Keep outside" nil note nil 'silent)
+          (with-temp-buffer
+            (org-mode)
+            (setq buffer-file-name inbox)
+            (should-error (org-ext-import-recording-note note))
+            (should (equal (buffer-string) "")))
+          (should (file-exists-p note))
+          (should-not (file-exists-p inbox)))
       (delete-directory root t))))
 
 (ert-deftest org-ext-copy-subtree-as-markdown-formats-before-copying ()
@@ -968,28 +1215,118 @@
         (org-ext-agenda-show-and-scroll-up nil)
         (should (equal events '(show)))))))
 
-(ert-deftest org-ext-story-b-compound-recording-suffix ()
-  (let* ((root (make-temp-file "org-ext-audio-suffix-" t))
-         (transcript (expand-file-name "x.m4a.txt" root))
-         (audio (expand-file-name "x.m4a" root))
-         (destination (expand-file-name "destination" root))
-         (real-expand (symbol-function 'expand-file-name)))
+(ert-deftest org-ext-story-b-recording-import-leaves-audio-in-place ()
+  (let* ((root (make-temp-file "org-ext-audio-owner-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name "receipts" root))
+         (transcript (expand-file-name "x.m4a.txt" queue))
+         (audio (expand-file-name "x.m4a" queue))
+         (inbox (expand-file-name "inbox.org" root))
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
     (unwind-protect
         (progn
+          (make-directory queue)
           (write-region "transcript" nil transcript nil 'silent)
           (write-region "audio" nil audio nil 'silent)
-          (cl-letf (((symbol-function 'expand-file-name)
-                     (lambda (name &optional directory)
-                       (if (equal name "~/Audio/Recordings")
-                           destination
-                         (funcall real-expand name directory)))))
-            (org-ext-move-recording-audio transcript))
-          (should-not (file-exists-p audio))
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (org-ext-import-recording-note transcript))
+              (kill-buffer buffer)))
+          (should-not (file-exists-p transcript))
+          (should (file-exists-p audio))
           (should (equal "audio"
                          (with-temp-buffer
-                           (insert-file-contents
-                            (expand-file-name "x.m4a" destination))
+                           (insert-file-contents audio)
                            (buffer-string)))))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-b-recording-batch-preflights-before-drafts ()
+  (let* ((root (make-temp-file "org-ext-recording-mixed-preflight-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name "receipts" root))
+         (draft (expand-file-name "draft.txt" root))
+         (recording (expand-file-name "outside.m4a.txt" root))
+         (inbox (expand-file-name "inbox.org" root))
+         (original "Existing inbox\n")
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (write-region "Draft source" nil draft nil 'silent)
+          (write-region "Recording source" nil recording nil 'silent)
+          (write-region original nil inbox nil 'silent)
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (cl-letf (((symbol-function 'org-ext-reformat-draft) #'ignore))
+                    (should-error
+                     (org-ext--import-agenda-notes
+                      (list draft) (list recording))))
+                  (should (equal (buffer-string) original))
+                  (should-not (buffer-modified-p)))
+              (kill-buffer buffer)))
+          (should (equal (with-temp-buffer
+                           (insert-file-contents inbox)
+                           (buffer-string))
+                         original))
+          (should (file-exists-p draft))
+          (should (file-exists-p recording)))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-b-recording-cleanup-failure-consumes-saved-draft ()
+  (let* ((root (make-temp-file "org-ext-recording-mixed-cleanup-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name "receipts" root))
+         (draft (expand-file-name "draft.txt" root))
+         (recording (expand-file-name "recording.m4a.txt" queue))
+         (claimed (expand-file-name
+                   "recording.m4a.txt"
+                   (expand-file-name org-ext-recording-claim-directory-name
+                                     queue)))
+         (inbox (expand-file-name "inbox.org" root))
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (write-region "Draft source" nil draft nil 'silent)
+          (write-region "Original recording" nil recording nil 'silent)
+          (write-region "" nil inbox nil 'silent)
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (let ((real-save (symbol-function 'save-buffer)))
+                    (cl-letf (((symbol-function 'org-ext-reformat-draft)
+                               #'ignore)
+                              ((symbol-function 'save-buffer)
+                               (lambda (&rest args)
+                                 (prog1 (apply real-save args)
+                                   (write-region "Changed recording" nil claimed
+                                                 nil 'silent)))))
+                      (should-error
+                       (org-ext--import-agenda-notes
+                        (list draft) (list recording))))))
+              (kill-buffer buffer)))
+          (should-not (file-exists-p draft))
+          (should-not (file-exists-p claimed))
+          (should (equal (with-temp-buffer
+                           (insert-file-contents recording)
+                           (buffer-string))
+                         "Changed recording"))
+          (should-not (file-exists-p receipts))
+          (should (with-temp-buffer
+                    (insert-file-contents inbox)
+                    (search-forward "Original recording" nil t))))
       (delete-directory root t))))
 
 (ert-deftest org-ext-story-b-recordings-scan-and-save-once ()
@@ -1000,7 +1337,8 @@
          (notes (mapcar (lambda (name) (expand-file-name name queue))
                         '("one.txt" "two.txt" "three.txt")))
          (org-ext-recording-queue-directory queue)
-         (org-ext-recording-receipt-directory receipts))
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
     (unwind-protect
         (progn
           (make-directory queue)
@@ -1024,9 +1362,7 @@
                               ((symbol-function 'save-buffer)
                                (lambda (&rest args)
                                  (setq saves (1+ saves))
-                                 (apply real-save args)))
-                              ((symbol-function 'org-ext-move-recording-audio)
-                               #'ignore))
+                                 (apply real-save args))))
                       (org-ext--import-agenda-notes nil notes))
                     (should (= scans 1))
                     (should (= saves 1)))
@@ -1045,7 +1381,8 @@
          (notes (mapcar (lambda (name) (expand-file-name name queue))
                         '("one.txt" "two.txt" "three.txt")))
          (org-ext-recording-queue-directory queue)
-         (org-ext-recording-receipt-directory receipts))
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
     (unwind-protect
         (progn
           (make-directory queue)
@@ -1059,17 +1396,13 @@
                   (org-mode)
                   (setq-local org-capture-before-finalize-hook nil)
                   (cl-letf (((symbol-function 'save-buffer)
-                             (lambda (&rest _) (error "injected save failure")))
-                            ((symbol-function 'org-ext-move-recording-audio)
-                             #'ignore))
+                             (lambda (&rest _) (error "injected save failure"))))
                     (should-error
                      (org-ext--import-agenda-notes nil notes)))
                   (dolist (note notes)
                     (should (file-exists-p note)))
                   (should-not (file-exists-p receipts))
-                  (cl-letf (((symbol-function 'org-ext-move-recording-audio)
-                             #'ignore))
-                    (org-ext--import-agenda-notes nil notes))
+                  (org-ext--import-agenda-notes nil notes)
                   (goto-char (point-min))
                   (should (= (how-many "^\\*\\* TODO ") 3)))
               (kill-buffer buffer)))

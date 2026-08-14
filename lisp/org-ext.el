@@ -130,23 +130,40 @@ Intended for use with `org-capture' templates."
     (delete-region (match-beginning 0) (match-end 0))))
 
 (defcustom org-ext-recording-queue-directory
-  (expand-file-name "~/.local/share/recording-transcripts")
-  "Local directory containing recording transcripts awaiting Org import."
+  (expand-file-name "~/Recordings")
+  "Primary directory containing transcripts awaiting Org import."
   :type 'directory
   :group 'org-ext)
 
 (defcustom org-ext-recording-receipt-directory
-  (expand-file-name ".imported" org-ext-recording-queue-directory)
+  (expand-file-name "~/.local/share/recording-transcripts/.imported")
   "Private acknowledgement directory for imported recording transcripts."
   :type 'directory
   :group 'org-ext)
 
 (defcustom org-ext-recording-inbox-directories
   (list org-ext-recording-queue-directory
-        (expand-file-name "~/Recordings"))
-  "Directories containing recording transcript files awaiting Org import."
+        (expand-file-name "~/.local/share/recording-transcripts"))
+  "Primary and legacy directories containing transcripts awaiting Org import."
   :type '(repeat directory)
   :group 'org-ext)
+
+(defconst org-ext-recording-claim-directory-name ".org-recording-import"
+  "Private inbox subdirectory used while importing recording transcripts.")
+
+(defun org-ext--recording-regular-file-p (file)
+  "Return non-nil when FILE is a regular, non-symlink transcript."
+  (and (file-regular-p file) (not (file-symlink-p file))))
+
+(defun org-ext--recording-inbox-directory (note)
+  "Return the configured inbox containing NOTE, or nil."
+  (cl-find-if (lambda (directory)
+                (file-in-directory-p note directory))
+              org-ext-recording-inbox-directories))
+
+(defun org-ext--recording-claim-directory (inbox)
+  "Return the private recording-import directory below INBOX."
+  (expand-file-name org-ext-recording-claim-directory-name inbox))
 
 (defun org-ext-recording-note-files ()
   "Return sorted recording transcripts awaiting Org import."
@@ -154,43 +171,78 @@ Intended for use with `org-capture' templates."
    (delete-dups
     (cl-mapcan
      (lambda (directory)
-       (and (file-directory-p directory)
-            (directory-files directory t ".*\\.txt\\'" nil)))
+       (when (file-directory-p directory)
+         (let* ((claim-directory
+                 (org-ext--recording-claim-directory directory))
+                (claimed
+                 (and (file-directory-p claim-directory)
+                      (not (file-symlink-p claim-directory))
+                      (cl-remove-if-not
+                       #'org-ext--recording-regular-file-p
+                       (directory-files claim-directory t ".*\\.txt\\'" nil))))
+                (claimed-names (mapcar #'file-name-nondirectory claimed))
+                (pending
+                 (cl-remove-if-not
+                  #'org-ext--recording-regular-file-p
+                  (directory-files directory t ".*\\.txt\\'" nil))))
+           (append claimed
+                   (cl-remove-if
+                    (lambda (note)
+                      (member (file-name-nondirectory note) claimed-names))
+                    pending)))))
      org-ext-recording-inbox-directories))
    #'string-lessp))
 
-(defun org-ext-move-recording-audio (txt-file)
-  "Move audio file corresponding to TXT-FILE to ~/Audio/Recordings.
-Searches for audio files with the same basename as TXT-FILE but with
-common audio extensions (.m4a, .mp3, .wav, .aac, .flac). If found,
-moves the audio file to ~/Audio/Recordings."
-  (let* ((basename (file-name-sans-extension txt-file))
-         (audio-extensions '(".m4a" ".mp3" ".wav" ".aac" ".flac" ".ogg"))
-         (audio-dest-dir (expand-file-name "~/Audio/Recordings"))
-         ;; A transcript named "x.m4a.txt" strips to "x.m4a", so the
-         ;; audio file is the stripped name itself.  Test it directly when
-         ;; it already carries a supported audio extension, before
-         ;; trying the synthesized "<base>.<ext>" candidates.
-         (candidates
-          (append
-           (let ((ext (file-name-extension basename)))
-             (and ext
-                  (member (downcase (concat "." ext)) audio-extensions)
-                  (list basename)))
-           (mapcar (lambda (ext) (concat basename ext))
-                   audio-extensions)))
-         audio-file)
-    ;; Find the first matching audio file
-    (setq audio-file (cl-find-if #'file-exists-p candidates))
-    ;; Move audio file if found
-    (when audio-file
-      (unless (file-directory-p audio-dest-dir)
-        (make-directory audio-dest-dir t))
-      (let ((dest-path (expand-file-name
-                        (file-name-nondirectory audio-file)
-                        audio-dest-dir)))
-        (rename-file audio-file dest-path t)
-        (message "Moved audio file to %s" dest-path)))))
+(defun org-ext--recording-note-paths (note)
+  "Validate NOTE and return its original and private claimed pathnames."
+  (let* ((inbox (org-ext--recording-inbox-directory note))
+         (inbox-directory (and inbox (file-name-as-directory
+                                      (expand-file-name inbox))))
+         (claim-directory (and inbox
+                               (org-ext--recording-claim-directory inbox)))
+         (note-directory (file-name-directory (expand-file-name note)))
+         (original (and inbox
+                        (expand-file-name (file-name-nondirectory note) inbox)))
+         (claimed (and claim-directory
+                       (expand-file-name (file-name-nondirectory note)
+                                         claim-directory))))
+    (unless (and inbox (org-ext--recording-regular-file-p note))
+      (error "Recording transcript is not a regular inbox file: %s" note))
+    (unless (or (equal note-directory inbox-directory)
+                (equal note-directory
+                       (file-name-as-directory claim-directory)))
+      (error "Recording transcript is outside an inbox root: %s" note))
+    (cons original claimed)))
+
+(defun org-ext--claim-recording-note (note)
+  "Atomically move NOTE into its inbox claim directory.
+Return a cons of the original pathname and claimed pathname."
+  (pcase-let* ((recording (org-ext--recording-note-paths note))
+               (`(,original . ,claimed) recording))
+    (unless (equal (expand-file-name note) claimed)
+      (make-directory (file-name-directory claimed) t)
+      (unless (and (file-directory-p (file-name-directory claimed))
+                   (not (file-symlink-p (file-name-directory claimed))))
+        (error "Recording claim directory is not private: %s"
+               (file-name-directory claimed)))
+      (set-file-modes (file-name-directory claimed) #o700)
+      (rename-file original claimed nil))
+    recording))
+
+(defun org-ext--restore-recording-note (recording)
+  "Restore claimed RECORDING when its original pathname remains free."
+  (pcase-let ((`(,original . ,claimed) recording))
+    (when (and (file-exists-p claimed) (not (file-exists-p original)))
+      (condition-case nil
+          (rename-file claimed original nil)
+        (file-error nil)))
+    (when (and (not (file-exists-p claimed))
+               (equal (file-name-nondirectory
+                       (directory-file-name (file-name-directory claimed)))
+                      org-ext-recording-claim-directory-name))
+      (condition-case nil
+          (delete-directory (file-name-directory claimed))
+        (file-error nil)))))
 
 (defun org-ext-reformat-recording ()
   "Convert Just Press Record content into org TODO format.
@@ -217,18 +269,35 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
         (org-insert-time-stamp (current-time) t t)
         (insert "\n")))))
 
+(defun org-ext-recording-note-snapshot (note)
+  "Return NOTE's exact-byte SHA-256 digest and decoded UTF-8 contents."
+  (with-temp-buffer
+    (set-buffer-multibyte nil)
+    (insert-file-contents-literally note)
+    (let ((bytes (buffer-string)))
+      (cons (secure-hash 'sha256 bytes)
+            (decode-coding-string bytes 'utf-8-unix)))))
+
 (defun org-ext-recording-file-hash (note)
   "Return the SHA-256 digest of recording transcript NOTE contents."
-  (with-temp-buffer
-    (insert-file-contents-literally note)
-    (secure-hash 'sha256 (current-buffer))))
+  (car (org-ext-recording-note-snapshot note)))
 
 (defun org-ext-recording-receipt-file (note)
-  "Return the acknowledgement path for local queue transcript NOTE."
-  (when (file-in-directory-p note org-ext-recording-queue-directory)
-    (expand-file-name
-     (concat (file-name-nondirectory note) ".sha256")
-     org-ext-recording-receipt-directory)))
+  "Return the acknowledgement path for recognized inbox transcript NOTE.
+Primary-inbox receipts retain their producer-visible basename.  Receipts for
+other inboxes are namespaced by directory so equal basenames cannot collide."
+  (when-let ((inbox (org-ext--recording-inbox-directory note)))
+    (let ((basename (concat (file-name-nondirectory note) ".sha256")))
+      (expand-file-name
+       (if (file-in-directory-p note org-ext-recording-queue-directory)
+           basename
+         (expand-file-name
+          basename
+          (expand-file-name
+           (secure-hash 'sha256
+                        (file-name-as-directory (expand-file-name inbox)))
+           org-ext-recording-receipt-directory)))
+       org-ext-recording-receipt-directory))))
 
 (defun org-ext-recording-imported-p (hash)
   "Return non-nil when the current Org buffer already records HASH."
@@ -240,10 +309,14 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
      nil t)))
 
 (defun org-ext-write-recording-receipt (note hash)
-  "Atomically acknowledge imported queue transcript NOTE with HASH."
+  "Atomically acknowledge imported inbox transcript NOTE with HASH."
   (when-let ((receipt (org-ext-recording-receipt-file note)))
-    (make-directory org-ext-recording-receipt-directory t)
+    (make-directory (file-name-directory receipt) t)
     (set-file-modes org-ext-recording-receipt-directory #o700)
+    (unless (equal (file-name-directory receipt)
+                   (file-name-as-directory
+                    org-ext-recording-receipt-directory))
+      (set-file-modes (file-name-directory receipt) #o700))
     (let ((temporary
            (make-temp-file
             (expand-file-name ".recording-import-"
@@ -267,13 +340,13 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
         (puthash (match-string-no-properties 1) t hashes)))
     hashes))
 
-(defun org-ext--insert-recording-note (note hash)
-  "Insert recording transcript NOTE and associate it with HASH."
+(defun org-ext--insert-recording-note (contents hash)
+  "Insert recording transcript CONTENTS and associate it with HASH."
   (let ((start-pos (point)))
     (insert
      (with-temp-buffer
        (org-mode)
-       (insert-file-contents note)
+       (insert contents)
        (goto-char (point-min))
        (org-ext-reformat-recording)
        (goto-char (point-max))
@@ -289,18 +362,39 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
 
 (defun org-ext--consume-recording-note (note hash)
   "Acknowledge imported recording NOTE with HASH, then consume it."
+  (unless (org-ext-recording-receipt-file note)
+    (error "Recording transcript is outside configured inboxes: %s" note))
+  (unless (equal (org-ext-recording-file-hash note) hash)
+    (error "Recording transcript changed during import: %s" note))
   (org-ext-write-recording-receipt note hash)
-  (org-ext-move-recording-audio note)
-  (delete-file note t))
+  (let ((claim-directory (file-name-directory note)))
+    (delete-file note)
+    (when (equal (file-name-nondirectory
+                  (directory-file-name claim-directory))
+                 org-ext-recording-claim-directory-name)
+      (condition-case nil
+          (delete-directory claim-directory)
+        (file-error nil)))))
 
 (defun org-ext-import-recording-note (note)
   "Import recording transcript NOTE, save, acknowledge, then consume it."
-  (let ((hash (org-ext-recording-file-hash note)))
-    (unless (org-ext-recording-imported-p hash)
-      (org-ext--insert-recording-note note hash))
-    (when buffer-file-name
-      (save-buffer))
-    (org-ext--consume-recording-note note hash)))
+  (unless buffer-file-name
+    (error "Recording import destination is not file-backed"))
+  (unless (org-ext-recording-receipt-file note)
+    (error "Recording transcript is outside configured inboxes: %s" note))
+  (let ((recording (org-ext--claim-recording-note note))
+        completed)
+    (unwind-protect
+        (pcase-let* ((claimed (cdr recording))
+                     (`(,hash . ,contents)
+                      (org-ext-recording-note-snapshot claimed)))
+          (unless (org-ext-recording-imported-p hash)
+            (org-ext--insert-recording-note contents hash))
+          (save-buffer)
+          (org-ext--consume-recording-note claimed hash)
+          (setq completed t))
+      (unless completed
+        (org-ext--restore-recording-note recording)))))
 
 (defun org-ext-fit-agenda-window ()
   "Fit the window to the buffer size."
@@ -311,34 +405,61 @@ timestamp (including HH:MM) at point-min, leaving the body intact."
 (defun org-ext--import-agenda-notes (draft-notes recording-notes)
   "Import DRAFT-NOTES and RECORDING-NOTES into the current inbox.
 Draft sources are deleted only after the destination buffer has been
-saved successfully."
+  saved successfully."
+  (when (and (or draft-notes recording-notes) (not buffer-file-name))
+    (error "Agenda import destination is not file-backed"))
+  ;; Validate every recording before draft insertion can modify the buffer.
+  (dolist (note recording-notes)
+    (org-ext--recording-note-paths note))
   (let ((drafts-to-consume nil)
-        (recordings-to-consume nil)
-        (imported (and recording-notes (org-ext--recording-hashes))))
-    (dolist (note draft-notes)
-      (insert
-       (with-temp-buffer
-         (org-mode)
-         (insert-file-contents note)
-         (goto-char (point-min))
-         (org-ext-reformat-draft)
-         (goto-char (point-max))
-         (unless (bolp)
-           (insert ?\n))
-         (buffer-string)))
-      (push note drafts-to-consume))
-    (dolist (note recording-notes)
-      (let ((hash (org-ext-recording-file-hash note)))
-        (unless (gethash hash imported)
-          (org-ext--insert-recording-note note hash)
-          (puthash hash t imported))
-        (push (cons note hash) recordings-to-consume)))
-    (when (buffer-modified-p)
-      (save-buffer))
-    (dolist (recording (nreverse recordings-to-consume))
-      (org-ext--consume-recording-note (car recording) (cdr recording)))
-    (dolist (note (nreverse drafts-to-consume))
-      (delete-file note t))))
+        (recording-claims nil)
+        (recording-snapshots nil)
+        (imported (and recording-notes (org-ext--recording-hashes)))
+        completed)
+    (unwind-protect
+        (progn
+          ;; Claim every public pathname before reading. A producer can publish
+          ;; a replacement immediately afterward without that replacement
+          ;; being acknowledged or deleted by this import.
+          (dolist (note recording-notes)
+            (push (org-ext--claim-recording-note note) recording-claims))
+          (setq recording-claims (nreverse recording-claims))
+          (dolist (recording recording-claims)
+            (pcase-let* ((claimed (cdr recording))
+                         (`(,hash . ,contents)
+                          (org-ext-recording-note-snapshot claimed)))
+              (push (list claimed hash contents) recording-snapshots)))
+          (setq recording-snapshots (nreverse recording-snapshots))
+          (dolist (note draft-notes)
+            (insert
+             (with-temp-buffer
+               (org-mode)
+               (insert-file-contents note)
+               (goto-char (point-min))
+               (org-ext-reformat-draft)
+               (goto-char (point-max))
+               (unless (bolp)
+                 (insert ?\n))
+               (buffer-string)))
+            (push note drafts-to-consume))
+          (dolist (snapshot recording-snapshots)
+            (pcase-let ((`(,_claimed ,hash ,contents) snapshot))
+              (unless (gethash hash imported)
+                (org-ext--insert-recording-note contents hash)
+                (puthash hash t imported))))
+          (when (buffer-modified-p)
+            (save-buffer))
+          ;; Drafts lack content receipts, so consume them before any recording
+          ;; cleanup error can leave an already-saved draft source behind.
+          (dolist (note (nreverse drafts-to-consume))
+            (delete-file note t))
+          (dolist (snapshot recording-snapshots)
+            (pcase-let ((`(,claimed ,hash ,_contents) snapshot))
+              (org-ext--consume-recording-note claimed hash)))
+          (setq completed t))
+      (unless completed
+        (dolist (recording recording-claims)
+          (org-ext--restore-recording-note recording))))))
 
 (defadvice org-agenda (around fit-windows-for-agenda activate)
   "Fit the Org Agenda to its buffer and import any pending Drafts and Recordings."
