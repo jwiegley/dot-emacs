@@ -133,7 +133,8 @@ buffer holding non-whitespace content) the buffer is left untouched and a
                       ;; worst-case point fidelity for bounded latency on
                       ;; very large or dissimilar buffers.
                       (with-undo-amalgamate
-                        (replace-buffer-contents outbuf 0.5))
+                        (replace-buffer-contents outbuf 0.5)
+                        (markdown-cleanup-list-numbers))
                       (dolist (ws win-starts)
                         (when (window-live-p (car ws))
                           (set-window-start (car ws) (cdr ws) t))
