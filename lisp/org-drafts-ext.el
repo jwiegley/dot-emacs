@@ -66,20 +66,15 @@ marker at the heading line.  The other arguments are unused."
         (buffer-substring-no-properties (point) (point-max)))))))
 
 ;;;###autoload
-(defun org-drafts-ext-paste-prompt ()
-  "Yank clipboard Markdown into the current DRAFT and make it a PROMPT.
+(defun org-drafts-ext-paste-from-markdown ()
+  "Yank clipboard Markdown as Org-mode text.
 The inserted text is converted to Org with `markdown-to-org-region'.
 Converted headings are nested under the DRAFT; when the result contains
-only paragraphs, it is also filled.  Finally, this runs the same
-alternate title action as the org-drafts `P' key."
+only paragraphs, it is also filled."
   (interactive)
   (unless (derived-mode-p 'org-mode)
     (user-error "This command requires Org mode"))
-  (org-back-to-heading t)
-  (unless (equal (org-get-todo-state) "DRAFT")
-    (user-error "Current entry is not a DRAFT"))
-  (let ((heading (point))
-        (level (org-current-level)))
+  (let ((level (org-current-level)))
     (org-end-of-meta-data t)
     (atomic-change-group
       (let ((beg (point-marker))
@@ -112,7 +107,23 @@ alternate title action as the org-drafts `P' key."
             (when plain
               (fill-region (point-min) (point-max)))))
         (set-marker beg nil)
-        (set-marker end nil)))
+        (set-marker end nil)))))
+
+;;;###autoload
+(defun org-drafts-ext-paste-prompt ()
+  "Yank clipboard Markdown into the current DRAFT and make it a PROMPT.
+The inserted text is converted to Org with `markdown-to-org-region'.
+Converted headings are nested under the DRAFT; when the result contains
+only paragraphs, it is also filled.  Finally, this runs the same
+alternate title action as the org-drafts `P' key."
+  (interactive)
+  (unless (derived-mode-p 'org-mode)
+    (user-error "This command requires Org mode"))
+  (org-back-to-heading t)
+  (unless (equal (org-get-todo-state) "DRAFT")
+    (user-error "Current entry is not a DRAFT"))
+  (let ((heading (point)))
+    (org-drafts-ext-paste-from-markdown)
     (goto-char heading)
     (org-drafts-prompt t)))
 
