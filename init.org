@@ -11580,6 +11580,14 @@ my Org-mode data.
                 (lookup-password "postgres.vulcan.lan" "johnw" 5432))))
 #+end_src
 
+*** org-agent-deck
+
+#+begin_src emacs-lisp
+(use-package org-agent-deck
+  :commands (org-agent-deck-send-entry
+             org-agent-deck-insert-latest-output))
+#+end_src
+
 *** org-ext
 
 #+begin_src emacs-lisp
