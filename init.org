@@ -625,10 +625,11 @@ _v_ariable       _u_ser-option
   :load-path "lisp/llm-setup"
   :defines (llm-setup-default-instance-name)
   :functions (llm-setup-gptel-backends)
-  :commands (llm-setup-reset
-             llm-setup-check-instances
-             llm-setup-run-llama-swap
-             llm-setup-installed-models))
+  :commands (llm-setup-build-yaml
+             llm-setup-status
+             llm-setup-unload
+             llm-setup-installed-models
+             llm-setup-check-instances))
 #+end_src
 
 * Packages
@@ -3234,7 +3235,7 @@ up before you execute another command."
   ;; (gptel-backends-perplexity)
   ;; (gptel-backends-vibe-proxy)
   (setq gptel-backend (gptel-backends-hermes)
-        gptel-model llm-setup-default-instance-name))
+        gptel-model 'hermes-agent))
 #+end_src
 
 *** gptel-presets
@@ -5666,6 +5667,8 @@ append it to ENTRY."
 
   (defconst display-name
     (pcase (display-pixel-width)
+      (`5272 'imac)
+      (`4072 'imac)
       (`3760 'imac)
       (`2560 'imac)
       (`2712 'macbook-pro-14)
@@ -5778,7 +5781,7 @@ append it to ENTRY."
   :commands (pgmacs))
 #+end_src
 
-** pgmacs
+** pi-coding-agent
 
 #+begin_src emacs-lisp
 (use-package pi-coding-agent
@@ -6639,6 +6642,14 @@ A collection of paredit-like functions for editing in =html-mode=.
 
   (add-to-list 'file-name-handler-alist
                '("\\`/vps:" . my-vps-file-handler))
+
+  (defun my-hera-file-handler (op &rest args)
+    (let ((actual (replace-regexp-in-string
+                   "^/hera:" "/ssh:hera:" (car args))))
+      (apply op (cons actual (cdr args)))))
+
+  (add-to-list 'file-name-handler-alist
+               '("\\`/hera:" . my-hera-file-handler))
 
   ;; Without this change, tramp ends up sending hundreds of shell commands to
   ;; the remote side to ask what the temporary directory is.
@@ -11825,7 +11836,8 @@ context.
   :demand t
   :bind (:map
          org-mode-map
-         ("C-c C-x y" . org-drafts-ext-paste-prompt))
+         ("C-c C-x y"   . org-drafts-ext-paste-prompt)
+         ("C-c C-x C-y" . org-drafts-ext-paste-from-markdown))
   :config
   (org-drafts-ext-install))
 #+end_src
@@ -13070,6 +13082,19 @@ stamp to a task, which can be used to schedule a review of the task.
 #+begin_src emacs-lisp
 (use-package embark-org
   :after (embark))
+#+end_src
+
+*** org-obsidian
+
+#+begin_src emacs-lisp
+(use-package org-obsidian
+  :no-require t
+  :after (org)
+  :config
+  (org-add-link-type "obsidian" 'org-obsidian-open)
+
+  (defsubst org-obsidian-open (record-location)
+    (browse-url (concat "obsidian:" record-location))))
 #+end_src
 
 *** org-roam
