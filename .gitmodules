@@ -1,3 +1,6 @@
 [submodule "lisp/llm-setup"]
 	path = lisp/llm-setup
 	url = https://github.com/jwiegley/llm-setup
+[submodule "lisp/org-agents"]
+	path = lisp/org-agents
+	url = https://github.com/jwiegley/org-agents
