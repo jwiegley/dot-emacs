@@ -343,5 +343,9 @@ When modifying packages:
 - Many packages are maintained by John Wiegley and other contributors
 - Some packages have their own upstream repositories (e.g., `use-package`, `async`)
 - The repository uses Git for version control with regular commits
-- Byte-compiled files (`.elc`) are tracked in the repository
+- Byte-compiled files (`.elc`) are **not** tracked: `*.elc` is the first line
+  of `.gitignore` and `git ls-files '*.elc'` returns nothing. A fresh worktree
+  therefore compiles every dependency from source, which is why a
+  byte-compile check that gates on "zero warnings" has to build its
+  dependencies first and gate only its own files
 - Always test changes interactively before committing
