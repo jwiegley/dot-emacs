@@ -362,7 +362,7 @@ unto itself.
   ;; C source code
   (auto-hscroll-mode 'current-line)
   (create-lockfiles nil)
-  (delete-by-moving-to-trash #'system-move-file-to-trash)
+  (delete-by-moving-to-trash t)
   (enable-recursive-minibuffers t)
   (fill-column 78)
   (history-delete-duplicates t)
@@ -394,6 +394,7 @@ unto itself.
   (mac-right-command-modifier 'meta)
   (mac-option-modifier 'super)
   (mac-right-option-modifier 'super)
+  (mac-system-move-file-to-trash-use-finder t)
 
   (frame-title-format
    '(:eval
@@ -11008,6 +11009,7 @@ This is returned as a string."
          ("C-c SPC"     . org-table-blank-field)
          ("C-c ["       . org-time-stamp-inactive)
          ("C-c x"       . org-todo)
+         ("C-c C--"     . org-cycle-list-bullet)
          ("C-c C-x $"   . visible-mode)
          ("C-c C-x C-x" . org-update-statistics-cookies)
          ("C-c C-x SPC" . org-reset-checkbox-state-subtree)
@@ -11488,8 +11490,13 @@ This is returned as a string."
      ("AI"        face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ("Nix"       face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
      ("NixOS"     face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
-     ("category"  face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
-     ("gptel"     face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
+     ("Backups"   face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
+     ("Network"   face (:background ,palette-indigo-darker  :foreground "#eeeeee"))
+     ("category"  face (:background ,palette-purple-darker  :foreground "#eeeeee"))
+     ("gptel"     face (:background ,palette-purple-darker  :foreground "#eeeeee"))
+     ("Emacs"     face (:background ,palette-purple-darker  :foreground "#eeeeee"))
+     ("Ledger"    face (:background ,palette-purple-darker  :foreground "#eeeeee"))
+     ("org-mode"  face (:background ,palette-purple-darker  :foreground "#eeeeee"))
      ;; Work categories
      ("Ares"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
      ("Tron"      face (:background ,palette-fuschia-darker :foreground "#eeeeee"))
@@ -11589,14 +11596,6 @@ my Org-mode data.
   (setq org-ql-semantic-db-url
         (format "postgresql://johnw:%s@postgres.vulcan.lan:5432/org"
                 (lookup-password "postgres.vulcan.lan" "johnw" 5432))))
-#+end_src
-
-*** org-agent-deck
-
-#+begin_src emacs-lisp
-(use-package org-agent-deck
-  :commands (org-agent-deck-send-entry
-             org-agent-deck-insert-latest-output))
 #+end_src
 
 *** org-ext
@@ -12365,10 +12364,65 @@ This library provides two additional markers =!!= and =!@= over and above those 
 (use-package org-extra-emphasis
   :after org
   :diminish org-extra-emphasis-intraword-emphasis-mode
+  :custom
+  ;; The sequence is: ! @ % &
+  (org-extra-emphasis-alist
+   '(("!!" org-extra-emphasis-01)
+     ("!@" org-extra-emphasis-02)
+     ("!%" org-extra-emphasis-03)
+     ("!&" org-extra-emphasis-04)
+     ;; ----
+     ("@!" org-extra-emphasis-05)
+     ("@@" org-extra-emphasis-06)
+     ("@%" org-extra-emphasis-07)
+     ("@&" org-extra-emphasis-08)
+     ;; ----
+     ("%!" org-extra-emphasis-09)
+     ("%@" org-extra-emphasis-10)
+     ("%%" org-extra-emphasis-11)
+     ("%&" org-extra-emphasis-12)
+     ;; ----
+     ("&!" org-extra-emphasis-13)
+     ("&@" org-extra-emphasis-14)
+     ("&%" org-extra-emphasis-15)
+     ("&&" org-extra-emphasis-16)))
   :custom-face
   (org-extra-emphasis-01
-   ((t (:inherit org-extra-emphasis
-                 :bold t :background "yellow" :foreground "black")))))
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-yellow :foreground "black"))))
+  (org-extra-emphasis-03
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-red :foreground "black"))))
+  (org-extra-emphasis-04
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-orange :foreground "black"))))
+  (org-extra-emphasis-05
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-yellow-green :foreground "black"))))
+  (org-extra-emphasis-06
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-green :foreground "black"))))
+  (org-extra-emphasis-07
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-teal :foreground "black"))))
+  (org-extra-emphasis-08
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-cyan :foreground "black"))))
+  (org-extra-emphasis-09
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-slate-blue :foreground "black"))))
+  (org-extra-emphasis-10
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-blue :foreground "black"))))
+  (org-extra-emphasis-11
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-indigo :foreground "black"))))
+  (org-extra-emphasis-12
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-purple :foreground "black"))))
+  (org-extra-emphasis-13
+   ((t (:inherit org-extra-emphasis :bold t
+                 :background ,palette-fuschia :foreground "black")))))
 #+end_src
 
 *** COMMENT org-caldav

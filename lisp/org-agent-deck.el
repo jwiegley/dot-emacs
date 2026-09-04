@@ -36,7 +36,7 @@
   "Org integration for agent-deck sessions."
   :group 'org)
 
-(defcustom org-agent-deck-command '("agent-deck")
+(defcustom org-agent-deck-command '("ssh" "hera" "agent-deck")
   "Command prefix used for every agent-deck operation.
 For a remote agent-deck on hera, use a list containing
 \"ssh\", \"hera\", and \"agent-deck\", in that order."
