@@ -53,11 +53,11 @@
 (defun gptel-backends-llama-swap ()
   "Make GPTel backends for models hosted on Clio."
   (gptel-make-openai "llama-swap"
-    :host "127.0.0.1:8080"
+    :host (llm-setup-host-policy "llmSetup" "gptelEndpoints" "llamaSwap")
     :protocol "http"
     :models (llm-setup-gptel-backends
-             (cond ((string-match-p "clio" (system-name)) "clio")
-                   ((string-match-p "hera" (system-name)) "hera")))))
+             (let ((host (llm-setup-host-policy "currentHost")))
+               (and (member host llm-setup-valid-hostnames) host)))))
 
 (defun gptel-backends--omlx-models ()
   "Return text-generation oMLX instance names from the model registry."
@@ -74,7 +74,7 @@
 (defun gptel-backends-omlx ()
   "Make a GPTel backend for models hosted by local oMLX."
   (gptel-make-openai "oMLX"
-    :host "127.0.0.1:8000"
+    :host (llm-setup-host-policy "llmSetup" "gptelEndpoints" "omlx")
     :protocol "http"
     :endpoint "/v1/chat/completions"
     :models (gptel-backends--omlx-models)
@@ -83,41 +83,39 @@
 (defun gptel-backends-perplexity ()
   "Make a GPTel backend for the direct Perplexity API."
   (gptel-make-openai "Perplexity"
-    :host "api.perplexity.ai"
+    :host (llm-setup-host-policy "llmSetup" "gptelEndpoints" "perplexity")
     :protocol "https"
     :endpoint "/chat/completions"
     :key (lambda () (auth-source-pass-get 'secret "api.perplexity.ai"))
-    :models '(sonar-pro sonar-reasoning-pro sonar-deep-research)))
+    :models (llm-setup-policy-symbols "emacs" "providerModels" "perplexity")))
 
 (defun gptel-backends-vibe-proxy ()
   "Make GPTel backends for models hosted on Clio."
   (gptel-make-openai "vibe-proxy"
-    :host "127.0.0.1:8317"
+    :host (llm-setup-host-policy "llmSetup" "gptelEndpoints" "vibeProxy")
     :protocol "http"
-    :models '(claude-opus-4-7
-              claude-opus-4-7-thinking-32000
-              claude-sonnet-4-6
-              claude-sonnet-4-6-thinking-32000)))
+    :key (lambda () (auth-source-pass-get 'secret "vibe-proxy"))
+    :models (llm-setup-policy-symbols "emacs" "providerModels" "vibe-proxy")))
 
 (defun gptel-backends-rinzler ()
   "Make GPTel backends for Rinzler models."
   (gptel-make-openai "rinzler"
-    :host "127.0.0.1:63495"
+    :host (llm-setup-host-policy "llmSetup" "gptelEndpoints" "rinzler")
     :protocol "http"
-    :models '(llama31-metal))
+    :models (llm-setup-policy-symbols "emacs" "providerModels" "rinzler"))
 
   (gptel-make-openai "rinzler-andoria-t2"
-    :host "andoria-t2:8088"
+    :host (llm-setup-host-policy "llmSetup" "gptelEndpoints" "rinzlerAndoria")
     :protocol "http"
-    :models '(zai-org/GLM-4.7-Flash)))
+    :models (llm-setup-policy-symbols "emacs" "providerModels" "rinzler-andoria")))
 
 (defun gptel-backends-hermes ()
   "Make GPTel backends for Hermes Agent on Vulcan."
   (gptel-make-openai "hermes"
-    :host "hermes.vulcan.lan"
+    :host (llm-setup-host-policy "llmSetup" "gptelEndpoints" "hermes")
     :protocol "https"
     :key (lambda () (auth-source-pass-get 'secret "api.hermes.com"))
-    :models '(hermes-agent)))
+    :models (llm-setup-policy-symbols "emacs" "providerModels" "hermes")))
 
 ;; (gptel-make-openai "rag-client"
 ;;   :host "127.0.0.1:8000"

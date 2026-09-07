@@ -30,6 +30,7 @@
 (require 'cl-lib)
 (require 'solar)
 (require 'gptel)
+(require 'llm-setup)
 (require 'org-ext)
 (require 'pending)
 
@@ -362,16 +363,16 @@ For example:
         (gptel-response-separator "")
         (gptel-stream nil))
     (let ((gptel-backend (gptel-get-backend "Claude"))
-          (gptel-model 'claude-3-7-sonnet-20250219))
+          (gptel-model (llm-setup-policy-model "emacs" "quickModels" "claude")))
       (insert (propertize "** Response (Claude):\n" 'gptel 'ignore))
       (gptel-send))
     (insert "\n\n" (propertize "** Response (Gemini):\n" 'gptel 'ignore))
     (let ((gptel-backend (gptel-get-backend "Gemini"))
-          (gptel-model 'gemini-2.0-flash))
+          (gptel-model (llm-setup-policy-model "emacs" "quickModels" "gemini")))
       (gptel-send))
     (insert "\n\n" (propertize "** Response (ChatGPT):\n" 'gptel 'ignore))
     (let ((gptel-backend (gptel-get-backend "ChatGPT"))
-          (gptel-model 'gpt-4o-mini))
+          (gptel-model (llm-setup-policy-model "emacs" "quickModels" "gpt")))
       (gptel-send))))
 
 (defun gptel-ext-commit-summary ()
@@ -452,7 +453,7 @@ system prompt."
   (with-eval-after-load 'gptel
     (gptel-make-preset 'commit-summary
       :system 'commit-summary
-      :parents 'rewrite)))
+      :parents (llm-setup-policy-symbols "emacs" "parents" "commit-summary"))))
 
 (provide 'gptel-ext)
 
