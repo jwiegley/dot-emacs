@@ -60,16 +60,18 @@
                (and (member host llm-setup-valid-hostnames) host)))))
 
 (defun gptel-backends--omlx-models ()
-  "Return text-generation oMLX instance names from the model registry."
-  (cl-loop
-   for model in llm-setup-models-list nconc
-   (cl-loop
-    for instance in (llm-setup-model-instances model)
-    when
-    (and
-     (eq (llm-setup-model-kind model) 'text-generation)
-     (eq (llm-setup-instance-provider instance) 'omlx))
-    collect (llm-setup-get-instance-name model instance))))
+  "Return text-generation oMLX models available on the current host."
+  (let ((hostname (llm-setup-host-policy "currentHost")))
+    (cl-loop
+     for model in llm-setup-models-list nconc
+     (cl-loop
+      for instance in (llm-setup-model-instances model)
+      when
+      (and
+       (eq (llm-setup-model-kind model) 'text-generation)
+       (eq (llm-setup-instance-provider instance) 'omlx))
+      nconc
+      (llm-setup-get-instance-gptel-backend model instance hostname)))))
 
 (defun gptel-backends-omlx ()
   "Make a GPTel backend for models hosted by local oMLX."

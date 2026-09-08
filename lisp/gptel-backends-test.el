@@ -10,37 +10,34 @@
 (require 'ert)
 (require 'gptel-backends)
 
-(ert-deftest gptel-backends-test-omlx-models-follow-registry ()
-  "Expose every text-generation oMLX instance and no stale entries."
-  (let* ((models
-          (gptel-backend-models (gptel-backends-omlx)))
-         (instances (llm-setup-instances-list))
-         (registry-models
-          (cl-loop
-           for (model . instance) in instances
-           when
-           (and
-            (eq (llm-setup-model-kind model) 'text-generation)
-            (eq (llm-setup-instance-provider instance) 'omlx))
-           collect (llm-setup-get-instance-name model instance))))
-    (should-not (memq 'Qwen3.6-35B-A3B-UD-MLX-4bit models))
-    (dolist (name '(deepseek-ai-DeepSeek-V4-Flash-8bit
-                    Qwen3.6-27B-oQ4e-mtp
-                    Qwen3.6-27B-oQ8-mtp
-                    Qwen3.6-35B-A3B-oQ4-mtp))
-      (should (memq name models)))
-    (should (equal models registry-models))
-    (dolist (name models)
+(ert-deftest gptel-backends-test-omlx-models-follow-current-host ()
+  "Expose only text-generation oMLX instances hosted on the current host."
+  (let ((llm-setup-models-list
+         (list
+          (make-llm-setup-model
+           :name 'fixture
+           :instances
+           (list
+            (make-llm-setup-instance
+             :name 'hera-model :provider 'omlx :hostnames '("hera"))
+            (make-llm-setup-instance
+             :name 'clio-model :provider 'omlx :hostnames '("clio"))))
+          (make-llm-setup-model
+           :name 'embedding
+           :kind 'embedding
+           :instances
+           (list
+            (make-llm-setup-instance
+             :name 'embedding-model :provider 'omlx :hostnames '("hera")))))))
+    (cl-letf (((symbol-function 'llm-setup-host-policy)
+               (lambda (&rest keys)
+                 (cond
+                  ((equal keys '("currentHost")) "hera")
+                  ((equal keys '("llmSetup" "gptelEndpoints" "omlx"))
+                   "127.0.0.1:8000")))))
       (should
-       (cl-some
-        (lambda (entry)
-          (let ((model (car entry))
-                (instance (cdr entry)))
-            (and
-             (eq name (llm-setup-get-instance-name model instance))
-             (eq (llm-setup-model-kind model) 'text-generation)
-             (eq (llm-setup-instance-provider instance) 'omlx))))
-        instances)))))
+       (equal (gptel-backend-models (gptel-backends-omlx))
+              '(hera-model))))))
 
 (provide 'gptel-backends-test)
 
