@@ -8335,11 +8335,7 @@ locations. The =default-directory= variable is not changed in the process.
 (use-package latex
   :nix auctex
   :mode ("\\.tex\\'" . LaTeX-mode)
-  :bind (:map
-         LaTeX-mode-map
-         ("C-x SPC" . (lambda () (interactive) (insert "\N{THIN SPACE}")))
-         ("C-x A"   . (lambda () (interactive) (insert "ٰ")))
-         ("s-َ"      . (lambda () (interactive) (insert "أ")))
+  :bind (("s-َ"      . (lambda () (interactive) (insert "أ")))
          ("s-."      . (lambda () (interactive) (insert "إ")))
          ("s-ا"      . (lambda () (interactive) (insert "ٰ")))
          ("s-ز"     . (lambda () (interactive) (insert "ژ")))
@@ -8347,7 +8343,10 @@ locations. The =default-directory= variable is not changed in the process.
          ("s-س"     . (lambda () (interactive) (insert "ٱ")))
          ("s-ه"     . (lambda () (interactive) (insert "ۀ")))
          ("s-د"     . (lambda () (interactive) (insert "ذ")))
-         ("s-ت"     . (lambda () (interactive) (insert "ة"))))
+         ("s-ت"     . (lambda () (interactive) (insert "ة")))
+         :map
+         LaTeX-mode-map
+         ("C-x SPC" . (lambda () (interactive) (insert "\N{THIN SPACE}"))))
   :hook (LaTeX-mode . abbrev-mode)
   :custom
   (TeX-PDF-mode t)
