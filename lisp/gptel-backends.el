@@ -59,28 +59,45 @@
              (let ((host (llm-setup-host-policy "currentHost")))
                (and (member host llm-setup-valid-hostnames) host)))))
 
-(defun gptel-backends--omlx-models ()
-  "Return text-generation oMLX models available on the current host."
-  (let ((hostname (llm-setup-host-policy "currentHost")))
-    (cl-loop
-     for model in llm-setup-models-list nconc
-     (cl-loop
-      for instance in (llm-setup-model-instances model)
-      when
-      (and
-       (eq (llm-setup-model-kind model) 'text-generation)
-       (eq (llm-setup-instance-provider instance) 'omlx))
-      nconc
-      (llm-setup-get-instance-gptel-backend model instance hostname)))))
+(defun gptel-backends--omlx-models (hostname)
+  "Return text-generation oMLX models hosted on HOSTNAME."
+  (cl-loop
+   for model in llm-setup-models-list nconc
+   (cl-loop
+    for instance in (llm-setup-model-instances model)
+    when
+    (and
+     (eq (llm-setup-model-kind model) 'text-generation)
+     (eq (llm-setup-instance-provider instance) 'omlx))
+    nconc
+    (llm-setup-get-instance-gptel-backend model instance hostname))))
 
 (defun gptel-backends-omlx ()
-  "Make a GPTel backend for models hosted by local oMLX."
-  (gptel-make-openai "oMLX"
-    :host (llm-setup-host-policy "llmSetup" "gptelEndpoints" "omlx")
-    :protocol "http"
-    :endpoint "/v1/chat/completions"
-    :models (gptel-backends--omlx-models)
-    :key "dummy-key"))
+  "Make GPTel backends for oMLX hosts reachable from this machine."
+  (let* ((current-host (llm-setup-host-policy "currentHost"))
+         (model-hosts
+          (or (llm-setup-host-policy
+               "llmSetup" "gptelOmlxHosts" current-host)
+              (list current-host)))
+         current-backend)
+    (dolist (model-host model-hosts
+                        (or current-backend
+                            (error "No local oMLX backend for %s" current-host)))
+      (let* ((local (equal model-host current-host))
+             (backend
+              (gptel-make-openai
+                  (if local "oMLX" (format "oMLX-%s" model-host))
+                :host
+                (if local
+                    (llm-setup-host-policy "llmSetup" "gptelEndpoints" "omlx")
+                  (llm-setup-host-policy
+                   "llmSetup" "gptelEndpoints" "omlxRemote" model-host))
+                :protocol (if local "http" "https")
+                :endpoint "/v1/chat/completions"
+                :models (gptel-backends--omlx-models model-host)
+                :key "dummy-key")))
+        (when local
+          (setq current-backend backend))))))
 
 (defun gptel-backends-perplexity ()
   "Make a GPTel backend for the direct Perplexity API."
