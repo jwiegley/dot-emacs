@@ -165,7 +165,7 @@
           (set-window-configuration config)
         (if (> (length (window-list)) 1)
             (delete-window)
-          (bury-buffer)))))
+          (bury-buffer))))))
 #+end_src
 
 ** Lookup a password using =auth-source=
@@ -10526,7 +10526,7 @@ is:
   ;; (require 'smtpmail-async)
 
   (advice-add 'gnus-summary-resend-message-edit
-              :after 'my-message-header-setup-hook)))
+              :after 'my-message-header-setup-hook))
 #+end_src
 
 **** COMMENT sendmail
