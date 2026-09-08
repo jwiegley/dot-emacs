@@ -4121,29 +4121,18 @@ minibuffer change, the region is realigned.
   (eval-when-compile
     (defvar buffer-face-mode-face))
 
-  (defun nix-read-environment (name)
-    (ignore-errors
-      (with-temp-buffer
-        (insert-file-contents-literally
-         (with-temp-buffer
-           (insert-file-contents-literally
-            (executable-find (concat "load-env-" name)))
-           (and (re-search-forward "^source \\(.+\\)$" nil t)
-                (match-string 1))))
-        (and (or (re-search-forward "^  nativeBuildInputs=\"\\(.+?\\)\"" nil t)
-                 (re-search-forward "^  buildInputs=\"\\(.+?\\)\"" nil t))
-             (split-string (match-string 1))))))
   :init
   (setq Info-default-directory-list
         (mapcar
          'expand-file-name
-         (append
-          (and emacs-environment
-               (mapcar (apply-partially #'expand-file-name "share/info")
-                       (nix-read-environment emacs-environment)))
-          (list "~/.local/share/info"
-                (and (getenv "PROFILE_DIR")
-                     (expand-file-name "share/info" (getenv "PROFILE_DIR")))))))
+         (delq
+          nil
+          (append
+           (parse-colon-path (getenv "INFOPATH"))
+           (list "~/.local/share/info"
+                 (and (getenv "PROFILE_DIR")
+                      (expand-file-name "share/info"
+                                        (getenv "PROFILE_DIR"))))))))
   :config
   (add-hook 'Info-mode-hook
             (lambda ()
