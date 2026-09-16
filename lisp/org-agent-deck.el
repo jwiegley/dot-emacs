@@ -39,7 +39,10 @@
 (defcustom org-agent-deck-command '("ssh" "hera" "agent-deck")
   "Command prefix used for every agent-deck operation.
 For a remote agent-deck on hera, use a list containing
-\"ssh\", \"hera\", and \"agent-deck\", in that order."
+\"ssh\", \"hera\", and \"agent-deck\", in that order.  With SSH, put the
+ssh executable first; subsequent runtime arguments are shell-quoted
+for the remote shell.  The configured prefix itself is trusted.
+For local operation on hera, use a one-element list: \"agent-deck\"."
   :type '(repeat string)
   :group 'org-agent-deck)
 
@@ -55,7 +58,9 @@ Return standard output, or signal a `user-error' with command diagnostics."
                (seq-every-p #'stringp command)
                (not (string-empty-p (car command))))
     (user-error "Command must be a non-empty list of strings"))
-  (let ((stderr-file (make-temp-file "org-agent-deck-stderr-")))
+  (let ((stderr-file (make-temp-file "org-agent-deck-stderr-"))
+        (coding-system-for-read 'utf-8-unix)
+        (coding-system-for-write 'utf-8-unix))
     (unwind-protect
         (condition-case err
             (with-temp-buffer
@@ -93,7 +98,13 @@ Return standard output, or signal a `user-error' with command diagnostics."
 (defun org-agent-deck--call (input &rest arguments)
   "Run agent-deck with ARGUMENTS and optional standard INPUT."
   (org-agent-deck--run
-   (append org-agent-deck-command arguments)
+   (append org-agent-deck-command
+           ;; OpenSSH joins its command arguments into a remote shell command.
+           (if (and (stringp (car org-agent-deck-command))
+                    (equal (file-name-nondirectory
+                            (car org-agent-deck-command)) "ssh"))
+               (mapcar #'shell-quote-argument arguments)
+             arguments))
    input))
 
 (defun org-agent-deck--json (text context)

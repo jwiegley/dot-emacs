@@ -11959,6 +11959,7 @@ being synced to Anki.
      (makefile   . t)
      (sqlite     . t)
      (emamux     . t)
+     (agent-deck . t)
      ;; (jupyter    . t)
      ))                  ; must be last
 

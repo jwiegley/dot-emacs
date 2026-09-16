@@ -1,0 +1,131 @@
+#+title: Agent-deck sessions from Org
+#+PROPERTY: header-args :eval never-export :tangle no
+
+* Configuration
+
+=ob-agent-deck.el= adds the =agent-deck= Babel language.  The repository's
+=init.org= enables it through =org-babel-load-languages=.  For an existing
+Emacs session, evaluate =(require 'ob-agent-deck)= after making this
+repository's =lisp/= directory available on =load-path=.
+
+The existing =org-agent-deck-command= controls every launch.  Its default
+is intended for Emacs on Clio, with sessions running on Hera:
+
+#+begin_src emacs-lisp
+(setq org-agent-deck-command '("ssh" "hera" "agent-deck"))
+#+end_src
+
+On Hera itself, local operation uses =(setq org-agent-deck-command
+'("agent-deck"))=.  No global Pi model settings are changed.  With SSH, the
+first element must be the SSH executable; the configured prefix is trusted,
+while launch arguments are quoted for the remote shell and the prompt travels
+on standard input.
+
+* Launch blocks
+
+Place point in a block and press =C-c C-c=.  Normal Org evaluation controls
+remain in force.  The body becomes the initial prompt; results contain the
+new session ID and launch settings, not the agent's eventual answer.  Emacs
+waits for the CLI to start the session and deliver the prompt, but not for
+the task to finish.
+
+** Work
+
+#+begin_src agent-deck :preset work :directory ~/src/project :title "Design review"
+Review this project's design and suggest next steps.
+#+end_src
+
+The work preset selects group =Positron=, harness =pi=, model
+=openai-codex/gpt-6-astra=, and thinking =max=.
+
+** Personal
+
+#+begin_src agent-deck :preset personal :directory ~/src/personal-project
+Suggest a small next step for this project. Do not change files.
+#+end_src
+
+The personal preset selects group =my-sessions= (display name “My Sessions”),
+harness =pi=, and model =omlx-hera/GLM-5.3-Flash-oQ4e=.  It leaves the thinking
+level to Pi's configured default for that model.
+
+** Overrides and inheritance
+
+Explicit headers override =org-agent-deck-presets=.  Standard file and subtree
+header inheritance applies; block-local headers take precedence.  In a property
+drawer, use =:header-args:agent-deck+:= to extend inherited arguments rather
+than replace that property.
+
+#+begin_example
+#+PROPERTY: header-args:agent-deck :preset work :directory ~/src/project
+
+#+begin_src agent-deck :group my-sessions :model omlx-hera/GLM-5.3-Flash-oQ4e :thinking high
+Explain the design without changing files.
+#+end_src
+#+end_example
+
+A native harness can be selected explicitly.  For example, use the target
+CLI's Codex model and reasoning-effort options instead of Pi's options:
+
+#+begin_src agent-deck :preset work :directory ~/src/project :harness codex :model gpt-6-astra :thinking high
+Review this design without changing files.
+#+end_src
+
+=:thinking default= clears an inherited thinking override.  Without a preset,
+provide at least =:group= and =:directory=; the harness defaults to =pi= and
+omitted model/thinking values use that harness's defaults.
+
+* Header reference and limits
+
+| Header       | Meaning                                                  |
+|--------------+----------------------------------------------------------|
+| =:preset=    | =work= or =personal=; customizable in =org-agent-deck-presets= |
+| =:directory= | Required target-host path: absolute or beginning with =~/= |
+| =:group=     | Agent-deck group path, such as =Positron= or =my-sessions= |
+| =:harness=   | Tool name, not an arbitrary shell command                 |
+| =:model=     | Model ID; not a shell expression or glob                  |
+| =:thinking=  | Pi thinking level, native CLI effort, or =default=         |
+| =:title=     | Optional title prefix; a UUID is appended for uniqueness  |
+
+Directory paths are never expanded or checked on Clio.  Use =:directory=,
+not Babel's =:dir=, which refers to Emacs's working directory.  Spaces,
+Unicode, and quotes are preserved; quote header values containing spaces.
+The prompt retains its interior line breaks.  Agent-deck removes trailing
+line endings before delivery.
+
+Each execution creates a standalone session.  Agent-deck rejects duplicate
+explicit titles at the same location, so a supplied title receives a unique
+suffix.  Without =:title=, agent-deck chooses a fresh title.  =:session= reuse
+and =:cache yes= are rejected.  Loading the module never launches a session;
+export does not launch, even with an explicit =:eval yes= override.
+
+Pi model and thinking flags are passed through agent-deck's native wrapper
+mechanism.  Other harnesses use the target CLI's =--model= and =--effort=
+capabilities; unsupported combinations produce CLI errors.  This integration
+does not install models, manage credentials, or bypass project trust prompts.
+
+The results label model and thinking values as /requested/, not independently
+verified runtime state.  Pi may resolve partial model IDs, accept unregistered
+IDs, or adjust a thinking level to the model's capabilities.  The supplied
+presets have been verified end to end; arbitrary Pi overrides deliberately
+use Pi's own model resolution and thinking normalization.  No target-side
+preflight or startup guard is installed.
+
+On a launch error, inspect agent-deck before executing again: a session may
+already have been created before startup or prompt delivery failed.  Invalid
+JSON, missing IDs, queued sessions, and unconfirmed prompt delivery are errors,
+not successful results.  There is no automatic retry or removal.  A queued
+session requires inspection because the CLI has not confirmed prompt delivery.
+
+* Verification
+
+Run the focused regression suite and byte-compile the changed modules:
+
+#+begin_src sh
+emacs --batch -Q -L . -l org-agent-deck-test.el -f ert-run-tests-batch-and-exit
+emacs --batch -Q -L . --eval '(setq byte-compile-error-on-warn t)' \
+  -f batch-byte-compile org-agent-deck.el ob-agent-deck.el
+#+end_src
+
+The suite includes a local SSH-shell emulator, so quoting tests require no
+network connection.  Live launch checks remain necessary for the installed
+agent-deck and Pi versions, provider availability, and target permissions.
