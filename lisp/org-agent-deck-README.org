@@ -21,6 +21,15 @@ first element must be the SSH executable; the configured prefix is trusted,
 while launch arguments are quoted for the remote shell and the prompt travels
 on standard input.
 
+Hera's =~/.config/agent-deck/config.toml= disables automatic branch prefixes:
+
+#+begin_src toml
+[worktree]
+branch_prefix = ""
+#+end_src
+
+This also removes the default =feature/= prefix from manual worktree launches.
+
 * Launch blocks
 
 Place point in a block and press =C-c C-c=.  Normal Org evaluation controls
@@ -47,6 +56,26 @@ Suggest a small next step for this project. Do not change files.
 The personal preset selects group =my-sessions= (display name “My Sessions”),
 harness =pi=, and model =omlx-hera/GLM-5.3-Flash-oQ4e=.  It leaves the thinking
 level to Pi's configured default for that model.
+
+** Titles and worktrees
+
+=:title= is the exact session title, without a UUID suffix.  When omitted, it
+defaults to the basename of =:directory= after removing the trailing separator.
+For example, both =~/src/project= and =~/src/project/= default to =project=.
+
+Add =:worktree yes= to create a new worktree and branch named after that title:
+
+#+begin_src agent-deck :preset work :directory ~/src/project :title fix-capture :worktree yes
+Fix the capture issue in this isolated worktree.
+#+end_src
+
+This uses agent-deck's =subdirectory= layout: for an ordinary Git repository,
+the session runs in =<repo>/.worktrees/fix-capture= on branch =fix-capture=.
+A target-side =path_template= override still takes precedence over the layout.
+The title must be a valid Git branch name without spaces or slashes; agent-deck
+checks the remaining Git restrictions.  =:worktree no=, or omitting the header,
+launches directly in =:directory=.  Results show the actual directory and, for
+worktree launches, the branch.
 
 ** Overrides and inheritance
 
@@ -84,7 +113,8 @@ omitted model/thinking values use that harness's defaults.
 | =:harness=   | Tool name, not an arbitrary shell command                 |
 | =:model=     | Model ID; not a shell expression or glob                  |
 | =:thinking=  | Pi thinking level, native CLI effort, or =default=         |
-| =:title=     | Optional title prefix; a UUID is appended for uniqueness  |
+| =:title=     | Exact title; defaults to the basename of =:directory=      |
+| =:worktree=  | =yes= creates a new worktree and branch named =:title=; default =no= |
 
 Directory paths are never expanded or checked on Clio.  Use =:directory=,
 not Babel's =:dir=, which refers to Emacs's working directory.  Spaces,
@@ -92,11 +122,12 @@ Unicode, and quotes are preserved; quote header values containing spaces.
 The prompt retains its interior line breaks.  Agent-deck removes trailing
 line endings before delivery.
 
-Each execution creates a standalone session.  Agent-deck rejects duplicate
-explicit titles at the same location, so a supplied title receives a unique
-suffix.  Without =:title=, agent-deck chooses a fresh title.  =:session= reuse
-and =:cache yes= are rejected.  Loading the module never launches a session;
-export does not launch, even with an explicit =:eval yes= override.
+Each successful execution creates a standalone session.  Duplicate titles at
+the same location, existing branches, or existing worktree paths produce CLI
+errors instead of silently renaming or reusing them.  Choose a different title
+when another session or worktree already occupies the requested name.
+=:session= reuse and =:cache yes= are rejected.  Loading the module never
+launches a session; export does not launch, even with an explicit =:eval yes= override.
 
 Pi model and thinking flags are passed through agent-deck's native wrapper
 mechanism.  Other harnesses use the target CLI's =--model= and =--effort=
@@ -111,7 +142,9 @@ use Pi's own model resolution and thinking normalization.  No target-side
 preflight or startup guard is installed.
 
 On a launch error, inspect agent-deck before executing again: a session may
-already have been created before startup or prompt delivery failed.  Invalid
+already have been created before startup or prompt delivery failed.  Worktree
+creation also creates Git state before launching the agent; a later failure
+can leave that worktree and branch in place.  Inspect both before retrying.  Invalid
 JSON, missing IDs, queued sessions, and unconfirmed prompt delivery are errors,
 not successful results.  There is no automatic retry or removal.  A queued
 session requires inspection because the CLI has not confirmed prompt delivery.

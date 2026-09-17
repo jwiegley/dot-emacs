@@ -8,13 +8,12 @@
 
 ;; The block body is the starting prompt.  Headers select a preset and a
 ;; directory on the agent-deck host, with optional per-block overrides.
-;; Each execution launches a fresh, standalone session.  See
+;; Each successful execution launches a fresh, standalone session.  See
 ;; org-agent-deck-README.org for configuration, examples, and limitations.
 
 ;;; Code:
 
 (require 'ob)
-(require 'org-id)
 (require 'org-agent-deck)
 
 (defcustom org-agent-deck-presets
@@ -53,6 +52,9 @@ Launching has side effects; results are not cached and export does not launch.")
                        (string-empty-p (string-trim value))
                        (string-match-p "\0" value)))
           (user-error "agent-deck %s must be a non-empty string without NUL" key))))
+    (when (and (assq :worktree options)
+               (not (member (cdr (assq :worktree options)) '("yes" "no"))))
+      (user-error "agent-deck :worktree must be yes or no"))
     (dolist (key '(:directory :group))
       (unless (cdr (assq key options))
         (user-error "agent-deck requires %s (directly or via a preset)" key)))
@@ -97,9 +99,16 @@ Return launch details for Org results.  Never retry a failed launch."
          (harness (or (cdr (assq :harness options)) "pi"))
          (model (cdr (assq :model options)))
          (thinking (cdr (assq :thinking options)))
-         (title (cdr (assq :title options)))
+         (title (or (cdr (assq :title options))
+                    (file-name-nondirectory (directory-file-name directory))))
+         (worktree (equal (cdr (assq :worktree options)) "yes"))
          (arguments (list "launch" "--json" "--no-parent" "--no-assert-done"
-                          "--message-file" "-" "--group" group "--cmd" harness)))
+                          "--message-file" "-" "--group" group "--cmd" harness
+                          "--title" title)))
+    (when (string-empty-p (string-trim title))
+      (user-error "Cannot derive a title from :directory; specify :title"))
+    (when (and worktree (string-match-p "[/[:space:]]" title))
+      (user-error "A worktree :title must be a Git branch name without spaces or /"))
     (when (equal thinking "default") (setq thinking nil))
     (if (equal harness "pi")
         ;; Agent-deck's --model/--effort do not support Pi.  A native wrapper
@@ -119,10 +128,10 @@ Return launch details for Org results.  Never retry a failed launch."
       (setq arguments
             (append arguments (when model (list "--model" model))
                     (when thinking (list "--effort" thinking)))))
-    (when title
-      ;; Agent-deck rejects repeated explicit titles at the same location.
+    (when worktree
       (setq arguments
-            (append arguments (list "--title" (concat title " [" (org-id-new) "]")))))
+            (append arguments (list "--worktree" title "--new-branch"
+                                    "--location" "subdirectory"))))
     (let* ((reply
             (condition-case err
                 (org-agent-deck--json
@@ -132,7 +141,7 @@ Return launch details for Org results.  Never retry a failed launch."
                         (append arguments (list (file-name-as-directory directory))))
                  "Agent-deck launch")
               (error
-               (user-error "%s\nA session may already exist; check agent-deck before retrying"
+               (user-error "%s\nA session or worktree may already exist; check agent-deck before retrying"
                            (error-message-string err)))))
            (id (and (hash-table-p reply)
                     (or (gethash "session_id" reply) (gethash "id" reply)))))
@@ -146,12 +155,15 @@ Return launch details for Org results.  Never retry a failed launch."
                             (replace-regexp-in-string "[\r\n]+\\'" "" body))))
         (user-error "Session %s was created, but prompt delivery is unconfirmed (status %s); inspect it before retrying"
                     id (gethash "status" reply)))
-      (format "Session: %s\nTitle: %s\nGroup: %s\nDirectory: %s\nHarness: %s\nRequested model: %s\nRequested thinking: %s%s"
-              id (or (gethash "title" reply) title "(automatic)")
+      (format "Session: %s\nTitle: %s\nGroup: %s\nDirectory: %s\nHarness: %s\nRequested model: %s\nRequested thinking: %s%s%s"
+              id (or (gethash "title" reply) title)
               (or (gethash "group" reply) group)
               (or (gethash "path" reply) directory)
               (or (gethash "tool" reply) harness)
               (or model "(harness default)") (or thinking "(harness default)")
+              (if worktree
+                  (format "\nBranch: %s" (or (gethash "worktree_branch" reply) title))
+                "")
               (if-let* ((warning (gethash "warning" reply)))
                   (concat "\nWarning: " warning)
                 "")))))

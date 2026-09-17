@@ -142,13 +142,19 @@
 
 (defun org-agent-deck-test--launch-reply (body arguments &optional id)
   "Return a successful CLI response for BODY, ARGUMENTS and ID."
-  (json-serialize
-   `(:success t :session_id ,(or id "fresh-session")
-     :title ,(or (cadr (member "--title" arguments)) "Project")
-     :group ,(cadr (member "--group" arguments))
-     :path ,(car (last arguments)) :tool ,(cadr (member "--cmd" arguments))
-     :status "running" :message_pending :false
-     :message ,(replace-regexp-in-string "[\r\n]+\\'" "" body))))
+  (let ((directory (car (last arguments)))
+        (branch (cadr (member "--worktree" arguments))))
+    (json-serialize
+     `(:success t :session_id ,(or id "fresh-session")
+       :title ,(cadr (member "--title" arguments))
+       :group ,(cadr (member "--group" arguments))
+       :path ,(if branch
+                  (concat (file-name-as-directory directory) ".worktrees/" branch)
+                directory)
+       :worktree_branch ,(or branch :null)
+       :tool ,(cadr (member "--cmd" arguments))
+       :status "running" :message_pending :false
+       :message ,(replace-regexp-in-string "[\r\n]+\\'" "" body)))))
 
 (ert-deftest org-agent-deck-babel-presets ()
   (dolist (case '(("work" "Positron" "openai-codex/gpt-6-astra" "max")
@@ -199,39 +205,74 @@
       (org-babel-execute:agent-deck
        "Prompt" `((:preset . "work") (:directory . ,directory))))))
 
-(ert-deftest org-agent-deck-babel-inherits-overrides-and-launches-fresh ()
+(ert-deftest org-agent-deck-babel-inherits-overrides-with-exact-title ()
   (with-temp-buffer
-    (insert "#+PROPERTY: header-args:agent-deck :preset work :directory ~/remote-project\n"
+    (insert "#+PROPERTY: header-args:agent-deck :preset work :directory ~/remote-project :worktree yes\n"
             "* Project\n:PROPERTIES:\n"
             ":header-args:agent-deck+: :group my-sessions :model provider/inherited :thinking low\n"
             ":END:\n"
-            "#+begin_src agent-deck :model provider/override :thinking high :title \"Design review\"\n"
+            "#+begin_src agent-deck :model provider/override :thinking high :title \"Design review\" :worktree no\n"
             "Review λ.\nKeep \"quotes\" and $HOME.\n#+end_src\n")
     (org-mode)
-    (let ((org-confirm-babel-evaluate nil)
-          (count 0) calls)
+    (let ((org-confirm-babel-evaluate nil) calls)
       (cl-letf (((symbol-function 'org-agent-deck--call)
                  (lambda (body &rest args)
                    (push (cons body args) calls)
-                   (org-agent-deck-test--launch-reply
-                    body args (format "fresh-%d" (cl-incf count))))))
-        (dotimes (_ 2)
-          (goto-char (point-min))
-          (search-forward "#+begin_src")
-          (org-ctrl-c-ctrl-c)))
-      (should (= count 2))
+                   (org-agent-deck-test--launch-reply body args))))
+        (goto-char (point-min))
+        (search-forward "#+begin_src")
+        (org-ctrl-c-ctrl-c))
+      (should (= (length calls) 1))
       (should (equal (caar calls) "Review λ.\nKeep \"quotes\" and $HOME."))
-      (dolist (call calls)
+      (let ((call (car calls)))
         (should (equal (car (last call)) "~/remote-project/"))
         (should (equal (cadr (member "--group" call)) "my-sessions"))
         (should (equal (cadr (member "--wrapper" call))
                        "{command} --model provider/override --thinking high"))
-        (should (string-prefix-p "Design review [" (cadr (member "--title" call)))))
-      (should-not (equal (cadr (member "--title" (car calls)))
-                         (cadr (member "--title" (cadr calls)))))
+        (should (equal (cadr (member "--title" call)) "Design review"))
+        (should-not (member "--worktree" call)))
       (should (string-match-p (regexp-quote "#+RESULTS:") (buffer-string)))
-      (should (string-match-p ": Session: fresh-2" (buffer-string)))
-      (should-not (string-match-p "fresh-1" (buffer-string))))))
+      (should (string-match-p ": Session: fresh-session" (buffer-string))))))
+
+(ert-deftest org-agent-deck-babel-default-and-explicit-titles ()
+  (dolist (case '(("/remote/project" nil "project")
+                  ("~/remote/project/" nil "project")
+                  ("/remote/project" "Review \"quotes\" λ" "Review \"quotes\" λ")
+                  ("/" "Root" "Root")))
+    (cl-letf (((symbol-function 'org-agent-deck--call)
+               (lambda (body &rest args)
+                 (should (equal (cadr (member "--title" args)) (nth 2 case)))
+                 (org-agent-deck-test--launch-reply body args))))
+      (org-babel-execute:agent-deck
+       "Prompt" (append (when (nth 1 case) `((:title . ,(nth 1 case))))
+                        `((:preset . "work") (:directory . ,(car case))))))))
+
+(ert-deftest org-agent-deck-babel-worktree-follows-title ()
+  (dolist (setting '(nil "no" "yes"))
+    (dolist (title '(nil "fix-capture"))
+      (let ((expected (or title "project"))
+            (worktree (equal setting "yes")))
+        (cl-letf (((symbol-function 'org-agent-deck--call)
+                   (lambda (body &rest args)
+                     (should (equal (cadr (member "--title" args)) expected))
+                     (should (equal (cadr (member "--worktree" args))
+                                    (and worktree expected)))
+                     (should (equal (and (member "--new-branch" args) t) worktree))
+                     (should (equal (cadr (member "--location" args))
+                                    (and worktree "subdirectory")))
+                     (org-agent-deck-test--launch-reply body args))))
+          (let ((result
+                 (org-babel-execute:agent-deck
+                  "Prompt" (append (when title `((:title . ,title)))
+                                   (when setting `((:worktree . ,setting)))
+                                   '((:preset . "work") (:directory . "~/src/project/"))))))
+            (if worktree
+                (progn
+                  (should (string-match-p
+                           (regexp-quote (concat "Directory: ~/src/project/.worktrees/" expected))
+                           result))
+                  (should (string-match-p (concat "\nBranch: " expected) result)))
+              (should-not (string-match-p "\nBranch:" result)))))))))
 
 (ert-deftest org-agent-deck-babel-native-harness-overrides ()
   (dolist (case '(("claude" "max") ("codex" "high")
@@ -267,7 +308,11 @@
                       ((:group . 12)) ((:title . " ")) ((:title . "bad\0title"))
                       ((:harness . "pi; touch BAD")) ((:model . "$(touch BAD)"))
                       ((:thinking . "unlimited")) ((:dir . "/remote"))
-                      ((:cache . "yes")) ((:session . "existing"))))
+                      ((:cache . "yes")) ((:session . "existing"))
+                      ((:directory . "/")) ((:worktree . "maybe"))
+                      ((:worktree . t)) ((:worktree . nil))
+                      ((:worktree . "yes") (:title . "Design review"))
+                      ((:worktree . "yes") (:title . "topic/name"))))
       (should-error
        (org-babel-execute:agent-deck
         "Prompt" (append params '((:preset . "work") (:directory . "/remote"))))
