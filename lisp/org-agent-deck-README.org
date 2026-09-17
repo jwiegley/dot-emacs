@@ -4,8 +4,8 @@
 * Configuration
 
 =ob-agent-deck.el= adds the =agent-deck= Babel language.  The repository's
-=init.org= enables it through =org-babel-load-languages=.  For an existing
-Emacs session, evaluate =(require 'ob-agent-deck)= after making this
+=init.org= enables it through =org-babel-load-languages=.  For the first load
+in an existing Emacs session, evaluate =(require 'ob-agent-deck)= after making this
 repository's =lisp/= directory available on =load-path=.
 
 The existing =org-agent-deck-command= controls every launch.  Its default
@@ -29,6 +29,23 @@ branch_prefix = ""
 #+end_src
 
 This also removes the default =feature/= prefix from manual worktree launches.
+
+** Reload after updating
+
+Emacs retains loaded function definitions.  Updating a source file or calling
+=require= again does not replace those definitions.  Reload both source files
+from the checkout that received the update.  For sources loaded from Hera via
+TRAMP, evaluate:
+
+#+begin_src emacs-lisp
+(let ((directory "/ssh:hera:/Users/johnw/.emacs.d/lisp/"))
+  (load-file (expand-file-name "org-agent-deck.el" directory))
+  (load-file (expand-file-name "ob-agent-deck.el" directory)))
+#+end_src
+
+For local sources, use =~/.emacs.d/lisp/= instead and update that checkout
+first.  Explicit =.el= filenames bypass stale bytecode in the current session;
+rebuild that checkout's bytecode before restarting Emacs.
 
 * Launch blocks
 
