@@ -394,6 +394,7 @@ unto itself.
   (mac-right-command-modifier 'meta)
   (mac-option-modifier 'super)
   (mac-right-option-modifier 'super)
+  (mac-function-modifier 'super)
   (mac-system-move-file-to-trash-use-finder t)
 
   (frame-title-format
@@ -10470,6 +10471,7 @@ is:
   (message-directory (expand-file-name "Mail/" gnus-home-directory))
   (message-dont-reply-to-names my-mail-address-regexp)
   (message-fill-column 78)
+  (message-forward-as-mime t)
   (message-interactive t)
   (message-mail-alias-type nil)
   ;; (message-send-mail-function 'message-send-mail-with-sendmail)
