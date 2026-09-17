@@ -39,6 +39,7 @@
 (require 'org-ql)
 (require 'dash)
 (require 'simple)
+(require 'json)
 
 (defconst org-ext-ts-regexp
   "[[<]\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} [^]>\r\n]*?\\)[]>]"
@@ -2457,6 +2458,62 @@ can be typed immediately."
       (org-ext-set-basic-properties)
       (when (fboundp 'org-review-ext-reviewed-today)
         (org-review-ext-reviewed-today)))))
+
+(defun org-ext--transcript-entries (file)
+  "Read the conversation transcript JSON in FILE as a list of alists."
+  (let ((data (condition-case err
+                 (json-read-file file)
+               ((json-error file-missing)
+                (user-error "Cannot read transcript from %s: %s" file err)))))
+    (unless (and (vectorp data)
+                 (> (length data) 0)
+                 (assq 'speaker (aref data 0)))
+      (user-error "%s does not look like a conversation transcript" file))
+    (append data nil)))
+
+(defun org-ext--transcript-section (entries)
+  "Return an Org \"* Transcript\" section describing ENTRIES.
+Each entry is an alist with `speaker', `text', and a `timestamp'
+range such as \"00:00-00:06\".  Each entry becomes a list item showing
+the range's start time, the speaker in bold, and the spoken text,
+filled to `fill-column' as a normal Org list."
+  (with-temp-buffer
+    (org-mode)
+    (insert "* Transcript\n\n")
+    (let ((list-start (point)))
+      (dolist (entry entries)
+        (let* ((speaker (cdr (assq 'speaker entry)))
+               (text (string-trim (or (cdr (assq 'text entry)) "")))
+               (stamp (cdr (assq 'timestamp entry)))
+               (start (and (stringp stamp)
+                           (string-match
+                            "\\`[[:space:]]*\\([0-9][0-9:]*\\)" stamp)
+                           (match-string 1 stamp))))
+          (insert "- ")
+          (when start
+            (insert start " "))
+          (insert "*" speaker "* " text "\n\n")))
+      (save-excursion
+        (narrow-to-region list-start (point-max))
+        (fill-region (point-min) (point-max))
+        (widen)))
+    (buffer-string)))
+
+(defun org-ext-insert-transcript (file)
+  "Insert an Org \"* Transcript\" section from conversation JSON FILE.
+FILE holds an array of objects with \"speaker\", \"text\", and
+\"timestamp\" keys, as produced by the transcripts in
+~/Desktop/transcripts/.  The inserted section starts with a
+\"* Transcript\" heading followed by one list item per entry; see
+`org-ext--transcript-section'.  Point is left at the end of the
+inserted section."
+  (interactive
+   (list (read-file-name "Transcript JSON: " "~/Desktop/transcripts/"
+                         nil t nil
+                         (lambda (name)
+                           (string-match-p "\\.json\\'" name)))))
+  (insert (org-ext--transcript-section
+           (org-ext--transcript-entries file))))
 
 (provide 'org-ext)
 
