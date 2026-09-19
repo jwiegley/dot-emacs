@@ -86,8 +86,16 @@
   :if (memq window-system '(mac ns x))
   :config
   (exec-path-from-shell-initialize)
-  ;; (exec-path-from-shell-copy-env "OPENAI_API_KEY")
-  )
+  (dolist (var '("ASPELL_CONF"
+                 "EDITOR"
+                 "GNUPGHOME"
+                 "NIX_SSL_CERT_FILE"
+                 "NODE_EXTRA_CA_CERTS"
+                 "PASSWORD_STORE_DIR"
+                 "SSH_AUTH_SOCK"
+                 "SSL_CERT_FILE"
+                 "STARDICT_DATA_DIR"))
+    (exec-path-from-shell-copy-env var)))
 #+end_src
 
 ** During loading of this module, clear =file-name-handler-alist=
@@ -3850,7 +3858,6 @@ gptel’s partner, or the user’s.
 
 #+begin_src emacs-lisp
 (use-package highlight-quoted
-  :ensure t
   :hook
   (emacs-lisp-mode . highlight-quoted-mode))
 #+end_src
