@@ -34,6 +34,18 @@
           t)
 #+end_src
 
+** Load Nix-managed packages into the macOS application
+
+#+begin_src emacs-lisp
+;; Nix-wrapped manual builds already provide their own package environment.
+(when (and (eq system-type 'darwin)
+           (not (string-prefix-p "/nix/store/"
+                                 (file-truename invocation-directory))))
+  (load (expand-file-name "emacs/nix-packages.el"
+                          (or (getenv "XDG_CONFIG_HOME") "~/.config"))
+        nil t t))
+#+end_src
+
 ** Load =use-package= for all the declarations below
 
 #+begin_src emacs-lisp
