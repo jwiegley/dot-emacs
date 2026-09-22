@@ -27,12 +27,13 @@
   :group 'dired)
 
 (defcustom dired-ext-directory-groups
-  '(("dD" "~/Desktop" "~/Downloads")
+  '(("~" "~/")
     ("D" "~/Downloads")
-    ("ddI" "~/Desktop" "~/Downloads" "~/Inbox")
     ("d " "~/Desktop")
-    ("n" "~/src/nix")
+    ("dd " "~/Desktop" "~/Downloads")
+    ("ddI" "~/Desktop" "~/Downloads" "~/Inbox")
     ("e" "~/.config/emacs")
+    ("n" "~/src/nix")
     ("o" "~/Documents/Obsidian"))
   "Key suffixes and directory lists for `dired-ext-open-group'.
 Keys are literal strings, not `kbd' notation: \"d \" means d then space.
