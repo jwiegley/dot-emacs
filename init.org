@@ -377,18 +377,20 @@ unto itself.
   :bind*
   ;; ("<C-return>" . other-window)   ; use avy
   ("<C-tab>"    . ignore)
+  ("s-<up>" . scroll-down-command)
+  ("s-<down>" . scroll-up-command)
   :bind ("A-y" . yank)
   :custom
   ;; C source code
   (auto-hscroll-mode 'current-line)
   (create-lockfiles nil)
-  (delete-by-moving-to-trash t)
+  (delete-by-moving-to-trash nil)
   (enable-recursive-minibuffers t)
   (fill-column 78)
   (history-delete-duplicates t)
   (history-length 200)
   (load-prefer-newer t)
-  (line-spacing 1)
+  (line-spacing 2)
   (menu-bar-mode nil)
   (message-log-max 16384)
   (native-comp-jit-compilation nil)
@@ -1684,7 +1686,10 @@ In buffers controlled by Git, you can also stage and unstage the changes.
 
 #+begin_src emacs-lisp
 (use-package diff-hl
-  :commands (diff-hl-mode diff-hl-dired-mode))
+  :commands diff-hl-mode
+  :init
+  (use-package diff-hl-dired
+    :commands diff-hl-dired-mode))
 #+end_src
 
 *** diff-hl-flydiff
@@ -1926,7 +1931,7 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
   :init
   (use-package docker-image   :commands docker-images)
   (use-package docker-volume  :commands docker-volumes)
-  (use-package docker-network :commands docker-containers)
+  (use-package docker-network :commands docker-networks)
   (use-package docker-compose :commands docker-compose)
 
   (use-package docker-container
@@ -1934,13 +1939,6 @@ intuitive than the default "flat" subdirectory manipulation provided by `i'.
     :custom
     (docker-containers-shell-file-name "/bin/bash")
     (docker-containers-show-all nil)))
-#+end_src
-
-** docker-compose-mode
-
-#+begin_src emacs-lisp
-(use-package docker-compose-mode
-  :mode "docker-compose.*\.yml\\'")
 #+end_src
 
 ** dockerfile-mode
@@ -2107,13 +2105,6 @@ To get the most out of Eat, you should also setup shell integration.
         ecard-sync-prefer-local nil))
 #+end_src
 
-** edbi
-
-#+begin_src emacs-lisp
-(use-package edbi
-  :commands edbi:sql-mode)
-#+end_src
-
 ** ediff
 
 #+begin_src emacs-lisp
@@ -2220,7 +2211,6 @@ To get the most out of Eat, you should also setup shell integration.
   :if (and window-system (not alternate-emacs))
   :hook
   (edit-server-edit-mode . visual-line-mode)
-  (edit-server-edit-mode . visual-fill-column-mode)
   :custom
   (edit-server-new-frame
    '((name . "Edit with Emacs FRAME")
@@ -3119,7 +3109,6 @@ up before you execute another command."
   :hook
   (gptel-mode . turn-off-auto-fill)
   (gptel-mode . visual-line-mode)
-  (gptel-mode . visual-fill-column-mode)
   ;;(gptel-mode . (lambda () (yas-activate-extra-mode 'gptel-mode)))
   (gptel-mode . my/gptel-prepare-new-chat-buffer)
   (gptel-mode . (lambda () (setq-local gptel-stream t)))
@@ -4046,8 +4035,9 @@ minibuffer change, the region is realigned.
 #+begin_src emacs-lisp
 (use-package image-file
   :demand t
-  :hook
-  (image-mode . image-transform-reset-to-initial)
+  :init
+  (use-package image-mode
+    :hook (image-mode . image-transform-reset-to-initial))
   :config
   (auto-image-file-mode 1))
 #+end_src
@@ -4222,6 +4212,7 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
 #+begin_src emacs-lisp
 (use-package jinx
   :diminish jinx-mode
+  :hook (message-mode . jinx-mode)
   :bind
   ("M-$" . jinx-correct)
   ("C-M-$" . jinx-languages)
@@ -4323,7 +4314,7 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
 
 #+begin_src emacs-lisp
 (use-package keypression
-  :commands key-chord-mode)
+  :commands keypression-mode)
 #+end_src
 
 ** know-your-http-well
@@ -4333,8 +4324,10 @@ Any buffer-local values for TRAMP's corresponding vars (=tramp-remote-path= and
   :commands (http-header
              http-method
              http-relation
-             http-status-code
-             media-type))
+             http-status-code)
+  :init
+  (use-package media-types
+    :commands media-type))
 #+end_src
 
 ** link-hint
@@ -5605,7 +5598,7 @@ append it to ENTRY."
   :hook
   (emacs-startup . (lambda () (eshell-toggle nil)))
   (emacs-startup . (lambda ()
-                     (unless (eq display-name 'imac)
+                     (unless (eq (display-name) 'imac)
                        (display-battery-mode 1))))
   (before-save . sort-emacs-nix-file)
   (after-save . my/check-emacs-nix)
@@ -5622,7 +5615,7 @@ append it to ENTRY."
                   '("init.org" "emacs.nix"))
       (review-emacs-nix-file)))
 
-  (defconst display-name
+  (defun display-name ()
     (pcase (display-pixel-width)
       (`5272 'imac)
       (`4072 'imac)
@@ -5642,7 +5635,7 @@ append it to ENTRY."
     (format "-*-DejaVu Sans Mono-normal-normal-normal-*-%d-*-*-*-m-0-iso10646-1" height))
 
   (defun emacs-min-font ()
-    (pcase display-name
+    (pcase (display-name)
       ((guard alternate-emacs) (bookerly-font 18))
       (`imac (dejavu-sans-mono-font 18))
       (_     (dejavu-sans-mono-font 18))))
@@ -5651,31 +5644,34 @@ append it to ENTRY."
     (aref (font-info (emacs-min-font)) 3))
 
   (defun emacs-min-left ()
-    (pcase display-name
+    (pcase (display-name)
       ((guard alternate-emacs)    0)
       (`imac (pcase (emacs-min-font-height)
                (28  20)
                (24 116)
+               (22 318)                 ; <--
                (21 318)                 ; <--
                (_    0)))
       (`macbook-pro-14          396)))
 
   (defun emacs-min-height ()
-    (pcase display-name
+    (pcase (display-name)
       ((guard alternate-emacs)   58)
       (`imac (pcase (emacs-min-font-height)
                (28 50)
                (24 58)
+               (22 67)                  ; <--
                (21 67)                  ; <--
                (_  40)))
       (`macbook-pro-14           43)))
 
   (defun emacs-min-width ()
-    (pcase display-name
+    (pcase (display-name)
       ((guard alternate-emacs)   80)
       (`imac (pcase (emacs-min-font-height)
                (28 180)
                (24 202)
+               (22 202)                 ; <--
                (21 202)                 ; <--
                (_  100)))
       (`macbook-pro-14          100)))
@@ -5736,15 +5732,6 @@ append it to ENTRY."
 #+begin_src emacs-lisp
 (use-package pgmacs
   :commands (pgmacs))
-#+end_src
-
-** pi-coding-agent
-
-#+begin_src emacs-lisp
-(use-package pi-coding-agent
-  :commands (pi-coding-agent)
-  :config
-  (defalias 'pi 'pi-coding-agent))
 #+end_src
 
 ** plstore
@@ -6864,7 +6851,10 @@ error prone.
 
 #+begin_src emacs-lisp
 (use-package visual-fill-column
-  :commands visual-fill-column-mode)
+  :commands visual-fill-column-mode
+  :hook
+  (edit-server-edit-mode . visual-fill-column-mode)
+  (gptel-mode . visual-fill-column-mode))
 #+end_src
 
 ** visual-regexp
@@ -7277,6 +7267,9 @@ provides an alternative overlay-based display.
 #+begin_src emacs-lisp
 (use-package corfu
   :demand t
+  :init
+  (use-package corfu-info
+    :commands (corfu-info-documentation corfu-info-location))
   :bind (("M-/" . completion-at-point)
          :map corfu-map
          ("C-n"      . corfu-next)
@@ -7405,6 +7398,10 @@ advantage of Company backends even if you are not using Company as frontend.
          ("&" . cape-sgml)
          ("r" . cape-rfc1345))
   :init
+  (use-package cape-keyword
+    :commands cape-keyword)
+  (use-package cape-char
+    :commands (cape-tex cape-sgml cape-rfc1345))
   ;; Add `completion-at-point-functions', used by `completion-at-point'.
   (add-all-to-list 'completion-at-point-functions
                    #'cape-dabbrev
@@ -7564,8 +7561,6 @@ without white space and comments.
               ("C-j"   . vertico-exit-input)
               ("C-M-n" . vertico-next-group)
               ("C-M-p" . vertico-previous-group))
-  :hook
-  (rfn-eshadow-update-overlay . vertico-directory-tidy)
   :custom
   (vertico-count 10)
   (vertico-resize nil)
@@ -7626,6 +7621,7 @@ without white space and comments.
 
   (use-package vertico-directory
     :demand t
+    :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
     :bind (:map vertico-map
                 ("<backspace>"   . vertico-directory-delete-char)
                 ("C-w"           . vertico-directory-delete-word)
@@ -7645,6 +7641,21 @@ without white space and comments.
       (interactive)
       (when (vertico-quick-jump)
         (embark-act arg))))
+
+  (use-package vertico-buffer
+    :commands vertico-buffer-mode)
+
+  (use-package vertico-flat
+    :commands vertico-flat-mode)
+
+  (use-package vertico-grid
+    :commands vertico-grid-mode)
+
+  (use-package vertico-reverse
+    :commands vertico-reverse-mode)
+
+  (use-package vertico-unobtrusive
+    :commands vertico-unobtrusive-mode)
 
   (use-package vertico-multiform
     :demand t
@@ -7743,8 +7754,8 @@ GitHub.
 
 #+begin_src emacs-lisp
 (use-package embark-consult
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
+  :after (embark consult)
+  :demand t)
 #+end_src
 
 *** consult
@@ -7834,7 +7845,9 @@ independent components.
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
-  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :hook
+  (completion-list-mode . consult-preview-at-point-mode)
+  (embark-collect-mode . consult-preview-at-point-mode)
 
   :custom
   ;; (consult-preview-key "M-i")
@@ -7877,6 +7890,15 @@ independent components.
 
   ;; The :init configuration is always executed (Not lazy)
   :init
+  (use-package consult-kmacro
+    :commands consult-kmacro)
+  (use-package consult-info
+    :commands consult-info)
+  (use-package consult-imenu
+    :commands (consult-imenu consult-imenu-multi))
+  (use-package consult-register
+    :commands consult-register
+    :autoload (consult-register-format consult-register-window))
 
   ;; Optionally configure the register formatting. This improves the register
   ;; preview for `consult-register', `consult-register-load',
@@ -7896,6 +7918,7 @@ independent components.
   ;; after lazily loading the package.
   :config
   (use-package consult-xref)
+  (use-package consult-org)
 
   (consult-customize
    consult-theme
@@ -8801,10 +8824,8 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :bind (:map
          haskell-mode-map
          ("C-c C-h" . my-haskell-hoogle)
-         ("C-c C-," . haskell-navigate-imports)
          ("C-c C-." . haskell-mode-format-imports)
          ("C-c C-u" . my-haskell-insert-undefined)
-         ("C-c C-z" . haskell-interactive-switch)
          ("M-s")
          ("M-t"))
   :hook
@@ -8981,6 +9002,12 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
       ;; (format-all-mode 1)
       )))
   :config
+  (use-package haskell-navigate-imports
+    :bind (:map haskell-mode-map
+                ("C-c C-," . haskell-navigate-imports)))
+  (use-package haskell
+    :bind (:map haskell-mode-map
+                ("C-c C-z" . haskell-interactive-switch)))
   (use-package align
     :defer t
     :config
@@ -9964,12 +9991,8 @@ Nael is a mode for editing Lean 4 programs.
   (ssl-certificate-verification-policy 1)
   :hook
   (kill-emacs . exit-gnus-on-exit)
-  (gnus-after-getting-new-news . gnus-group-list-groups)
-  (gnus-after-getting-new-news . gnus-group-save-newsrc)
   (gnus-after-getting-new-news . gnus-display-time-event-handler)
-  (gnus-select-group . gnus-group-set-timestamp)
   (gnus-started . (lambda () (run-hooks 'gnus-after-getting-new-news-hook)))
-  (gnus-suspend-gnus . gnus-group-save-newsrc)
   :functions
   (gnus-group-read-ephemeral-search-group
    gnus-summary-next-page)
@@ -10074,6 +10097,10 @@ Nael is a mode for editing Lean 4 programs.
 (use-package gnus-group
   :after gnus
   :hook
+  (gnus-after-getting-new-news . gnus-group-list-groups)
+  (gnus-after-getting-new-news . gnus-group-save-newsrc)
+  (gnus-select-group . gnus-group-set-timestamp)
+  (gnus-suspend-gnus . gnus-group-save-newsrc)
   (gnus-group-mode . gnus-topic-mode)
   (gnus-group-mode . hl-line-mode)
   :custom
@@ -10101,6 +10128,7 @@ Nael is a mode for editing Lean 4 programs.
 #+begin_src emacs-lisp
 (use-package gnus-score
   :after gnus-group
+  :hook (message-sent . gnus-score-followup-thread)
   :custom
   (gnus-score-default-duration 'p)
   (gnus-score-expiry-days 30)
@@ -10426,11 +10454,9 @@ is:
   (message-mode . (lambda () (set-fill-column 78)))
   (message-mode . abbrev-mode)
   (message-mode . footnote-mode)
-  (message-mode . jinx-mode)
   (message-mode . turn-on-auto-fill)
   (message-send . queue-message-if-not-connected)
   ;; (message-send . (lambda () (ignore-errors (jinx-correct 4))))
-  (message-sent . gnus-score-followup-thread)
   (message-sent . my-gnus-score-followup)
   :custom
   (message-alternative-emails my-mail-address-regexp)
@@ -11211,10 +11237,6 @@ This is returned as a string."
   :config
   (setq org-archive-save-context-info '(time file olpath olid category itags))
 
-  (eval-when-compile (require 'info))
-  (add-to-list 'Info-additional-directory-list
-               (expand-file-name "~/.emacs.d/lisp/org-mode/doc"))
-
   (org-link-set-parameters "copy"
                            :follow #'kill-new
                            :export (lambda (_ desc &rest _) desc))
@@ -11927,7 +11949,6 @@ being synced to Anki.
      (makefile   . t)
      (sqlite     . t)
      (emamux     . t)
-     (agent-deck . t)
      ;; (jupyter    . t)
      ))                  ; must be last
 
@@ -12014,13 +12035,12 @@ being synced to Anki.
          ("C-x M" . org-contacts-view-send-email))
   :custom
   (org-contacts-files (list (org-file "contacts.org")))
+  (org-contacts-capf-completing nil)
   :config
   (add-hook 'message-mode-hook
             (lambda ()
               (remove-hook 'completion-at-point-functions
                            #'message-completion-function t)))
-
-  (remove-hook 'org-mode-hook #'org-contacts-org-complete-setup)
 
   (defun org-contacts--candidate (headline)
     "Return candidate string from Org HEADLINE epom element node."
@@ -12862,13 +12882,16 @@ and Info documentation with using Org mode.
   :bind (:map
          my-ctrl-c-n-map
          ("m" . org-remark-mark)
-         ("M" . org-remark-mark-line) ; new in v1.3
          :map org-remark-mode-map
          ("C-c n o" . org-remark-open)
          ("C-c n ]" . org-remark-view-next)
          ("C-c n [" . org-remark-view-prev)
          ("C-c n r" . org-remark-remove)
          ("C-c n d" . org-remark-delete))
+  :init
+  (use-package org-remark-line
+    :bind (:map my-ctrl-c-n-map
+                ("M" . org-remark-mark-line)))
   :config
   (org-remark-global-tracking-mode t))
 #+end_src
@@ -14192,6 +14215,22 @@ registration.
   (with-eval-after-load 'org-wiki-commands
     (define-key org-wiki-command-map (kbd "a") #'org-wiki-ask)
     (define-key org-wiki-command-map (kbd "c") #'org-wiki-chat)))
+#+end_src
+
+*** org-agent-deck
+
+#+begin_src emacs-lisp
+(use-package org-agent-deck
+  :after org
+  :commands (org-agent-deck-send-entry
+             org-agent-deck-insert-latest-output))
+#+end_src
+
+**** ob-agent-deck
+
+#+begin_src emacs-lisp
+(use-package ob-agent-deck
+  :after org)
 #+end_src
 
 ** Games
