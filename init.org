@@ -1733,20 +1733,16 @@ diff-hl package.
 
 #+begin_src emacs-lisp
 (use-package dired
-  :bind ("C-c j" . dired-two-pane)
   :bind (:map dired-mode-map
               ("j"     . dired)
               ("z"     . pop-window-configuration)
-              ("e"     . ora-ediff-files)
               ("^"     . dired-up-directory)
               ("q"     . pop-window-configuration)
               ("M-!"   . shell-command)
-              ("<tab>" . dired-next-window)
               ("M-G")
               ("M-s f"))
   :hook
   (dired-mode . dired-hide-details-mode)
-  (emacs-startup . dired-two-pane)
   :custom
   (dired-clean-up-buffers-too nil)
   (dired-dwim-target t)
@@ -1761,68 +1757,19 @@ diff-hl package.
   (dired-recursive-copies 'always)
   (dired-recursive-deletes 'always)
   (dired-vc-rename-file t)
-  :functions (dired-dwim-target-directory)
-  :preface
-  (defun dired-two-pane (&optional arg)
-    (interactive "P")
-    (push-window-configuration)
-    (let ((here default-directory))
-      (delete-other-windows)
-      (dired "~/Downloads")
-      (revert-buffer)
-      (split-window-horizontally)
-      (if arg
-          (dired here)
-        (dired "~/Desktop")
-        (split-window-vertically)
-        (dired "~/Inbox"))
-      (revert-buffer)
-      (pop-to-buffer "Downloads")))
+  :functions (dired-dwim-target-directory))
+#+end_src
 
-  (defun dired-next-window ()
-    (interactive)
-    (let ((next
-           (car (cl-remove-if-not
-                 (lambda (wind)
-                   (with-current-buffer (window-buffer wind)
-                     (eq major-mode 'dired-mode)))
-                 (cdr (window-list))))))
-      (when next
-        (select-window next))))
+*** dired-ext
 
-  (defvar mark-files-cache (make-hash-table :test #'equal))
-
-  (defun mark-similar-versions (name)
-    (let ((pat name))
-      (if (string-match "^\\(.+?\\)-[0-9._-]+$" pat)
-          (setq pat (match-string 1 pat)))
-      (or (gethash pat mark-files-cache)
-          (ignore (puthash pat t mark-files-cache)))))
-
-  ;; (defun dired-mark-similar-version ()
-  ;;   (interactive)
-  ;;   (setq mark-files-cache (make-hash-table :test #'equal))
-  ;;   (dired-mark-sexp '(mark-similar-versions name)))
-
-  (defun ora-ediff-files ()
-    (interactive)
-    (let ((files (dired-get-marked-files))
-          (wnd (current-window-configuration)))
-      (if (<= (length files) 2)
-          (let ((file1 (car files))
-                (file2 (if (cdr files)
-                           (cadr files)
-                         (read-file-name
-                          "file: "
-                          (dired-dwim-target-directory)))))
-            (if (file-newer-than-file-p file1 file2)
-                (ediff-files file2 file1)
-              (ediff-files file1 file2))
-            (add-hook 'ediff-after-quit-hook-internal
-                      `(lambda ()
-                         (setq ediff-after-quit-hook-internal nil)
-                         (set-window-configuration ,wnd))))
-        (error "no more than 2 files should be marked")))))
+#+begin_src emacs-lisp
+(use-package dired-ext
+  :bind ("C-c j" . dired-ext-open-group)
+  :bind (:map dired-mode-map
+              ("e"     . dired-ext-ediff-files)
+              ("<tab>" . dired-ext-next-window))
+  :hook
+  (emacs-startup . dired-ext-two-pane))
 #+end_src
 
 *** dired-follow
