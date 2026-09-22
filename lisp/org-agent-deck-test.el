@@ -400,6 +400,24 @@
           (should-not (file-exists-p marker)))
       (delete-directory directory t))))
 
+(ert-deftest org-agent-deck-babel-edit-prompt-in-org-mode ()
+  (save-window-excursion
+    (with-temp-buffer
+      (org-mode)
+      (insert "#+begin_src agent-deck\n- Plan\n#+end_src\n")
+      (goto-char (point-min))
+      (forward-line 1)
+      (unwind-protect
+          (progn
+            (org-edit-special)
+            (should (eq major-mode 'org-mode))
+            (should (org-src-edit-buffer-p))
+            (goto-char (point-max))
+            (insert "- Verify\n")
+            (org-edit-src-exit))
+        (when (org-src-edit-buffer-p) (org-edit-src-abort)))
+      (should (string-match-p "- Verify" (buffer-string))))))
+
 (provide 'org-agent-deck-test)
 
 ;;; org-agent-deck-test.el ends here

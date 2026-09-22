@@ -14,7 +14,10 @@
 ;;; Code:
 
 (require 'ob)
+(require 'org-src)
 (require 'org-agent-deck)
+
+(add-to-list 'org-src-lang-modes '("agent-deck" . org))
 
 (defcustom org-agent-deck-presets
   '(("work" . ((:group . "Positron")
