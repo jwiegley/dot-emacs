@@ -2,6 +2,11 @@
 
 My .emacs file and other personal Emacs goodies.
 
+On Clio, this checkout lives at `~/.config/emacs`. Home Manager owns only
+the `nix-packages` and `nix-packages.el` leaves there, not the checkout.
+The Makefile still synchronizes `init.org` from `~/org/init.org`; edit that
+source before rebuilding `init.el`.
+
 I keep my Emacs file in literate Org mode, so that it's easier to organize and
 also document how things are to be used, since there are enough packages that
 I often forget. You can view that document here:

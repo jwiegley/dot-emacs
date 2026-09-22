@@ -6,7 +6,7 @@ their authorship, upstream repositories, and migration revisions in case any
 package needs to become a development submodule again.
 
 **`llm-setup` is the only package NOT moved** — it has local changes and stays a
-submodule (see `~/.emacs.d/.gitmodules`).
+submodule (see `~/.config/emacs/.gitmodules`).
 
 > **Archive note.** The moved working trees were placed in `~/dl/submodules/`,
 > but `~/dl` is a symlink to `~/Downloads` (a macOS-managed, auto-cleaned
@@ -114,10 +114,10 @@ packages that declare `(gptel "0.9.8")` cannot be activated.
 
 ## Re-adding one as a submodule
 
-To turn one back into a submodule of `~/.emacs.d` and drop its Nix definition:
+To turn one back into a submodule of `~/.config/emacs` and drop its Nix definition:
 
 ```sh
-cd ~/.emacs.d
+cd ~/.config/emacs
 # Example: move `alert` back under lisp/
 git submodule add https://github.com/jwiegley/alert.git lisp/alert
 git -C lisp/alert checkout 31fc56855289          # the pinned rev above

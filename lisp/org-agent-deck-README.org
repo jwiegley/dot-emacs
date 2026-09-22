@@ -43,7 +43,7 @@ TRAMP, evaluate:
   (load-file (expand-file-name "ob-agent-deck.el" directory)))
 #+end_src
 
-For local sources, use =~/.emacs.d/lisp/= instead and update that checkout
+For local sources, use =~/.config/emacs/lisp/= instead and update that checkout
 first.  Explicit =.el= filenames bypass stale bytecode in the current session;
 rebuild that checkout's bytecode before restarting Emacs.
 

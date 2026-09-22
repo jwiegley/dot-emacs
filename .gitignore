@@ -27,3 +27,9 @@
 /anvil-worker-init.el
 /anvil-worker.log
 projectile-frecency.eld
+
+# Generated Nix leaves and private runtime state beside the XDG checkout
+/nix-packages
+/nix-packages.el
+/certs/
+/url/
