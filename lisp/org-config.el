@@ -606,6 +606,11 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
       "* NOTE %?"
       :prepend t)
 
+     ("q" "QUOTE" entry
+      ,Inbox
+      "* QUOTE %?"
+      :prepend t)
+
      ("l" "LINK" entry
       ,Inbox
       "* LINK %:description%?
