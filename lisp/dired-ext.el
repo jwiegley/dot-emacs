@@ -31,7 +31,7 @@
     ("D" "~/Downloads")
     ("d " "~/Desktop")
     ("dd " "~/Desktop" "~/Downloads")
-    ("ddI" "~/Desktop" "~/Downloads" "~/Inbox")
+    ("j" "~/Desktop" "~/Downloads" "~/Inbox")
     ("e" "~/.config/emacs")
     ("n" "~/src/nix")
     ("o" "~/Documents/Obsidian"))
