@@ -1770,6 +1770,7 @@ diff-hl package.
 #+begin_src emacs-lisp
 (use-package dired-ext
   :bind ("C-c j" . dired-ext-open-group)
+
   :bind (:map dired-mode-map
               ("e"     . dired-ext-ediff-files)
               ("<tab>" . dired-ext-next-window))
@@ -2209,6 +2210,7 @@ To get the most out of Eat, you should also setup shell integration.
 #+begin_src emacs-lisp
 (use-package edit-server
   :if (and window-system (not alternate-emacs))
+  :commands (edit-server-start)
   :hook
   (edit-server-edit-mode . visual-line-mode)
   :custom
@@ -7700,6 +7702,7 @@ for a set of variables.
 
 #+begin_src emacs-lisp
 (use-package embark
+  :demand t
   :bind (("M-."   . embark-act)
          ("C-M-." . embark-act-all)
          ("C-h b" . embark-bindings) ;; alternative for `describe-bindings'
