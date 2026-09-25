@@ -21,12 +21,21 @@
 
 (defcustom org-agent-deck-presets
   '(("work" . ((:group . "Positron")
-               (:harness . "pi")
-               (:model . "openai-codex/gpt-6-astra")
-               (:thinking . "max")))
-    ("personal" . ((:group . "my-sessions")
-                   (:harness . "pi")
-                   (:model . "omlx-hera/GLM-5.3-Flash-oQ4e"))))
+               (:harness . "claude")
+               (:model . "claude-opus-5-5")
+               (:thinking . "xhigh")))
+    ("work-codex" . ((:group . "Positron")
+                     (:harness . "pi")
+                     (:model . "openai-codex/gpt-6-astra")
+                     (:thinking . "max")))
+    ("claude" . ((:group . "my-sessions")
+                 (:harness . "claude")
+                 (:model . "claude-opus-5-5")
+                 (:thinking . "xhigh")))
+    ("local" . ((:group . "my-sessions")
+                (:harness . "pi")
+                (:model . "omlx-hera/GLM-5.3-Flash-oQ4e")
+                (:thinking . "max"))))
   "Launch defaults selected by the agent-deck Babel :preset header.
 Explicit and inherited headers take precedence over these defaults."
   :type '(alist :key-type string
@@ -34,8 +43,10 @@ Explicit and inherited headers take precedence over these defaults."
   :group 'org-agent-deck)
 
 (defvar org-babel-default-header-args:agent-deck
-  '((:results . "verbatim replace") (:exports . "code")
-    (:eval . "never-export") (:cache . "no"))
+  '((:results . "verbatim replace")
+    (:exports . "code")
+    (:eval . "never-export")
+    (:cache . "no"))
   "Default header arguments for agent-deck blocks.
 Launching has side effects; results are not cached and export does not launch.")
 

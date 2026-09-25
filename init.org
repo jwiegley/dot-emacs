@@ -66,7 +66,7 @@
         use-package-expand-minimally (not verbose)
         use-package-compute-statistics verbose
         debug-on-error verbose
-        debug-on-message "buffer-local while locally let-bound"
+        debug-on-message nil
         debug-on-quit verbose))
 
 (eval-and-compile
@@ -409,7 +409,7 @@ unto itself.
   ;; (ns-function-modifier 'hyper)
 
   ;; Settings for the Emacs Mac-port
-  (mac-control-modifier 'alt)
+  (mac-control-modifier 'control)
   (mac-right-control-modifier 'control)
   (mac-pass-command-to-system nil)
   (mac-command-modifier 'meta)
