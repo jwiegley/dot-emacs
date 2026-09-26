@@ -4,3 +4,6 @@
 [submodule "lisp/org-agents"]
 	path = lisp/org-agents
 	url = https://github.com/jwiegley/org-agents
+[submodule "lisp/dired-filetags"]
+	path = lisp/dired-filetags
+	url = https://github.com/jwiegley/dired-filetags
