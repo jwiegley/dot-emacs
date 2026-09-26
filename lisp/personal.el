@@ -17,7 +17,7 @@
            #'(lambda (mode)
                (font-lock-add-keywords
                 mode (list (list (concat "\\<\\(" value " [^:\n]+\\):")
-                                 1 font-lock-warning-face t))))
+                                 1 'font-lock-warning-face t))))
            '(c-mode c++-mode emacs-lisp-mode lisp-mode
                     python-mode perl-mode java-mode groovy-mode
                     haskell-mode literate-haskell-mode)))
@@ -80,7 +80,7 @@
   (interactive)
   (let ((filename (buffer-file-name))
         (buffer (current-buffer))
-        (name (buffer-name)))
+        (_name (buffer-name)))
     (if (not (and filename (file-exists-p filename)))
         (kill-buffer buffer)
       (when (yes-or-no-p "Are you sure this file should be removed? ")
@@ -515,7 +515,7 @@ transform."
 
 (defun init-org-next-package ()
   (if (re-search-forward init-org-name-re nil t)
-      (let* ((heading (match-string-no-properties 1))
+      (let* ((_heading (match-string-no-properties 1))
              (name (match-string-no-properties 3))
              (commented (or (match-string-no-properties 2)
                             (org-within-commented-block)))
@@ -627,6 +627,16 @@ transform."
            "   end tell\n"
            " end tell\n"
            " do shell script \"open -a iTerm\"\n")))
+
+(defun dns-local-service (service &optional protocol domain)
+  "Find host/port for SERVICE, PROTOCOL (def: TCP) and DOMAIN (def: lan).
+Example: (dns-local-service \"smtp\")"
+  (let ((name (format "_%s._%s.%s" service
+                      (or protocol "tcp") (or domain "lan"))))
+    (when-let* ((result (dns-query name 'SRV)))
+      (let ((host (car (alist-get 'target result)))
+            (port (car (alist-get 'port result))))
+        (cons host port)))))
 
 (provide 'personal)
 

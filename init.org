@@ -1778,6 +1778,21 @@ diff-hl package.
   (emacs-startup . dired-ext-two-pane))
 #+end_src
 
+*** dired-filetags
+
+Tag, select and browse files named with filetags tags ("Name -- tag1
+tag2.ext") from Dired. =:= adds tags to the marked files, or removes a tag
+they already have; the other commands are under =;=, and =; C-h= lists them.
+This =:= replaces EasyPG's Dired prefix; its commands remain on M-x.
+
+#+begin_src emacs-lisp
+(use-package dired-filetags
+  :load-path "lisp/dired-filetags"
+  :hook (dired-mode . dired-filetags-mode)
+  :bind (:map dired-mode-map
+              (":" . dired-filetags-add-remove)))
+#+end_src
+
 *** dired-follow
 
 #+begin_src emacs-lisp
@@ -7610,6 +7625,14 @@ without white space and comments.
   ;; commands are hidden in normal buffers.
   (setq read-extended-command-predicate
         #'command-completion-default-include-p)
+
+  ;; Sort candidates by history, so recently used commands come first.
+  ;; Vertico's default is only set when package autoloads load before it,
+  ;; which the Nix bridge no longer does, so it has to be declared here.
+  (use-package vertico-sort
+    :demand t
+    :custom
+    (vertico-sort-function #'vertico-sort-history-length-alpha))
 
   (use-package vertico-repeat
     :demand t
