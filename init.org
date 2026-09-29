@@ -6572,6 +6572,22 @@ A collection of paredit-like functions for editing in =html-mode=.
   (add-to-list 'tramp-remote-path
                (expand-file-name "bin" (getenv "PROFILE_DIR")))
 
+  ;; Tramp 2.8 splices the remote path into shell commands unquoted
+  ;; ("PATH=a:b:c command -v ls"), so a directory containing whitespace
+  ;; -- such as "/Applications/VMware Fusion.app/Contents/Public", which
+  ;; macOS adds via /etc/paths.d and `tramp-own-remote-path' picks up --
+  ;; breaks every executable lookup and Tramp fails with "Couldn't find
+  ;; a proper `ls' command".  Drop such directories.  The list also
+  ;; serves as the remote `exec-path', so quoting them here would be
+  ;; wrong.
+  (defun my-tramp-drop-unsafe-remote-path (path)
+    (cl-remove-if (lambda (dir)
+                    (string-match-p "[[:space:]\"$&'();<>\\`|]" dir))
+                  path))
+
+  (advice-add 'tramp-get-remote-path :filter-return
+              'my-tramp-drop-unsafe-remote-path)
+
   (defun my-vulcan-file-handler (op &rest args)
     (let ((actual (replace-regexp-in-string
                    "^/vulcan:" "/ssh:vulcan|sudo:root@vulcan:" (car args))))
@@ -12357,18 +12373,16 @@ A group FOO is composed of contacts with the tag FOO."
 
 *** org-extra-emphasis
 
-This library provides two additional markers =!!= and =!@= over and above those in
-=org-emphasis-alist=.
-
-- Text enclosed in =!!= is highlighted in yellow, and exported likewise
-- Text enclosed in =!@= is displayed in red, and exported likewise.
+This library provides additional markers over and above those in
+=org-emphasis-alist=. The sequence is: =! @ % &=, each followed by another of the
+same, making sixteen possible combinations.
 
 #+begin_src emacs-lisp
 (use-package org-extra-emphasis
   :after org
   :diminish org-extra-emphasis-intraword-emphasis-mode
   :custom
-  ;; The sequence is: ! @ % &
+  ;; 
   (org-extra-emphasis-alist
    '(("!!" org-extra-emphasis-01)
      ("!@" org-extra-emphasis-02)
@@ -12390,42 +12404,25 @@ This library provides two additional markers =!!= and =!@= over and above those 
      ("&%" org-extra-emphasis-15)
      ("&&" org-extra-emphasis-16)))
   :custom-face
-  (org-extra-emphasis-01
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-yellow :foreground "black"))))
-  (org-extra-emphasis-03
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-red :foreground "black"))))
-  (org-extra-emphasis-04
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-orange :foreground "black"))))
-  (org-extra-emphasis-05
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-yellow-green :foreground "black"))))
-  (org-extra-emphasis-06
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-green :foreground "black"))))
-  (org-extra-emphasis-07
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-teal :foreground "black"))))
-  (org-extra-emphasis-08
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-cyan :foreground "black"))))
-  (org-extra-emphasis-09
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-slate-blue :foreground "black"))))
-  (org-extra-emphasis-10
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-blue :foreground "black"))))
-  (org-extra-emphasis-11
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-indigo :foreground "black"))))
-  (org-extra-emphasis-12
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-purple :foreground "black"))))
-  (org-extra-emphasis-13
-   ((t (:inherit org-extra-emphasis :bold t
-                 :background ,palette-fuschia :foreground "black")))))
+  (org-extra-emphasis-01 ((t (:inherit org-extra-emphasis :background ,palette-indigo :bold t :foreground "white"))))
+  (org-extra-emphasis-02 ((t (:inherit org-extra-emphasis :background ,palette-blue :bold t :foreground "white"))))
+  (org-extra-emphasis-03 ((t (:inherit org-extra-emphasis :background ,palette-cyan :bold t :foreground "black"))))
+  (org-extra-emphasis-04 ((t (:inherit org-extra-emphasis :background ,palette-green :bold t :foreground "black"))))
+
+  (org-extra-emphasis-05 ((t (:inherit org-extra-emphasis :background ,palette-yellow :bold t :foreground "black"))))
+  (org-extra-emphasis-06 ((t (:inherit org-extra-emphasis :background ,palette-orange :bold t :foreground "black"))))
+  (org-extra-emphasis-07 ((t (:inherit org-extra-emphasis :background ,palette-red :bold t :foreground "white"))))
+  (org-extra-emphasis-08 ((t (:inherit org-extra-emphasis :background ,palette-purple :bold t :foreground "white"))))
+
+  (org-extra-emphasis-09 ((t (:inherit org-extra-emphasis :foreground ,palette-indigo :bold t))))
+  (org-extra-emphasis-10 ((t (:inherit org-extra-emphasis :foreground ,palette-blue :bold t))))
+  (org-extra-emphasis-11 ((t (:inherit org-extra-emphasis :foreground ,palette-cyan :bold t))))
+  (org-extra-emphasis-12 ((t (:inherit org-extra-emphasis :foreground ,palette-green :bold t))))
+
+  (org-extra-emphasis-13 ((t (:inherit org-extra-emphasis :foreground ,palette-yellow :bold t))))
+  (org-extra-emphasis-14 ((t (:inherit org-extra-emphasis :foreground ,palette-orange :bold t))))
+  (org-extra-emphasis-15 ((t (:inherit org-extra-emphasis :foreground ,palette-red :bold t))))
+  (org-extra-emphasis-16 ((t (:inherit org-extra-emphasis :foreground ,palette-purple :bold t)))))
 #+end_src
 
 *** COMMENT org-caldav

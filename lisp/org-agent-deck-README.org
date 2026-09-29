@@ -71,7 +71,7 @@ Suggest a small next step for this project. Do not change files.
 #+end_src
 
 The personal preset selects group =my-sessions= (display name “My Sessions”),
-harness =pi=, and model =omlx-hera/GLM-5.3-Flash-oQ4e=.  It leaves the thinking
+harness =pi=, and model =omlx-hera/GLM-5.3-Flash-oQ4e-mtp=.  It leaves the thinking
 level to Pi's configured default for that model.
 
 ** Titles and worktrees
@@ -104,7 +104,7 @@ than replace that property.
 #+begin_example
 #+PROPERTY: header-args:agent-deck :preset work :directory ~/src/project
 
-#+begin_src agent-deck :group my-sessions :model omlx-hera/GLM-5.3-Flash-oQ4e :thinking high
+#+begin_src agent-deck :group my-sessions :model omlx-hera/GLM-5.3-Flash-oQ4e-mtp :thinking high
 Explain the design without changing files.
 #+end_src
 #+end_example

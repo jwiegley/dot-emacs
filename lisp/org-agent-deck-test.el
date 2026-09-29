@@ -158,7 +158,7 @@
 
 (ert-deftest org-agent-deck-babel-presets ()
   (dolist (case '(("work" "Positron" "openai-codex/gpt-6-astra" "max")
-                  ("personal" "my-sessions" "omlx-hera/GLM-5.3-Flash-oQ4e" nil)))
+                  ("personal" "my-sessions" "omlx-hera/GLM-5.3-Flash-oQ4e-mtp" nil)))
     (let ((body "Review λ and فارسی.\nKeep \"quotes\", 'apostrophes', $HOME and `code`.\n")
           calls result)
       (cl-letf (((symbol-function 'org-agent-deck--call)

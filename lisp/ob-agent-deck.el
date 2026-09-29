@@ -34,7 +34,7 @@
                  (:thinking . "xhigh")))
     ("local" . ((:group . "my-sessions")
                 (:harness . "pi")
-                (:model . "omlx-hera/GLM-5.3-Flash-oQ4e")
+                (:model . "omlx-hera/GLM-5.3-Flash-oQ4e-mtp")
                 (:thinking . "max"))))
   "Launch defaults selected by the agent-deck Babel :preset header.
 Explicit and inherited headers take precedence over these defaults."
