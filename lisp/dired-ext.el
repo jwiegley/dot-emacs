@@ -7,8 +7,10 @@
 ;;; Commentary:
 
 ;; Bind `dired-ext-open-group' to C-c j, then type a suffix from
-;; `dired-ext-directory-groups'.  No RET is needed.  With C-u, show Magit
-;; status instead of Dired.  `dired-ext-two-pane' retains the startup layout.
+;; `dired-ext-directory-groups'.  No RET is needed.  A group shows
+;; directories in Dired, or bookmarks at their saved positions.  With
+;; C-u, show Magit status instead of Dired.  `dired-ext-two-pane' retains
+;; the startup layout.
 
 ;;; Code:
 
@@ -17,6 +19,10 @@
 (require 'dired-aux)
 
 (declare-function push-window-configuration "init")
+(declare-function bookmark-get-bookmark "bookmark"
+                  (bookmark-name-or-record &optional noerror))
+(declare-function bookmark-jump "bookmark" (bookmark &optional display-func))
+(declare-function bookmark-maybe-load-default-file "bookmark" ())
 (declare-function magit-status-setup-buffer "magit-status" (&optional directory))
 (declare-function magit-toplevel "magit-git" (&optional directory))
 (defvar magit-display-buffer-function)
@@ -26,6 +32,13 @@
   "Directory groups and Dired helpers."
   :group 'dired)
 
+(define-widget 'dired-ext-group-item 'lazy
+  "A directory or bookmark in a `dired-ext-directory-groups' entry."
+  :tag "Item"
+  :type '(choice directory
+                 (list :tag "Directory" (const directory) directory)
+                 (list :tag "Bookmark" (const bookmark) (string :tag "Name"))))
+
 (defcustom dired-ext-directory-groups
   '(("~" "~/")
     ("D" "~/Downloads")
@@ -34,70 +47,107 @@
     ("di" "~/Desktop" "~/Inbox")
     ("j" "~/Desktop" "~/Downloads" "~/Inbox")
     ("e" "~/.config/emacs")
+    ("f" (bookmark "Focus"))
     ("n" "~/src/nix")
     ("o" "~/Documents/Obsidian"))
-  "Key suffixes and directory lists for `dired-ext-open-group'.
+  "Key suffixes and item lists for `dired-ext-open-group'.
 Keys are literal strings, not `kbd' notation: \"d \" means d then space.
 A key must not be a prefix of another key.
 
-Each group contains one to three directories.  One fills the frame;
-two appear left and right.  With three, the first is lower-left, the
-second fills the right, and the third is upper-left.  The right-hand
-window is selected when present, matching the original startup layout."
+Each group contains one to three items.  An item is a directory name,
+or (directory PATH), which means the same; or it is (bookmark NAME),
+which shows the buffer and position of the bookmark NAME.
+
+One item fills the frame; two appear left and right.  With three, the
+first is lower-left, the second fills the right, and the third is
+upper-left.  The right-hand window is selected when present, matching
+the original startup layout."
   :type '(alist :key-type (string :tag "Key suffix")
                 :value-type (choice
-                             (list :tag "One directory" directory)
-                             (list :tag "Left / right" directory directory)
+                             (list :tag "One item" dired-ext-group-item)
+                             (list :tag "Left / right"
+                                   dired-ext-group-item dired-ext-group-item)
                              (list :tag "Lower-left / right / upper-left"
-                                   directory directory directory)))
+                                   dired-ext-group-item dired-ext-group-item
+                                   dired-ext-group-item)))
   :group 'dired-ext)
 
-(defun dired-ext--open-directories (directories &optional magit)
-  "Display one to three DIRECTORIES in the usual layout.
-With MAGIT non-nil, show Git status instead of Dired.  Each directory
-must exist, and for Magit must belong to a Git repository."
-  (unless (and (proper-list-p directories) (<= 1 (length directories) 3)
-               (cl-every (lambda (dir) (and (stringp dir) (> (length dir) 0)))
-                         directories))
-    (user-error "A directory group must contain one to three directory names"))
-  (setq directories (mapcar #'expand-file-name directories))
-  (when magit (require 'magit))
-  (dolist (directory directories)
-    (unless (file-directory-p directory)
-      (user-error "Not a directory: %s" directory))
-    (when (and magit (not (magit-toplevel directory)))
-      (user-error "Not a Git repository: %s" directory)))
-  ;; Prepare buffers before replacing the layout, so visit errors leave it intact.
-  (let ((buffers
+(defun dired-ext--parse-item (item)
+  "Return group ITEM as (directory . PATH) or (bookmark . NAME).
+PATH is expanded.  Signal a `user-error' if ITEM is malformed."
+  (pcase item
+    ((and (or (and (pred stringp) path) `(directory ,path))
+          (guard (and (stringp path) (> (length path) 0))))
+     (cons 'directory (expand-file-name path)))
+    ((and `(bookmark ,name) (guard (and (stringp name) (> (length name) 0))))
+     (cons 'bookmark name))
+    (_ (user-error "Not a directory or bookmark: %S" item))))
+
+(defun dired-ext--open-items (items &optional magit)
+  "Display one to three ITEMS in the usual layout.
+Each item is a directory or a bookmark; see `dired-ext-directory-groups'.
+With MAGIT non-nil, show Git status instead of Dired for directories;
+bookmarks are unaffected.  Each directory must exist, and for Magit must
+belong to a Git repository.  Each bookmark must exist."
+  (unless (and (proper-list-p items) (<= 1 (length items) 3))
+    (user-error "A group must contain one to three directories or bookmarks"))
+  (setq items (mapcar #'dired-ext--parse-item items))
+  (pcase-dolist (`(,kind . ,target) items)
+    (pcase-exhaustive kind
+      ('directory
+       (unless (file-directory-p target)
+         (user-error "Not a directory: %s" target))
+       (when magit
+         (require 'magit)
+         (unless (magit-toplevel target)
+           (user-error "Not a Git repository: %s" target))))
+      ('bookmark
+       (require 'bookmark)
+       (bookmark-maybe-load-default-file)
+       (unless (bookmark-get-bookmark target 'noerror)
+         (user-error "No such bookmark: %s" target)))))
+  ;; Prepare (BUFFER . POSITION) pairs before replacing the layout, so visit
+  ;; errors leave it intact.  POSITION is nil for directories.
+  (let ((entries
          (save-window-excursion
-           (mapcar (lambda (directory)
-                     (if magit
-                         (let ((magit-display-buffer-function
-                                (lambda (buffer)
-                                  (display-buffer-same-window buffer nil))))
-                           (magit-status-setup-buffer
-                            (file-name-as-directory directory)))
-                       (let ((buffer (dired-noselect directory)))
-                         (with-current-buffer buffer (revert-buffer))
-                         buffer)))
-                   directories))))
-    (when (fboundp 'push-window-configuration)
-      (push-window-configuration))
-    (delete-other-windows)
-    (set-window-buffer nil (car buffers))
-    (when (cdr buffers)
-      (let ((right (split-window-right)))
-        (set-window-buffer right (cadr buffers))
-        (when (cddr buffers)
-          (set-window-buffer (split-window-below) (car buffers))
-          (set-window-buffer nil (caddr buffers)))
-        (select-window right)))))
+           (mapcar (pcase-lambda (`(,kind . ,target))
+                     (pcase-exhaustive kind
+                       ('bookmark
+                        (bookmark-jump target)
+                        (cons (current-buffer) (point)))
+                       ('directory
+                        (list
+                         (if magit
+                             (let ((magit-display-buffer-function
+                                    (lambda (buffer)
+                                      (display-buffer-same-window buffer nil))))
+                               (magit-status-setup-buffer
+                                (file-name-as-directory target)))
+                           (let ((buffer (dired-noselect target)))
+                             (with-current-buffer buffer (revert-buffer))
+                             buffer))))))
+                   items))))
+    (cl-flet ((show (window entry)
+                (set-window-buffer window (car entry))
+                (when (cdr entry) (set-window-point window (cdr entry)))))
+      (when (fboundp 'push-window-configuration)
+        (push-window-configuration))
+      (delete-other-windows)
+      (show nil (car entries))
+      (when (cdr entries)
+        (let ((right (split-window-right)))
+          (show right (cadr entries))
+          (when (cddr entries)
+            (show (split-window-below) (car entries))
+            (show nil (caddr entries)))
+          (select-window right))))))
 
 ;;;###autoload
 (defun dired-ext-open-group (key &optional arg)
   "Open the directory group named by KEY in `dired-ext-directory-groups'.
 Interactively, read its key suffix without requiring RET.  With prefix
-ARG, show Magit status instead of Dired, keeping the same layout."
+ARG, show Magit status instead of Dired for the group's directories,
+keeping the same layout; its bookmarks open as usual."
   (interactive
    (list (let ((map (make-sparse-keymap)))
            (dolist (group dired-ext-directory-groups)
@@ -112,14 +162,14 @@ ARG, show Magit status instead of Dired, keeping the same layout."
   (let ((group (assoc key dired-ext-directory-groups)))
     (unless group
       (user-error "Unknown directory group: %s" (key-description key)))
-    (dired-ext--open-directories (cdr group) arg)))
+    (dired-ext--open-items (cdr group) arg)))
 
 ;;;###autoload
 (defun dired-ext-two-pane (&optional arg)
   "Open Inbox above Desktop on the left, with Downloads on the right.
 With ARG, show the current directory on the left instead."
   (interactive "P")
-  (dired-ext--open-directories
+  (dired-ext--open-items
    (if arg (list default-directory "~/Downloads")
      '("~/Desktop" "~/Downloads" "~/Inbox"))))
 
