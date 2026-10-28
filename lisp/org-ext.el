@@ -341,13 +341,44 @@ other inboxes are namespaced by directory so equal basenames cannot collide."
         (puthash (match-string-no-properties 1) t hashes)))
     hashes))
 
+(defun org-ext--extract-recording-properties ()
+  "Delete the property drawer opening the buffer and return its properties.
+The recordings daemon heads each transcript with a drawer that links its
+audio file and gives the file's checksum.  Return the drawer's (NAME . VALUE)
+pairs in order, or nil, leaving the buffer intact, when the buffer does
+not open with a well-formed property drawer, or when the drawer names one
+of `org-special-properties', which `org-entry-put' cannot set or would
+act upon rather than record."
+  (goto-char (point-min))
+  (when (looking-at org-property-drawer-re)
+    (let ((end (match-end 0))
+          properties)
+      (forward-line)
+      (while (< (line-end-position) end)
+        (when (looking-at org-property-re)
+          (push (cons (match-string-no-properties 2)
+                      (match-string-no-properties 3))
+                properties))
+        (forward-line))
+      (unless (cl-some (lambda (property)
+                         (member-ignore-case (car property)
+                                             org-special-properties))
+                       properties)
+        (delete-region (point-min) (min (1+ end) (point-max)))
+        (nreverse properties)))))
+
 (defun org-ext--insert-recording-note (contents hash)
-  "Insert recording transcript CONTENTS and associate it with HASH."
-  (let ((start-pos (point)))
+  "Insert recording transcript CONTENTS and associate it with HASH.
+Properties from a drawer opening CONTENTS, such as the audio link and
+checksum written by the recordings daemon, are set on the new entry
+after `org-capture-before-finalize-hook' has run."
+  (let ((start-pos (point))
+        (properties nil))
     (insert
      (with-temp-buffer
        (org-mode)
        (insert contents)
+       (setq properties (org-ext--extract-recording-properties))
        (goto-char (point-min))
        (org-ext-reformat-recording)
        (goto-char (point-max))
@@ -359,6 +390,8 @@ other inboxes are namespaced by directory so equal basenames cannot collide."
       (when (re-search-forward "^\\*\\* \\(DRAFT\\|TODO\\) " nil t)
         (beginning-of-line)
         (run-hooks 'org-capture-before-finalize-hook)
+        (pcase-dolist (`(,name . ,value) properties)
+          (org-entry-put (point) name value))
         (org-set-property "RECORDING_TRANSCRIPT_SHA256" hash)))))
 
 (defun org-ext--consume-recording-note (note hash)

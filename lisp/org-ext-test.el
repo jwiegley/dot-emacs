@@ -52,6 +52,7 @@
                     org-ext-recording-imported-p
                     org-ext-write-recording-receipt
                     org-ext--recording-hashes
+                    org-ext--extract-recording-properties
                     org-ext--insert-recording-note
                     org-ext--consume-recording-note
                     org-ext-import-recording-note))
@@ -133,7 +134,8 @@
           (error "could not load %s from org-ext.el" name))))))
 
 (ert-deftest org-ext-recording-defaults-use-primary-and-legacy-inboxes ()
-  (let* ((primary (expand-file-name "~/Recordings"))
+  ;; The recordings daemon publishes transcripts to ~/Documents/Inbox.
+  (let* ((primary (expand-file-name "~/Documents/Inbox"))
          (legacy (expand-file-name "~/.local/share/recording-transcripts"))
          (receipts (expand-file-name ".imported" legacy))
          (org-ext-recording-queue-directory primary))
@@ -317,6 +319,136 @@
                   (org-ext-import-recording-note note)
                   (goto-char (point-min))
                   (should (= (how-many "^\\*\\* TODO Buy milk$") 1)))
+              (kill-buffer buffer)))
+          (should-not (file-exists-p note)))
+      (delete-directory root t))))
+
+(defconst org-ext-test-recording-provenance
+  (concat ":PROPERTIES:\n"
+          ":RECORDING_AUDIO: [[file:~/Documents/Recordings/06-50-28.m4a]]\n"
+          ":RECORDING_AUDIO_SHA512_256: "
+          "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a\n"
+          ":END:\n")
+  "Drawer the recordings daemon writes at the head of each transcript.")
+
+(ert-deftest org-ext-import-recording-note-keeps-audio-provenance ()
+  (let* ((root (make-temp-file "org-ext-recording-provenance-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name ".imported" queue))
+         (note (expand-file-name "06-50-28.txt" queue))
+         (inbox (expand-file-name "inbox.org" root))
+         (hash nil)
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (write-region (concat org-ext-test-recording-provenance "Buy milk\n")
+                        nil note nil 'silent)
+          (setq hash
+                (with-temp-buffer
+                  (insert-file-contents-literally note)
+                  (secure-hash 'sha256 (current-buffer))))
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (org-ext-import-recording-note note)
+                  ;; The drawer does not count toward the transcript, so a
+                  ;; one-line note still becomes a TODO that owns the drawer.
+                  (should
+                   (equal
+                    (buffer-string)
+                    (concat
+                     "** TODO Buy milk\n"
+                     ":PROPERTIES:\n"
+                     ":RECORDING_AUDIO: "
+                     "[[file:~/Documents/Recordings/06-50-28.m4a]]\n"
+                     ":RECORDING_AUDIO_SHA512_256: "
+                     "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a\n"
+                     ":RECORDING_TRANSCRIPT_SHA256: " hash "\n"
+                     ":END:\n"))))
+              (kill-buffer buffer)))
+          (should-not (file-exists-p note)))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-import-recording-note-keeps-special-property-drawer-as-text ()
+  (let* ((root (make-temp-file "org-ext-recording-special-drawer-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name ".imported" queue))
+         (note (expand-file-name "06-50-28.txt" queue))
+         (inbox (expand-file-name "inbox.org" root))
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          ;; `org-entry-put' cannot set ITEM, so this drawer is no daemon's;
+          ;; it must not make every import of the note fail.
+          (write-region ":PROPERTIES:\n:ITEM: Spoofed\n:END:\nBuy milk\n"
+                        nil note nil 'silent)
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (org-ext-import-recording-note note)
+                  (should (string-match-p "^:ITEM: Spoofed$" (buffer-string)))
+                  (should (string-match-p "^Buy milk$" (buffer-string))))
+              (kill-buffer buffer)))
+          (should-not (file-exists-p note)))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-story-b-recording-batch-files-provenance-after-defaults ()
+  (let* ((root (make-temp-file "org-ext-recording-batch-provenance-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name ".imported" queue))
+         (note (expand-file-name "06-50-28.txt" queue))
+         (inbox (expand-file-name "inbox.org" root))
+         (body "First thought about the project.\nAnd a second one.\n")
+         (hash nil)
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (write-region (concat org-ext-test-recording-provenance body)
+                        nil note nil 'silent)
+          (setq hash
+                (with-temp-buffer
+                  (insert-file-contents-literally note)
+                  (secure-hash 'sha256 (current-buffer))))
+          (write-region "" nil inbox nil 'silent)
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook
+                              (list (lambda ()
+                                      (org-entry-put (point) "ID" "test-id"))))
+                  (org-ext--import-agenda-notes nil (list note))
+                  (goto-char (point-min))
+                  (should (looking-at "\\*\\* DRAFT \\[[^]\n]+\\]\n"))
+                  ;; Capture defaults such as ID lead, as on every other
+                  ;; entry; the provenance joins the transcript hash, and the
+                  ;; body keeps no copy of the drawer.
+                  (should
+                   (equal
+                    (buffer-substring-no-properties (match-end 0) (point-max))
+                    (concat
+                     ":PROPERTIES:\n"
+                     ":ID:       test-id\n"
+                     ":RECORDING_AUDIO: "
+                     "[[file:~/Documents/Recordings/06-50-28.m4a]]\n"
+                     ":RECORDING_AUDIO_SHA512_256: "
+                     "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a\n"
+                     ":RECORDING_TRANSCRIPT_SHA256: " hash "\n"
+                     ":END:\n"
+                     body))))
               (kill-buffer buffer)))
           (should-not (file-exists-p note)))
       (delete-directory root t))))
