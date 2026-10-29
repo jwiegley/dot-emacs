@@ -98,8 +98,9 @@ Interactively opens the file and positions cursor at first todo item."
         (forward-line 1)))))
 
 (defun org-ext-reformat-draft ()
-  "Convert Drafts.app content into org link/note format.
+  "Convert Drafts.app content into Org TODO/link/note format.
 Handles URL conversion, note tagging, and removes empty TAGS lines.
+Trailing periods are removed from TODO titles, leaving body text intact.
 Intended for use with `org-capture' templates."
   ;; If there is a URL, this is a LINK.
   (when (re-search-forward ":LOCATION:\\s-*0.0,.+\n" nil t)
@@ -128,7 +129,12 @@ Intended for use with `org-capture' templates."
   ;; If there are no tags, delete that property.
   (goto-char (point-min))
   (when (re-search-forward ":TAGS:\\s-+\n" nil t)
-    (delete-region (match-beginning 0) (match-end 0))))
+    (delete-region (match-beginning 0) (match-end 0)))
+  (goto-char (point-min))
+  (when (and (org-at-heading-p)
+             (equal (org-get-todo-state) "TODO"))
+    (org-edit-headline
+     (string-trim-right (org-get-heading t t t) "\\.+"))))
 
 (defcustom org-ext-recording-queue-directory
   (expand-file-name "~/Documents/Inbox")

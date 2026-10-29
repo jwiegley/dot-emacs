@@ -65,7 +65,8 @@
                                 (file-name-directory load-file-name))))
   ;; Eval additional functions needed by the regression tests below,
   ;; handling defun, defsubst, and defalias forms.
-  (dolist (name '(org-ext--import-agenda-notes
+  (dolist (name '(org-ext-reformat-draft
+                  org-ext--import-agenda-notes
                   org-ext-goto-inbox-heading
                   org-ext-goto-inbox
                   org-ext-agenda-show
@@ -132,6 +133,33 @@
               (eval (read (current-buffer)) t))))
         (unless found
           (error "could not load %s from org-ext.el" name))))))
+
+(ert-deftest org-ext-reformat-draft-removes-trailing-todo-periods ()
+  (dolist (case '(("** TODO Buy milk.\nBody ends.\n"
+                   . "** TODO Buy milk\nBody ends.\n")
+                  ("** TODO Review v1.2...\n" . "** TODO Review v1.2\n")
+                  ("** TODO Buy milk. \t\n" . "** TODO Buy milk\n")
+                  ("** TODO [#A] COMMENT Buy milk. :errands:\n"
+                   . "** TODO [#A] COMMENT Buy milk :errands:\n")
+                  ("** TODO Buy milk\n" . "** TODO Buy milk\n")
+                  ("** TODO Ask why?\n" . "** TODO Ask why?\n")
+                  ("** TODO Go now!\n" . "** TODO Go now!\n")
+                  ("** NOTE Keep period.\n" . "** NOTE Keep period.\n")
+                  ("** LINK Keep period.\n" . "** LINK Keep period.\n")
+                  ("** TODO Note title.\n:PROPERTIES:\n:TAGS:     note\n:END:\n"
+                   . "** NOTE Note title.\n:PROPERTIES:\n:END:\n")
+                  ("** TODO Link title.\nhttps://example.com/\n"
+                   . "** LINK Link title.\n:PROPERTIES:\n:URL:      https://example.com/\n:END:\n")))
+    (with-temp-buffer
+      (let ((org-todo-keywords
+             '((sequence "TODO" "NOTE" "LINK" "|" "DONE")))
+            (org-auto-align-tags nil))
+        (org-mode)
+        (insert (car case))
+        (dotimes (_ 2)
+          (goto-char (point-min))
+          (org-ext-reformat-draft)
+          (should (equal (buffer-string) (cdr case))))))))
 
 (ert-deftest org-ext-recording-defaults-use-primary-and-legacy-inboxes ()
   ;; The recordings daemon publishes transcripts to ~/Documents/Inbox.
