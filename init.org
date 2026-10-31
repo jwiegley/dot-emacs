@@ -3654,9 +3654,7 @@ gptel’s partner, or the user’s.
   :demand t
   :bind ("C-x c c" . claude-code-ide-menu)
   :custom
-  (claude-code-ide-cli-extra-flags "--dangerously-skip-permissions")
-  :config
-  (claude-code-ide-emacs-tools-setup))
+  (claude-code-ide-cli-extra-flags "--dangerously-skip-permissions"))
 #+end_src
 
 ** grep
@@ -6974,6 +6972,28 @@ RET in the buffer you want to undo.
   :commands web-mode)
 #+end_src
 
+** wf
+
+The Emacs client of agent-workflows, built from the same locked input as the
+=wf= binary.  Local mode, the default, runs the program named by =wf-program=.
+=M-x wf-service= connects to an agent-cat workflow manager through a client
+profile listed in =wf-manager-profiles=, and =M-x wf-local= returns to local
+mode.  When =wf-service= loads, the list names the client profile of the
+manager root =~/agent-cat-manager= if =agentic-run --manager init= has
+written it, as on Hera, and it stays empty on a machine without that root.
+
+#+begin_src emacs-lisp
+(use-package wf
+  :commands (wf-run wf-runs wf-history wf-plan wf-cost wf-help wf-refresh))
+
+(use-package wf-service
+  :commands (wf-service wf-local wf-requests wf-export)
+  :custom
+  (wf-manager-profiles
+   (let ((profile (expand-file-name "~/agent-cat-manager/client/profile.json")))
+     (and (file-readable-p profile) (list profile)))))
+#+end_src
+
 ** wgrep
 
 #+begin_src emacs-lisp
@@ -7139,7 +7159,7 @@ Alt-V, which is to yank.
   :unless noninteractive
   :demand t
   :bind* (("M-v" . scroll-down-command)
-          ("A-v" . yank)))
+          ("C-S-v" . yank)))
 #+end_src
 
 ** wombag
