@@ -53,6 +53,8 @@
                     org-ext-write-recording-receipt
                     org-ext--recording-hashes
                     org-ext--extract-recording-properties
+                    org-ext--inbox-entry-p
+                    org-ext--inbox-entry-imported-p
                     org-ext--insert-recording-note
                     org-ext--consume-recording-note
                     org-ext-import-recording-note))
@@ -347,6 +349,43 @@
                   (org-ext-import-recording-note note)
                   (goto-char (point-min))
                   (should (= (how-many "^\\*\\* TODO Buy milk$") 1)))
+              (kill-buffer buffer)))
+          (should-not (file-exists-p note)))
+      (delete-directory root t))))
+
+(ert-deftest org-ext-import-recording-note-keeps-org-entry-without-hash ()
+  (let* ((root (make-temp-file "org-ext-recording-entry-" t))
+         (queue (expand-file-name "queue" root))
+         (receipts (expand-file-name ".imported" queue))
+         (note (expand-file-name "system-health-corr-6ftxc.txt" queue))
+         (inbox (expand-file-name "inbox.org" root))
+         (entry (concat "** TODO Relink SimpleFIN accounts\n"
+                        ":PROPERTIES:\n"
+                        ":SYSTEM_HEALTH_KEY: corr-6ftxc\n"
+                        ":END:\n"
+                        "Alert debt: KNOWN\n"))
+         (org-ext-recording-queue-directory queue)
+         (org-ext-recording-receipt-directory receipts)
+         (org-ext-recording-inbox-directories (list queue)))
+    (unwind-protect
+        (progn
+          (make-directory queue)
+          (write-region entry nil note nil 'silent)
+          (let ((buffer (find-file-noselect inbox)))
+            (unwind-protect
+                (with-current-buffer buffer
+                  (org-mode)
+                  (setq-local org-capture-before-finalize-hook nil)
+                  (org-ext-import-recording-note note)
+                  ;; No audio stands behind the entry, so it gains no
+                  ;; transcript hash and arrives exactly as written.
+                  (should (equal (buffer-string) entry))
+                  (should-not (file-exists-p note))
+                  ;; A retry after an interrupted import (the entry saved,
+                  ;; the queue file left behind) adds no second copy.
+                  (write-region entry nil note nil 'silent)
+                  (org-ext-import-recording-note note)
+                  (should (equal (buffer-string) entry)))
               (kill-buffer buffer)))
           (should-not (file-exists-p note)))
       (delete-directory root t))))

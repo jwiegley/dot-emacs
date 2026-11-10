@@ -373,32 +373,54 @@ act upon rather than record."
         (delete-region (point-min) (min (1+ end) (point-max)))
         (nreverse properties)))))
 
+(defun org-ext--inbox-entry-p (contents)
+  "Return non-nil when inbox file CONTENTS are a ready-made Org entry.
+Other producers, such as the system-health monitor, drop such entries
+into the recordings inbox.  They are not transcripts of any recording."
+  (string-match-p "\\`\\*+ " contents))
+
+(defun org-ext--inbox-entry-imported-p (contents)
+  "Return non-nil when the current buffer holds the heading of CONTENTS.
+CONTENTS are a ready-made Org entry (`org-ext--inbox-entry-p'), which
+carries no transcript hash, so its heading line guards against a second
+import after an interrupted one."
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward
+     (concat "^" (regexp-quote (car (split-string contents "\n"))) "[ \t]*$")
+     nil t)))
+
 (defun org-ext--insert-recording-note (contents hash)
   "Insert recording transcript CONTENTS and associate it with HASH.
 Properties from a drawer opening CONTENTS, such as the audio link and
 checksum written by the recordings daemon, are set on the new entry
-after `org-capture-before-finalize-hook' has run."
+after `org-capture-before-finalize-hook' has run.  A ready-made Org
+entry (`org-ext--inbox-entry-p') is inserted as it stands, without the
+transcript hash, unless its heading is already present."
   (let ((start-pos (point))
-        (properties nil))
-    (insert
-     (with-temp-buffer
-       (org-mode)
-       (insert contents)
-       (setq properties (org-ext--extract-recording-properties))
-       (goto-char (point-min))
-       (org-ext-reformat-recording)
-       (goto-char (point-max))
-       (unless (bolp)
-         (insert ?\n))
-       (buffer-string)))
-    (save-excursion
-      (goto-char start-pos)
-      (when (re-search-forward "^\\*\\* \\(DRAFT\\|TODO\\) " nil t)
-        (beginning-of-line)
-        (run-hooks 'org-capture-before-finalize-hook)
-        (pcase-dolist (`(,name . ,value) properties)
-          (org-entry-put (point) name value))
-        (org-set-property "RECORDING_TRANSCRIPT_SHA256" hash)))))
+        (properties nil)
+        (entry (org-ext--inbox-entry-p contents)))
+    (unless (and entry (org-ext--inbox-entry-imported-p contents))
+      (insert
+       (with-temp-buffer
+         (org-mode)
+         (insert contents)
+         (setq properties (org-ext--extract-recording-properties))
+         (goto-char (point-min))
+         (org-ext-reformat-recording)
+         (goto-char (point-max))
+         (unless (bolp)
+           (insert ?\n))
+         (buffer-string)))
+      (save-excursion
+        (goto-char start-pos)
+        (when (re-search-forward "^\\*\\* \\(DRAFT\\|TODO\\) " nil t)
+          (beginning-of-line)
+          (run-hooks 'org-capture-before-finalize-hook)
+          (pcase-dolist (`(,name . ,value) properties)
+            (org-entry-put (point) name value))
+          (unless entry
+            (org-set-property "RECORDING_TRANSCRIPT_SHA256" hash)))))))
 
 (defun org-ext--consume-recording-note (note hash)
   "Acknowledge imported recording NOTE with HASH, then consume it."
