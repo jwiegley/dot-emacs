@@ -156,6 +156,21 @@
        :status "running" :message_pending :false
        :message ,(replace-regexp-in-string "[\r\n]+\\'" "" body)))))
 
+(defun org-agent-deck-test--script (directory name text)
+  "Write the executable script NAME with TEXT in DIRECTORY; return its file."
+  (let ((file (expand-file-name name directory)))
+    (with-temp-file file (insert text))
+    (set-file-modes file #o700)
+    file))
+
+(defun org-agent-deck-test--wait (predicate)
+  "Accept process output until PREDICATE holds, for ten seconds at most.
+Return PREDICATE's final value."
+  (let ((deadline (+ (float-time) 10)))
+    (while (and (not (funcall predicate)) (< (float-time) deadline))
+      (accept-process-output nil 0.05))
+    (funcall predicate)))
+
 (ert-deftest org-agent-deck-babel-presets ()
   (dolist (case '(("work-codex" "Positron" "openai-codex/gpt-6-astra" "max")
                   ("local" "my-sessions" "omlx-hera/GLM-5.3-Flash-oQ4e-mtp" "max")
@@ -445,6 +460,78 @@
                              (concat (mapconcat #'identity arguments "\0")
                                      "\0" payload)))))
           (should-not (file-exists-p marker)))
+      (delete-directory directory t))))
+
+(ert-deftest org-agent-deck-start-preserves-argv-and-stdin-in-background ()
+  "The background runner passes argv and stdin as `org-agent-deck--call' does.
+It reports output or a diagnostic once, and leaves no process or buffer."
+  (let* ((directory (make-temp-file "org-agent-deck-start-" t))
+         (ssh (org-agent-deck-test--script
+               directory "ssh" "#!/bin/sh\nshift\nexec /bin/sh -c \"$*\"\n"))
+         (endpoint (org-agent-deck-test--script
+                    directory "argv-echo" "#!/bin/sh\nprintf '%s\\0' \"$@\"\ncat\n"))
+         (failing (org-agent-deck-test--script
+                   directory "unavailable"
+                   (concat "#!/bin/sh\ncat >/dev/null\necho 'partial output'\n"
+                           "echo 'remote agent-deck is unavailable' >&2\nexit 3\n")))
+         (marker (expand-file-name "injected" directory))
+         (payload (format "λ ' \" $HOME `uname`\n$(touch %s)\n" marker))
+         (arguments (list "session" "send" "id" "--json" "--message-file" "-"
+                          "~/remote dir/quotes'\"; $(false)")))
+    (unwind-protect
+        (progn
+          (dolist (prefix (list (list endpoint) (list ssh "hera" endpoint)))
+            (let ((org-agent-deck-command prefix) reports)
+              (apply #'org-agent-deck--start payload
+                     (lambda (&rest report) (push report reports))
+                     arguments)
+              (should (org-agent-deck-test--wait (lambda () reports)))
+              (should (equal reports
+                             (list (list (concat (mapconcat #'identity arguments "\0")
+                                                 "\0" payload)
+                                         nil))))))
+          (let ((org-agent-deck-command (list failing)) reports)
+            (apply #'org-agent-deck--start payload
+                   (lambda (&rest report) (push report reports))
+                   arguments)
+            (should (org-agent-deck-test--wait (lambda () reports)))
+            (should (= (length reports) 1))
+            (should-not (car (car reports)))
+            (should (string-match-p "(exit 3): remote agent-deck is unavailable\n+partial output"
+                                    (cadr (car reports)))))
+          (should-not (file-exists-p marker))
+          (should-not (seq-some (lambda (process)
+                                  (string-prefix-p "org-agent-deck" (process-name process)))
+                                (process-list)))
+          (should-not (seq-some (lambda (buffer)
+                                  (string-prefix-p " *org-agent-deck" (buffer-name buffer)))
+                                (buffer-list))))
+      (delete-directory directory t))))
+
+(ert-deftest org-agent-deck-start-reports-when-its-buffer-is-killed ()
+  "Killing the runner's hidden buffer ends the run, which still reports
+one failure and leaves no process or buffer behind."
+  (let* ((directory (make-temp-file "org-agent-deck-start-killed-" t))
+         (org-agent-deck-command
+          (list (org-agent-deck-test--script
+                 directory "slow" "#!/bin/sh\ncat >/dev/null\nexec sleep 30\n")))
+         reports)
+    (unwind-protect
+        (let ((process (org-agent-deck--start
+                        "input" (lambda (&rest report) (push report reports))
+                        "session" "send")))
+          (let ((kill-buffer-query-functions nil))
+            (kill-buffer (process-buffer process)))
+          (should (org-agent-deck-test--wait (lambda () reports)))
+          (should (= (length reports) 1))
+          (should-not (car (car reports)))
+          (should (string-search "failed" (cadr (car reports))))
+          (should-not (seq-some (lambda (process)
+                                  (string-prefix-p "org-agent-deck" (process-name process)))
+                                (process-list)))
+          (should-not (seq-some (lambda (buffer)
+                                  (string-prefix-p " *org-agent-deck" (buffer-name buffer)))
+                                (buffer-list))))
       (delete-directory directory t))))
 
 (ert-deftest org-agent-deck-babel-edit-prompt-in-org-mode ()

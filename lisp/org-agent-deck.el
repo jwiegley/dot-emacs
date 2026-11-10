@@ -51,6 +51,25 @@ For local operation on hera, use a one-element list: \"agent-deck\"."
   :type 'string
   :group 'org-agent-deck)
 
+(defun org-agent-deck--failure (command status stdout stderr)
+  "Describe how COMMAND failed, given its STATUS, STDOUT and STDERR.
+STATUS is an exit code or a description of how the process ended."
+  (let ((detail
+         (string-trim
+          (if (string-empty-p stderr)
+              stdout
+            (concat stderr
+                    (unless (string-empty-p stdout)
+                      (concat "\n" stdout)))))))
+    (format "%s failed (%s): %s"
+            (mapconcat #'shell-quote-argument command " ")
+            (if (integerp status)
+                (format "exit %d" status)
+              status)
+            (if (string-empty-p detail)
+                "no diagnostic output"
+              detail))))
+
 (defun org-agent-deck--run (command &optional input)
   "Run COMMAND synchronously with INPUT on standard input.
 Return standard output, or signal a `user-error' with command diagnostics."
@@ -74,38 +93,87 @@ Return standard output, or signal a `user-error' with command diagnostics."
                         (insert-file-contents stderr-file)
                         (buffer-string))))
                 (unless (equal status 0)
-                  (let ((detail
-                         (string-trim
-                          (if (string-empty-p stderr)
-                              stdout
-                            (concat stderr
-                                    (unless (string-empty-p stdout)
-                                      (concat "\n" stdout)))))))
-                    (user-error "%s failed (%s): %s"
-                                (mapconcat #'shell-quote-argument command " ")
-                                (if (integerp status)
-                                    (format "exit %d" status)
-                                  status)
-                                (if (string-empty-p detail)
-                                    "no diagnostic output"
-                                  detail))))
+                  (user-error "%s" (org-agent-deck--failure
+                                    command status stdout stderr)))
                 stdout))
           (file-missing
            (user-error "Cannot run %s: %s"
                        (car command) (error-message-string err))))
       (ignore-errors (delete-file stderr-file)))))
 
+(defun org-agent-deck--command (arguments)
+  "Return the command line that runs agent-deck with ARGUMENTS."
+  (append org-agent-deck-command
+          ;; OpenSSH joins its command arguments into a remote shell command.
+          (if (and (stringp (car org-agent-deck-command))
+                   (equal (file-name-nondirectory
+                           (car org-agent-deck-command)) "ssh"))
+              (mapcar #'shell-quote-argument arguments)
+            arguments)))
+
 (defun org-agent-deck--call (input &rest arguments)
   "Run agent-deck with ARGUMENTS and optional standard INPUT."
-  (org-agent-deck--run
-   (append org-agent-deck-command
-           ;; OpenSSH joins its command arguments into a remote shell command.
-           (if (and (stringp (car org-agent-deck-command))
-                    (equal (file-name-nondirectory
-                            (car org-agent-deck-command)) "ssh"))
-               (mapcar #'shell-quote-argument arguments)
-             arguments))
-   input))
+  (org-agent-deck--run (org-agent-deck--command arguments) input))
+
+(defun org-agent-deck--start (input callback &rest arguments)
+  "Start agent-deck with ARGUMENTS and standard INPUT, without waiting.
+When it exits, call CALLBACK with its standard output and nil, or with
+nil and a diagnostic if it failed.  Return the process; Emacs asks
+before quitting while it runs."
+  (let* ((command (org-agent-deck--command arguments))
+         (stdout (generate-new-buffer " *org-agent-deck*"))
+         (stderr (generate-new-buffer " *org-agent-deck-stderr*"))
+         (errors (make-pipe-process
+                  :name "org-agent-deck-stderr" :buffer stderr
+                  :coding 'utf-8-unix :noquery t :sentinel #'ignore))
+         (process
+          (condition-case err
+              (make-process
+               :name "org-agent-deck" :buffer stdout :command command
+               :connection-type 'pipe :coding 'utf-8-unix :stderr errors
+               :sentinel
+               (lambda (process _event)
+                 (unless (process-live-p process)
+                   (let (output diagnostic status)
+                     (unwind-protect
+                         (progn
+                           ;; Standard error has its own pipe; read what it
+                           ;; still holds, briefly.
+                           (while (and (process-live-p errors)
+                                       (accept-process-output errors 0.1 nil t)))
+                           ;; Killing a buffer kills its run, so either may
+                           ;; already be gone.
+                           (setq output (if (buffer-live-p stdout)
+                                            (with-current-buffer stdout
+                                              (buffer-string))
+                                          "")
+                                 diagnostic (if (buffer-live-p stderr)
+                                                (with-current-buffer stderr
+                                                  (buffer-string))
+                                              "")
+                                 status (if (eq (process-status process) 'exit)
+                                            (process-exit-status process)
+                                          (format "%s %d" (process-status process)
+                                                  (process-exit-status process)))))
+                       (delete-process errors)
+                       (kill-buffer stdout)
+                       (kill-buffer stderr))
+                     (if (eql status 0)
+                         (funcall callback output nil)
+                       (funcall callback nil
+                                (org-agent-deck--failure
+                                 command status output diagnostic)))))))
+            (error
+             (delete-process errors)
+             (kill-buffer stdout)
+             (kill-buffer stderr)
+             (user-error "Cannot run %s: %s"
+                         (car command) (error-message-string err))))))
+    ;; A process that has already exited reports through its sentinel.
+    (ignore-errors
+      (process-send-string process (or input ""))
+      (process-send-eof process))
+    process))
 
 (defun org-agent-deck--json (text context)
   "Parse JSON TEXT or report malformed output from CONTEXT."
