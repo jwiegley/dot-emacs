@@ -19,7 +19,10 @@
 ;;; Commentary:
 
 ;; Send the current Org entry to an agent-deck session, or insert a
-;; session's latest output as a NOTE.  To use agent-deck on another host:
+;; session's latest output as a NOTE.  With a prefix argument, either
+;; command first asks for one of agent-deck's remotes, such as vulcan,
+;; and works with that remote's sessions.  To use agent-deck on another
+;; host:
 ;;
 ;;   (setq org-agent-deck-command '("ssh" "hera" "agent-deck"))
 
@@ -192,11 +195,32 @@ remote-management command, and it streams standard input over SSH."
       (append (list "remote" "exec" remote) arguments)
     arguments))
 
-(defun org-agent-deck--sessions ()
-  "Return active agent-deck sessions as property lists."
+(defun org-agent-deck--read-remote (prompt)
+  "Read one of the controlling agent-deck's remotes using PROMPT."
+  (let ((remotes
+         (org-agent-deck--json
+          (org-agent-deck--call nil "remote" "list" "--json")
+          "Agent-deck remote list")))
+    (unless (vectorp remotes)
+      (user-error "Agent-deck remote list returned JSON other than an array"))
+    (let ((names
+           (seq-keep
+            (lambda (remote)
+              (when (hash-table-p remote)
+                (let ((name (gethash "name" remote)))
+                  (and (stringp name) (not (string-empty-p name)) name))))
+            remotes)))
+      (unless names
+        (user-error "Agent-deck has no remotes configured"))
+      (completing-read prompt names nil t))))
+
+(defun org-agent-deck--sessions (&optional remote)
+  "Return active agent-deck sessions on REMOTE as property lists.
+REMOTE is nil for the controlling host."
   (let ((sessions
          (org-agent-deck--json
-          (org-agent-deck--call nil "list" "--json")
+          (apply #'org-agent-deck--call nil
+                 (org-agent-deck--remote-arguments remote '("list" "--json")))
           "Agent-deck list")))
     (unless (vectorp sessions)
       (user-error "Agent-deck list returned JSON other than an array"))
@@ -212,9 +236,9 @@ remote-management command, and it streams standard input over SSH."
                    :status (or (gethash "status" session) "unknown"))))))
      sessions)))
 
-(defun org-agent-deck--read-session (prompt)
-  "Read an active agent-deck session using PROMPT and return its ID."
-  (let* ((sessions (org-agent-deck--sessions))
+(defun org-agent-deck--read-session (prompt &optional remote)
+  "Read an active agent-deck session on REMOTE using PROMPT; return its ID."
+  (let* ((sessions (org-agent-deck--sessions remote))
          (candidates
           (mapcar
            (lambda (session)
@@ -230,7 +254,8 @@ remote-management command, and it streams standard input over SSH."
                 (plist-get session :id))))
            sessions)))
     (unless candidates
-      (user-error "No active agent-deck sessions found"))
+      (user-error "No active agent-deck sessions found%s"
+                  (if remote (concat " on " remote) "")))
     (cdr (assoc (completing-read prompt candidates nil t) candidates))))
 
 (defun org-agent-deck--export-options (options _backend)
@@ -255,12 +280,13 @@ remote-management command, and it streams standard input over SSH."
         (org-narrow-to-subtree)
         (string-trim (org-export-as 'md))))))
 
-(defun org-agent-deck--latest-output (session-id)
-  "Return SESSION-ID's latest output as (TITLE . MARKDOWN)."
+(defun org-agent-deck--latest-output (session-id &optional remote)
+  "Return the latest output of SESSION-ID on REMOTE as (TITLE . MARKDOWN)."
   (let ((output
          (org-agent-deck--json
-          (org-agent-deck--call
-           nil "session" "output" session-id "--json")
+          (apply #'org-agent-deck--call nil
+                 (org-agent-deck--remote-arguments
+                  remote (list "session" "output" session-id "--json")))
           "Agent-deck session output")))
     (unless (hash-table-p output)
       (user-error "Agent-deck session output returned JSON other than an object"))
@@ -314,36 +340,44 @@ remote-management command, and it streams standard input over SSH."
         (set-marker end nil)))))
 
 ;;;###autoload
-(defun org-agent-deck-send-entry (&optional session-id)
-  "Send the current Org entry as Markdown to SESSION-ID.
-Interactively, choose a session from agent-deck's active list."
-  (interactive)
+(defun org-agent-deck-send-entry (&optional session-id remote)
+  "Send the current Org entry as Markdown to SESSION-ID on REMOTE.
+REMOTE names one of the controlling agent-deck's remotes, or is nil for
+that host.  Interactively, choose a session from the active list; with
+a prefix argument, first choose the remote."
+  (interactive
+   (list nil (and current-prefix-arg (org-agent-deck--read-remote "Remote: "))))
   (unless (derived-mode-p 'org-mode)
     (user-error "This command requires Org mode"))
   (setq session-id
         (or session-id
-            (org-agent-deck--read-session "Send entry to session: ")))
-  (org-agent-deck--call
-   (org-agent-deck--entry-markdown)
-   "session" "send" session-id "--message-file" "-")
-  (message "Sent Org entry to %s" session-id))
+            (org-agent-deck--read-session "Send entry to session: " remote)))
+  (apply #'org-agent-deck--call
+         (org-agent-deck--entry-markdown)
+         (org-agent-deck--remote-arguments
+          remote (list "session" "send" session-id "--message-file" "-")))
+  (message "Sent Org entry to %s%s" session-id (if remote (concat " on " remote) "")))
 
 ;;;###autoload
-(defun org-agent-deck-insert-latest-output (&optional session-id)
-  "Insert SESSION-ID's latest output as a sibling Org NOTE.
-Interactively, choose a session from agent-deck's active list."
-  (interactive)
+(defun org-agent-deck-insert-latest-output (&optional session-id remote)
+  "Insert the latest output of SESSION-ID on REMOTE as a sibling Org NOTE.
+REMOTE names one of the controlling agent-deck's remotes, or is nil for
+that host.  Interactively, choose a session from the active list; with
+a prefix argument, first choose the remote."
+  (interactive
+   (list nil (and current-prefix-arg (org-agent-deck--read-remote "Remote: "))))
   (unless (derived-mode-p 'org-mode)
     (user-error "This command requires Org mode"))
   (setq session-id
         (or session-id
-            (org-agent-deck--read-session "Insert output from session: ")))
+            (org-agent-deck--read-session "Insert output from session: " remote)))
   (pcase-let* ((`(,title . ,markdown)
-                 (org-agent-deck--latest-output session-id))
+                 (org-agent-deck--latest-output session-id remote))
                 (body (org-agent-deck--markdown-to-org markdown)))
     (atomic-change-group
       (org-agent-deck--insert-note title body)))
-  (message "Inserted latest output from %s" session-id))
+  (message "Inserted latest output from %s%s"
+           session-id (if remote (concat " on " remote) "")))
 
 (provide 'org-agent-deck)
 

@@ -37,7 +37,7 @@
     (re-search-forward "Body with")
     (let (input arguments)
       (cl-letf (((symbol-function 'org-agent-deck--read-session)
-                 (lambda (_prompt) "session-1"))
+                 (lambda (_prompt &optional remote) (should-not remote) "session-1"))
                 ((symbol-function 'org-agent-deck--call)
                  (lambda (given-input &rest given-arguments)
                    (setq input given-input
@@ -61,10 +61,11 @@
       (goto-char (point-min))
       (search-forward "Body")
       (cl-letf (((symbol-function 'org-agent-deck--read-session)
-                 (lambda (_prompt) "session-2"))
+                 (lambda (_prompt &optional remote) (should-not remote) "session-2"))
                 ((symbol-function 'org-agent-deck--latest-output)
-                 (lambda (session-id)
+                 (lambda (session-id &optional remote)
                    (should (equal session-id "session-2"))
+                   (should-not remote)
                    '("Remote session" . "# Result\n\n- one\n- two")))
                 ((symbol-function 'org-agent-deck--markdown-to-org)
                  (lambda (markdown)
@@ -74,6 +75,85 @@
       (should
        (equal (buffer-string)
               "* Parent\nBody.\n* NOTE Remote session\n** Result\n\n- one\n- two\n\n* Following\nKeep.\n")))))
+
+(defun org-agent-deck-test--remote-cli (input &rest arguments)
+  "Answer ARGUMENTS as an agent-deck with remotes vulcan and nyx would.
+INPUT is ignored; a session vulcan-1 runs on vulcan."
+  (ignore input)
+  (pcase arguments
+    ('("remote" "list" "--json")
+     "[{\"name\":\"vulcan\",\"host\":\"johnw@vulcan\"},{\"name\":\"nyx\",\"host\":\"johnw@nyx\"}]")
+    ('("remote" "exec" "vulcan" "list" "--json")
+     "[{\"id\":\"vulcan-1\",\"title\":\"On Vulcan\",\"group\":\"my-sessions\",\"status\":\"idle\",\"archived\":false}]")
+    ('("remote" "exec" "vulcan" "session" "send" "vulcan-1" "--message-file" "-") "")
+    ('("remote" "exec" "vulcan" "session" "output" "vulcan-1" "--json")
+     "{\"success\":true,\"session_title\":\"On Vulcan\",\"content\":\"Checked.\"}")
+    (_ (ert-fail (format "Unexpected agent-deck call: %S" arguments)))))
+
+(ert-deftest org-agent-deck-send-entry-prefix-reaches-a-remote-session ()
+  "With a prefix argument, the remote is chosen first, then one of its
+sessions, and the entry goes to that session through `remote exec'."
+  (with-temp-buffer
+    (org-mode)
+    (insert "* Task\nBody.\n")
+    (goto-char (point-min))
+    (let (calls prompts)
+      (cl-letf (((symbol-function 'org-agent-deck--call)
+                 (lambda (input &rest arguments)
+                   (push (cons input arguments) calls)
+                   (apply #'org-agent-deck-test--remote-cli input arguments)))
+                ((symbol-function 'completing-read)
+                 (lambda (prompt collection &rest _)
+                   (push (cons prompt collection) prompts)
+                   (if (equal prompt "Remote: ") "vulcan" (caar collection)))))
+        (let ((current-prefix-arg '(4)))
+          (call-interactively #'org-agent-deck-send-entry)))
+      (should (equal (mapcar #'cdr (reverse calls))
+                     '(("remote" "list" "--json")
+                       ("remote" "exec" "vulcan" "list" "--json")
+                       ("remote" "exec" "vulcan" "session" "send" "vulcan-1"
+                        "--message-file" "-"))))
+      (should (string-match-p "^# Task$" (car (car calls))))
+      (should (equal (mapcar #'car (reverse prompts))
+                     '("Remote: " "Send entry to session: ")))
+      (should (equal (cdr (car (last prompts))) '("vulcan" "nyx"))))))
+
+(ert-deftest org-agent-deck-insert-latest-output-prefix-reads-a-remote-session ()
+  "With a prefix argument, the reply is read from a session on the chosen remote."
+  (with-temp-buffer
+    (org-mode)
+    (let ((org-todo-keywords '((sequence "TODO" "NOTE" "|" "DONE")))
+          calls)
+      (insert "* Parent\nBody.\n")
+      (goto-char (point-min))
+      (cl-letf (((symbol-function 'org-agent-deck--call)
+                 (lambda (input &rest arguments)
+                   (push arguments calls)
+                   (apply #'org-agent-deck-test--remote-cli input arguments)))
+                ((symbol-function 'completing-read)
+                 (lambda (prompt collection &rest _)
+                   (if (equal prompt "Remote: ") "vulcan" (caar collection))))
+                ((symbol-function 'org-agent-deck--markdown-to-org) #'identity))
+        (let ((current-prefix-arg '(4)))
+          (call-interactively #'org-agent-deck-insert-latest-output)))
+      (should (equal (reverse calls)
+                     '(("remote" "list" "--json")
+                       ("remote" "exec" "vulcan" "list" "--json")
+                       ("remote" "exec" "vulcan" "session" "output" "vulcan-1" "--json"))))
+      ;; As for a local session, a blank line follows the inserted NOTE.
+      (should (equal (buffer-string)
+                     "* Parent\nBody.\n* NOTE On Vulcan\nChecked.\n\n")))))
+
+(ert-deftest org-agent-deck-read-remote-refuses-missing-or-malformed-remotes ()
+  "Choosing a remote fails clearly when agent-deck lists none or answers oddly."
+  (dolist (reply '("[]" "{}" "[{\"host\":\"johnw@vulcan\"}]" "[{\"name\":\"\"}]"))
+    (cl-letf (((symbol-function 'org-agent-deck--call)
+               (lambda (_input &rest arguments)
+                 (should (equal arguments '("remote" "list" "--json")))
+                 reply))
+              ((symbol-function 'completing-read)
+               (lambda (&rest _) (ert-fail "Nothing should be offered"))))
+      (should-error (org-agent-deck--read-remote "Remote: ") :type 'user-error))))
 
 (ert-deftest org-agent-deck-markdown-to-org-invokes-pandoc-without-shell ()
   (let ((org-agent-deck-pandoc-program "/test/pandoc")

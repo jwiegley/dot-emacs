@@ -142,7 +142,8 @@ remote launch support (=agent-deck remote update vulcan= upgrades the remote).
 Results add a =Remote:= line, because the session ID belongs to that remote.
 From Hera, inspect the session with =agent-deck remote vulcan show ID= or
 attach with =agent-deck remote attach vulcan ID=.  A preset may also set
-=:remote=; an explicit header overrides it.
+=:remote=; an explicit header overrides it.  To send later entries to such a
+session or read its replies, see [[*Existing sessions][Existing sessions]].
 
 ** Titles and worktrees
 
@@ -240,6 +241,20 @@ Review this design without changing files.
 =:thinking default= clears an inherited thinking override.  Without a preset,
 provide at least =:group= and =:directory=; the harness defaults to =pi= and
 omitted model/thinking values use that harness's defaults.
+
+* Existing sessions
+
+=M-x org-agent-deck-send-entry= sends the current Org entry and its subtree,
+as Markdown, to a running session.  =M-x org-agent-deck-insert-latest-output=
+inserts a session's latest reply as a sibling =NOTE= entry, converted to Org
+with Pandoc.  Both offer Hera's active sessions to choose from.
+
+With a prefix argument (=C-u=), either command first asks for one of Hera's
+agent-deck remotes, such as =vulcan=, then offers that remote's active
+sessions.  Listing, sending and reading run through
+=agent-deck remote exec vulcan ...=, the route =:remote= launches take, so a
+session started by a =:remote vulcan= block can take later entries and return
+its replies.
 
 * Header reference and limits
 
