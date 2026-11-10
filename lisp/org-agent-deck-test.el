@@ -305,30 +305,37 @@
      "Prompt" '((:directory . "/remote") (:group . "custom/group")))))
 
 (ert-deftest org-agent-deck-babel-rejects-invalid-settings-before-launch ()
-  (cl-letf (((symbol-function 'org-agent-deck--call)
-             (lambda (&rest _) (ert-fail "Unexpected launch"))))
-    (dolist (params '(((:preset . "unknown")) ((:directory . ""))
-                      ((:directory . "--bad")) ((:directory . "relative/path"))
-                      ((:group . 12)) ((:title . " ")) ((:title . "bad\0title"))
-                      ((:harness . "pi; touch BAD")) ((:model . "$(touch BAD)"))
-                      ((:thinking . "unlimited")) ((:dir . "/remote"))
-                      ((:cache . "yes")) ((:session . "existing"))
-                      ((:directory . "/")) ((:worktree . "maybe"))
-                      ((:worktree . t)) ((:worktree . nil))
-                      ((:worktree . "yes") (:title . "Design review"))
-                      ((:worktree . "yes") (:title . "topic/name"))))
-      (should-error
-       (org-babel-execute:agent-deck
-        "Prompt" (append params '((:preset . "work") (:directory . "/remote"))))
-       :type 'user-error))
-    (should-error (org-babel-execute:agent-deck "Prompt" '((:preset . "work")))
-                  :type 'user-error)
-    (should-error (org-babel-execute:agent-deck "Prompt" '((:directory . "/remote")))
-                  :type 'user-error)
-    (dolist (body '("" " \n " "Bad\0prompt"))
-      (should-error
-       (org-babel-execute:agent-deck body '((:preset . "work") (:directory . "/remote")))
-       :type 'user-error))))
+  ;; The launch wrapper converts every call failure into a `user-error',
+  ;; so a launch attempt must be recorded rather than signaled.
+  (let (launched)
+    (cl-letf (((symbol-function 'org-agent-deck--call)
+               (lambda (&rest _) (setq launched t) (ert-fail "Unexpected launch"))))
+      (dolist (params '(((:preset . "unknown")) ((:directory . ""))
+                        ((:directory . "--bad")) ((:directory . "relative/path"))
+                        ((:group . 12)) ((:title . " ")) ((:title . "bad\0title"))
+                        ((:harness . "pi; touch BAD")) ((:model . "$(touch BAD)"))
+                        ((:harness . "pi") (:thinking . "unlimited"))
+                        ((:dir . "/remote"))
+                        ((:cache . "yes")) ((:session . "existing"))
+                        ((:directory . "/")) ((:worktree . "maybe"))
+                        ((:worktree . t)) ((:worktree . nil))
+                        ((:worktree . "yes") (:title . "Design review"))
+                        ((:worktree . "yes") (:title . "topic/name"))))
+        (should-error
+         (org-babel-execute:agent-deck
+          "Prompt" (append params '((:preset . "work") (:directory . "/remote"))))
+         :type 'user-error)
+        ;; On failure, ERT reports the first parameters that launched.
+        (should-not (and launched params)))
+      (should-error (org-babel-execute:agent-deck "Prompt" '((:preset . "work")))
+                    :type 'user-error)
+      (should-error (org-babel-execute:agent-deck "Prompt" '((:directory . "/remote")))
+                    :type 'user-error)
+      (dolist (body '("" " \n " "Bad\0prompt"))
+        (should-error
+         (org-babel-execute:agent-deck body '((:preset . "work") (:directory . "/remote")))
+         :type 'user-error))
+      (should-not launched))))
 
 (ert-deftest org-agent-deck-babel-failures-never-retry-or-record-success ()
   (dolist (reply '("not JSON" "[]" "{\"success\":false,\"error\":\"unsupported model\"}"
@@ -357,26 +364,30 @@
         (should-not (string-match-p (regexp-quote "#+RESULTS:") (buffer-string)))))))
 
 (ert-deftest org-agent-deck-babel-respects-evaluation-controls ()
-  (cl-letf (((symbol-function 'org-agent-deck--call)
-             (lambda (&rest _) (ert-fail "Unexpected launch"))))
-    (load "ob-agent-deck" nil t)
-    (dolist (eval '("never" "query"))
+  ;; As above, a launch attempt is recorded because the launch wrapper
+  ;; would turn the signaled failure into the expected `user-error'.
+  (let (launched)
+    (cl-letf (((symbol-function 'org-agent-deck--call)
+               (lambda (&rest _) (setq launched t) (ert-fail "Unexpected launch"))))
+      (load "ob-agent-deck" nil t)
+      (dolist (eval '("never" "query"))
+        (with-temp-buffer
+          (org-mode)
+          (insert "#+begin_src agent-deck :preset work :directory /remote :eval " eval
+                  "\nPrompt\n#+end_src\n")
+          (goto-char (point-min))
+          (cl-letf (((symbol-function 'yes-or-no-p) (lambda (&rest _) nil)))
+            (org-babel-execute-src-block))))
       (with-temp-buffer
         (org-mode)
-        (insert "#+begin_src agent-deck :preset work :directory /remote :eval " eval
-                "\nPrompt\n#+end_src\n")
+        (insert "#+begin_src agent-deck :preset work :directory /remote\nPrompt\n#+end_src\n")
+        (org-export-as 'md)
         (goto-char (point-min))
-        (cl-letf (((symbol-function 'yes-or-no-p) (lambda (&rest _) nil)))
-          (org-babel-execute-src-block))))
-    (with-temp-buffer
-      (org-mode)
-      (insert "#+begin_src agent-deck :preset work :directory /remote\nPrompt\n#+end_src\n")
-      (org-export-as 'md)
-      (goto-char (point-min))
-      (end-of-line)
-      (insert " :eval yes :exports results")
-      (let ((org-confirm-babel-evaluate nil))
-        (should-error (org-export-as 'md) :type 'user-error)))))
+        (end-of-line)
+        (insert " :eval yes :exports results")
+        (let ((org-confirm-babel-evaluate nil))
+          (should-error (org-export-as 'md) :type 'user-error))))
+    (should-not launched)))
 
 (ert-deftest org-agent-deck-transport-preserves-argv-and-stdin ()
   "Exercise both real argv and SSH's shell-joined argv, without a network."
