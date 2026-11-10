@@ -1871,7 +1871,7 @@ This =:= replaces EasyPG's Dired prefix; its commands remain on M-x.
   (dired-omit-mode nil t)
   (dired-omit-size-limit 60000)
   (dired-omit-files
-   "\\`[.]?#\\|\\`[.]\\'\\|\\`\\([.]\\(DS_Store\\|localized\\|com-apple-bird.*\\)\\|Icon\015\\)\\'"))
+   "\\`[.]?#\\|\\`[.]\\'\\|\\`\\([.]\\(st\\(ignore\\|versions\\|folder\\)\\|DS_Store\\|localized\\|com-apple-bird.*\\)\\|Icon\015\\)\\'"))
 #+end_src
 
 *** diredfl
