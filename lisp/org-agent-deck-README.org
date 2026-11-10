@@ -63,7 +63,9 @@ Review this project's design and suggest next steps.
 #+end_src
 
 The work preset selects group =Positron=, harness =claude=, model
-=claude-opus-5-5=, thinking =max=, and Ultracode; see
+=claude-opus-5-5=, and thinking =max=.  It turns on Ultracode only once the
+updated Nix claude wrapper (=nix-sko41=) is active on Hera; until then it
+says =:ultracode nil=; see
 [[*Max effort with Ultracode][Max effort with Ultracode]].  The work-codex preset uses the same group
 with harness =pi=, model =openai-codex/gpt-6-astra=, and thinking =max=.
 
@@ -82,13 +84,14 @@ The claude preset uses the same group with harness =claude=, model
 
 =:ultracode yes= turns on Ultracode: standing dynamic-workflow orchestration
 for the whole session.  With =:thinking max= it gives max effort with
-Ultracode.  The work preset sets both:
+Ultracode.  The work preset sets =max=, and will set Ultracode too once the
+updated claude wrapper is active; until then, ask for it:
 
-#+begin_src agent-deck :preset work :directory ~/src/project
+#+begin_src agent-deck :preset work :ultracode yes :directory ~/src/project
 Plan and carry out this refactoring.
 #+end_src
 
-#+begin_src agent-deck :preset work :harness codex :model gpt-6-astra :directory ~/src/project
+#+begin_src agent-deck :preset work :ultracode yes :harness codex :model gpt-6-astra :directory ~/src/project
 Plan and carry out this refactoring.
 #+end_src
 
@@ -249,7 +252,7 @@ omitted model/thinking values use that harness's defaults.
 | =:harness=   | Tool name, not an arbitrary shell command                 |
 | =:model=     | Model ID; not a shell expression or glob                  |
 | =:thinking=  | Pi thinking level, native CLI effort, or =default=         |
-| =:ultracode= | =yes= or =no=: Ultracode for Claude or Codex; the work preset says =yes= |
+| =:ultracode= | =yes= or =no=: Ultracode for Claude or Codex; the work preset will say =yes= once =nix-sko41= is active |
 | =:title=     | Exact title; defaults to the basename of =:directory=      |
 | =:worktree=  | =yes= creates a new worktree and branch named =:title=; default =no= |
 | =:mailbox=   | =NAME [TOPICS]=: run =/mailbox NAME [TOPICS]= before the prompt     |
