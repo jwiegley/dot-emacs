@@ -304,6 +304,35 @@
     (org-babel-execute:agent-deck
      "Prompt" '((:directory . "/remote") (:group . "custom/group")))))
 
+(ert-deftest org-agent-deck-babel-remote-launches-through-controller ()
+  "A :remote block has the controller's agent-deck launch on that remote."
+  (let ((org-agent-deck-presets
+         (cons '("on-vulcan" . ((:group . "my-sessions") (:remote . "vulcan")))
+               org-agent-deck-presets))
+        (body "Review λ.\nKeep \"quotes\" and $HOME.\n"))
+    (dolist (case '((((:remote . "vulcan") (:preset . "work"))
+                     ("remote" "exec" "vulcan" "launch") "vulcan")
+                    (((:preset . "on-vulcan"))
+                     ("remote" "exec" "vulcan" "launch") "vulcan")
+                    (((:preset . "work")) ("launch") nil)))
+      (let (calls result)
+        (cl-letf (((symbol-function 'org-agent-deck--call)
+                   (lambda (input &rest args)
+                     (push (cons input args) calls)
+                     (org-agent-deck-test--launch-reply input args))))
+          (setq result
+                (org-babel-execute:agent-deck
+                 body (append (car case) '((:directory . "~/src/project"))))))
+        (should (= (length calls) 1))
+        (pcase-let ((`(,input . ,args) (car calls)))
+          (should (equal input body))
+          (should (equal (seq-take args (length (nth 1 case))) (nth 1 case)))
+          (should (equal (cadr (member "--message-file" args)) "-"))
+          (should (equal (car (last args)) "~/src/project/")))
+        (if (nth 2 case)
+            (should (string-match-p (concat "^Remote: " (nth 2 case) "$") result))
+          (should-not (string-match-p "^Remote:" result)))))))
+
 (ert-deftest org-agent-deck-babel-rejects-invalid-settings-before-launch ()
   ;; The launch wrapper converts every call failure into a `user-error',
   ;; so a launch attempt must be recorded rather than signaled.
@@ -320,7 +349,10 @@
                         ((:directory . "/")) ((:worktree . "maybe"))
                         ((:worktree . t)) ((:worktree . nil))
                         ((:worktree . "yes") (:title . "Design review"))
-                        ((:worktree . "yes") (:title . "topic/name"))))
+                        ((:worktree . "yes") (:title . "topic/name"))
+                        ((:remote . "")) ((:remote . 12)) ((:remote . "--help"))
+                        ((:remote . "johnw@vulcan")) ((:remote . "vulcan.lan"))
+                        ((:remote . "vulcan; touch BAD"))))
         (should-error
          (org-babel-execute:agent-deck
           "Prompt" (append params '((:preset . "work") (:directory . "/remote"))))

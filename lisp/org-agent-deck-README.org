@@ -76,6 +76,29 @@ harness =pi=, model =omlx-hera/GLM-5.3-Flash-oQ4e-mtp=, and thinking =max=.
 The claude preset uses the same group with harness =claude=, model
 =claude-opus-5-5=, and thinking =xhigh=.
 
+** Remote hosts
+
+Add =:remote= to have Hera's agent-deck create the session on one of its
+registered remotes instead of on Hera itself:
+
+#+begin_src agent-deck :preset work :remote vulcan :directory ~/src/project
+Review this project's design and suggest next steps.
+#+end_src
+
+Emacs still reaches Hera through =org-agent-deck-command=.  Hera then runs
+=agent-deck remote exec vulcan launch ...=, which streams the prompt to the
+remote over SSH standard input.  The value must be a remote name listed by
+=agent-deck remote list= on Hera, not an SSH host or =user@host= target.
+Everything else resolves on the remote: =:directory= (including =~/=),
+worktrees, groups, harnesses, models, and thinking levels.  The harness must
+be installed and signed in there, and both hosts need an agent-deck with
+remote launch support (=agent-deck remote update vulcan= upgrades the remote).
+
+Results add a =Remote:= line, because the session ID belongs to that remote.
+From Hera, inspect the session with =agent-deck remote vulcan show ID= or
+attach with =agent-deck remote attach vulcan ID=.  A preset may also set
+=:remote=; an explicit header overrides it.
+
 ** Titles and worktrees
 
 =:title= is the exact session title, without a UUID suffix.  When omitted, it
@@ -127,6 +150,7 @@ omitted model/thinking values use that harness's defaults.
 | Header       | Meaning                                                  |
 |--------------+----------------------------------------------------------|
 | =:preset=    | =work=, =work-codex=, =claude=, or =local=; customizable in =org-agent-deck-presets= |
+| =:remote=    | Agent-deck remote that hosts the session, such as =vulcan=; default Hera |
 | =:directory= | Required target-host path: absolute or beginning with =~/= |
 | =:group=     | Agent-deck group path, such as =Positron= or =my-sessions= |
 | =:harness=   | Tool name, not an arbitrary shell command                 |

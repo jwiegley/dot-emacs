@@ -8,7 +8,9 @@
 
 ;; The block body is the starting prompt.  Headers select a preset and a
 ;; directory on the agent-deck host, with optional per-block overrides.
-;; Each successful execution launches a fresh, standalone session.  See
+;; :remote names a remote registered with that host's agent-deck, such as
+;; vulcan; the host's agent-deck then launches the session there.  Each
+;; successful execution launches a fresh, standalone session.  See
 ;; org-agent-deck-README.org for configuration, examples, and limitations.
 
 ;;; Code:
@@ -59,7 +61,7 @@ Launching has side effects; results are not cached and export does not launch.")
     (when (and preset (not defaults))
       (user-error "Unknown agent-deck :preset %S (available: %s)"
                   preset (mapconcat #'car org-agent-deck-presets ", ")))
-    (dolist (key '(:directory :group :harness :model :thinking :title))
+    (dolist (key '(:directory :group :harness :model :remote :thinking :title))
       (let ((value (cdr (assq key options))))
         (when (and value
                    (or (not (stringp value))
@@ -85,9 +87,13 @@ Launching has side effects; results are not cached and export does not launch.")
         (user-error "agent-deck :directory must be absolute or begin with ~/ on the target host")))
     (let ((harness (or (cdr (assq :harness options)) "pi"))
           (model (cdr (assq :model options)))
+          (remote (cdr (assq :remote options)))
           (thinking (cdr (assq :thinking options))))
       (unless (string-match-p "\\`[[:alnum:]_-]+\\'" harness)
         (user-error "agent-deck :harness must be a tool name, not a command"))
+      (when (and remote
+                 (not (string-match-p "\\`[[:alnum:]][[:alnum:]_-]*\\'" remote)))
+        (user-error "agent-deck :remote must be an agent-deck remote name, not a host or command"))
       (when (and model
                  (not (string-match-p "\\`[[:alnum:]/._:+@-]+\\'" model)))
         (user-error "agent-deck :model must be a model ID, not shell syntax or a pattern"))
@@ -101,6 +107,7 @@ Launching has side effects; results are not cached and export does not launch.")
 ;;;###autoload
 (defun org-babel-execute:agent-deck (body params)
   "Launch a fresh agent-deck session with prompt BODY and Babel PARAMS.
+With :remote, the controlling agent-deck launches on that remote.
 Wait only for launch and initial prompt delivery, not task completion.
 Return launch details for Org results.  Never retry a failed launch."
   (when org-babel-exp-reference-buffer
@@ -112,13 +119,18 @@ Return launch details for Org results.  Never retry a failed launch."
          (group (cdr (assq :group options)))
          (harness (or (cdr (assq :harness options)) "pi"))
          (model (cdr (assq :model options)))
+         (remote (cdr (assq :remote options)))
          (thinking (cdr (assq :thinking options)))
          (title (or (cdr (assq :title options))
                     (file-name-nondirectory (directory-file-name directory))))
          (worktree (equal (cdr (assq :worktree options)) "yes"))
-         (arguments (list "launch" "--json" "--no-parent" "--no-assert-done"
-                          "--message-file" "-" "--group" group "--cmd" harness
-                          "--title" title)))
+         (arguments (append
+                     ;; `remote exec' never reads REMOTE as a management
+                     ;; command, and it streams the prompt over SSH stdin.
+                     (when remote (list "remote" "exec" remote))
+                     (list "launch" "--json" "--no-parent" "--no-assert-done"
+                           "--message-file" "-" "--group" group "--cmd" harness
+                           "--title" title))))
     (when (string-empty-p (string-trim title))
       (user-error "Cannot derive a title from :directory; specify :title"))
     (when (and worktree (string-match-p "[/[:space:]]" title))
@@ -169,8 +181,9 @@ Return launch details for Org results.  Never retry a failed launch."
                             (replace-regexp-in-string "[\r\n]+\\'" "" body))))
         (user-error "Session %s was created, but prompt delivery is unconfirmed (status %s); inspect it before retrying"
                     id (gethash "status" reply)))
-      (format "Session: %s\nTitle: %s\nGroup: %s\nDirectory: %s\nHarness: %s\nRequested model: %s\nRequested thinking: %s%s%s"
-              id (or (gethash "title" reply) title)
+      (format "Session: %s%s\nTitle: %s\nGroup: %s\nDirectory: %s\nHarness: %s\nRequested model: %s\nRequested thinking: %s%s%s"
+              id (if remote (concat "\nRemote: " remote) "")
+              (or (gethash "title" reply) title)
               (or (gethash "group" reply) group)
               (or (gethash "path" reply) directory)
               (or (gethash "tool" reply) harness)
