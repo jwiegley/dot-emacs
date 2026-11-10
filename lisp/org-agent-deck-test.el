@@ -141,7 +141,8 @@
                                 (error-message-string error)))))))
 
 (defun org-agent-deck-test--launch-reply (body arguments &optional id)
-  "Return a successful CLI response for BODY, ARGUMENTS and ID."
+  "Return a successful CLI response for BODY, ARGUMENTS and ID.
+Without BODY the launch sent no message, and agent-deck reports none."
   (let ((directory (car (last arguments)))
         (branch (cadr (member "--worktree" arguments))))
     (json-serialize
@@ -153,8 +154,10 @@
                 directory)
        :worktree_branch ,(or branch :null)
        :tool ,(cadr (member "--cmd" arguments))
-       :status "running" :message_pending :false
-       :message ,(replace-regexp-in-string "[\r\n]+\\'" "" body)))))
+       :status "running"
+       ,@(when body
+           `(:message_pending :false
+             :message ,(replace-regexp-in-string "[\r\n]+\\'" "" body)))))))
 
 (defun org-agent-deck-test--script (directory name text)
   "Write the executable script NAME with TEXT in DIRECTORY; return its file."
@@ -170,6 +173,104 @@ Return PREDICATE's final value."
     (while (and (not (funcall predicate)) (< (float-time) deadline))
       (accept-process-output nil 0.05))
     (funcall predicate)))
+
+(defun org-agent-deck-test--read (file)
+  "Return the contents of FILE."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (buffer-string)))
+
+(defconst org-agent-deck-test--fake-cli
+  "#!/bin/sh
+# Log each call beside this script, then answer as agent-deck would.
+log=$(dirname \"$0\")
+n=$(ls \"$log\" | grep -c '\\.argv$')
+printf '%s\\0' \"$@\" > \"$log/$n.argv\"
+cat > \"$log/$n.stdin\"
+case \" $* \" in
+  *' launch '*)
+    echo '{\"success\":true,\"id\":\"fresh-session\",\"session_id\":\"fresh-session\",\"title\":\"ob-agent-deck-mail\",\"group\":\"Positron\",\"path\":\"~/src/project/\",\"tool\":\"claude\",\"profile\":\"default\",\"status\":\"starting\"}' ;;
+  *' session send '*)
+    case $(cat \"$log/$n.stdin\") in
+      /mailbox*)
+        echo '{\"success\":true,\"session_id\":\"fresh-session\",\"session_title\":\"ob-agent-deck-mail\",\"message\":\"/mailbox ob-agent-deck-mail ++work !+review\",\"delivery\":\"submitted\",\"submitted\":true,\"confirmation\":\"confirmed\"}' ;;
+      *)
+        # Hold the prompt, as --defer-if-busy does, until the test releases it.
+        i=0
+        while [ -n \"$FAKE_PROMPT_HOLD\" ] && [ ! -e \"$log/release\" ] && [ $i -lt 200 ]; do
+          sleep 0.05
+          i=$((i + 1))
+        done
+        case \"$FAKE_PROMPT_FAILS\" in
+          exit)
+            echo 'defer-if-busy: target still busy (running) after 30m0s' >&2
+            exit 1 ;;
+          reply)
+            echo '{\"success\":true,\"session_id\":\"fresh-session\",\"message\":\"Another prompt.\",\"delivery\":\"submitted\",\"submitted\":true,\"confirmation\":\"confirmed\"}'
+            exit 0 ;;
+          unknown)
+            echo '{\"success\":true,\"session_id\":\"fresh-session\",\"session_title\":\"ob-agent-deck-mail\",\"message\":\"Fix the capture issue.\",\"delivery\":\"delivered\",\"submitted\":false,\"confirmation\":\"unknown\"}'
+            exit 0 ;;
+        esac
+        echo '{\"success\":true,\"session_id\":\"fresh-session\",\"session_title\":\"ob-agent-deck-mail\",\"message\":\"Fix the capture issue.\",\"delivery\":\"submitted\",\"submitted\":true,\"confirmation\":\"confirmed\"}' ;;
+    esac ;;
+  *)
+    echo \"unexpected call: $*\" >&2
+    exit 2 ;;
+esac
+"
+  "A fake agent-deck for mailbox launches; it logs its calls beside itself.")
+
+(defun org-agent-deck-test--fake-calls (directory)
+  "Return the calls the fake agent-deck logged in DIRECTORY, oldest first.
+Each call is (ARGV . STDIN)."
+  (cl-loop for n from 0
+           for argv = (expand-file-name (format "%d.argv" n) directory)
+           while (file-exists-p argv)
+           collect (cons (split-string (org-agent-deck-test--read argv) "\0" t)
+                         (org-agent-deck-test--read
+                          (expand-file-name (format "%d.stdin" n) directory)))))
+
+(defun org-agent-deck-test--mailbox-block (headers &optional held)
+  "Run a work block with extra HEADERS through the fake agent-deck.
+Wait until the background prompt send reports, then return a plist of
+the logged :calls, the Org :buffer text, and the :messages and :warnings
+shown to the user.  With HELD, the fake holds the prompt send until
+after the block returns and HELD is called with the buffer text and the
+messages shown so far."
+  (let* ((directory (make-temp-file "org-agent-deck-mailbox-" t))
+         (org-agent-deck-command
+          (list (org-agent-deck-test--script
+                 directory "agent-deck" org-agent-deck-test--fake-cli)))
+         (process-environment (if held
+                                  (cons "FAKE_PROMPT_HOLD=1" process-environment)
+                                process-environment))
+         (org-confirm-babel-evaluate nil)
+         messages warnings)
+    (unwind-protect
+        (with-temp-buffer
+          (insert "#+begin_src agent-deck :preset work :directory ~/src/project "
+                  headers "\nFix the capture issue.\n#+end_src\n")
+          (org-mode)
+          (cl-letf (((symbol-function 'message)
+                     (lambda (format &rest args)
+                       (when format
+                         (push (apply #'format-message format args) messages))))
+                    ((symbol-function 'display-warning)
+                     (lambda (&rest args) (push args warnings))))
+            (goto-char (point-min))
+            (org-ctrl-c-ctrl-c)
+            (when held
+              (funcall held (buffer-string) messages)
+              (with-temp-file (expand-file-name "release" directory)))
+            (org-agent-deck-test--wait
+             (lambda ()
+               (or warnings
+                   (seq-some (lambda (text) (string-search "fresh-session" text))
+                             messages)))))
+          (list :calls (org-agent-deck-test--fake-calls directory)
+                :buffer (buffer-string) :messages messages :warnings warnings))
+      (delete-directory directory t))))
 
 (ert-deftest org-agent-deck-babel-presets ()
   (dolist (case '(("work-codex" "Positron" "openai-codex/gpt-6-astra" "max")
@@ -347,6 +448,179 @@ Return PREDICATE's final value."
         (if (nth 2 case)
             (should (string-match-p (concat "^Remote: " (nth 2 case) "$") result))
           (should-not (string-match-p "^Remote:" result)))))))
+
+(ert-deftest org-agent-deck-babel-mailbox-joins-before-prompt ()
+  "With :mailbox, /mailbox runs as its own command and the prompt follows it.
+The prompt send holds until the session is idle, so the join's turn ends
+first; on a remote, every call goes through that remote."
+  (dolist (remote '(nil "vulcan"))
+    (let* ((run (org-agent-deck-test--mailbox-block
+                 (concat (if remote (concat ":remote " remote " ") "")
+                         ":mailbox ob-agent-deck-mail ++work !+review")))
+           (prefix (when remote (list "remote" "exec" remote)))
+           (send (lambda (hold)
+                   (append prefix
+                           `("session" "send" "fresh-session" "--json"
+                             "--no-tag" "--defer-if-busy" "--defer-timeout" ,hold
+                             "--message-file" "-")))))
+      (should (equal (plist-get run :calls)
+                     `((,(append prefix
+                                 '("launch" "--json" "--no-parent"
+                                   "--no-assert-done" "--group" "Positron"
+                                   "--cmd" "claude" "--title" "ob-agent-deck-mail"
+                                   "--model" "claude-opus-5-5" "--effort" "xhigh"
+                                   "~/src/project/"))
+                        . "")
+                       ;; Emacs waits for this send, so its hold is short.
+                       (,(funcall send "10m")
+                        . "/mailbox ob-agent-deck-mail ++work !+review")
+                       ;; Babel passes the body without its final newline.
+                       (,(funcall send "30m") . "Fix the capture issue."))))
+      ;; Longer results become an example block instead of ": " lines.
+      (should (string-match-p
+               "^\\(: \\)?Mailbox: /mailbox ob-agent-deck-mail \\+\\+work !\\+review$"
+               (plist-get run :buffer)))
+      (should (string-match-p "^\\(: \\)?Prompt: " (plist-get run :buffer)))
+      (should-not (plist-get run :warnings))
+      (should (seq-some (lambda (text) (string-search "fresh-session" text))
+                        (plist-get run :messages))))))
+
+(ert-deftest org-agent-deck-babel-mailbox-warns-when-prompt-undelivered ()
+  "A background prompt send that fails, answers for another message, or
+cannot confirm that the agent took the prompt raises one warning naming
+the session and the reason."
+  (dolist (case '(("exit" "target still busy") ("reply" "Another prompt")
+                  ("unknown" "\"confirmation\":\"unknown\"")))
+    (let* ((process-environment (cons (concat "FAKE_PROMPT_FAILS=" (car case))
+                                      process-environment))
+           (run (org-agent-deck-test--mailbox-block
+                 ":mailbox ob-agent-deck-mail ++work !+review"))
+           (warning (car (plist-get run :warnings))))
+      (should (= (length (plist-get run :calls)) 3))
+      (should (= (length (plist-get run :warnings)) 1))
+      (should (eq (nth 0 warning) 'org-agent-deck))
+      (should (eq (nth 2 warning) :error))
+      (should (string-search "fresh-session" (nth 1 warning)))
+      (should (string-search (cadr case) (nth 1 warning)))
+      (should-not (seq-some (lambda (text) (string-search "fresh-session" text))
+                            (plist-get run :messages))))))
+
+(ert-deftest org-agent-deck-babel-mailbox-prompt-waits-in-background ()
+  "The block returns while agent-deck still holds the prompt send.
+Joining takes minutes, so Emacs must not wait for the prompt."
+  (let (held-text held-messages)
+    (let ((run (org-agent-deck-test--mailbox-block
+                ":mailbox ob-agent-deck-mail ++work !+review"
+                (lambda (text messages)
+                  (setq held-text text
+                        held-messages messages)))))
+      (should (string-match-p "^\\(: \\)?Prompt: " held-text))
+      (should-not (seq-some (lambda (text) (string-search "fresh-session" text))
+                            held-messages))
+      (should (seq-some (lambda (text) (string-search "fresh-session" text))
+                        (plist-get run :messages))))))
+
+(ert-deftest org-agent-deck-babel-mailbox-names-session-when-prompt-cannot-start ()
+  "A prompt send that cannot even start still names the session /mailbox joined."
+  (cl-letf (((symbol-function 'org-agent-deck--call)
+             (lambda (input &rest args)
+               (if (member "launch" args)
+                   (org-agent-deck-test--launch-reply input args)
+                 (json-serialize
+                  `(:success t :session_id "fresh-session" :message ,input
+                    :delivery "submitted" :submitted t :confirmation "confirmed")))))
+            ((symbol-function 'org-agent-deck--start)
+             (lambda (&rest _) (user-error "Cannot run ssh: No such file"))))
+    (let ((err (should-error
+                (org-babel-execute:agent-deck
+                 "Prompt" '((:preset . "work") (:directory . "/remote")
+                            (:mailbox . "remote")))
+                :type 'user-error)))
+      (should (string-search "fresh-session" (error-message-string err)))
+      (should (string-search "Cannot run ssh" (error-message-string err))))))
+
+(ert-deftest org-agent-deck-babel-mailbox-failure-withholds-prompt ()
+  "Unless agent-deck saw the agent take up /mailbox, the prompt is never
+sent, nothing records success, and the error names the new session.
+An unconfirmed /mailbox might not mark the session busy, and the prompt
+would then join its turn."
+  (dolist (reply '(process-failed interrupted
+                   "{\"success\":false,\"error\":\"menu_open\"}"
+                   "{\"success\":true,\"message\":\"/mailbox someone-else\",\"delivery\":\"submitted\",\"submitted\":true,\"confirmation\":\"confirmed\"}"
+                   "{\"success\":true,\"message\":\"/mailbox remote\",\"delivery\":\"delivered\",\"submitted\":false,\"confirmation\":\"unknown\"}"
+                   "{\"success\":true,\"message\":\"/mailbox remote\",\"delivery\":\"queued\",\"submitted\":false,\"confirmation\":\"confirmed\"}"
+                   "not JSON"))
+    (with-temp-buffer
+      (org-mode)
+      (insert "#+begin_src agent-deck :preset work :directory /remote :mailbox remote\n"
+              "Prompt\n#+end_src\n")
+      (goto-char (point-min))
+      (let ((org-confirm-babel-evaluate nil) sends started)
+        (cl-letf (((symbol-function 'org-agent-deck--call)
+                   (lambda (input &rest args)
+                     (if (member "launch" args)
+                         (org-agent-deck-test--launch-reply input args)
+                       (push input sends)
+                       (pcase reply
+                         ('process-failed (user-error "Delivery failed: menu_open"))
+                         ;; C-g while Emacs waits for the send.
+                         ('interrupted (signal 'quit nil))
+                         (_ reply)))))
+                  ((symbol-function 'org-agent-deck--start)
+                   (lambda (&rest _) (setq started t))))
+          (let ((err (should-error (org-babel-execute-src-block) :type 'user-error)))
+            (should (string-search "fresh-session" (error-message-string err)))))
+        (should (equal sends '("/mailbox remote")))
+        (should-not started)
+        (should-not (string-search "#+RESULTS:" (buffer-string)))))))
+
+(ert-deftest org-agent-deck-babel-mailbox-name-titles-the-session ()
+  "Agent-mail binds a session by its title, so an untitled session takes the
+mailbox name, and an explicit title may differ from it only in case."
+  (dolist (case `((nil "fix-capture" "fix-capture")
+                  ("Fix-Capture" "fix-capture" "Fix-Capture")
+                  (nil "pi.2-review" "pi.2-review")
+                  (nil ,(make-string 64 ?a) ,(make-string 64 ?a))))
+    (let (titles)
+      (cl-letf (((symbol-function 'org-agent-deck--call)
+                 (lambda (input &rest args)
+                   (if (member "launch" args)
+                       (progn (push (cadr (member "--title" args)) titles)
+                              (org-agent-deck-test--launch-reply input args))
+                     (json-serialize
+                      `(:success t :session_id "fresh-session" :message ,input
+                        :delivery "submitted" :submitted t
+                        :confirmation "confirmed")))))
+                ((symbol-function 'org-agent-deck--start) #'ignore))
+        (org-babel-execute:agent-deck
+         "Prompt" `(,@(when (car case) `((:title . ,(car case))))
+                    (:mailbox . ,(cadr case))
+                    (:preset . "work") (:directory . "/remote/project"))))
+      (should (equal titles (list (nth 2 case)))))))
+
+(ert-deftest org-agent-deck-babel-mailbox-rejects-bad-names-before-launch ()
+  "Names and topics that would stop /mailbox to ask John never launch."
+  (let (launched)
+    (cl-letf (((symbol-function 'org-agent-deck--call)
+               (lambda (&rest _) (setq launched t) (ert-fail "Unexpected launch"))))
+      (dolist (params `(((:mailbox)) ((:mailbox . "")) ((:mailbox . " "))
+                        ((:mailbox . 12))
+                        ((:mailbox . "Upper")) ((:mailbox . "under_score"))
+                        ((:mailbox . "two--dashes")) ((:mailbox . "trailing-"))
+                        ((:mailbox . "-leading")) ((:mailbox . "bad\0name"))
+                        ((:mailbox . "claude")) ((:mailbox . "john-review"))
+                        ((:mailbox . ,(make-string 65 ?a)))
+                        ((:mailbox . "review") (:title . "project"))
+                        ((:mailbox . "review topic")) ((:mailbox . "review -topic"))
+                        ((:mailbox . "review !topic")) ((:mailbox . "review +"))
+                        ((:mailbox . "review +Topic")) ((:mailbox . "review +++topic"))
+                        ((:mailbox . "review ++all"))))
+        (should-error
+         (org-babel-execute:agent-deck
+          "Prompt" (append params '((:preset . "work") (:directory . "/remote"))))
+         :type 'user-error)
+        ;; On failure, ERT reports the first parameters that launched.
+        (should-not (and launched params))))))
 
 (ert-deftest org-agent-deck-babel-rejects-invalid-settings-before-launch ()
   ;; The launch wrapper converts every call failure into a `user-error',

@@ -53,7 +53,8 @@ Place point in a block and press =C-c C-c=.  Normal Org evaluation controls
 remain in force.  The body becomes the initial prompt; results contain the
 new session ID and launch settings, not the agent's eventual answer.  Emacs
 waits for the CLI to start the session and deliver the prompt, but not for
-the task to finish.
+the task to finish.  With =:mailbox=, Emacs waits for delivery of =/mailbox=
+instead, and the prompt follows in the background; see [[*Mailbox][Mailbox]].
 
 ** Work
 
@@ -119,6 +120,55 @@ checks the remaining Git restrictions.  =:worktree no=, or omitting the header,
 launches directly in =:directory=.  Results show the actual directory and, for
 worktree launches, the branch.
 
+** Mailbox
+
+Add =:mailbox= to have the session join the shared agent-mail mailbox before it
+starts work.  The value is the session's mailbox name, optionally followed by
+topic specs in the =/mailbox= skill's syntax: =+topic= subscribes quietly,
+=++topic= wakes the session, and =!+topic= or =!++topic= also makes the topic a
+write target.
+
+#+begin_src agent-deck :preset work :directory ~/src/project :mailbox fix-capture ++nix-config
+Fix the capture issue.
+#+end_src
+
+Agent-deck starts the session without a prompt.  Emacs then sends
+=/mailbox fix-capture ++nix-config= as a command of its own.  It waits up to
+10 minutes for the new session to become idle, and until agent-deck sees the
+agent take the command up.  The block body follows through
+=agent-deck session send --defer-if-busy=, which holds it while the =/mailbox=
+turn runs, so the join never absorbs the prompt.  That hold works only while
+the session reads busy, so a =/mailbox= that agent-deck delivered without
+seeing it taken up is an error, as is an interrupted wait (=C-g=); both name
+the new session.  =/mailbox= is not the launch message because launch lacks
+the guard =session send= has against Claude reading a slash command as plain
+text before registering its commands.
+
+Agent-mail binds a session under its title, so the name must be the title in
+lower case; without =:title=, the title defaults to the name.  Names and topics
+must also follow agent-mail's naming standard: lower-case letters, digits, =.=
+and =-=, starting with a letter or digit, with no =--= and no trailing =-=, at
+most 64 characters, and not reserved (such as =all=, =claude=, or =john-=
+names).  Emacs refuses anything else before launching, because =/mailbox=
+would stop to ask, and the prompt would then arrive as the answer.  Emacs
+cannot tell whether another session already uses the name.  If =/mailbox=
+stops for that or any other reason, the prompt still follows once the turn
+ends, so read the session's =/mailbox= report.
+
+Joining usually takes minutes, so Emacs does not wait for it.  The results add
+a =Mailbox:= line with the command sent and =Prompt: pending until /mailbox
+finishes=.  Later, a background process reports a message once agent-deck
+confirms delivery.  Otherwise it shows a warning, for example after a hold
+longer than the 30-minute =--defer-timeout=.  Nothing is retried.  A warning
+does not prove the prompt is missing: when only the SSH connection was lost,
+the remote send may still deliver it.  Check the session's output before
+sending the prompt yourself.  Emacs asks before quitting while a prompt is
+pending, because its delivery would go unreported.
+Agent-deck sees a Claude turn end through Claude's hooks.  For Pi, it uses its
+pi-hooks extension when installed and otherwise reads the pane, which is less
+exact.  With =:remote=, both sends go through =agent-deck remote exec=, like
+the launch.
+
 ** Overrides and inheritance
 
 Explicit headers override =org-agent-deck-presets=.  Standard file and subtree
@@ -158,6 +208,7 @@ omitted model/thinking values use that harness's defaults.
 | =:thinking=  | Pi thinking level, native CLI effort, or =default=         |
 | =:title=     | Exact title; defaults to the basename of =:directory=      |
 | =:worktree=  | =yes= creates a new worktree and branch named =:title=; default =no= |
+| =:mailbox=   | =NAME [TOPICS]=: run =/mailbox NAME [TOPICS]= before the prompt     |
 
 Directory paths are never expanded or checked on Clio.  Use =:directory=,
 not Babel's =:dir=, which refers to Emacs's working directory.  Spaces,
@@ -204,6 +255,6 @@ emacs --batch -Q -L . --eval '(setq byte-compile-error-on-warn t)' \
   -f batch-byte-compile org-agent-deck.el ob-agent-deck.el
 #+end_src
 
-The suite includes a local SSH-shell emulator, so quoting tests require no
-network connection.  Live launch checks remain necessary for the installed
+The suite includes a local SSH-shell emulator and a fake agent-deck for the
+=:mailbox= sequence, so these tests require no network connection.  Live launch checks remain necessary for the installed
 agent-deck and Pi versions, provider availability, and target permissions.
