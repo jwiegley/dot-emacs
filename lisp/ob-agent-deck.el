@@ -175,8 +175,8 @@ most 64 characters long, and avoid the names agent-mail reserves."
 REMOTE is nil for the controlling host.  The send holds while the
 session is busy, for at most HOLD (a duration such as \"10m\"), so it
 never joins a turn that is still running."
-  (append (when remote (list "remote" "exec" remote))
-          (list "session" "send" id "--json" "--no-tag" "--defer-if-busy"
+  (org-agent-deck--remote-arguments
+   remote (list "session" "send" id "--json" "--no-tag" "--defer-if-busy"
                 "--defer-timeout" hold "--message-file" "-")))
 
 (defun org-babel-agent-deck--sent-p (reply message &optional submitted)
@@ -240,15 +240,14 @@ Return launch details for Org results.  Never retry a failed launch."
                     (car mailbox)
                     (file-name-nondirectory (directory-file-name directory))))
          (worktree (equal (cdr (assq :worktree options)) "yes"))
-         (arguments (append
-                     ;; `remote exec' never reads REMOTE as a management
-                     ;; command, and it streams the prompt over SSH stdin.
-                     (when remote (list "remote" "exec" remote))
-                     (list "launch" "--json" "--no-parent" "--no-assert-done")
-                     ;; Launch skips the guard that keeps a slash command
-                     ;; from arriving as text, so /mailbox is sent later.
-                     (unless command (list "--message-file" "-"))
-                     (list "--group" group "--cmd" harness "--title" title))))
+         (arguments (org-agent-deck--remote-arguments
+                     remote
+                     (append
+                      (list "launch" "--json" "--no-parent" "--no-assert-done")
+                      ;; Launch skips the guard that keeps a slash command
+                      ;; from arriving as text, so /mailbox is sent later.
+                      (unless command (list "--message-file" "-"))
+                      (list "--group" group "--cmd" harness "--title" title)))))
     (when (string-empty-p (string-trim title))
       (user-error "Cannot derive a title from :directory; specify :title"))
     (when (and worktree (string-match-p "[/[:space:]]" title))

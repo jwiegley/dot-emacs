@@ -183,6 +183,15 @@ before quitting while it runs."
      (user-error "%s returned invalid JSON: %s"
                  context (error-message-string err)))))
 
+(defun org-agent-deck--remote-arguments (remote arguments)
+  "Return agent-deck ARGUMENTS that run on REMOTE.
+REMOTE names one of the controlling agent-deck's remotes, or is nil for
+the controlling host itself.  `remote exec' never reads REMOTE as a
+remote-management command, and it streams standard input over SSH."
+  (if remote
+      (append (list "remote" "exec" remote) arguments)
+    arguments))
+
 (defun org-agent-deck--sessions ()
   "Return active agent-deck sessions as property lists."
   (let ((sessions
