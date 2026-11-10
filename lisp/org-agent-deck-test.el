@@ -5,6 +5,7 @@
 (require 'org)
 (require 'org-agent-deck)
 (require 'ob-agent-deck)
+(require 'wid-edit)
 
 (ert-deftest org-agent-deck-read-session-completes-active-list ()
   (let (prompt collection)
@@ -408,7 +409,154 @@ messages shown so far."
       (org-babel-execute:agent-deck
        "Prompt" `((:preset . "work") (:directory . "/remote")
                   (:harness . ,(car case)) (:model . "native-model")
-                  (:thinking . ,(cadr case)))))))
+                  (:thinking . ,(cadr case)) (:ultracode . "no"))))))
+
+(ert-deftest org-agent-deck-babel-ultracode-per-harness ()
+  "Claude's Ultracode is a settings overlay beside its effort; Codex's is the
+ultra effort, which is max reasoning with delegation.  Presets may say t,
+nil, yes or no, and headers override them."
+  (let ((org-agent-deck-presets
+         (append '(("ultra" . ((:group . "g") (:harness . "claude")
+                               (:thinking . "max") (:ultracode . t)))
+                   ("ultra-yes" . ((:group . "g") (:harness . "claude")
+                                   (:thinking . "max") (:ultracode . "yes")))
+                   ("off" . ((:group . "g") (:harness . "claude")
+                             (:thinking . "max") (:ultracode . nil))))
+                 org-agent-deck-presets))
+        (overlay "--extra-arg=--settings={\"ultracode\":true}"))
+    ;; (HEADERS EFFORT CLAUDE-OVERLAY ULTRACODE-REPORTED)
+    (dolist (case `((((:harness . "claude") (:thinking . "max") (:ultracode . "yes"))
+                     "max" t t)
+                    (((:harness . "claude") (:ultracode . "yes")) nil t t)
+                    ;; Claude runs Ultracode at any effort.
+                    (((:harness . "claude") (:thinking . "high") (:ultracode . "yes"))
+                     "high" t t)
+                    (((:preset . "claude") (:ultracode . "yes")) "xhigh" t t)
+                    (((:harness . "claude") (:thinking . "max") (:ultracode . "no"))
+                     "max" nil nil)
+                    (((:preset . "ultra")) "max" t t)
+                    (((:preset . "ultra-yes")) "max" t t)
+                    (((:ultracode . "no") (:preset . "ultra")) "max" nil nil)
+                    (((:preset . "off")) "max" nil nil)
+                    (((:ultracode . "yes") (:preset . "off")) "max" t t)
+                    (((:preset . "work") (:worktree . "yes") (:title . "fix"))
+                     "max" t t)
+                    (((:harness . "codex") (:thinking . "max") (:ultracode . "yes"))
+                     "ultra" nil t)
+                    (((:harness . "codex") (:ultracode . "yes")) "ultra" nil t)
+                    (((:harness . "codex") (:ultracode . "yes") (:remote . "vulcan"))
+                     "ultra" nil t)
+                    (((:harness . "codex") (:thinking . "default") (:ultracode . "yes"))
+                     "ultra" nil t)
+                    (((:harness . "codex") (:thinking . "ultra") (:ultracode . "yes"))
+                     "ultra" nil t)
+                    ;; The ultra effort is Codex's Ultracode, so it is reported.
+                    (((:harness . "codex") (:thinking . "ultra")) "ultra" nil t)
+                    (((:harness . "codex") (:thinking . "max") (:ultracode . "no"))
+                     "max" nil nil)))
+      (let (calls result)
+        (cl-letf (((symbol-function 'org-agent-deck--call)
+                   (lambda (input &rest args)
+                     (push args calls)
+                     (org-agent-deck-test--launch-reply input args))))
+          (setq result
+                (org-babel-execute:agent-deck
+                 "Prompt" (append (car case)
+                                  '((:group . "g") (:directory . "/remote"))))))
+        (should (= (length calls) 1))
+        (let ((args (car calls)))
+          (should (equal (cadr (member "--effort" args)) (nth 1 case)))
+          (should (equal (and (member overlay args) t) (nth 2 case)))
+          (should-not (seq-some (lambda (arg) (string-prefix-p "--settings" arg)) args)))
+        (should (string-match-p
+                 (concat "^Requested thinking: "
+                         (regexp-quote (or (nth 1 case) "(harness default)")) "$")
+                 result))
+        (should (equal (and (string-match-p "^Requested ultracode: yes$" result) t)
+                       (nth 3 case)))))))
+
+(ert-deftest org-agent-deck-presets-work-runs-claude-at-max-with-ultracode ()
+  "The work preset runs Claude at max effort with Ultracode, and Customize
+accepts the presets, with t or nil allowed only for :ultracode."
+  (let ((standard (eval (car (get 'org-agent-deck-presets 'standard-value)) t))
+        (widget (widget-convert (get 'org-agent-deck-presets 'custom-type))))
+    (should (equal (assoc "work" standard)
+                   '("work" . ((:group . "Positron") (:harness . "claude")
+                               (:model . "claude-opus-5-5") (:thinking . "max")
+                               (:ultracode . t)))))
+    (should (widget-apply widget :match standard))
+    (should (widget-apply widget :match '(("x" (:group . "g") (:ultracode)))))
+    (dolist (bad '((("x" (:worktree . t))) (("x" (:harness . t)))
+                   (("x" (:mailbox))) (("x" (:ultracode . 1)))))
+      (should-not (widget-apply widget :match bad)))))
+
+(ert-deftest org-agent-deck-babel-ultracode-errors-say-how-to-turn-it-off ()
+  "Ultracode that the harness cannot run fails before launch, whether a
+header or the work preset asks for it, and the error names :ultracode no.
+A preset value other than yes, no, t or nil names the preset."
+  (let ((org-agent-deck-presets
+         (cons '("bad" . ((:group . "g") (:harness . "claude")
+                          (:ultracode . "maybe")))
+               org-agent-deck-presets))
+        launched)
+    (cl-letf (((symbol-function 'org-agent-deck--call)
+               (lambda (&rest _) (setq launched t) (ert-fail "Unexpected launch"))))
+      (dolist (params `(((:harness . "pi")) ((:harness . "gemini"))
+                        ,@(mapcar (lambda (thinking)
+                                    `((:harness . "codex") (:thinking . ,thinking)))
+                                  '("minimal" "low" "medium" "high" "xhigh"))))
+        ;; Without the header, Ultracode comes from the work preset.
+        (dolist (header '(nil ((:ultracode . "yes"))))
+          (let ((err (should-error
+                      (org-babel-execute:agent-deck
+                       "Prompt" (append params header
+                                        '((:preset . "work") (:directory . "/remote"))))
+                      :type 'user-error)))
+            (should (string-search ":ultracode no" (error-message-string err))))
+          ;; On failure, ERT reports the first parameters that launched.
+          (should-not (and launched (cons header params)))))
+      (let ((err (should-error
+                  (org-babel-execute:agent-deck
+                   "Prompt" '((:preset . "bad") (:directory . "/remote")))
+                  :type 'user-error)))
+        (should (string-search "preset bad" (error-message-string err))))
+      (should-not launched))))
+
+(ert-deftest org-agent-deck-babel-ultracode-header-needs-yes-or-no ()
+  "An :ultracode header written without yes or no fails before launch, as a
+bare :worktree does, instead of reading as no under the work preset."
+  (let (launched)
+    (cl-letf (((symbol-function 'org-agent-deck--call)
+               (lambda (&rest _) (setq launched t) (ert-fail "Unexpected launch"))))
+      (dolist (header '(":ultracode" ":ultracode t" ":ultracode 'nil"))
+        (with-temp-buffer
+          (insert "#+begin_src agent-deck :preset work :directory /remote "
+                  header "\nPrompt\n#+end_src\n")
+          (org-mode)
+          (goto-char (point-min))
+          (let ((org-confirm-babel-evaluate nil))
+            (should-error (org-babel-execute-src-block) :type 'user-error)))
+        (should-not (and launched header))))))
+
+(ert-deftest org-agent-deck-babel-refused-ultracode-overlay-is-never-retried ()
+  "A claude wrapper that refuses the Ultracode overlay ends the session at
+once.  That launch fails without a retry, and only a Claude Ultracode
+launch suggests :ultracode no."
+  (dolist (case '(("work" t) ("claude" nil)))
+    (let ((calls 0))
+      (cl-letf (((symbol-function 'org-agent-deck--call)
+                 (lambda (&rest _)
+                   (cl-incf calls)
+                   "{\"success\":true,\"session_id\":\"s1\",\"status\":\"error\",\"message_pending\":false,\"message\":\"Prompt\"}")))
+        (let ((err (should-error
+                    (org-babel-execute:agent-deck
+                     "Prompt" `((:preset . ,(car case)) (:directory . "/remote")))
+                    :type 'user-error)))
+          (should (string-search "(status error)" (error-message-string err)))
+          (should (equal (and (string-search ":ultracode no" (error-message-string err))
+                              t)
+                         (cadr case)))))
+      (should (= calls 1)))))
 
 (ert-deftest org-agent-deck-babel-explicit-settings-without-preset ()
   (cl-letf (((symbol-function 'org-agent-deck--call)
@@ -468,7 +616,8 @@ first; on a remote, every call goes through that remote."
                                  '("launch" "--json" "--no-parent"
                                    "--no-assert-done" "--group" "Positron"
                                    "--cmd" "claude" "--title" "ob-agent-deck-mail"
-                                   "--model" "claude-opus-5-5" "--effort" "xhigh"
+                                   "--model" "claude-opus-5-5" "--effort" "max"
+                                   "--extra-arg=--settings={\"ultracode\":true}"
                                    "~/src/project/"))
                         . "")
                        ;; Emacs waits for this send, so its hold is short.
@@ -481,6 +630,8 @@ first; on a remote, every call goes through that remote."
                "^\\(: \\)?Mailbox: /mailbox ob-agent-deck-mail \\+\\+work !\\+review$"
                (plist-get run :buffer)))
       (should (string-match-p "^\\(: \\)?Prompt: " (plist-get run :buffer)))
+      (should (string-match-p "^\\(: \\)?Requested ultracode: yes$"
+                              (plist-get run :buffer)))
       (should-not (plist-get run :warnings))
       (should (seq-some (lambda (text) (string-search "fresh-session" text))
                         (plist-get run :messages))))))
@@ -632,7 +783,16 @@ mailbox name, and an explicit title may differ from it only in case."
                         ((:directory . "--bad")) ((:directory . "relative/path"))
                         ((:group . 12)) ((:title . " ")) ((:title . "bad\0title"))
                         ((:harness . "pi; touch BAD")) ((:model . "$(touch BAD)"))
-                        ((:harness . "pi") (:thinking . "unlimited"))
+                        ((:harness . "pi") (:thinking . "unlimited") (:ultracode . "no"))
+                        ((:ultracode . "maybe")) ((:ultracode . 1))
+                        ;; Headers say yes or no; only presets may say t or nil.
+                        ((:ultracode)) ((:ultracode . t))
+                        ((:harness . "pi") (:ultracode . "yes"))
+                        ((:harness . "gemini") (:ultracode . "yes"))
+                        ((:harness . "codex") (:thinking . "high") (:ultracode . "yes"))
+                        ;; The work preset's Ultracode needs max reasoning on Codex.
+                        ((:harness . "codex") (:thinking . "xhigh"))
+                        ((:harness . "codex") (:thinking . "ultra") (:ultracode . "no"))
                         ((:dir . "/remote"))
                         ((:cache . "yes")) ((:session . "existing"))
                         ((:directory . "/")) ((:worktree . "maybe"))
@@ -664,6 +824,10 @@ mailbox name, and an explicit title may differ from it only in case."
                    "{\"success\":true,\"id\":\"queued-id\",\"status\":\"queued\"}"
                    "{\"success\":true,\"id\":\"pending-id\",\"message_pending\":true}"
                    "{\"success\":true,\"id\":\"bad-prompt\",\"message\":\"different\"}"
+                   ;; An older claude wrapper refuses the work preset's Ultracode
+                   ;; overlay, and the session ends at once.
+                   "{\"success\":true,\"id\":\"error-id\",\"status\":\"error\",\"message_pending\":false,\"message\":\"Prompt\"}"
+                   "{\"success\":true,\"id\":\"stopped-id\",\"status\":\"stopped\",\"message_pending\":false,\"message\":\"Prompt\"}"
                    process-failed))
     (with-temp-buffer
       (org-mode)

@@ -11,9 +11,12 @@
 ;; :remote names a remote registered with that host's agent-deck, such as
 ;; vulcan; the host's agent-deck then launches the session there.
 ;; :mailbox NAME [TOPICS] runs /mailbox NAME [TOPICS] as the session's first
-;; command; the prompt follows in the background once that turn ends.  Each
-;; successful execution launches a fresh, standalone session.  See
-;; org-agent-deck-README.org for configuration, examples, and limitations.
+;; command; the prompt follows in the background once that turn ends.
+;; :ultracode yes turns on standing dynamic-workflow orchestration: a
+;; settings overlay for Claude, and Codex's ultra effort, which is max
+;; reasoning with delegation.  Each successful execution launches a fresh,
+;; standalone session.  See org-agent-deck-README.org for configuration,
+;; examples, and limitations.
 
 ;;; Code:
 
@@ -27,7 +30,8 @@
   '(("work" . ((:group . "Positron")
                (:harness . "claude")
                (:model . "claude-opus-5-5")
-               (:thinking . "xhigh")))
+               (:thinking . "max")
+               (:ultracode . t)))
     ("work-codex" . ((:group . "Positron")
                      (:harness . "pi")
                      (:model . "openai-codex/gpt-6-astra")
@@ -41,9 +45,15 @@
                 (:model . "omlx-hera/GLM-5.3-Flash-oQ4e-mtp")
                 (:thinking . "max"))))
   "Launch defaults selected by the agent-deck Babel :preset header.
-Explicit and inherited headers take precedence over these defaults."
+Explicit and inherited headers take precedence over these defaults.
+Values are strings, except that :ultracode may also be t or nil."
   :type '(alist :key-type string
-                :value-type (alist :key-type symbol :value-type string))
+                :value-type (alist :key-type symbol :value-type string
+                                   :options ((:ultracode
+                                              (choice (const :tag "On" t)
+                                                      (const :tag "Off" nil)
+                                                      (const "yes")
+                                                      (const "no"))))))
   :group 'org-agent-deck)
 
 (defvar org-babel-default-header-args:agent-deck
@@ -89,6 +99,16 @@ most 64 characters long, and avoid the names agent-mail reserves."
     (when (and (assq :worktree options)
                (not (member (cdr (assq :worktree options)) '("yes" "no"))))
       (user-error "agent-deck :worktree must be yes or no"))
+    ;; Headers say yes or no, as :worktree does; a header written without a
+    ;; value arrives as nil.  Presets may also say t or nil.
+    (when (and (assq :ultracode params)
+               (not (member (cdr (assq :ultracode params)) '("yes" "no"))))
+      (user-error "agent-deck :ultracode must be yes or no"))
+    (when (and (assq :ultracode (cdr defaults))
+               (not (member (cdr (assq :ultracode (cdr defaults)))
+                            '("yes" "no" t nil))))
+      (user-error "agent-deck preset %s: :ultracode must be yes, no, t or nil"
+                  preset))
     (dolist (key '(:directory :group))
       (unless (cdr (assq key options))
         (user-error "agent-deck requires %s (directly or via a preset)" key)))
@@ -119,7 +139,19 @@ most 64 characters long, and avoid the names agent-mail reserves."
                  (not (member thinking
                               '("default" "off" "minimal" "low" "medium"
                                 "high" "xhigh" "max"))))
-        (user-error "Invalid Pi :thinking %S" thinking)))
+        (user-error "Invalid Pi :thinking %S" thinking))
+      (let ((ultracode (assq :ultracode options)))
+        (if (member (cdr ultracode) '("yes" t))
+            (pcase harness
+              ("claude" nil)
+              ;; Codex's Ultracode is its ultra effort, which reasons at max.
+              ("codex"
+               (unless (member thinking '(nil "default" "max" "ultra"))
+                 (user-error "Codex Ultracode is its ultra effort, max reasoning with delegation; use :thinking max, omit :thinking, or add :ultracode no")))
+              (_ (user-error "agent-deck :ultracode needs :harness claude or codex; add :ultracode no")))
+          ;; The ultra effort cannot run without Codex's Ultracode.
+          (when (and ultracode (equal harness "codex") (equal thinking "ultra"))
+            (user-error "Codex's ultra effort is its Ultracode; drop :ultracode no or choose another :thinking")))))
     (when (and (assq :mailbox options) (not (cdr (assq :mailbox options))))
       (user-error "agent-deck :mailbox needs a name, optionally followed by topics"))
     ;; /mailbox stops to ask John about a name or topic it cannot use, and
@@ -198,6 +230,7 @@ Return launch details for Org results.  Never retry a failed launch."
          (model (cdr (assq :model options)))
          (remote (cdr (assq :remote options)))
          (thinking (cdr (assq :thinking options)))
+         (ultracode (member (cdr (assq :ultracode options)) '("yes" t)))
          (mailbox (when-let* ((value (cdr (assq :mailbox options))))
                     (split-string value)))
          (command (and mailbox (string-join (cons "/mailbox" mailbox) " ")))
@@ -237,10 +270,20 @@ Return launch details for Org results.  Never retry a failed launch."
                                                (when thinking
                                                  (list "--thinking" thinking)))
                                        " "))))))
+      ;; Codex's Ultracode is its ultra effort, max reasoning with delegation.
+      (when (equal harness "codex")
+        (cond (ultracode (setq thinking "ultra"))
+              ((equal thinking "ultra") (setq ultracode t))))
       ;; Let agent-deck validate supported native harness/model/effort flags.
       (setq arguments
             (append arguments (when model (list "--model" model))
-                    (when thinking (list "--effort" thinking)))))
+                    (when thinking (list "--effort" thinking))
+                    ;; Claude's Ultracode is a session setting.  Only a Nix
+                    ;; claude wrapper that admits this one --settings overlay
+                    ;; lets it through; an older one ends the session at once.
+                    ;; Agent-deck keeps the argument across session restarts.
+                    (when (and ultracode (equal harness "claude"))
+                      (list "--extra-arg=--settings={\"ultracode\":true}")))))
     (when worktree
       (setq arguments
             (append arguments (list "--worktree" title "--new-branch"
@@ -267,8 +310,12 @@ Return launch details for Org results.  Never retry a failed launch."
                   (or (eq (gethash "message_pending" reply) t)
                       (not (equal (gethash "message" reply)
                                   (replace-regexp-in-string "[\r\n]+\\'" "" body))))))
-        (user-error "Session %s was created, but prompt delivery is unconfirmed (status %s); inspect it before retrying"
-                    id (gethash "status" reply)))
+        (user-error "Session %s was created, but prompt delivery is unconfirmed (status %s); inspect it before retrying%s"
+                    id (gethash "status" reply)
+                    (if (and ultracode (equal harness "claude")
+                             (equal (gethash "status" reply) "error"))
+                        "\nA claude wrapper that refuses the Ultracode --settings overlay ends the session at once; if so, retry with :ultracode no"
+                      "")))
       (when command
         (let ((sent
                (condition-case err
@@ -290,13 +337,14 @@ Return launch details for Org results.  Never retry a failed launch."
           (error
            (user-error "Session %s took up %s, but its prompt was not sent: %s\nSend the prompt yourself"
                        id command (error-message-string err)))))
-      (format "Session: %s%s\nTitle: %s\nGroup: %s\nDirectory: %s\nHarness: %s\nRequested model: %s\nRequested thinking: %s%s%s%s"
+      (format "Session: %s%s\nTitle: %s\nGroup: %s\nDirectory: %s\nHarness: %s\nRequested model: %s\nRequested thinking: %s%s%s%s%s"
               id (if remote (concat "\nRemote: " remote) "")
               (or (gethash "title" reply) title)
               (or (gethash "group" reply) group)
               (or (gethash "path" reply) directory)
               (or (gethash "tool" reply) harness)
               (or model "(harness default)") (or thinking "(harness default)")
+              (if ultracode "\nRequested ultracode: yes" "")
               (if worktree
                   (format "\nBranch: %s" (or (gethash "worktree_branch" reply) title))
                 "")
