@@ -1793,6 +1793,12 @@ This =:= replaces EasyPG's Dired prefix; its commands remain on M-x.
               (":" . dired-filetags-add-remove)))
 #+end_src
 
+*** dired-filter
+
+#+begin_src emacs-lisp
+(use-package dired-filter)
+#+end_src
+
 *** dired-follow
 
 #+begin_src emacs-lisp
