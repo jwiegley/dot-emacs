@@ -61,18 +61,20 @@ the task to finish.
 Review this project's design and suggest next steps.
 #+end_src
 
-The work preset selects group =Positron=, harness =pi=, model
-=openai-codex/gpt-6-astra=, and thinking =max=.
+The work preset selects group =Positron=, harness =claude=, model
+=claude-opus-5-5=, and thinking =xhigh=.  The work-codex preset uses the same
+group with harness =pi=, model =openai-codex/gpt-6-astra=, and thinking =max=.
 
 ** Personal
 
-#+begin_src agent-deck :preset personal :directory ~/src/personal-project
+#+begin_src agent-deck :preset local :directory ~/src/personal-project
 Suggest a small next step for this project. Do not change files.
 #+end_src
 
-The personal preset selects group =my-sessions= (display name “My Sessions”),
-harness =pi=, and model =omlx-hera/GLM-5.3-Flash-oQ4e-mtp=.  It leaves the thinking
-level to Pi's configured default for that model.
+The local preset selects group =my-sessions= (display name “My Sessions”),
+harness =pi=, model =omlx-hera/GLM-5.3-Flash-oQ4e-mtp=, and thinking =max=.
+The claude preset uses the same group with harness =claude=, model
+=claude-opus-5-5=, and thinking =xhigh=.
 
 ** Titles and worktrees
 
@@ -102,7 +104,7 @@ drawer, use =:header-args:agent-deck+:= to extend inherited arguments rather
 than replace that property.
 
 #+begin_example
-#+PROPERTY: header-args:agent-deck :preset work :directory ~/src/project
+#+PROPERTY: header-args:agent-deck :preset work-codex :directory ~/src/project
 
 #+begin_src agent-deck :group my-sessions :model omlx-hera/GLM-5.3-Flash-oQ4e-mtp :thinking high
 Explain the design without changing files.
@@ -124,7 +126,7 @@ omitted model/thinking values use that harness's defaults.
 
 | Header       | Meaning                                                  |
 |--------------+----------------------------------------------------------|
-| =:preset=    | =work= or =personal=; customizable in =org-agent-deck-presets= |
+| =:preset=    | =work=, =work-codex=, =claude=, or =local=; customizable in =org-agent-deck-presets= |
 | =:directory= | Required target-host path: absolute or beginning with =~/= |
 | =:group=     | Agent-deck group path, such as =Positron= or =my-sessions= |
 | =:harness=   | Tool name, not an arbitrary shell command                 |
@@ -168,10 +170,12 @@ session requires inspection because the CLI has not confirmed prompt delivery.
 
 * Verification
 
-Run the focused regression suite and byte-compile the changed modules:
+Run the focused regression suite and byte-compile the changed modules.
+=load-prefer-newer= keeps the suite from loading stale bytecode:
 
 #+begin_src sh
-emacs --batch -Q -L . -l org-agent-deck-test.el -f ert-run-tests-batch-and-exit
+emacs --batch -Q -L . --eval '(setq load-prefer-newer t)' \
+  -l org-agent-deck-test.el -f ert-run-tests-batch-and-exit
 emacs --batch -Q -L . --eval '(setq byte-compile-error-on-warn t)' \
   -f batch-byte-compile org-agent-deck.el ob-agent-deck.el
 #+end_src

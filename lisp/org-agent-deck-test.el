@@ -157,8 +157,10 @@
        :message ,(replace-regexp-in-string "[\r\n]+\\'" "" body)))))
 
 (ert-deftest org-agent-deck-babel-presets ()
-  (dolist (case '(("work" "Positron" "openai-codex/gpt-6-astra" "max")
-                  ("personal" "my-sessions" "omlx-hera/GLM-5.3-Flash-oQ4e-mtp" nil)))
+  (dolist (case '(("work-codex" "Positron" "openai-codex/gpt-6-astra" "max")
+                  ("local" "my-sessions" "omlx-hera/GLM-5.3-Flash-oQ4e-mtp" "max")
+                  ("local" "my-sessions" "omlx-hera/GLM-5.3-Flash-oQ4e-mtp" nil
+                   ((:thinking . "default")))))
     (let ((body "Review λ and فارسی.\nKeep \"quotes\", 'apostrophes', $HOME and `code`.\n")
           calls result)
       (cl-letf (((symbol-function 'org-agent-deck--call)
@@ -167,7 +169,9 @@
                    (org-agent-deck-test--launch-reply input args))))
         (setq result
               (org-babel-execute:agent-deck
-               body `((:preset . ,(nth 0 case)) (:directory . "~/remote only/project")))))
+               body (append (nth 4 case)
+                            `((:preset . ,(nth 0 case))
+                              (:directory . "~/remote only/project"))))))
       (should (= (length calls) 1))
       (let* ((args (cdar calls))
              (wrapper (cadr (member "--wrapper" args))))
@@ -207,7 +211,7 @@
 
 (ert-deftest org-agent-deck-babel-inherits-overrides-with-exact-title ()
   (with-temp-buffer
-    (insert "#+PROPERTY: header-args:agent-deck :preset work :directory ~/remote-project :worktree yes\n"
+    (insert "#+PROPERTY: header-args:agent-deck :preset work-codex :directory ~/remote-project :worktree yes\n"
             "* Project\n:PROPERTIES:\n"
             ":header-args:agent-deck+: :group my-sessions :model provider/inherited :thinking low\n"
             ":END:\n"
