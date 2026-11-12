@@ -9215,6 +9215,23 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   (add-hook 'ledger-mode-hook (lambda () (auto-fill-mode -1))))
 #+end_src
 
+*** lena
+
+[[https://github.com/ISTA-PLV/lena][Lena]] is a major mode for Lean 4: a fork of Nael that adds an interactive
+infoview, margin signs and Lean's RPC widgets on top of Eglot. The Nix build
+generates no autoloads, so the mode and the infoview command are declared
+here. =lake= comes from each project's direnv environment.
+
+#+begin_src emacs-lisp
+(use-package lena
+  :mode ("\\.lean\\'" . lena-mode)
+  :commands (lena-infoview lena-snapshot)
+  :hook (lena-mode . eglot-ensure)
+  :custom
+  ;; Keep the global input method in Lean buffers.
+  (lena-prepare-quail nil))
+#+end_src
+
 *** COMMENT lsp-bridge
 
 #+begin_src emacs-lisp
@@ -9321,15 +9338,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 (use-package mhtml-mode
   :bind (:map html-mode-map
               ("<return>" . newline-and-indent)))
-#+end_src
-
-*** nael
-
-Nael is a mode for editing Lean 4 programs.
-
-#+begin_src emacs-lisp
-(use-package nael
-  :commands (nael-mode))
 #+end_src
 
 *** nginx-mode
