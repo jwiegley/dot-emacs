@@ -9219,13 +9219,19 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
 
 [[https://github.com/ISTA-PLV/lena][Lena]] is a major mode for Lean 4: a fork of Nael that adds an interactive
 infoview, margin signs and Lean's RPC widgets on top of Eglot. The Nix build
-generates no autoloads, so the mode and the infoview command are declared
-here. =lake= comes from each project's direnv environment.
+generates no autoloads, so the mode and its commands are declared here, each
+against the file that defines it. =lake= comes from each project's direnv
+environment.
 
 #+begin_src emacs-lisp
 (use-package lena
   :mode ("\\.lean\\'" . lena-mode)
-  :commands (lena-infoview lena-snapshot)
+  :init
+  ;; These commands live in files of their own, not in lena.el.
+  (use-package lena-infoview
+    :commands lena-infoview)
+  (use-package lena-snapshot
+    :commands lena-snapshot)
   :hook (lena-mode . eglot-ensure)
   :custom
   ;; Keep the global input method in Lean buffers.
