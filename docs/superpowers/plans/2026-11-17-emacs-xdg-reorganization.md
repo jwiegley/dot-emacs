@@ -2,26 +2,27 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Leave only configuration in `~/.config/emacs`, with durable Emacs state under `$XDG_DATA_HOME/emacs` and regenerable caches under `$XDG_CACHE_HOME/emacs`, on Clio and Hera, without losing any state.
+**Goal:** Leave only configuration in `~/.config/emacs`, and put everything Emacs writes while it runs where the XDG Base Directory specification says its kind belongs: data under `$XDG_DATA_HOME/emacs`, state under `$XDG_STATE_HOME/emacs`, caches under `$XDG_CACHE_HOME/emacs`. On Clio and Hera, without losing a file.
 
-**Architecture:** A small library, `lisp/user-paths.el`, computes both roots from the XDG variables and sets every path that has to be in place before its package loads. A new `early-init.el` loads it first, and the first block of `init.org` loads it again for batch runs and refuses to run on state that has not been moved. The files themselves are moved once per host by `xdg/migrate.sh`, which previews by default, records every rename and can roll back. The `init.org` edit is applied by an anchored edit script inside the cutover window, because the canonical file reaches Hera through Syncthing the moment it changes.
+**Architecture:** A small library, `lisp/user-paths.el`, computes the three roots from the XDG variables and sets every path that has to be in place before its package loads. A new `early-init.el` loads it first, and the first block of `init.org` loads it again for batch runs and refuses to run on state that has not been moved. The files themselves are moved once per host by `xdg/migrate.sh`, which previews by default, records every rename and can roll back. The `init.org` edit is applied by an anchored edit script inside the cutover window, because the canonical file reaches Hera through Syncthing the moment it changes.
 
 **Tech Stack:** Emacs Lisp (GNU Emacs 31.1.50) with ERT, bash (must also run under the system bash 3.2), git, make, `sandbox-exec`, `shellcheck`.
 
-**Spec:** Appendix A of this document (the audit report, verbatim). Appendix B lists every place where this plan departs from it, and why.
+**Spec:** Appendix A of this document: the audit report, verbatim, and John's four amendments of 2026-11-17, which add `~/.local/state`, rule out backup coverage as a reason for placing a file, and ask for the placement to rest on research. Appendix B lists every place where this plan departs from the report, and why. Appendix D gives the sources the placement rests on.
 
 ## Global Constraints
 
 - The canonical `init.org` is `~/org/init.org` (it resolves to `~/Documents/org/init.org`). `~/.config/emacs/init.org` is a copy that `make` overwrites. Never edit the copy.
 - `user-emacs-directory` stays `~/.config/emacs`. Redirection is per variable.
-- Two roots only: `$XDG_DATA_HOME/emacs` and `$XDG_CACHE_HOME/emacs`. Nothing goes under `$XDG_STATE_HOME`: `~/.local/state` is excluded from every backup on these hosts.
-- An unset, empty or relative XDG value means the default (`~/.local/share`, `~/.cache`). A GUI Emacs started from the Dock has no XDG variables at all.
+- Four directories, each used for what it is for: `~/.config/emacs` for configuration; `$XDG_DATA_HOME/emacs` (`~/.local/share/emacs`) for data; `$XDG_STATE_HOME/emacs` (`~/.local/state/emacs`) for state; `$XDG_CACHE_HOME/emacs` (`~/.cache/emacs`) for caches.
+- A file's place follows from what the file is, by the XDG Base Directory specification and the practice of the projects that apply it most carefully (Appendix D), and from nothing else. Data is what is worth carrying to another machine, and what was installed on request: saved choices, tokens, learned parameters, tree-sitter grammars, language servers, downloaded artwork. State is what Emacs records about its own use on this machine and keeps between restarts: histories, recent files, positions, sessions, cookies, backups, crash-recovery indexes, logs. A cache is what Emacs can make again from what is on this machine, or fetches again unasked: compiled code, indexes, web responses. What comes back only when John agrees to a download or a build is installed, not cached. Whether a directory is backed up plays no part.
+- An unset, empty or relative XDG value means the default (`~/.local/share`, `~/.local/state`, `~/.cache`). A GUI Emacs started from the Dock has no XDG variables at all.
 - No compatibility symlinks.
 - `xdg/migrate.sh --apply` runs only while no Emacs is running on that host.
-- A hand-made trial of `xdg/migrate.sh` against a throw-away home must unset `XDG_CONFIG_HOME`, `XDG_DATA_HOME` and `XDG_CACHE_HOME` as well as setting `HOME`, as `xdg/migrate-test.sh` does. Those variables take precedence over `HOME`.
+- A hand-made trial of `xdg/migrate.sh` or of `lisp/user-paths.el` against a throw-away home must start from an empty environment (`env -i`), as `xdg/migrate-test.sh` does, or set `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME` and `XDG_CACHE_HOME` as well as `HOME`. John's shell exports all four, and they take precedence over `HOME`.
 - The mover never deletes state. A leftover with no owner goes to an attic for a person to review.
 - The existing `.gitignore` rules for runtime paths stay, as a safety net: `~/src/scripts/changes` runs `git add -A` and pushes.
-- Tasks 1 to 6 change nothing outside the worktree, apart from git's own record of the worktree and its branch: not `~/org/init.org`, not the working tree of `master`, not a single file of state.
+- Tasks 1 to 6 change nothing outside the worktree, apart from git's own record of the worktree and its branch, and the push of that branch to `origin` in Task 6 Step 6: not `~/org/init.org`, not the working tree of `master`, not a single file of state.
 - Every edit text in `xdg/apply-init-edits.el` is plain ASCII.
 - Every shell script passes `shellcheck` and runs under `/bin/bash` 3.2.
 - Commit subjects follow the repository's style, `area: Sentence`. Add whatever attribution trailer your own instructions require.
@@ -30,13 +31,13 @@
 
 Each line names a condition the report implies but does not state, the behaviour a reasonable person expects, and the test that pins it.
 
-1. **A GUI Emacs started from the Dock has no XDG variables.** Both roots must equal the directories the shell's values name. Pinned by `user-paths-test-defaults-without-xdg-variables` and `user-paths-test-unusable-xdg-values-fall-back` (Task 1).
+1. **A GUI Emacs started from the Dock has no XDG variables.** All three roots must equal the directories the shell's values name. Pinned by `user-paths-test-defaults-without-xdg-variables` and `user-paths-test-unusable-xdg-values-fall-back` (Task 1).
 2. **A library that loads after the redirect reads or restores its own default.** Tramp and transient read their files while they load; today both write files they never read back. Pinned by `user-paths-test-values-survive-loading-their-libraries` (Task 1) for built-in libraries and by the sealed audit (Task 3) for the whole init.
 3. **Emacs is still running when the files move.** A running session rewrites its history at the old paths, on timers as well as on exit. Pinned by the `refuses while ... runs` checks in `xdg/migrate-test.sh` (Task 4).
 4. **A destination already holds a different file**, because Emacs started at the wrong moment or the other host's copy arrived by sync. The mover must not guess which is right: it refuses until told, and keeps the copy that loses. Pinned by the checks `apply refuses to choose between two different files`, `the history that was there is kept` and `the copy from the configuration directory is kept` (Task 4).
 5. **A host starts the new init before its own state has moved.** `init.org` reaches Hera through Syncthing within seconds. Emacs must refuse rather than start on empty history. Pinned by `user-paths-test-guard-rejects-unmigrated-state` (Task 1).
 
-Two more, lower on the list: an interrupted move must be safe to run again (`a second apply moves nothing`, Task 4), and token and cookie files must end up owner-only (`token file is private`, Task 4).
+Four more, lower on the list. An interrupted move must be safe to run again (`a second apply moves nothing`, Task 4). Token and cookie files must end up owner-only (`token file is private`, Task 4). A file that clashes with a copy already at its destination must stay where it is, without the entry for the rest of `data/` carrying it to another root (`preview sends a clashing file to no other root` and the checks under `a clash inside a directory`, Task 4). And the three roots must be three separate directories: with two of them in one place, the move of `backups/` from the data root to the state root would take every file for a duplicate of itself and delete it (`refuses XDG_STATE_HOME at or inside another root`, Task 4).
 
 ## What the investigation found
 
@@ -48,32 +49,45 @@ An executor needs these facts; none of them is in the report.
 - **An Emacs started with `-Q` or `-q` reads no init file** and writes to the built-in defaults under `~/.config/emacs`: `eln-cache/`, `auto-save-list/`, `transient/`, `url/`. No init setting can prevent that. The stray top-level `transient/`, `url/` and `auto-save-list/` most likely come from such runs, or from an init that stopped early.
 - **Two package defaults point at `~/.emacs.d`:** `hash-store-directory` and `pandoc-data-dir`. If either package creates that directory, Emacs prefers it to `~/.config/emacs` at the next start and comes up with no configuration.
 - **Two settings do not work today.** `tramp-persistency-file-name` is set in `:config`, after tramp has read the file. The transient files are set in a `:custom` that runs after another package has loaded transient. Going by the order in which the init loads them, both are written on exit and never read back.
-- **The alternate instance is dead code.** Nothing sets `NIX_MYENV_NAME=emacsERC` since 2024. The plan keeps the one line that separates its state and leaves the uses of `alternate-emacs` elsewhere in `init.org` alone.
+- **The alternate instance is dead code.** Nothing sets `NIX_MYENV_NAME=emacsERC` since 2024. The plan keeps the one line that separates its state and leaves the uses of `alternate-emacs` elsewhere in `init.org` alone. An Emacs started that way gets three roots of its own, named `emacs-alt` and empty at first: it shares neither history nor grammars with the main instance, and the mover fills only the main one.
 - **Nothing in the Nix configuration or the scripts repository has to change** for this move. No script reads `data/`, `org-roam.db` or `org-id-locations`, and the Nix tests run Emacs with `-Q` in a scratch home.
-- **Backups.** A nightly job copies Clio's home to `tank` on Vulcan, and from there to B2. By its filter files, `~/.cache` and `~/.local/state` are excluded and `~/.local/share/emacs` is not; Task 9 checks that on `tank`. After the move, durable state keeps its backup and the caches lose theirs, which is what is wanted.
+- **The old `data/` directory holds all three kinds.** The current init sends everything through `(user-data ...)`: the minibuffer history, the recent-files list, tokens, saved choices, the Org-roam index. Splitting it is most of the work in this plan: each setting in `init.org` has to name its root, and the mover has to take each file to the root its setting names.
+- **Eight blocks of `init.org` that set a path are commented out:** saveplace, prescient, bookmark+, lsp-mode, xeft, oauth2-auto, org-gcal and org-caldav. They are not tangled, so the sealed audit cannot see them. The first five get an edit all the same, so that a revived block names the right root, and the mover takes their old files (`data/places` and `data/prescient-save.el` on Clio) to the place the edited text names. The other three are left alone; see the Follow-ups.
+- **Tree-sitter grammars are installed, not cached.** In Emacs 31 `treesit-auto-install-grammar` defaults to `ask`, and the built-in modes register their grammar sources themselves. A missing grammar therefore comes back only after a prompt, and needs git, a C compiler and the network. That covers 26 of the 30 grammars on Clio. The other four (clojure, haskell, kotlin, scala) have no registered source, and no mode that would use them is installed. `init.org` records no sources of its own. `treesit-ensure-installed` installs into the first writable directory on `treesit-extra-load-path`, which the library sets.
+- **One directory to move is not in the checkout.** The init already keeps numbered backups and tramp auto-saves in `~/.local/share/emacs/backups` (201 MB on Clio). They are state, so the mover takes that directory to the state root. It is the only source outside `~/.config/emacs`.
+- **`org-persist` already follows XDG by itself.** Org keeps that cache in `~/.cache/org-persist`, beside `~/.cache/emacs` and not inside it. The plan leaves it there.
 
 ## File Structure
 
 | File | Status | Responsibility |
 |---|---|---|
-| `lisp/user-paths.el` | new, permanent | The two roots, `user-data` and `user-cache`, the table of early path settings, the directory set-up, the native-cache redirect, the guard |
+| `lisp/user-paths.el` | new, permanent | The three roots; `user-data`, `user-state` and `user-cache`; the table of early path settings; the directory set-up; the native-cache redirect; the guard |
 | `lisp/user-paths-test.el` | new, permanent | ERT tests for the library and for `early-init.el` |
 | `early-init.el` | new, permanent | Loads the library before anything else; disables package.el |
 | `xdg/check-litter.sh` | new, permanent | Reports runtime state that has come back into the checkout |
 | `xdg/check-litter-test.sh` | new, permanent | Tests for the report |
 | `xdg/migrate.sh` | new, permanent | Moves state out of the checkout; previews, logs, rolls back |
 | `xdg/migrate-test.sh` | new, permanent | Tests for the mover against throw-away trees |
-| `xdg/apply-init-edits.el` | new, removed in Task 10 | Applies the ten `init.org` edits by exact text |
+| `xdg/apply-init-edits.el` | new, removed in Task 10 | Applies the 26 `init.org` edits by exact text |
 | `xdg/apply-init-edits-test.el` | new, removed in Task 10 | Tests for the editor |
 | `xdg/audit/run.sh`, `sandbox.sb`, `guards.el`, `audit.el` | new, removed in Task 10 | Loads the whole init in a sealed copy and reports paths that still point into the checkout |
 | `.gitignore` | modified | Five more safety-net rules |
 | `Makefile` | modified | Targets `check-litter`, `test-xdg`, `audit-xdg` |
 | `README.md` | modified | One paragraph on the layout |
 | `migrate-emacs-xdg.sh` | deleted | The earlier script; it was never run and cannot run on the current layout |
-| `multisession/files/emoji/emoji--recent.value` | untracked in Task 9 | Runtime state that was committed by accident; the mover takes it to the data root |
-| `~/org/init.org` | modified at cutover | Ten edits, applied by `xdg/apply-init-edits.el` |
+| `multisession/files/emoji/emoji--recent.value` | untracked in Task 9 | Runtime state that was committed by accident; the mover takes it to the state root |
+| `~/org/init.org` | modified at cutover | 26 edits, applied by `xdg/apply-init-edits.el` |
 
-What remains in `~/.config/emacs` after the cutover: the tracked files, `init.el`, `settings.el`, `nix-packages`, `nix-packages.el`, `certs/`, `eshell/alias`, `eshell/login`, the `*.elc` files under `lisp/`, `.claude/` and `.superpowers/`.
+### The four directories after the cutover
+
+| Directory | Holds | On Clio |
+|---|---|---|
+| `~/.config/emacs` | Configuration: what is versioned, and what is set up once per host | the tracked files, `init.el`, `settings.el`, `nix-packages`, `nix-packages.el`, `certs/`, `eshell/alias`, `eshell/login`, the `*.elc` files under `lisp/`, `.claude/`, `.superpowers/` |
+| `~/.local/share/emacs` | Data: worth carrying to another machine, or installed on request | `mc-lists.el`, `oauth2-auto.plist`, `persist/` (org-drill's learned matrix, play queues), `transient/values.el`, `tree-sitter/`, `emojis/` |
+| `~/.local/state/emacs` | State: what Emacs records about its own use on this machine | `history`, `recentf`, `org-id-locations`, `persistent-scratch`, `places`, `prescient-save.el`, `projects`, `projectile-bookmarks.eld`, `projectile-frecency.eld`, `tramp`, `bm-repository`, `network-security.data`, `eshell/history`, `eshell/lastdir`, `transient/history.el`, `url/cookies`, `request/curl-cookie-jar`, `auto-save-list/`, `multisession/`, `backups/`, and for a while `migration/` |
+| `~/.cache/emacs` | Caches: what Emacs can make again from what is on this machine, or fetches again unasked | `eln-cache/`, `org-roam.db`, `url/`, `pcache/` |
+
+Each later variable goes to its root by the same rule. `user-paths-table` and `user-paths-apply-special` in Task 1 and the edit table in Task 2 list them all; the special cases are `TeX-auto-private` (cache), elpy's virtualenv (data), `web-cookie-jar-file` (state) and the tree-sitter directory (data).
 
 ## Before you start
 
@@ -83,7 +97,7 @@ What remains in `~/.config/emacs` after the cutover: the tracked files, `init.el
   git -C ~/.config/emacs worktree add ~/src/emacs-xdg-layout -b xdg-layout
   ```
 
-  In this plan `WT` is `~/src/emacs-xdg-layout`, and the commands of Tasks 1 to 6 run from there. Another agent edits `init.org` and `lisp/` in the main checkout; stay out of it.
+  In this plan `WT` is `~/src/emacs-xdg-layout`, and the commands of Tasks 1 to 6 run from there. Where an expected output shows `<WT>`, Emacs prints that directory's full path. Another agent edits `init.org` and `lisp/` in the main checkout; stay out of it.
 - A committed `early-init.el` takes effect the next time Emacs starts. That is why the branch is merged into `master` only inside the cutover (Task 7), with Emacs closed.
 - `emacs` on `PATH` is `/Applications/Emacs.app/Contents/MacOS/bin/emacs`.
 - Never run plain `make` in the worktree. It would load the current init against live state.
@@ -99,12 +113,12 @@ What remains in `~/.config/emacs` after the cutover: the tracked files, `init.el
 - Test: `lisp/user-paths-test.el`
 
 **Interfaces:**
-- Consumes: nothing from other tasks. Reads the environment variables `XDG_DATA_HOME`, `XDG_CACHE_HOME` and `NIX_MYENV_NAME`.
+- Consumes: nothing from other tasks. Reads the environment variables `XDG_DATA_HOME`, `XDG_STATE_HOME` and `XDG_CACHE_HOME` through Emacs's own `xdg.el`, and `NIX_MYENV_NAME`.
 - Produces:
-  - `user-data-directory` and `user-cache-directory`: strings, absolute, each ending in `/`.
-  - `(user-data PATH)` and `(user-cache PATH)`: return PATH expanded under the matching root.
+  - `user-data-directory`, `user-state-directory` and `user-cache-directory`: strings, absolute, each ending in `/`.
+  - `(user-data PATH)`, `(user-state PATH)` and `(user-cache PATH)`: return PATH expanded under the matching root.
   - `emacs-environment` (string or nil) and `alternate-emacs` (boolean), which `init.org` goes on using.
-  - `user-paths-table`: a list of `(VARIABLE ROOT NAME)` with ROOT `data` or `cache`.
+  - `user-paths-table`: a list of `(VARIABLE ROOT NAME)` with ROOT `data`, `state` or `cache`.
   - `(user-paths-check-migrated)`: signals `error` if `<user-emacs-directory>/data` is a directory, and otherwise returns nil.
   - The feature `user-paths`. Loading the file creates the directories, applies the table and redirects the native-compilation cache.
 
@@ -120,7 +134,8 @@ Create `lisp/user-paths-test.el`:
 ;;
 ;; These tests never touch real state.  Every root lives in a scratch
 ;; directory, and user-paths.el is loaded only after the environment and
-;; `user-emacs-directory' point there.
+;; `user-emacs-directory' point there.  Loading the library creates its
+;; directories, so each of the three XDG variables must be set first.
 
 (require 'ert)
 (require 'cl-lib)
@@ -139,11 +154,16 @@ Create `lisp/user-paths-test.el`:
   "The library under test.")
 
 (setenv "XDG_DATA_HOME" (concat user-paths-test-root "share"))
+(setenv "XDG_STATE_HOME" (concat user-paths-test-root "state"))
 (setenv "XDG_CACHE_HOME" (concat user-paths-test-root "cache"))
 (setenv "NIX_MYENV_NAME" nil)
 (setq user-emacs-directory (concat user-paths-test-root "config/emacs/"))
 (make-directory user-emacs-directory t)
 (load user-paths-test-file nil t)
+
+(defconst user-paths-test--bare
+  '("XDG_DATA_HOME" "XDG_STATE_HOME" "XDG_CACHE_HOME" "NIX_MYENV_NAME")
+  "Environment entries that unset every variable the library reads.")
 
 (defun user-paths-test--child (environment form &optional init-directory file)
   "Return the value of FORM in a fresh Emacs that loaded FILE.
@@ -175,26 +195,47 @@ names another, so it cannot reach real state either."
 (ert-deftest user-paths-test-roots-follow-xdg-variables ()
   (should (equal user-data-directory
                  (concat user-paths-test-root "share/emacs/")))
+  (should (equal user-state-directory
+                 (concat user-paths-test-root "state/emacs/")))
   (should (equal user-cache-directory
                  (concat user-paths-test-root "cache/emacs/")))
-  (should (equal (user-data "history")
-                 (concat user-paths-test-root "share/emacs/history")))
+  (should (equal (user-data "bm-repository")
+                 (concat user-paths-test-root "share/emacs/bm-repository")))
+  (should (equal (user-state "history")
+                 (concat user-paths-test-root "state/emacs/history")))
   (should (equal (user-cache "url/")
                  (concat user-paths-test-root "cache/emacs/url/"))))
 
+(ert-deftest user-paths-test-roots-are-distinct-and-outside-the-config ()
+  (let ((roots (list user-data-directory user-state-directory
+                     user-cache-directory)))
+    (should (equal roots (cl-remove-duplicates roots :test #'equal)))
+    (dolist (root roots)
+      (should (file-name-absolute-p root))
+      (should (string-suffix-p "/" root))
+      (should-not (string-prefix-p (expand-file-name user-emacs-directory)
+                                   root)))))
+
 (ert-deftest user-paths-test-unusable-xdg-values-fall-back ()
-  (let ((fallback (concat user-paths-test-root "fallback")))
-    (dolist (value '(nil "" "relative/path"))
-      (let ((process-environment
-             (cons (if value (concat "USER_PATHS_TEST=" value)
-                     "USER_PATHS_TEST")
-                   process-environment)))
-        (should (equal (user-paths--xdg-home "USER_PATHS_TEST" fallback)
-                       (concat fallback "/")))))
-    (let ((process-environment
-           (cons "USER_PATHS_TEST=/absolute/dir" process-environment)))
-      (should (equal (user-paths--xdg-home "USER_PATHS_TEST" fallback)
-                     "/absolute/dir/")))))
+  ;; The roots come from xdg.el, for which an empty or a relative value
+  ;; is no value at all.
+  (let ((home (concat user-paths-test-root "child-home/")))
+    (dolist (value '("" "relative/path"))
+      (should (equal (user-paths-test--child
+                      (list (concat "XDG_DATA_HOME=" value)
+                            (concat "XDG_STATE_HOME=" value)
+                            (concat "XDG_CACHE_HOME=" value)
+                            "NIX_MYENV_NAME")
+                      '(list user-data-directory user-state-directory
+                             user-cache-directory))
+                     (list (concat home ".local/share/emacs/")
+                           (concat home ".local/state/emacs/")
+                           (concat home ".cache/emacs/")))))
+    (should (equal (user-paths-test--child
+                    (list (concat "XDG_STATE_HOME=" home "elsewhere")
+                          "XDG_DATA_HOME" "XDG_CACHE_HOME" "NIX_MYENV_NAME")
+                    'user-state-directory)
+                   (concat home "elsewhere/emacs/")))))
 
 (ert-deftest user-paths-test-table-is-well-formed ()
   (let ((variables (mapcar #'car user-paths-table)))
@@ -202,16 +243,32 @@ names another, so it cannot reach real state either."
   (dolist (entry user-paths-table)
     (should (= (length entry) 3))
     (should (symbolp (nth 0 entry)))
-    (should (memq (nth 1 entry) '(data cache)))
+    (should (memq (nth 1 entry) '(data state cache)))
     (should (stringp (nth 2 entry)))
     (should-not (file-name-absolute-p (nth 2 entry)))))
+
+(ert-deftest user-paths-test-each-kind-has-its-root ()
+  ;; One example of each kind, so that a row cannot change root unnoticed.
+  (dolist (expected '((transient-values-file . data)
+                      (lsp-server-install-dir . data)
+                      (emojify-emojis-dir . data)
+                      (persist--directory-location . data)
+                      (transient-history-file . state)
+                      (eshell-history-file-name . state)
+                      (treemacs-persist-file . state)
+                      (url-configuration-directory . state)
+                      (url-cache-directory . cache)
+                      (pcache-directory . cache)))
+    (should (eq (nth 1 (assq (car expected) user-paths-table))
+                (cdr expected)))))
 
 (ert-deftest user-paths-test-table-is-applied ()
   (dolist (entry user-paths-table)
     (let* ((variable (nth 0 entry))
-           (root (if (eq (nth 1 entry) 'data)
-                     user-data-directory
-                   user-cache-directory))
+           (root (pcase (nth 1 entry)
+                   ('data user-data-directory)
+                   ('state user-state-directory)
+                   ('cache user-cache-directory)))
            (value (and (boundp variable) (symbol-value variable))))
       (should (stringp value))
       (should (equal value (expand-file-name (nth 2 entry) root)))
@@ -233,24 +290,25 @@ names another, so it cannot reach real state either."
   (defun elpy-rpc-default-virtualenv-path ()
     "/default/elpy/rpc-venv")
   (should (equal (elpy-rpc-default-virtualenv-path)
-                 (user-cache "elpy/rpc-venv")))
+                 (user-data "elpy/rpc-venv")))
   ;; web.el defines its cookie jar with `defconst'; the redirect has to
   ;; survive that definition.
   (should
    (equal (user-paths-test--child
-           '("XDG_DATA_HOME" "XDG_CACHE_HOME" "NIX_MYENV_NAME")
+           user-paths-test--bare
            '(progn
               (defconst web-cookie-jar-file "/default/web-cookies")
               (provide 'web)
               web-cookie-jar-file))
           (concat user-paths-test-root
-                  "child-home/.local/share/emacs/web-cookies"))))
+                  "child-home/.local/state/emacs/web-cookies"))))
 
 (ert-deftest user-paths-test-directories-are-private ()
   (dolist (directory (list user-data-directory
+                           user-state-directory
                            user-cache-directory
-                           (user-data "eshell/")
-                           (user-data "url/")
+                           (user-state "eshell/")
+                           (user-state "url/")
                            user-paths-tree-sitter-directory))
     (should (file-directory-p directory))
     (should (= (file-modes directory) #o700))))
@@ -263,7 +321,7 @@ names another, so it cannot reach real state either."
   (let ((home (concat user-paths-test-root "child-home/")))
     (should
      (equal (user-paths-test--child
-             '("XDG_DATA_HOME" "XDG_CACHE_HOME" "NIX_MYENV_NAME")
+             user-paths-test--bare
              '(list (car native-comp-eln-load-path)
                     (seq-some
                      (lambda (directory)
@@ -273,7 +331,7 @@ names another, so it cannot reach real state either."
                      native-comp-eln-load-path)))
             (list (concat home ".cache/emacs/eln-cache/") nil)))))
 
-(ert-deftest user-paths-test-grammars-live-in-data ()
+(ert-deftest user-paths-test-grammars-are-installed-under-data ()
   (skip-unless (boundp 'treesit-extra-load-path))
   (should (equal user-paths-tree-sitter-directory
                  (user-data "tree-sitter/")))
@@ -285,7 +343,7 @@ names another, so it cannot reach real state either."
   ;; early-init.el loads the file and init.el may load it again.
   (should
    (equal (user-paths-test--child
-           '("XDG_DATA_HOME" "XDG_CACHE_HOME" "NIX_MYENV_NAME")
+           user-paths-test--bare
            `(let ((eln (copy-sequence native-comp-eln-load-path))
                   (grammars (copy-sequence treesit-extra-load-path)))
               (load ,user-paths-test-file nil t)
@@ -313,33 +371,37 @@ names another, so it cannot reach real state either."
          (home (concat user-paths-test-root "child-home/")))
     (should
      (equal (user-paths-test--child
-             '("XDG_DATA_HOME" "XDG_CACHE_HOME" "NIX_MYENV_NAME")
+             user-paths-test--bare
              '(list (featurep 'user-paths)
                     package-enable-at-startup
-                    user-data-directory)
+                    user-state-directory)
              checkout
              (expand-file-name "early-init.el" checkout))
-            (list t nil (concat home ".local/share/emacs/"))))))
+            (list t nil (concat home ".local/state/emacs/"))))))
 
 (ert-deftest user-paths-test-defaults-without-xdg-variables ()
   ;; A GUI Emacs started from the Dock has no XDG variables at all.
   (let ((home (concat user-paths-test-root "child-home/")))
     (should (equal (user-paths-test--child
-                    '("XDG_DATA_HOME" "XDG_CACHE_HOME" "NIX_MYENV_NAME")
-                    '(list user-data-directory user-cache-directory))
+                    user-paths-test--bare
+                    '(list user-data-directory user-state-directory
+                           user-cache-directory))
                    (list (concat home ".local/share/emacs/")
+                         (concat home ".local/state/emacs/")
                          (concat home ".cache/emacs/"))))))
 
 (ert-deftest user-paths-test-alternate-instance-is-separate ()
   (let ((home (concat user-paths-test-root "child-home/")))
     (should (equal (user-paths-test--child
-                    '("XDG_DATA_HOME" "XDG_CACHE_HOME"
+                    '("XDG_DATA_HOME" "XDG_STATE_HOME" "XDG_CACHE_HOME"
                       "NIX_MYENV_NAME=emacsERC")
                     '(list alternate-emacs
                            user-data-directory
+                           user-state-directory
                            user-cache-directory))
                    (list t
                          (concat home ".local/share/emacs-alt/")
+                         (concat home ".local/state/emacs-alt/")
                          (concat home ".cache/emacs-alt/"))))))
 
 (ert-deftest user-paths-test-values-survive-loading-their-libraries ()
@@ -347,10 +409,11 @@ names another, so it cannot reach real state either."
   ;; put its own default back.
   (let* ((home (concat user-paths-test-root "child-home/"))
          (data (concat home ".local/share/emacs/"))
+         (state (concat home ".local/state/emacs/"))
          (cache (concat home ".cache/emacs/"))
          (result
           (user-paths-test--child
-           '("XDG_DATA_HOME" "XDG_CACHE_HOME" "NIX_MYENV_NAME")
+           user-paths-test--bare
            '(progn
               (dolist (feature '(url url-cache multisession tramp-cache
                                  transient project eshell em-hist em-dirs
@@ -373,22 +436,22 @@ names another, so it cannot reach real state either."
                     package-gnupghome-dir
                     auto-save-list-file-prefix)))))
     (should (equal result
-                   (list (concat data "transient/history.el")
+                   (list (concat state "transient/history.el")
                          (concat data "transient/levels.el")
                          (concat data "transient/values.el")
-                         (concat data "url/")
+                         (concat state "url/")
                          (concat cache "url/")
-                         (concat data "multisession/")
-                         (concat data "tramp")
-                         (concat data "projects")
-                         (concat data "eshell/history")
-                         (concat data "eshell/lastdir")
-                         (concat data "ielm-history.eld")
+                         (concat state "multisession/")
+                         (concat state "tramp")
+                         (concat state "projects")
+                         (concat state "eshell/history")
+                         (concat state "eshell/lastdir")
+                         (concat state "ielm-history.eld")
                          (directory-file-name data)
-                         (concat data "server/")
+                         (concat state "server/")
                          (concat data "elpa")
                          (concat data "elpa/gnupg")
-                         (concat data "auto-save-list/.saves-"))))))
+                         (concat state "auto-save-list/.saves-"))))))
 
 (provide 'user-paths-test)
 
@@ -410,13 +473,26 @@ Cannot open load file: No such file or directory, <WT>/lisp/user-paths.el
 Create `lisp/user-paths.el`:
 
 ```elisp
-;;; user-paths.el --- Keep state and caches out of the config directory -*- lexical-binding: t; -*-
+;;; user-paths.el --- Keep data, state and caches out of the config directory -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
 ;; `user-emacs-directory' (~/.config/emacs) holds configuration only.
-;; Durable state lives under `user-data-directory' ($XDG_DATA_HOME/emacs) and
-;; regenerable caches under `user-cache-directory' ($XDG_CACHE_HOME/emacs).
+;; Everything Emacs writes while it runs goes to one of three roots, chosen
+;; by what the file is, in the words of the XDG Base Directory specification:
+;;
+;;   `user-data-directory'   $XDG_DATA_HOME/emacs    what is worth carrying
+;;       to another machine, and what was installed on request: saved
+;;       choices, tokens, learned parameters, grammars, language servers,
+;;       downloaded artwork.
+;;   `user-state-directory'  $XDG_STATE_HOME/emacs   what Emacs records about
+;;       its own use on this machine and keeps between restarts: histories,
+;;       recent files, positions, sessions, cookies, backups, crash-recovery
+;;       indexes.
+;;   `user-cache-directory'  $XDG_CACHE_HOME/emacs   what Emacs can make
+;;       again from what is on this machine, or fetches again unasked:
+;;       compiled code, indexes, web responses.  What comes back only when
+;;       someone agrees to a download or a build is installed, not cached.
 ;;
 ;; early-init.el loads this file, so the native-compilation cache is
 ;; redirected before anything is compiled.  Batch Emacs never reads
@@ -424,8 +500,9 @@ Create `lisp/user-paths.el`:
 ;;
 ;; This file owns two kinds of path: those a library reads while it loads
 ;; (a later `use-package :custom' is too late for them), and defaults that
-;; no `use-package' form in init.org mentions.  Every other state path stays
-;; beside its package in init.org, written as (user-data "...").
+;; no `use-package' form in init.org mentions.  Every other path stays
+;; beside its package in init.org, written as (user-data "..."),
+;; (user-state "...") or (user-cache "...").
 ;;
 ;; An Emacs started with -Q or -q reads neither early-init.el nor init.el
 ;; and still writes to the built-in defaults under `user-emacs-directory'.
@@ -437,85 +514,89 @@ Create `lisp/user-paths.el`:
   "Name of the Nix environment that started this Emacs, or nil.")
 
 (defconst alternate-emacs (equal emacs-environment "emacsERC")
-  "Non-nil in the alternate instance, which keeps its own state.")
+  "Non-nil in the alternate instance, which keeps its own files.")
 
-(defun user-paths--xdg-home (variable fallback)
-  "Return the directory named by environment VARIABLE, else FALLBACK.
-An unset, empty or relative value counts as unset, as in xdg.el.  A
-GUI Emacs started from the Dock has no XDG variables at all, so
-FALLBACK must name the directory the shell's value names."
-  (let ((value (getenv variable)))
-    (file-name-as-directory
-     (expand-file-name
-      (if (and value (file-name-absolute-p value)) value fallback)))))
+;; xdg.el treats an unset, empty or relative XDG variable as unset.  A GUI
+;; Emacs started from the Dock has no XDG variables at all; it then gets
+;; ~/.local/share, ~/.local/state and ~/.cache, which must be the
+;; directories that the shell's values name.
+(require 'xdg)
 
 (defconst user-paths--instance (if alternate-emacs "emacs-alt/" "emacs/")
   "Directory name of this instance below each XDG root.")
 
 (defconst user-data-directory
-  (expand-file-name user-paths--instance
-                    (user-paths--xdg-home "XDG_DATA_HOME" "~/.local/share"))
-  "Directory for durable state: histories, databases, tokens.")
+  (expand-file-name user-paths--instance (xdg-data-home))
+  "Directory for data: saved choices, tokens, installed grammars.")
+
+(defconst user-state-directory
+  (expand-file-name user-paths--instance (xdg-state-home))
+  "Directory for state: histories, recent files, sessions, backups.")
 
 (defconst user-cache-directory
-  (expand-file-name user-paths--instance
-                    (user-paths--xdg-home "XDG_CACHE_HOME" "~/.cache"))
+  (expand-file-name user-paths--instance (xdg-cache-home))
   "Directory for caches that can be deleted and rebuilt.")
 
 (defun user-data (path)
   "Expand PATH below `user-data-directory'."
   (expand-file-name path user-data-directory))
 
+(defun user-state (path)
+  "Expand PATH below `user-state-directory'."
+  (expand-file-name path user-state-directory))
+
 (defun user-cache (path)
   "Expand PATH below `user-cache-directory'."
   (expand-file-name path user-cache-directory))
 
 (defconst user-paths-table
-  '(;; Durable state.
-    (aria2-cc-file                     data  "aria2-controller.eieio")
-    (aria2-session-file                data  "aria2c.session")
-    (auto-save-list-file-prefix        data  "auto-save-list/.saves-")
-    (eshell-history-file-name          data  "eshell/history")
-    (eshell-last-dir-ring-file-name    data  "eshell/lastdir")
+  '(;; Data: worth carrying to another machine, or installed on request.
+    (emojify-emojis-dir                data  "emojis")
     (eww-bookmarks-directory           data  ".")
     (hash-store-directory              data  "hash-store/")
-    (ido-save-directory-list-file      data  "ido.last")
-    (ielm-history-file-name            data  "ielm-history.eld")
     (lena-snapshot-directory           data  "lena-snapshots/")
-    (lsp-session-file                  data  "lsp-session-v1")
-    (multisession-directory            data  "multisession/")
+    (lsp-server-install-dir            data  "lsp/")
     (org-table-highlight-metadata-file data  "org-table-highlight-metadata.el")
     (package-user-dir                  data  "elpa")
     (pandoc-data-dir                   data  "pandoc-mode/")
     (persist--directory-location       data  "persist/")
-    (project-list-file                 data  "projects")
-    (projectile-frecency-file          data  "projectile-frecency.eld")
-    (projectile-session-directory      data  "projectile-sessions/")
-    (request-storage-directory         data  "request")
-    (server-auth-dir                   data  "server/")
-    (tramp-persistency-file-name       data  "tramp")
-    (transient-history-file            data  "transient/history.el")
     (transient-levels-file             data  "transient/levels.el")
     (transient-values-file             data  "transient/values.el")
-    (treemacs-persist-file             data  "treemacs-persist")
-    (url-configuration-directory       data  "url/")
-    (vimish-fold-dir                   data  "vimish-fold/")
     (wikipedia-db-file                 data  "wikipedia.db")
     (wikipedia-draft-directory         data  "wikipedia-drafts")
-    ;; Caches.
+    ;; State: what Emacs records about its own use on this machine.
+    (aria2-cc-file                     state "aria2-controller.eieio")
+    (aria2-session-file                state "aria2c.session")
+    (auto-save-list-file-prefix        state "auto-save-list/.saves-")
+    (eshell-history-file-name          state "eshell/history")
+    (eshell-last-dir-ring-file-name    state "eshell/lastdir")
+    (ido-save-directory-list-file      state "ido.last")
+    (ielm-history-file-name            state "ielm-history.eld")
+    (lsp-session-file                  state "lsp-session-v1")
+    (multisession-directory            state "multisession/")
+    (project-list-file                 state "projects")
+    (projectile-frecency-file          state "projectile-frecency.eld")
+    (projectile-session-directory      state "projectile-sessions/")
+    (request-storage-directory         state "request")
+    (server-auth-dir                   state "server/")
+    (tramp-persistency-file-name       state "tramp")
+    (transient-history-file            state "transient/history.el")
+    (treemacs-last-error-persist-file  state "treemacs-persist-at-last-error")
+    (treemacs-persist-file             state "treemacs-persist")
+    (url-configuration-directory       state "url/")
+    (vimish-fold-dir                   state "vimish-fold/")
+    ;; Caches: made again from what is on this machine, or fetched again
+    ;; unasked.
     (TeX-auto-global                   cache "auctex/")
-    (emojify-emojis-dir                cache "emojis")
     (gptel-crowdsourced-prompts-file   cache "gptel-crowdsourced-prompts.csv")
     (js-js-tmpdir                      cache "js")
-    (lsp-server-install-dir            cache "lsp/")
     (package-quickstart-file           cache "package-quickstart.el")
     (pcache-directory                  cache "pcache/")
-    (treemacs-last-error-persist-file  cache "treemacs-persist-at-last-error")
     (url-cache-directory               cache "url/"))
   "Path variables this file sets, as (VARIABLE ROOT NAME).
-ROOT is `data' or `cache'; NAME is relative to that root.  A trailing
-slash in NAME is kept, because some libraries build file names from
-these values with `concat'.")
+ROOT is `data', `state' or `cache'; NAME is relative to that root.  A
+trailing slash in NAME is kept, because some libraries build file
+names from these values with `concat'.")
 
 (defun user-paths-apply ()
   "Point every variable in `user-paths-table' at its XDG location.
@@ -523,19 +604,23 @@ The variables need not be defined yet.  Setting one before its library
 loads is what makes the value win over the library's default."
   (dolist (entry user-paths-table)
     (set (nth 0 entry)
-         (funcall (if (eq (nth 1 entry) 'data) #'user-data #'user-cache)
+         (funcall (cdr (assq (nth 1 entry) '((data . user-data)
+                                             (state . user-state)
+                                             (cache . user-cache))))
                   (nth 2 entry)))))
 
 (defvar TeX-auto-private)
 (defvar web-cookie-jar-file)
 
 (defun user-paths--elpy-rpc-virtualenv ()
-  "Return the directory for the virtualenv that elpy manages itself."
-  (user-cache "elpy/rpc-venv"))
+  "Return the directory for the virtualenv that elpy manages itself.
+It is installed tooling, like a grammar or a language server."
+  (user-data "elpy/rpc-venv"))
 
 (defun user-paths-apply-special ()
   "Set the path variables that do not fit `user-paths-table'."
-  ;; A list of directories, for style files AUCTeX generates on request.
+  ;; A list of directories, for what AUCTeX extracts from the TeX files on
+  ;; this machine.
   (setq TeX-auto-private (list (user-cache "auctex/auto")))
   ;; `elpy-rpc-virtualenv-path' stays at `default', the one value for which
   ;; elpy creates and rebuilds the virtualenv unasked; only the place moves.
@@ -543,26 +628,28 @@ loads is what makes the value win over the library's default."
               :override #'user-paths--elpy-rpc-virtualenv)
   ;; A `defconst', so the value can change only after web.el has loaded.
   (with-eval-after-load 'web
-    (setq web-cookie-jar-file (user-data "web-cookies"))))
+    (setq web-cookie-jar-file (user-state "web-cookies"))))
 
 (defconst user-paths-tree-sitter-directory (user-data "tree-sitter/")
   "Directory holding compiled tree-sitter grammars.
-They are durable state, not a cache: rebuilding one needs git, a C
-compiler and the network.")
+They are installed, not cached: a mode has no grammar until someone
+agrees to build it again, which takes git, a C compiler and the network.")
 
 (defvar treesit-extra-load-path)
 (defvar treesit--install-language-grammar-out-dir-history)
 
 (defun user-paths-ensure-directories ()
   "Create the directories that their writers do not create themselves.
-recentf, nsm, tramp, project and eshell signal an error, or drop their
-data silently, when the directory is missing.  `treesit-ensure-installed'
-skips a grammar directory that does not exist yet."
+recentf, nsm, tramp, project and eshell signal an error, or drop what
+they were saving silently, when the directory is missing.
+`treesit-ensure-installed' skips a grammar directory that does not
+exist yet."
   (with-file-modes #o700
     (dolist (directory (list user-data-directory
+                             user-state-directory
                              user-cache-directory
-                             (user-data "eshell/")
-                             (user-data "url/")
+                             (user-state "eshell/")
+                             (user-state "url/")
                              user-paths-tree-sitter-directory))
       (make-directory directory t))))
 
@@ -605,8 +692,8 @@ Run: `emacs --batch -Q -l lisp/user-paths-test.el -f ert-run-tests-batch-and-exi
 Expected:
 
 ```text
-   FAILED   4/15  user-paths-test-early-init-loads-the-library (...)
-Ran 15 tests, 14 results as expected, 1 unexpected (...)
+   FAILED   5/17  user-paths-test-early-init-loads-the-library (...)
+Ran 17 tests, 16 results as expected, 1 unexpected (...)
    FAILED  user-paths-test-early-init-loads-the-library
 ```
 
@@ -642,11 +729,11 @@ Create `early-init.el` at the root of the worktree:
 
 Run: `emacs --batch -Q -l lisp/user-paths-test.el -f ert-run-tests-batch-and-exit 2>&1 | grep -E 'FAILED|Ran '`
 
-Expected: `Ran 15 tests, 15 results as expected, 0 unexpected (...)`
+Expected: `Ran 17 tests, 17 results as expected, 0 unexpected (...)`
 
 - [ ] **Step 7: Check that the library compiles without warnings**
 
-The library is always loaded as source, so compile a copy elsewhere and leave no `.elc` behind.
+The library is always loaded as source, so compile a copy elsewhere and leave no `.elc` in the worktree.
 
 ```bash
 copy=$(mktemp -d) && cp lisp/user-paths.el "$copy/" &&
@@ -659,7 +746,7 @@ Expected: no output.
 
 ```bash
 git add lisp/user-paths.el lisp/user-paths-test.el early-init.el
-git commit -m "user-paths: Compute the XDG data and cache roots in one library"
+git commit -m "user-paths: Compute the XDG data, state and cache roots in one library"
 ```
 
 ---
@@ -671,28 +758,50 @@ git commit -m "user-paths: Compute the XDG data and cache roots in one library"
 - Test: `xdg/apply-init-edits-test.el`
 
 **Interfaces:**
-- Consumes: the names Task 1 defines, but only as text inside the edits: `user-paths`, `user-paths-check-migrated`, `user-data`, `user-cache`.
+- Consumes: the names Task 1 defines, but only as text inside the edits: `user-paths`, `user-paths-check-migrated`, `user-data`, `user-state`, `user-cache`.
 - Produces:
-  - `xdg-init-edits`: a list of plists with `:name`, `:old`, `:new` and an optional `:removes`.
+  - `xdg-init-edits`: a list of plists with `:name`, `:old`, `:new`, an optional `:removes` (a string that must be absent once the edit is done) and an optional `:marker` (a string whose presence alone means done).
   - `(xdg-init-edits-apply FILE &optional CHECK)`: returns non-nil if every edit is done or can be made. It writes FILE only when all can and something changed, and never when CHECK is non-nil.
   - `xdg-init-edits-batch`: the command-line entry. Arguments `[--check] FILE`. Exit status 0, 1 if an edit cannot be made, or 2 if no file is named.
 
-The ten edits, in order:
+The 26 edits, in the order of the file. "Commented out" marks a block under a `COMMENT` heading, which is not tangled today.
 
 | # | Edit | Effect on `init.org` |
 |---|---|---|
 | 1 | load user-paths before anything else | New section before the Nix package loader, which is the first block that loads anything: requires `lisp/user-paths.el`, then calls the guard |
-| 2 | drop the old data-environment block | The library now defines `emacs-environment`, `alternate-emacs`, `user-data-directory`, `user-data` |
-| 3 | auto-save-list prefix | Removed from `use-package emacs`; the table sets it |
-| 4 | backups | `backup-directory-alist` uses `(user-data "backups")`, the same directory as today |
-| 5 | projectile index | `projectile-cache-file` moves to `(user-cache ...)` |
-| 6 | tramp auto-saves | `tramp-auto-save-directory` uses `(user-data "backups")` |
-| 7 | tramp persistency | The `setq` in `:config` is removed; the table sets it before tramp loads |
-| 8 | transient files | The `:custom` is removed; the table sets all three files |
-| 9 | url directory | The `:custom` is removed; the table sets it |
-| 10 | url cache directory | The `:custom` is removed; the table sets it under the cache root |
+| 2 | drop the old data-environment block | The library now defines `emacs-environment`, `alternate-emacs`, the three roots and their three functions |
+| 3 | auto-save-list prefix | Removed from `use-package emacs`; the table sets it, under state |
+| 4 | backups | `backup-directory-alist` moves from the literal `~/.local/share/emacs/backups` to `(user-state "backups")` |
+| 5 | network security decisions | `nsm-settings-file` moves to `(user-state ...)` |
+| 6 | line bookmarks | `bm-repository-file` moves to `(user-state ...)` |
+| 7 | bookmark-list display state | `bmkp-bmenu-state-file` moves to `(user-state ...)`. Commented out |
+| 8 | nov reading positions | `nov-save-place-file` moves to `(user-state ...)` |
+| 9 | persistent scratch | `persistent-scratch-save-file` moves to `(user-state ...)` |
+| 10 | prescient usage counts | `prescient-save-file` moves to `(user-state ...)`. Commented out |
+| 11 | projectile index | `projectile-cache-file` moves to `(user-cache ...)` |
+| 12 | projectile known projects | `projectile-known-projects-file` moves to `(user-state ...)` |
+| 13 | recent files | `recentf-save-file` moves to `(user-state ...)` |
+| 14 | minibuffer history | `savehist-file` moves to `(user-state ...)` |
+| 15 | saved positions | `save-place-file` moves to `(user-state ...)`. Commented out |
+| 16 | tramp auto-saves | `tramp-auto-save-directory` moves from the same literal to `(user-state "backups")` |
+| 17 | tramp persistency | The `setq` in `:config` is removed; the table sets it, under state, before tramp loads |
+| 18 | transient files | The `:custom` is removed; the table sets the history under state and the saved values and levels under data |
+| 19 | url directory | The `:custom` is removed; the table sets it, under state: it holds cookies and the history of visited URLs |
+| 20 | url cache directory | The `:custom` is removed; the table sets it under the cache root |
+| 21 | slime history | `slime-repl-history-file` moves to `(user-state ...)` |
+| 22 | lsp servers and session | `lsp-server-install-dir` becomes `(user-data "lsp/")` and `lsp-session-file` moves to `(user-state "lsp-session-v1")`, the names the table uses. Commented out |
+| 23 | org clock persistence | `org-clock-persist-file` moves to `(user-state ...)` |
+| 24 | org-id locations | `org-id-locations-file` moves to `(user-state ...)` |
+| 25 | org-roam database | `org-roam-db-location` moves to `(user-cache ...)` |
+| 26 | xeft index | `xeft-database` moves to `(user-cache ...)`. Commented out |
+
+The settings this list leaves at `(user-data ...)` are data and stay so: `mc/list-file`, and in commented-out blocks `bmkp-bmenu-commands-file`, `oauth2-auto-plstore` and `org-gcal-dir`.
+
+The first edit carries a `:marker`. Its inserted block sits before a heading that stays in the file, so without the marker a later rewording of the block would make the next run insert a second copy.
 
 - [ ] **Step 1: Write the failing tests**
+
+The checkout has no `xdg/` directory yet. Make it, with the one Task 3 needs: `mkdir -p xdg/audit`
 
 Create `xdg/apply-init-edits-test.el`:
 
@@ -764,6 +873,52 @@ file is handled as bytes."
           (should (equal once (xdg-init-edits-test--bytes file))))
       (delete-file file))))
 
+(ert-deftest xdg-init-edits-test-each-path-names-its-root ()
+  ;; Which root a file belongs to is the point of most edits, so pin it.
+  (let ((file (xdg-init-edits-test--fixture)))
+    (unwind-protect
+        (let (text)
+          (should (xdg-init-edits-apply file))
+          (setq text (xdg-init-edits-test--bytes file))
+          (dolist (name '("backups" "network-security.data" "bm-repository"
+                          "bmk-bmenu-state.el" "nov-places"
+                          "persistent-scratch" "prescient-save.el"
+                          "projectile-bookmarks.eld" "recentf" "history"
+                          "places" "slime-history.eld" "lsp-session-v1"
+                          "org-clock-save.el" "org-id-locations"))
+            (should (string-search (format "(user-state %S)" name) text))
+            (should-not (string-search (format "(user-data %S)" name) text)))
+          (should (string-search "(user-data \"lsp/\")" text))
+          (dolist (name '("projectile.cache" "org-roam.db" "xeft.db"))
+            (should (string-search (format "(user-cache %S)" name) text))
+            (should-not (string-search (format "(user-data %S)" name) text)))
+          ;; The old names of the lsp files are gone with their old root.
+          (should-not (string-search ".lsp-session-v1" text))
+          (should-not (string-search ".cache/lsp" text))
+          (should-not (string-search "~/.local/share/emacs/backups" text)))
+      (delete-file file))))
+
+(ert-deftest xdg-init-edits-test-a-touched-block-is-not-inserted-twice ()
+  ;; The first edit inserts a block before a heading that stays in the
+  ;; file.  Someone who later rewords that block must not get a second
+  ;; copy on the next run.
+  (let ((file (xdg-init-edits-test--fixture)))
+    (unwind-protect
+        (let (text)
+          (should (xdg-init-edits-apply file))
+          (setq text (xdg-init-edits-test--bytes file))
+          (with-temp-file file
+            (set-buffer-multibyte nil)
+            (insert (string-replace ";; Refuse to run on state"
+                                    ";; Do not run on state" text)))
+          (should (xdg-init-edits-apply file))
+          (setq text (xdg-init-edits-test--bytes file))
+          (should (= 1 (with-temp-buffer
+                         (insert text)
+                         (how-many "(user-paths-check-migrated)"
+                                   (point-min) (point-max))))))
+      (delete-file file))))
+
 (ert-deftest xdg-init-edits-test-missing-text-aborts-everything ()
   (let* ((file (xdg-init-edits-test--fixture #'butlast))
          (before (xdg-init-edits-test--bytes file)))
@@ -826,13 +981,13 @@ Create `xdg/apply-init-edits.el`:
   '((:name "load user-paths before anything else"
      :old "** Load Nix-managed packages into the macOS application
 "
-     :new "** Keep state and caches out of the configuration directory
+     :new "** Keep data, state and caches out of the configuration directory
 
 #+begin_src emacs-lisp
-;; Durable state lives under $XDG_DATA_HOME/emacs and caches under
-;; $XDG_CACHE_HOME/emacs; see lisp/user-paths.el.  An interactive session
-;; has loaded it from early-init.el already.  Batch runs (make, tests) never
-;; read early-init.el, so load it here as well.
+;; Data lives under $XDG_DATA_HOME/emacs, state under $XDG_STATE_HOME/emacs
+;; and caches under $XDG_CACHE_HOME/emacs; see lisp/user-paths.el.  An
+;; interactive session has loaded it from early-init.el already.  Batch runs
+;; (make, tests) never read early-init.el, so load it here as well.
 (eval-and-compile
   (require 'user-paths
            (expand-file-name \"lisp/user-paths.el\" user-emacs-directory)))
@@ -842,7 +997,8 @@ Create `xdg/apply-init-edits.el`:
 #+end_src
 
 ** Load Nix-managed packages into the macOS application
-")
+"
+     :marker "(user-paths-check-migrated)")
     (:name "drop the old data-environment block"
      :old "** Define the \"data environment\" for this instance of Emacs
 
@@ -877,20 +1033,70 @@ Create `xdg/apply-init-edits.el`:
      :new "  ;; startup.el
   (inhibit-startup-echo-area-message \"johnw\")
 ")
-    (:name "backups follow the data root"
+    (:name "backups are state"
      :old "  (backup-directory-alist '((\".\" . \"~/.local/share/emacs/backups\")))
 "
-     :new "  (backup-directory-alist `((\".\" . ,(user-data \"backups\"))))
+     :new "  (backup-directory-alist `((\".\" . ,(user-state \"backups\"))))
+")
+    (:name "network security decisions are state"
+     :old "  (nsm-settings-file (user-data \"network-security.data\"))
+"
+     :new "  (nsm-settings-file (user-state \"network-security.data\"))
+")
+    (:name "line bookmarks are state"
+     :old "  (bm-repository-file (user-data \"bm-repository\")))
+"
+     :new "  (bm-repository-file (user-state \"bm-repository\")))
+")
+    (:name "bookmark-list display state is state"
+     :old "  (bmkp-bmenu-state-file (user-data \"bmk-bmenu-state.el\"))
+"
+     :new "  (bmkp-bmenu-state-file (user-state \"bmk-bmenu-state.el\"))
+")
+    (:name "nov reading positions are state"
+     :old "  (nov-save-place-file (user-data \"nov-places\")))
+"
+     :new "  (nov-save-place-file (user-state \"nov-places\")))
+")
+    (:name "persistent scratch is state"
+     :old "  (persistent-scratch-save-file (user-data \"persistent-scratch\"))
+"
+     :new "  (persistent-scratch-save-file (user-state \"persistent-scratch\"))
+")
+    (:name "prescient usage counts are state"
+     :old "  (prescient-save-file (user-data \"prescient-save.el\"))
+"
+     :new "  (prescient-save-file (user-state \"prescient-save.el\"))
 ")
     (:name "projectile index is a cache"
      :old "  (projectile-cache-file (user-data \"projectile.cache\"))
 "
      :new "  (projectile-cache-file (user-cache \"projectile.cache\"))
 ")
-    (:name "tramp auto-saves follow the data root"
+    (:name "projectile known projects are state"
+     :old "  (projectile-known-projects-file (user-data \"projectile-bookmarks.eld\"))
+"
+     :new "  (projectile-known-projects-file (user-state \"projectile-bookmarks.eld\"))
+")
+    (:name "recent files are state"
+     :old "  (recentf-save-file (user-data \"recentf\"))
+"
+     :new "  (recentf-save-file (user-state \"recentf\"))
+")
+    (:name "minibuffer history is state"
+     :old "  (savehist-file (user-data \"history\"))
+"
+     :new "  (savehist-file (user-state \"history\"))
+")
+    (:name "saved positions are state"
+     :old "  (save-place-file (user-data \"places\"))
+"
+     :new "  (save-place-file (user-state \"places\"))
+")
+    (:name "tramp auto-saves are state"
      :old "  (tramp-auto-save-directory \"~/.local/share/emacs/backups\")
 "
-     :new "  (tramp-auto-save-directory (user-data \"backups\"))
+     :new "  (tramp-auto-save-directory (user-state \"backups\"))
 ")
     (:name "tramp persistency is set in user-paths"
      :old "  ;; Without this change, tramp ends up sending hundreds of shell commands to
@@ -938,11 +1144,46 @@ Create `xdg/apply-init-edits.el`:
 "
      :new "(use-package url-cache
   :defer t)
+")
+    (:name "slime history is state"
+     :old "  (slime-repl-history-file (user-data \"slime-history.eld\"))
+"
+     :new "  (slime-repl-history-file (user-state \"slime-history.eld\"))
+")
+    (:name "lsp servers are data and the lsp session is state"
+     :old "  (lsp-server-install-dir (user-data \".cache/lsp\"))
+  (lsp-session-file (user-data \".lsp-session-v1\"))
+"
+     :new "  (lsp-server-install-dir (user-data \"lsp/\"))
+  (lsp-session-file (user-state \"lsp-session-v1\"))
+")
+    (:name "org clock persistence is state"
+     :old "  (org-clock-persist-file (user-data \"org-clock-save.el\"))
+"
+     :new "  (org-clock-persist-file (user-state \"org-clock-save.el\"))
+")
+    (:name "org-id locations are state"
+     :old "  (org-id-locations-file (user-data \"org-id-locations\"))
+"
+     :new "  (org-id-locations-file (user-state \"org-id-locations\"))
+")
+    (:name "org-roam database is a cache"
+     :old "  (org-roam-db-location (user-data \"org-roam.db\"))
+"
+     :new "  (org-roam-db-location (user-cache \"org-roam.db\"))
+")
+    (:name "xeft index is a cache"
+     :old "  (xeft-database (user-data \"xeft.db\"))
+"
+     :new "  (xeft-database (user-cache \"xeft.db\"))
 "))
   "Edits to make, in order, as plists.
 :old is the text to find and :new its replacement.  An edit counts as
 done when :new is present; :removes names a string that must then be
-absent, for an edit whose :new is also part of the unedited file.")
+absent, for an edit whose :new is also part of the unedited file.
+:marker names a string whose presence alone means done, for an edit
+whose :old is still in the file afterwards: without it, rewording the
+inserted text would make the next run insert it a second time.")
 
 (defun xdg-init-edits--count (text)
   "Return how often TEXT occurs in the current buffer."
@@ -957,8 +1198,10 @@ absent, for an edit whose :new is also part of the unedited file.")
   "Return `done', `pending' or an error string for EDIT in this buffer."
   (let ((old (xdg-init-edits--count (plist-get edit :old)))
         (new (xdg-init-edits--count (plist-get edit :new)))
-        (removes (plist-get edit :removes)))
+        (removes (plist-get edit :removes))
+        (marker (plist-get edit :marker)))
     (cond
+     ((and marker (> (xdg-init-edits--count marker) 0)) 'done)
      ((and removes (= old 0) (= new 1)
            (= (xdg-init-edits--count removes) 0))
       'done)
@@ -1023,7 +1266,7 @@ The arguments are an optional --check followed by the file."
 
 Run: `emacs --batch -Q -l xdg/apply-init-edits-test.el -f ert-run-tests-batch-and-exit 2>&1 | grep -E 'FAILED|Ran '`
 
-Expected: `Ran 5 tests, 5 results as expected, 0 unexpected (...)`
+Expected: `Ran 7 tests, 7 results as expected, 0 unexpected (...)`
 
 - [ ] **Step 5: Check every edit against the canonical file, without writing it**
 
@@ -1035,13 +1278,29 @@ Expected:
 pending   load user-paths before anything else
 pending   drop the old data-environment block
 pending   auto-save-list prefix is set in user-paths
-pending   backups follow the data root
+pending   backups are state
+pending   network security decisions are state
+pending   line bookmarks are state
+pending   bookmark-list display state is state
+pending   nov reading positions are state
+pending   persistent scratch is state
+pending   prescient usage counts are state
 pending   projectile index is a cache
-pending   tramp auto-saves follow the data root
+pending   projectile known projects are state
+pending   recent files are state
+pending   minibuffer history is state
+pending   saved positions are state
+pending   tramp auto-saves are state
 pending   tramp persistency is set in user-paths
 pending   transient files are set in user-paths
 pending   url directory is set in user-paths
 pending   url cache directory is set in user-paths
+pending   slime history is state
+pending   lsp servers are data and the lsp session is state
+pending   org clock persistence is state
+pending   org-id locations are state
+pending   org-roam database is a cache
+pending   xeft index is a cache
 exit=0
 ```
 
@@ -1493,7 +1752,7 @@ cleanup() {
 trap cleanup EXIT
 home=$scratch/home
 config=$home/.config/emacs
-mkdir -p "$config" "$home/.local/share" "$home/.cache" "$scratch/tmp"
+mkdir -p "$config" "$home/.local/share" "$home/.local/state" "$home/.cache" "$scratch/tmp"
 
 # Start from what the live configuration directory holds: tracked files,
 # submodules, and the host's untracked configuration.  No runtime state is
@@ -1580,8 +1839,8 @@ if [[ -n $written ]]; then
     printf '%s\n' "$written" | sed 's/^/  /'
     status=1
 fi
-printf 'Written under the data and cache roots:\n'
-(cd "$home" && find .local/share .cache -newer "$scratch/stamp" ! -type d |
+printf 'Written under the data, state and cache roots:\n'
+(cd "$home" && find .local/share .local/state .cache -newer "$scratch/stamp" ! -type d |
     sed 's|\(eln-cache/[^/]*\)/.*|\1/*.eln|' | LC_ALL=C sort -u | sed 's/^/  /')
 
 if [[ $status -eq 0 ]]; then
@@ -1623,7 +1882,7 @@ Expected:
 ```text
 Applying the init.org edits to the copy
   applied   load user-paths before anything else
-  ... nine more "applied" lines ...
+  ... 25 more "applied" lines ...
 Tangling init.el
 Loading the init; this takes about half a minute
   audit: emacs-startup-hook: (user-error "Not a directory: .../home/Desktop")
@@ -1631,24 +1890,24 @@ Loading the init; this takes about half a minute
   audit: 580 forms, 0 failed; 300 more features loaded, 30 would not; 1674 features in all
 audit: 0 offenders, 0 failed forms
 Written inside the configuration directory:
-Written under the data and cache roots:
+Written under the data, state and cache roots:
   .cache/emacs/eln-cache/31_1_50-ed4578ca/*.eln
-  .local/share/emacs/bm-repository
-  .local/share/emacs/history
-  .local/share/emacs/org-roam.db
-  .local/share/emacs/persistent-scratch
-  .local/share/emacs/recentf
-  .local/share/emacs/tramp
+  .cache/emacs/org-roam.db
+  .local/state/emacs/bm-repository
+  .local/state/emacs/history
+  .local/state/emacs/persistent-scratch
+  .local/state/emacs/recentf
+  .local/state/emacs/tramp
 PASS
 exit=0
 ```
 
-The two hook lines are expected: the scratch home has no `~/Desktop`, and the guards refuse to start `epdfinfo`. The counts drift as the init and the packages change. What must hold is `0 offenders, 0 failed forms`, an empty list under `Written inside the configuration directory`, and `PASS`.
+The two hook lines are expected: the scratch home has no `~/Desktop`, and the guards refuse to start `epdfinfo`. The counts drift as the init and the packages change. What must hold is `0 offenders, 0 failed forms`, an empty list under `Written inside the configuration directory`, and `PASS`. The last list shows each kind landing in its own root: the history, the recent files, the scratch buffer, the line bookmarks and tramp's connection history under state; the Org-roam index and native code under the cache. Nothing in this run writes data: that root changes only when John saves a choice or installs something.
 
 If the run reports an offender, `init.org` has gained a package since this plan was written. Decide as follows, then run `make test-xdg` (after Task 5) or the Task 1 tests, and this step again.
 
 1. The value is configuration that a person writes, such as a snippets directory or a settings file: add the variable to `xdg-audit-allowed-variables` in `xdg/audit/audit.el`, under the comment that fits.
-2. Otherwise add `(VARIABLE data "name")` or `(VARIABLE cache "name")` to `user-paths-table` in `lisp/user-paths.el`, in alphabetical order within its half. Choose `data` if losing the file loses information or a sign-in, and `cache` if Emacs rebuilds it unaided. Keep a trailing slash if the package's default has one.
+2. Otherwise add `(VARIABLE data "name")`, `(VARIABLE state "name")` or `(VARIABLE cache "name")` to `user-paths-table` in `lisp/user-paths.el`, in alphabetical order within its part. Choose `data` if the file is worth carrying to another machine or was installed on request, such as a saved choice, a token or a grammar; `state` if it records what Emacs did on this machine, such as a history, a position, a session, a cookie or a backup; and `cache` if Emacs can make it again from what is on this machine, or fetches it again unasked. Keep a trailing slash if the package's default has one.
 3. The variable is a `defconst`, or its value is not a single string: set it in `user-paths-apply-special`.
 
 If a form of `init.el` fails, the log names it. A form that needs one of John's documents can be tolerated the way `guards.el` tolerates `org-ext-update-team`.
@@ -1670,30 +1929,37 @@ git commit -m "xdg: Audit the whole init in a sealed copy"
 - Delete: `migrate-emacs-xdg.sh`
 
 **Interfaces:**
-- Consumes: nothing from other tasks. Reads `HOME`, `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME`, and for tests `EMACS_XDG_STAMP` and `EMACS_XDG_TEST_PS_FILE`.
+- Consumes: nothing from other tasks. Reads `HOME`, `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`, and for tests `EMACS_XDG_STAMP` and `EMACS_XDG_TEST_PS_FILE`.
 - Produces:
   - `xdg/migrate.sh`: preview, exit 0, changes nothing. A running Emacs is only a warning.
-  - `xdg/migrate.sh --apply`: moves, exit 0. Refuses with exit 1 if Emacs runs, if `~/.emacs.d`, `~/.emacs` or `~/.emacs.el` exists, if the configuration directory has no `init.org`, or if a source is a symbolic link.
+  - `xdg/migrate.sh --apply`: moves, exit 0. Refuses with exit 1 if Emacs runs, if `~/.emacs.d`, `~/.emacs` or `~/.emacs.el` exists, if the configuration directory has no `init.org`, or if a source is a symbolic link. A preview refuses as well, and so does `--apply`, if two of the three roots are the same directory or one lies inside another, or if a root or the place for the records exists and is not a directory.
   - `--prefer=source` or `--prefer=destination`, with or without `--apply`: says which copy wins where a destination already holds a different file. Without it, a preview marks each such pair with `clash` and `--apply` refuses before moving anything. The copy that loses is kept under `<run directory>/collisions/`.
-  - `xdg/migrate.sh --rollback DIR`: undoes the renames listed in `DIR/moves.tsv`. It refuses to overwrite a file that has come back at an old path, and it can be run again after it stops.
-  - The run directory `<data>/migration/<stamp>/` holding `moves.tsv`, `pre-migration.tar`, `attic/` and, if anything collided, `collisions/`.
-  - The file `<data>/eshell/history` and its neighbours at exactly the names `user-paths-table` gives them.
+  - `xdg/migrate.sh --rollback DIR`: undoes the renames listed in `DIR/moves.tsv`. It refuses to overwrite a file that has come back at an old path, and it can be run again after it stops. If a moved file has since vanished from both places, it says so on a line that begins with `  lost` (two spaces first, like every action line), restores everything else, exits 1 and keeps the log.
+  - The run directory `<state>/migration/<stamp>/` holding `moves.tsv`, `pre-migration.tar`, `attic/` and, if anything collided, `collisions/`.
+  - Every file at exactly the root and name that `user-paths-table` (Task 1) or the edited `init.org` (Task 2) gives it: `<state>/eshell/history`, `<state>/history`, `<data>/transient/values.el`, `<cache>/org-roam.db` and so on.
 
-Where each thing goes:
+Where each thing goes. The old init kept all three kinds under `data/`, so that directory is split:
 
 | Source in `~/.config/emacs` | Destination | Kind |
 |---|---|---|
-| `data/*` (history, recentf, org-roam.db, org-id-locations, places, tramp, transient/, url/cookies, auto-save-list/, ...) | `~/.local/share/emacs/` under the same names | data |
-| `eshell/history`, `eshell/lastdir` | `~/.local/share/emacs/eshell/` | data |
-| `projects`, `projectile-frecency.eld` | `~/.local/share/emacs/` | data |
-| `multisession/`, `persist/`, `request/`, `tree-sitter/` | `~/.local/share/emacs/` | data |
-| `eln-cache/`, `emojis/` | `~/.cache/emacs/` | cache |
+| `data/history`, `data/recentf`, `data/org-id-locations`, `data/persistent-scratch`, `data/places`, `data/prescient-save.el`, `data/projectile-bookmarks.eld`, `data/tramp`, `data/bm-repository`, `data/network-security.data`, `data/auto-save-list/`, `data/url/` (cookies), `data/transient/history.el` | `~/.local/state/emacs/` under the same names | state |
+| where a host has them: `data/nov-places`, `data/org-clock-save.el`, `data/slime-history.eld`, `data/bmk-bmenu-state.el`, `data/backups/` | `~/.local/state/emacs/` under the same names | state |
+| where a host has one: `data/.lsp-session-v1` | `~/.local/state/emacs/lsp-session-v1` | state |
+| `eshell/history`, `eshell/lastdir` | `~/.local/state/emacs/eshell/` | state |
+| `projects`, `projectile-frecency.eld`, `multisession/`, `request/` | `~/.local/state/emacs/` | state |
+| `~/.local/share/emacs/backups/`, which is outside the checkout already | `~/.local/state/emacs/backups/` | state |
+| the rest of `data/`: `mc-lists.el`, `oauth2-auto.plist`, `transient/values.el`, and any file this list does not know | `~/.local/share/emacs/` under the same names | data |
+| `persist/`, `tree-sitter/`, `emojis/`, `hash-store/` | `~/.local/share/emacs/` | data |
+| where a host has it: `data/.cache/lsp/` | `~/.local/share/emacs/lsp/` | data |
+| `data/org-roam.db`, with any `-journal`, `-wal` or `-shm` file a crash left beside it; `data/projectile.cache`; `data/xeft.db` | `~/.cache/emacs/` under the same names | cache |
+| `eln-cache/` | `~/.cache/emacs/` | cache |
 | `var/pcache/` | `~/.cache/emacs/pcache/` | cache |
 | `url/cache/` (stray), `data/url/cache/` | `~/.cache/emacs/url/` | cache |
-| `data/projectile.cache`, `data/.cache/lsp/` | `~/.cache/emacs/` | cache |
-| `data-MacPort/`, `data/mc-lists.elc`, `var/osm/`, `transient/` (stray), `auto-save-list/` (stray), `elpy/`, `gptel-agent/`, `.lsp-session-v1`, `.org-generic-id-locations`, `anvil-worker.log`, `%backup%~` | `<run directory>/attic/` under the same names | attic |
-| `hash-store/`, `agent/`, and `var/`, `url/`, `data/` once emptied | removed if empty | prune |
+| `data-MacPort/`, `data/mc-lists.elc`, `data/workgroups`, `var/osm/`, `transient/` (stray), `auto-save-list/` (stray), `elpy/`, `gptel-agent/`, `.lsp-session-v1`, `.org-generic-id-locations`, `anvil-worker.log`, `%backup%~` | `<run directory>/attic/` under the same names | attic |
+| `agent/`, and `var/`, `url/`, `data/` once emptied | removed if empty | prune |
 | `eshell/alias`, `eshell/login`, `certs/`, `settings.el`, `init.el`, `nix-packages*` | stay | configuration |
+
+The tests start the script with an empty environment (`env -i`). That is deliberate: John's shell exports `XDG_STATE_HOME` and its three siblings, and a test that left one of them in place would move its fixture into a real directory.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -1706,7 +1972,10 @@ Create `xdg/migrate-test.sh`:
 # Usage: xdg/migrate-test.sh
 #
 # Every test builds its own home directory under a scratch directory and
-# points the script at it, so no real state is read or written.
+# points the script at it, so no real state is read or written.  The script
+# is always started with an empty environment: an XDG variable exported by
+# the shell that runs these tests would otherwise outrank the scratch HOME
+# and send the moves to real directories.
 
 set -uo pipefail
 
@@ -1761,11 +2030,12 @@ put() {
 
 # Build a home directory that looks like the real one before migration.
 fixture() {
-    local home=$1 config data cache
+    local home=$1 config data state cache name
     config=$home/.config/emacs
     data=$home/.local/share/emacs
+    state=$home/.local/state/emacs
     cache=$home/.cache/emacs
-    mkdir -p "$config" "$data/backups" "$cache"
+    mkdir -p "$config" "$data/backups" "$state" "$cache"
 
     # Configuration that must stay.
     put "$config/init.org" 'init'
@@ -1775,10 +2045,11 @@ fixture() {
     put "$config/eshell/login" 'login'
     put "$config/mystery.txt" 'nobody knows this file'
 
-    # State under data/.
+    # What the old init kept under data/: data, state and caches together.
     put "$config/data/history" 'legacy history'
     put "$config/data/recentf" 'recent files'
     put "$config/data/org-roam.db" 'database'
+    put "$config/data/org-roam.db-journal" 'a journal left by a crash'
     put "$config/data/oauth2-auto.plist" 'token'
     chmod 644 "$config/data/oauth2-auto.plist"
     put "$config/data/mc-lists.el" 'lists'
@@ -1791,8 +2062,16 @@ fixture() {
     put "$config/data/url/cookies" 'cookies'
     chmod 644 "$config/data/url/cookies"
     put "$config/data/url/cache/johnw/a" 'cached a'
+    put "$config/data/url/cache/johnw/c" 'cached c'
     put "$config/data/.cache/lsp/server" 'server'
     put "$config/data/projectile.cache" 'index'
+    for name in bm-repository bmk-bmenu-state.el network-security.data nov-places \
+        org-clock-save.el org-id-locations persistent-scratch places \
+        prescient-save.el projectile-bookmarks.eld slime-history.eld tramp; do
+        put "$config/data/$name" "state: $name"
+    done
+    put "$config/data/.lsp-session-v1" 'state: lsp session'
+    put "$config/data/xeft.db" 'index'
 
     # State and caches at the top level.
     put "$config/data-MacPort/auto-save-list/.saves-2-host~" 'stale'
@@ -1826,13 +2105,15 @@ fixture() {
     put "$config/.org-generic-id-locations" 'ids'
     put "$config/anvil-worker.log" 'log'
     put "$config/%backup%~" 'emergency backup'
-    mkdir -p "$config/hash-store" "$config/agent"
+    put "$config/hash-store/ab/cdef" 'a stored object'
+    mkdir -p "$config/agent"
 
     # What is already at the destinations.
     put "$data/backups/keep.txt" 'a backup'
-    put "$data/history" 'a history written by a premature start'
-    put "$data/recentf" 'recent files'
-    mkdir -p "$data/url" "$data/eshell" "$data/tree-sitter"
+    put "$data/keep.txt" 'kept'
+    put "$state/history" 'a history written by a premature start'
+    put "$state/recentf" 'recent files'
+    mkdir -p "$state/url" "$state/eshell" "$data/tree-sitter"
     put "$cache/tramp.abc" 'stray'
 
     git -C "$config" init -q
@@ -1857,13 +2138,20 @@ snapshot() {
     })
 }
 
-# run HOME ARGS...: run the script against the fixture in HOME.
+# sealed HOME [VAR=value...] [ARGS...]: run the script against the fixture
+# in HOME, with nothing else in its environment but PATH and the list of
+# processes the fixture supplies.
+sealed() {
+    local home=$1
+    shift
+    env -i PATH="$PATH" HOME="$home" EMACS_XDG_TEST_PS_FILE="$home/ps" "$@"
+}
+
+# run HOME ARGS...: the usual case, with the default roots below HOME.
 run() {
     local home=$1
     shift
-    env -u XDG_CONFIG_HOME -u XDG_DATA_HOME -u XDG_CACHE_HOME \
-        HOME="$home" EMACS_XDG_STAMP=run1 EMACS_XDG_TEST_PS_FILE="$home/ps" \
-        "$migrate" "$@"
+    sealed "$home" EMACS_XDG_STAMP="${EMACS_XDG_STAMP:-run1}" "$migrate" "$@"
 }
 
 mode_of() {
@@ -1888,11 +2176,13 @@ check 'preview exits 0' test "$status" -eq 0
 check 'preview changes nothing' test "$before" = "$(snapshot "$home")"
 check 'preview says so' grep -q 'Preview only' <<<"$output"
 check 'preview shows a destination that holds a different file' \
-    grep -q "^  clash  $home/.config/emacs/data/history <> $home/.local/share/emacs/history\$" <<<"$output"
+    grep -q "^  clash  $home/.config/emacs/data/history <> $home/.local/state/emacs/history\$" <<<"$output"
 check 'preview says that apply will need a preference' \
     grep -q -- '--apply will need --prefer=source or --prefer=destination' <<<"$output"
 check 'preview keeps a directory that still holds a clashing file' \
     grep -q "^  stays  $home/.config/emacs/data (not empty)\$" <<<"$output"
+check 'preview sends a clashing file to no other root' \
+    test -z "$(grep "^  mv     $home/.config/emacs/data/history -> " <<<"$output")"
 output=$(run "$home" --prefer=source 2>&1)
 check 'a preview with a preference changes nothing' test "$before" = "$(snapshot "$home")"
 preview_actions=$(actions <<<"$output")
@@ -1903,10 +2193,12 @@ home=$scratch/apply
 fixture "$home"
 config=$home/.config/emacs
 data=$home/.local/share/emacs
+state=$home/.local/state/emacs
 cache=$home/.cache/emacs
-run_dir=$data/migration/run1
+run_dir=$state/migration/run1
 original=$(snapshot "$config")
 original_data=$(snapshot "$data")
+original_state=$(snapshot "$state")
 before=$(snapshot "$home")
 output=$(run "$home" --apply 2>&1)
 status=$?
@@ -1920,45 +2212,78 @@ apply_actions=$(actions <<<"$output")
 check 'preview printed the same actions as apply' \
     test "${preview_actions//preview/apply}" = "$apply_actions"
 
-check 'history arrives with the legacy content' \
-    grep -qx 'legacy history' "$data/history"
+# State: what Emacs records about its own use.
+check 'history arrives in the state root with the legacy content' \
+    grep -qx 'legacy history' "$state/history"
 check 'the history that was there is kept' \
-    grep -qx 'a history written by a premature start' "$run_dir/collisions$data/history"
+    grep -qx 'a history written by a premature start' "$run_dir/collisions$state/history"
 check 'an identical file is merged silently' \
-    grep -qx 'recent files' "$data/recentf"
+    grep -qx 'recent files' "$state/recentf"
 check 'an identical file leaves no kept copy' \
-    test ! -e "$run_dir/collisions$data/recentf" -a ! -e "$run_dir/collisions$config/data/recentf"
+    test ! -e "$run_dir/collisions$state/recentf" -a ! -e "$run_dir/collisions$config/data/recentf"
 check 'an identical file is logged as a duplicate' \
-    grep -q "^DUP	$config/data/recentf	$data/recentf\$" "$run_dir/moves.tsv"
-check 'a dot file inside a merged directory moves' \
-    grep -qx 'a dot file' "$data/.hidden"
-check 'the database moves' test -f "$data/org-roam.db"
-check 'nested state moves' test -f "$data/transient/values.el"
-check 'cookies move' test -f "$data/url/cookies"
-check 'auto-save index moves' test -f "$data/auto-save-list/.saves-1-host~"
-check 'old state rides along' test -f "$data/workgroups"
-check 'eshell history moves' test -f "$data/eshell/history"
-check 'eshell lastdir moves' test -f "$data/eshell/lastdir"
-check 'project list moves' test -f "$data/projects"
-check 'frecency moves' test -f "$data/projectile-frecency.eld"
-check 'multisession moves' test -f "$data/multisession/files/emoji/emoji--recent.value"
-check 'persist moves' test -f "$data/persist/listen-queues"
-check 'cookie jar moves to data' test -f "$data/request/curl-cookie-jar"
-check 'grammars move to data' test -f "$data/tree-sitter/libtree-sitter-c.dylib"
-check 'existing backups are untouched' grep -qx 'a backup' "$data/backups/keep.txt"
+    grep -q "^DUP	$config/data/recentf	$state/recentf\$" "$run_dir/moves.tsv"
+for name in bm-repository bmk-bmenu-state.el network-security.data nov-places \
+    org-clock-save.el org-id-locations persistent-scratch places \
+    prescient-save.el projectile-bookmarks.eld slime-history.eld tramp; do
+    check "data/$name goes to state" grep -qx "state: $name" "$state/$name"
+    check "data/$name does not go to data" test ! -e "$data/$name"
+done
+check 'the lsp session goes to state under its new name' \
+    grep -qx 'state: lsp session' "$state/lsp-session-v1"
+check 'transient history goes to state' test -f "$state/transient/history.el"
+check 'cookies go to state' test -f "$state/url/cookies"
+check 'auto-save index goes to state' test -f "$state/auto-save-list/.saves-1-host~"
+check 'eshell history goes to state' test -f "$state/eshell/history"
+check 'eshell lastdir goes to state' test -f "$state/eshell/lastdir"
+check 'project list goes to state' test -f "$state/projects"
+check 'frecency goes to state' test -f "$state/projectile-frecency.eld"
+check 'multisession goes to state' test -f "$state/multisession/files/emoji/emoji--recent.value"
+check 'cookie jar goes to state' test -f "$state/request/curl-cookie-jar"
 
+# Data: what a person made or accumulated.
+check 'a file the list does not know goes to data, dot file or not' \
+    grep -qx 'a dot file' "$data/.hidden"
+check 'the token file goes to data' test -f "$data/oauth2-auto.plist"
+check 'saved transient values go to data' test -f "$data/transient/values.el"
+check 'transient history does not go to data' test ! -e "$data/transient/history.el"
+check 'persist goes to data' test -f "$data/persist/listen-queues"
+check 'saved choices go to data' test -f "$data/mc-lists.el" -a ! -e "$state/mc-lists.el"
+check 'grammars are installed things and go to data' \
+    test -f "$data/tree-sitter/libtree-sitter-c.dylib" -a ! -e "$cache/tree-sitter"
+check 'language servers are installed things and go to data' \
+    test -f "$data/lsp/server" -a ! -e "$cache/lsp"
+check 'downloaded artwork goes to data' \
+    test -f "$data/emojis/set/1.png" -a ! -e "$cache/emojis"
+check 'the object store goes to data' grep -qx 'a stored object' "$data/hash-store/ab/cdef"
+check 'data that no entry names is untouched' grep -qx 'kept' "$data/keep.txt"
+
+# Backups already live outside the checkout, under the data root.
+check 'backups move from the data root to state' grep -qx 'a backup' "$state/backups/keep.txt"
+check 'no backups directory is left under data' test ! -e "$data/backups"
+check 'the move between roots is logged' \
+    grep -q "^MV	$data/backups	$state/backups\$" "$run_dir/moves.tsv"
+
+# Caches: what Emacs rebuilds.
+check 'the note index goes to the cache' test -f "$cache/org-roam.db"
+check 'the note index does not go to data' test ! -e "$data/org-roam.db"
+check 'a journal left beside the note index goes with it' \
+    test -f "$cache/org-roam.db-journal" -a ! -e "$data/org-roam.db-journal"
+check 'the search index goes to the cache' test -f "$cache/xeft.db"
 check 'native cache moves' test -f "$cache/eln-cache/31/x.eln"
-check 'emoji images move' test -f "$cache/emojis/set/1.png"
 check 'pcache moves' test -f "$cache/pcache/fonts"
-check 'url cache from data/ moves' test -f "$cache/url/johnw/a"
+check 'url cache from data/ moves' grep -qx 'cached c' "$cache/url/johnw/c"
+check 'url cache from data/ does not go to state' test ! -e "$state/url/cache"
+check 'the emptied data/.cache is not carried along' test ! -e "$data/.cache"
 check 'stray url cache merges' test -f "$cache/url/johnw/b"
-check 'lsp servers move' test -f "$cache/lsp/server"
 check 'projectile index moves' test -f "$cache/projectile.cache"
 check 'stray cache file is untouched' test -f "$cache/tramp.abc"
 
 attic=$run_dir/attic
 check 'stale instance goes to the attic' test -f "$attic/data-MacPort/auto-save-list/.saves-2-host~"
 check 'stray compiled file goes to the attic' test -f "$attic/data/mc-lists.elc"
+check 'a file that no setting names goes to the attic' \
+    test -f "$attic/data/workgroups" -a ! -e "$data/workgroups"
 check 'dead tile cache goes to the attic' test -f "$attic/var/osm/default/1.png"
 check 'stray transient goes to the attic' test -f "$attic/transient/history.el"
 check 'stray auto-save-list goes to the attic' test -f "$attic/auto-save-list/.saves-3-host~"
@@ -1988,19 +2313,24 @@ check 'preview reports the same leftovers as apply' \
     test "${preview_leftovers//preview/apply}" = "$(leftovers <<<"$output")"
 
 check 'data root is private' test "$(mode_of "$data")" = 700
+check 'state root is private' test "$(mode_of "$state")" = 700
 check 'cache root is private' test "$(mode_of "$cache")" = 700
 check 'run directory is private' test "$(mode_of "$run_dir")" = 700
 check 'token file is private' test "$(mode_of "$data/oauth2-auto.plist")" = 600
-check 'cookie jar is private' test "$(mode_of "$data/request/curl-cookie-jar")" = 600
+check 'cookie jar is private' test "$(mode_of "$state/request/curl-cookie-jar")" = 600
 check 'sync tokens are private' test "$(mode_of "$data/persist/org-gcal--sync-tokens")" = 600
-check 'cookies are private' test "$(mode_of "$data/url/cookies")" = 600
+check 'cookies are private' test "$(mode_of "$state/url/cookies")" = 600
 
 check 'the archive holds the legacy history' \
     test "$(tar -xOf "$run_dir/pre-migration.tar" data/history)" = 'legacy history'
 check 'the archive holds attic items' \
     test "$(tar -xOf "$run_dir/pre-migration.tar" '%backup%~')" = 'emergency backup'
+check 'the archive holds each file once' \
+    test -z "$(tar -tf "$run_dir/pre-migration.tar" | LC_ALL=C sort | uniq -d)"
 check 'the archive leaves caches out' \
-    test -z "$(tar -tf "$run_dir/pre-migration.tar" | grep -E '^(eln-cache|emojis|var/pcache)' || true)"
+    test -z "$(tar -tf "$run_dir/pre-migration.tar" | grep -E '^(eln-cache|var/pcache)' || true)"
+check 'the archive holds what was installed' \
+    test -n "$(tar -tf "$run_dir/pre-migration.tar" | grep -x 'tree-sitter/libtree-sitter-c.dylib')"
 check 'every rename is logged' test "$(grep -c '^MV' "$run_dir/moves.tsv")" -ge 30
 
 # ------------------------------------------------------------- idempotent
@@ -2032,17 +2362,82 @@ check 'rollback exits 0' test "$status" -eq 0
 check 'rollback restores every name and its contents' \
     test "$original" = "$(snapshot "$config")"
 check 'rollback restores the data root' \
-    test "$original_data" = "$(snapshot "$data" | grep -v ' \./migration')"
+    test "$original_data" = "$(snapshot "$data")"
+# The move made one directory in the state root, for the transient history.
+# A rollback leaves it there, empty.
+check 'rollback restores every file in the state root' \
+    test "$(grep -v '^D ' <<<"$original_state")" = \
+    "$(snapshot "$state" | grep -v -e '^D ' -e ' \./migration/')"
 check 'rollback leaves the cache root as it was' \
-    test "$(cd "$cache" && find . -mindepth 1 | LC_ALL=C sort)" = ./tramp.abc
+    test "$(cd "$cache" && find . -mindepth 1 | LC_ALL=C sort | tr '\n' ' ')" = './tramp.abc '
 check 'rollback retires the log' test -f "$run_dir/moves.tsv.rolled-back"
+
+# ------------------------------------- a rollback with something missing
+# A moved directory has vanished since.  The rollback restores everything
+# else, says what it could not restore, and keeps the log for another try.
+home=$scratch/vanished
+fixture "$home"
+config=$home/.config/emacs
+state=$home/.local/state/emacs
+run_dir=$state/migration/run1
+run "$home" --apply --prefer=source >/dev/null 2>&1
+case $state in
+"$scratch"/vanished/.local/state/emacs) rm -r "$state/request" ;;
+esac
+output=$(run "$home" --rollback "$run_dir" 2>&1)
+status=$?
+check 'a rollback that cannot restore everything exits non-zero' test "$status" -ne 0
+check 'it names what it could not restore' \
+    grep -q "^  lost   $config/request " <<<"$output"
+check 'it restores everything else' \
+    test -f "$config/data/history" -a -f "$config/eshell/history" -a -f "$config/persist/listen-queues"
+check 'it keeps the log for another try' \
+    test -f "$run_dir/moves.tsv" -a ! -e "$run_dir/moves.tsv.rolled-back"
+output=$(run "$home" --rollback "$run_dir" 2>&1)
+status=$?
+check 'a second try reports the same loss and changes nothing else' \
+    test "$status" -ne 0 -a -f "$config/data/history"
+
+# -------------------------------------- backups in three places at once
+# The checkout, the data root and the state root each hold a backups
+# directory, and one file differs.  The clash must show in the preview and
+# stop --apply before anything moves.
+home=$scratch/backups
+fixture "$home"
+config=$home/.config/emacs
+data=$home/.local/share/emacs
+state=$home/.local/state/emacs
+put "$config/data/backups/a" 'from the checkout'
+put "$data/backups/b" 'already under data'
+put "$state/backups/a" 'a different a'
+rm "$state/history" "$state/recentf"
+before=$(snapshot "$home")
+output=$(run "$home" 2>&1)
+check 'a clash between backups directories shows in the preview' \
+    grep -q "^  clash  $config/data/backups/a <> $state/backups/a\$" <<<"$output"
+output=$(run "$home" --apply 2>&1)
+status=$?
+check 'that clash stops apply before anything moves' \
+    test "$status" -ne 0 -a "$before" = "$(snapshot "$home")"
+preview=$(run "$home" --prefer=source 2>&1 | actions)
+output=$(run "$home" --apply --prefer=source 2>&1)
+status=$?
+check 'apply with three backups directories exits 0' test "$status" -eq 0
+check 'its preview printed the same actions' test "$preview" = "$(actions <<<"$output")"
+check 'backups from the checkout arrive in state' \
+    grep -qx 'from the checkout' "$state/backups/a"
+check 'backups from the data root arrive in state' \
+    test "$(cat "$state/backups/b")" = 'already under data' -a -f "$state/backups/keep.txt"
+check 'no backups directory is left behind' \
+    test ! -e "$data/backups" -a ! -e "$config/data"
 
 # ------------------------------------------------- the destination wins
 home=$scratch/destination
 fixture "$home"
 config=$home/.config/emacs
 data=$home/.local/share/emacs
-run_dir=$data/migration/run1
+state=$home/.local/state/emacs
+run_dir=$state/migration/run1
 original=$(snapshot "$config")
 preview=$(run "$home" --prefer=destination 2>&1 | actions)
 output=$(run "$home" --apply --prefer=destination 2>&1)
@@ -2051,18 +2446,18 @@ check 'apply with the destination preferred exits 0' test "$status" -eq 0
 check 'its preview printed the same actions' \
     test "${preview//destination/X}" = "$(actions <<<"$output" | sed 's/destination/X/g')"
 check 'the file at the destination stays' \
-    grep -qx 'a history written by a premature start' "$data/history"
+    grep -qx 'a history written by a premature start' "$state/history"
 check 'the copy from the configuration directory is kept' \
     grep -qx 'legacy history' "$run_dir/collisions$config/data/history"
-check 'everything else still moves' test -f "$data/org-roam.db" -a ! -e "$config/data"
+check 'everything else still moves' test -f "$data/oauth2-auto.plist" -a ! -e "$config/data"
 output=$(run "$home" --rollback "$run_dir" 2>&1)
 check 'rollback restores every name and its contents again' \
     test "$original" = "$(snapshot "$config")"
 check 'rollback leaves the destination file alone' \
-    grep -qx 'a history written by a premature start' "$data/history"
+    grep -qx 'a history written by a premature start' "$state/history"
 
 # ------------------------------------------------------------ a new host
-# No data root and no cache root yet: the preview must still match.
+# None of the three roots exists yet: the preview must still match.
 home=$scratch/fresh
 fixture "$home"
 case $home in
@@ -2073,7 +2468,37 @@ output=$(run "$home" --apply 2>&1)
 status=$?
 check 'apply on a host without the roots exits 0' test "$status" -eq 0
 check 'its preview printed the same actions' test "$preview" = "$(actions <<<"$output")"
-check 'the state arrives' grep -qx 'legacy history' "$home/.local/share/emacs/history"
+check 'the state arrives' grep -qx 'legacy history' "$home/.local/state/emacs/history"
+check 'the data arrives' test -f "$home/.local/share/emacs/oauth2-auto.plist"
+check 'the caches arrive' test -f "$home/.cache/emacs/org-roam.db"
+
+# ------------------------------------------ a clash inside a directory
+# One file of a directory clashes; its sibling belongs to another root.
+home=$scratch/inside
+fixture "$home"
+config=$home/.config/emacs
+data=$home/.local/share/emacs
+state=$home/.local/state/emacs
+put "$state/transient/history.el" 'a newer history'
+output=$(run "$home" 2>&1)
+check 'a clash inside a directory is shown' \
+    grep -q "^  clash  $config/data/transient/history.el <> $state/transient/history.el\$" <<<"$output"
+check 'its sibling is still shown as moving' \
+    grep -q "^  mv     $config/data/transient/values.el -> $data/transient/values.el\$" <<<"$output"
+check 'the directory that holds the clashing file stays' \
+    grep -q "^  stays  $config/data/transient (not empty)\$" <<<"$output"
+check 'the directory is not moved whole with the clashing file in it' \
+    test -z "$(grep "^  mv     $config/data/transient -> " <<<"$output")"
+preview=$(run "$home" --prefer=source 2>&1 | actions)
+output=$(run "$home" --apply --prefer=source 2>&1)
+status=$?
+check 'apply with a clash inside a directory exits 0' test "$status" -eq 0
+check 'its preview printed the same actions' test "$preview" = "$(actions <<<"$output")"
+check 'the clashing file arrives in state' grep -qx 'nil' "$state/transient/history.el"
+check 'the copy that was there is kept' \
+    grep -qx 'a newer history' "$state/migration/run1/collisions$state/transient/history.el"
+check 'the sibling arrives in data' grep -qx 'values' "$data/transient/values.el"
+check 'nothing is left of the directory' test ! -e "$config/data"
 
 # -------------------------------------------- two sources, one destination
 home=$scratch/twice
@@ -2115,10 +2540,10 @@ status=$?
 check 'a preview still runs while Emacs does' test "$status" -eq 0
 check 'a preview warns that Emacs is running' grep -q 'Emacs is running' <<<"$output"
 check 'a preview while Emacs runs changes nothing' test "$before" = "$(snapshot "$home")"
-mkdir -p "$home/.local/share/emacs/migration/run9"
-printf 'MV\t/nonexistent/a\t/nonexistent/b\n' >"$home/.local/share/emacs/migration/run9/moves.tsv"
+mkdir -p "$home/.local/state/emacs/migration/run9"
+printf 'MV\t/nonexistent/a\t/nonexistent/b\n' >"$home/.local/state/emacs/migration/run9/moves.tsv"
 refuses 'rollback refuses while Emacs runs' 'quit every Emacs' "$home" \
-    --rollback "$home/.local/share/emacs/migration/run9"
+    --rollback "$home/.local/state/emacs/migration/run9"
 printf '/bin/zsh\n/opt/bin/emacsclient\n/usr/bin/emacs-mcp-stdio.sh\n' >"$home/ps"
 check 'emacsclient and helpers do not count as Emacs' run "$home"
 
@@ -2140,12 +2565,57 @@ refuses 'refuses a symbolic link in place of a source' 'symbolic link' "$home" -
 
 home=$scratch/nested
 fixture "$home"
-output=$(env -u XDG_CONFIG_HOME -u XDG_CACHE_HOME HOME="$home" \
-    XDG_DATA_HOME="$home/.config/emacs/data" EMACS_XDG_TEST_PS_FILE="$home/ps" \
-    "$migrate" --apply 2>&1)
-status=$?
-check 'refuses a data root inside the configuration directory' \
-    test "$status" -ne 0 -a "${output#*must lie outside}" != "$output"
+for variable in XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME; do
+    before=$(snapshot "$home")
+    output=$(sealed "$home" "$variable=$home/.config/emacs/data" "$migrate" --apply 2>&1)
+    status=$?
+    check "refuses $variable inside the configuration directory" \
+        test "$status" -ne 0 -a "${output#*must lie outside}" != "$output"
+    check "that refusal of $variable changes nothing" test "$before" = "$(snapshot "$home")"
+done
+
+# The three roots must be three separate directories.  With two of them in
+# one place, a move between roots would find each file "already there".
+home=$scratch/sameroot
+fixture "$home"
+ln -s "$home/.local/share" "$home/alias"
+for pair in \
+    "XDG_STATE_HOME=$home/.local/share" \
+    "XDG_CACHE_HOME=$home/.local/share" \
+    "XDG_CACHE_HOME=$home/.local/state" \
+    "XDG_STATE_HOME=$home/alias" \
+    "XDG_STATE_HOME=$home/.local/share/emacs/backups" \
+    "XDG_DATA_HOME=$home/.local/state/emacs"; do
+    before=$(snapshot "$home")
+    output=$(sealed "$home" "$pair" "$migrate" --apply --prefer=source 2>&1)
+    status=$?
+    check "refuses ${pair%%=*} at or inside another root (${pair##*/})" \
+        test "$status" -ne 0 -a "${output#*three separate directories}" != "$output"
+    check "that refusal changes nothing (${pair##*/})" test "$before" = "$(snapshot "$home")"
+    output=$(sealed "$home" "$pair" "$migrate" 2>&1)
+    check "a preview refuses it as well (${pair##*/})" \
+        test "$?" -ne 0 -a "${output#*three separate directories}" != "$output"
+done
+
+home=$scratch/notadir
+fixture "$home"
+put "$home/.local/state/emacs/migration" 'a file where the records go'
+refuses 'a preview refuses a file where the migration records go' \
+    'is not a directory' "$home"
+refuses 'apply refuses it as well' 'is not a directory' "$home" --apply --prefer=source
+
+home=$scratch/backuplink
+fixture "$home"
+mv "$home/.local/share/emacs/backups" "$home/elsewhere"
+ln -s "$home/elsewhere" "$home/.local/share/emacs/backups"
+refuses 'refuses a symbolic link in place of the backups directory' \
+    'symbolic link' "$home" --apply --prefer=source
+
+home=$scratch/backuptab
+fixture "$home"
+put "$home/.local/share/emacs/backups/odd$(printf '\t')name" 'x'
+refuses 'refuses a tab in a name under the backups directory' \
+    'tab or a newline' "$home" --apply --prefer=source
 
 home=$scratch/oddname
 fixture "$home"
@@ -2154,14 +2624,11 @@ refuses 'refuses a name that holds a tab' 'tab or a newline' "$home" --apply
 
 home=$scratch/slashes
 fixture "$home"
-output=$(env -u XDG_DATA_HOME -u XDG_CACHE_HOME HOME="$home" \
-    XDG_CONFIG_HOME="$home//.config/" EMACS_XDG_TEST_PS_FILE="$home/ps" \
-    "$migrate" 2>&1)
+output=$(sealed "$home" XDG_CONFIG_HOME="$home//.config/" "$migrate" 2>&1)
 check 'repeated and trailing slashes in a root are dropped' \
     grep -q "^Configuration: $home/.config/emacs\$" <<<"$output"
-output=$(env -u XDG_CACHE_HOME HOME="$home" XDG_CONFIG_HOME="$home/.config/" \
-    XDG_DATA_HOME="$home/.config//emacs/data" EMACS_XDG_TEST_PS_FILE="$home/ps" \
-    "$migrate" --apply 2>&1)
+output=$(sealed "$home" XDG_CONFIG_HOME="$home/.config/" \
+    XDG_DATA_HOME="$home/.config//emacs/data" "$migrate" --apply 2>&1)
 status=$?
 check 'a data root inside the configuration directory is refused however it is spelt' \
     test "$status" -ne 0 -a "${output#*must lie outside}" != "$output"
@@ -2176,17 +2643,34 @@ refuses 'rollback needs a log' 'no moves.tsv' "$home" --rollback "$home"
 # ------------------------------------------------------------ environment
 home=$scratch/xdg
 fixture "$home"
-output=$(env -u XDG_CONFIG_HOME HOME="$home" XDG_DATA_HOME=relative/share \
-    XDG_CACHE_HOME= EMACS_XDG_TEST_PS_FILE="$home/ps" "$migrate" 2>&1)
+output=$(sealed "$home" XDG_DATA_HOME=relative/share XDG_STATE_HOME=relative/state \
+    XDG_CACHE_HOME= "$migrate" 2>&1)
 check 'a relative XDG_DATA_HOME falls back to the default' \
     grep -q "^Data:  *$home/.local/share/emacs\$" <<<"$output"
+check 'a relative XDG_STATE_HOME falls back to the default' \
+    grep -q "^State:  *$home/.local/state/emacs\$" <<<"$output"
 check 'an empty XDG_CACHE_HOME falls back to the default' \
     grep -q "^Cache:  *$home/.cache/emacs\$" <<<"$output"
 mkdir -p "$home/elsewhere"
-output=$(env -u XDG_CONFIG_HOME -u XDG_CACHE_HOME HOME="$home" \
-    XDG_DATA_HOME="$home/elsewhere" EMACS_XDG_TEST_PS_FILE="$home/ps" "$migrate" 2>&1)
+output=$(sealed "$home" XDG_DATA_HOME="$home/elsewhere" \
+    XDG_STATE_HOME="$home/elsewhere/state" "$migrate" 2>&1)
 check 'an absolute XDG_DATA_HOME is honoured' \
     grep -q "^Data:  *$home/elsewhere/emacs\$" <<<"$output"
+check 'an absolute XDG_STATE_HOME is honoured' \
+    grep -q "^State:  *$home/elsewhere/state/emacs\$" <<<"$output"
+check 'the migration records follow the state root' \
+    grep -q "$home/elsewhere/state/emacs/migration/" <<<"$output"
+
+# The variables of the shell that runs these tests must not reach the script.
+home=$scratch/ambient
+fixture "$home"
+mkdir -p "$scratch/ambient-leak"
+output=$(XDG_DATA_HOME=$scratch/ambient-leak XDG_STATE_HOME=$scratch/ambient-leak \
+    XDG_CACHE_HOME=$scratch/ambient-leak XDG_CONFIG_HOME=$scratch/ambient-leak \
+    run "$home" --apply --prefer=source 2>&1)
+check 'XDG variables of the calling shell do not reach the script' \
+    test -z "$(find "$scratch/ambient-leak" -mindepth 1 | head -n 1)" \
+    -a -f "$home/.local/state/emacs/history"
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
 [[ $failed -eq 0 ]]
@@ -2196,7 +2680,7 @@ printf '\n%d passed, %d failed\n' "$passed" "$failed"
 
 Run: `chmod +x xdg/migrate-test.sh && xdg/migrate-test.sh 2>/dev/null | tail -1`
 
-Expected: `29 passed, 107 failed`. The script under test does not exist yet; the checks that pass hold vacuously, such as a configuration file staying where it is.
+Expected: `65 passed, 169 failed`. The script under test does not exist yet; the checks that pass hold vacuously, such as a configuration file staying where it is.
 
 - [ ] **Step 3: Write the mover**
 
@@ -2217,15 +2701,19 @@ Create `xdg/migrate.sh`:
 # already there.  The other copy is kept in the run directory either way.
 # A preview takes the same option and shows the result.
 #
-# Durable state goes to $XDG_DATA_HOME/emacs, caches go to
-# $XDG_CACHE_HOME/emacs, and leftovers of packages that are gone go to an
-# attic inside the run directory for a person to review.  Nothing is
+# Each file goes to the root that fits what it is, as lisp/user-paths.el
+# has it: data to $XDG_DATA_HOME/emacs, state to $XDG_STATE_HOME/emacs and
+# caches to $XDG_CACHE_HOME/emacs.  Leftovers of packages that are gone go
+# to an attic inside the run directory for a person to review.  Nothing is
 # deleted, except a source file that is byte-identical to its destination
 # and directories that the moves have emptied.
 #
-# Every rename is recorded in <data>/migration/<stamp>/moves.tsv, and a tar
-# archive of everything that is not a cache is written there first.  The
-# script is safe to run again: sources that are already gone are skipped.
+# Every rename is recorded in <state>/migration/<stamp>/moves.tsv, and a tar
+# archive of every source inside the configuration directory that is not a
+# cache is written there first; the old data/ directory goes into it whole.
+# The backups directory, which is outside the checkout already, is only
+# renamed.  The script is safe to run again: sources that are already gone
+# are skipped.
 #
 # Quit every Emacs first.  A running session rewrites its history files at
 # their old paths, on timers as well as on exit.
@@ -2257,36 +2745,72 @@ xdg_home() {
 
 CONFIG_DIR=$(xdg_home XDG_CONFIG_HOME "$HOME/.config")/emacs
 DATA_DIR=$(xdg_home XDG_DATA_HOME "$HOME/.local/share")/emacs
+STATE_DIR=$(xdg_home XDG_STATE_HOME "$HOME/.local/state")/emacs
 CACHE_DIR=$(xdg_home XDG_CACHE_HOME "$HOME/.cache")/emacs
 STAMP=${EMACS_XDG_STAMP:-$(date +%Y%m%d-%H%M%S)}
-RUN_DIR=$DATA_DIR/migration/$STAMP
+RUN_DIR=$STATE_DIR/migration/$STAMP
 
 # KIND|SOURCE|DESTINATION.  SOURCE is relative to the configuration
-# directory.  DESTINATION is relative to the root that KIND names: `data',
-# `cache', or `attic' (leftovers kept for review).  `prune' removes SOURCE
-# if the moves above it left it empty.  Order matters: an entry that takes
-# part of a directory must precede the entry that takes the rest.
+# directory, or with the prefix `@data/' to the data root, for a file that
+# already lives outside the checkout and only changes roots.  DESTINATION
+# is relative to the root that KIND names: `data', `state', `cache', or
+# `attic' (leftovers kept for review).  `prune' removes SOURCE if the
+# moves above it left it empty.  Order matters: an entry that takes part
+# of a directory must precede the entry that takes the rest.  The old init
+# kept all three kinds under data/, so the entries for its state and its
+# caches come first and `data|data|.' takes what is left, which includes
+# any file this list does not know.  No entry may move anything into a
+# directory that a later entry takes as its source: a preview sees only
+# what is on disk there.  That is why data/backups has an entry of its own
+# ahead of `data|data|.', which would otherwise put it into <data>/backups.
 manifest() {
     cat <<'EOF'
 cache|url/cache|url
 prune|url|-
 cache|data/url/cache|url
 cache|data/projectile.cache|projectile.cache
-cache|data/.cache/lsp|lsp
+cache|data/org-roam.db|org-roam.db
+cache|data/org-roam.db-journal|org-roam.db-journal
+cache|data/org-roam.db-wal|org-roam.db-wal
+cache|data/org-roam.db-shm|org-roam.db-shm
+cache|data/xeft.db|xeft.db
+data|data/.cache/lsp|lsp
 prune|data/.cache|-
 attic|data/mc-lists.elc|data/mc-lists.elc
+attic|data/workgroups|data/workgroups
+state|data/.lsp-session-v1|lsp-session-v1
+state|data/auto-save-list|auto-save-list
+state|data/backups|backups
+state|data/bm-repository|bm-repository
+state|data/bmk-bmenu-state.el|bmk-bmenu-state.el
+state|data/history|history
+state|data/network-security.data|network-security.data
+state|data/nov-places|nov-places
+state|data/org-clock-save.el|org-clock-save.el
+state|data/org-id-locations|org-id-locations
+state|data/persistent-scratch|persistent-scratch
+state|data/places|places
+state|data/prescient-save.el|prescient-save.el
+state|data/projectile-bookmarks.eld|projectile-bookmarks.eld
+state|data/recentf|recentf
+state|data/slime-history.eld|slime-history.eld
+state|data/tramp|tramp
+state|data/transient/history.el|transient/history.el
+state|data/url|url
 data|data|.
+state|@data/backups|backups
 attic|data-MacPort|data-MacPort
-data|eshell/history|eshell/history
-data|eshell/lastdir|eshell/lastdir
-data|projects|projects
-data|projectile-frecency.eld|projectile-frecency.eld
-data|multisession|multisession
+state|eshell/history|eshell/history
+state|eshell/lastdir|eshell/lastdir
+state|projects|projects
+state|projectile-frecency.eld|projectile-frecency.eld
+state|multisession|multisession
 data|persist|persist
-data|request|request
+data|hash-store|hash-store
+state|request|request
 data|tree-sitter|tree-sitter
 cache|eln-cache|eln-cache
-cache|emojis|emojis
+data|emojis|emojis
 cache|var/pcache|pcache
 attic|var/osm|var/osm
 prune|var|-
@@ -2298,7 +2822,6 @@ attic|.lsp-session-v1|.lsp-session-v1
 attic|.org-generic-id-locations|.org-generic-id-locations
 attic|anvil-worker.log|anvil-worker.log
 attic|%backup%~|%backup%~
-prune|hash-store|-
 prune|agent|-
 EOF
 }
@@ -2307,16 +2830,46 @@ EOF
 private_files() {
     cat <<EOF
 $DATA_DIR/oauth2-auto.plist
-$DATA_DIR/request/curl-cookie-jar
 $DATA_DIR/persist/org-gcal--sync-tokens
-$DATA_DIR/url/cookies
+$STATE_DIR/request/curl-cookie-jar
+$STATE_DIR/url/cookies
 EOF
+}
+
+# Print directory $1 with the symbolic links in its existing part resolved,
+# so that two spellings of one place compare equal.
+physical() {
+    local path=$1 rest='' base
+    while [[ ! -d $path ]]; do
+        rest=/${path##*/}$rest
+        path=${path%/*}
+        if [[ -z $path ]]; then
+            path=/
+        fi
+    done
+    base=$(cd -P -- "$path" && pwd -P) || die "cannot resolve $path"
+    if [[ $base == / ]]; then
+        base=''
+    fi
+    if [[ -z $base$rest ]]; then
+        printf '/\n'
+    else
+        printf '%s%s\n' "$base" "$rest"
+    fi
+}
+
+source_of() {
+    case $1 in
+    @data/*) printf '%s\n' "$DATA_DIR/${1#@data/}" ;;
+    *) printf '%s\n' "$CONFIG_DIR/$1" ;;
+    esac
 }
 
 destination_of() {
     local root
     case $1 in
     data) root=$DATA_DIR ;;
+    state) root=$STATE_DIR ;;
     cache) root=$CACHE_DIR ;;
     attic) root=$RUN_DIR/attic ;;
     *) die "unknown manifest kind: $1" ;;
@@ -2340,10 +2893,37 @@ VIRT_FROM=()
 VIRT_TO=()
 RESOLVED=
 
+# A preview without --prefer leaves each clashing source where it is.  HELD
+# lists them, so that no later entry takes one of them, or a directory that
+# holds one, to another root.
+HELD=()
+
+is_held() {
+    local index=${#HELD[@]}
+    while ((index > 0)); do
+        index=$((index - 1))
+        if [[ ${HELD[index]} == "$1" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+holds_held() {
+    local index=${#HELD[@]}
+    while ((index > 0)); do
+        index=$((index - 1))
+        if [[ ${HELD[index]} == "$1"/* ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 # Succeed if --apply creates directory $1 before it moves anything.
 made_first() {
     case $1 in
-    "$DATA_DIR" | "$CACHE_DIR" | "$DATA_DIR/migration" | "$RUN_DIR" | "$RUN_DIR/attic")
+    "$DATA_DIR" | "$STATE_DIR" | "$CACHE_DIR" | "$STATE_DIR/migration" | "$RUN_DIR" | "$RUN_DIR/attic")
         return 0
         ;;
     esac
@@ -2397,6 +2977,15 @@ same_bytes() {
     first=$RESOLVED
     resolve "$2" || return 1
     cmp -s -- "$first" "$RESOLVED"
+}
+
+# Succeed if $1 and $2 are one file or directory under two names.
+same_place() {
+    local first
+    resolve "$1" || return 1
+    first=$RESOLVED
+    resolve "$2" || return 1
+    [[ $first -ef $RESOLVED ]]
 }
 
 # Print the children of directory $1 under the names they have there.
@@ -2455,12 +3044,21 @@ remove_directory() {
 move_entry() {
     local src=$1 dest=$2 child saved
     present "$src" || return 0
-    if ! present "$dest"; then
+    # One place under two names: there is nothing to move, and a file must
+    # never be taken for a duplicate of itself.
+    if same_place "$src" "$dest"; then
+        return 0
+    fi
+    if is_held "$src"; then
+        return 0
+    fi
+    if ! present "$dest" && ! holds_held "$src"; then
         rename_to "$src" "$dest"
         return 0
     fi
-    # Both are directories: merge child by child, then drop the source.
-    if is_directory "$src" && is_directory "$dest"; then
+    # Both are directories, or the source holds a file that has to stay:
+    # go child by child, then drop the source if that emptied it.
+    if is_directory "$src" && { ! present "$dest" || is_directory "$dest"; }; then
         while IFS= read -r child; do
             move_entry "$child" "$dest/${child##*/}"
         done < <(children_of "$src")
@@ -2507,6 +3105,7 @@ move_entry() {
         ;;
     *)
         printf '  clash  %s <> %s\n' "$src" "$dest"
+        HELD+=("$src")
         ;;
     esac
 }
@@ -2537,7 +3136,9 @@ inside() {
 }
 
 preflight() {
-    local legacy running kind src odd
+    local legacy running kind src odd index other
+    local -a roots=("$CONFIG_DIR" "$DATA_DIR" "$STATE_DIR" "$CACHE_DIR")
+    local -a real=()
     [[ -d $CONFIG_DIR ]] || die "no configuration directory at $CONFIG_DIR"
     [[ -f $CONFIG_DIR/init.org ]] ||
         die "$CONFIG_DIR does not look like the Emacs checkout (no init.org)"
@@ -2546,19 +3147,37 @@ preflight() {
             die "$legacy exists and would outrank $CONFIG_DIR at startup; move it away first"
         fi
     done
-    if inside "$DATA_DIR" "$CONFIG_DIR" || inside "$CACHE_DIR" "$CONFIG_DIR" ||
-        inside "$CONFIG_DIR" "$DATA_DIR" || inside "$CONFIG_DIR" "$CACHE_DIR"; then
-        die 'the data and cache roots must lie outside the configuration directory'
-    fi
+    for src in "${roots[@]}" "$STATE_DIR/migration" "$RUN_DIR"; do
+        if [[ (-e $src || -L $src) && ! -d $src ]]; then
+            die "$src is not a directory"
+        fi
+    done
+    # Compare the roots as places, not as strings: one of them may be
+    # reached through a symbolic link.
+    for src in "${roots[@]}"; do
+        real+=("$(physical "$src")")
+    done
+    for index in 1 2 3; do
+        if inside "${real[index]}" "${real[0]}" || inside "${real[0]}" "${real[index]}"; then
+            die "the data, state and cache roots must lie outside the configuration directory; ${roots[index]} does not"
+        fi
+        for other in 1 2 3; do
+            if [[ $other -gt $index ]] &&
+                { inside "${real[index]}" "${real[other]}" || inside "${real[other]}" "${real[index]}"; }; then
+                die "the data, state and cache roots must be three separate directories; ${roots[index]} and ${roots[other]} are not"
+            fi
+        done
+    done
     while IFS='|' read -r kind src _; do
-        if [[ -L $CONFIG_DIR/$src ]]; then
-            die "$CONFIG_DIR/$src is a symbolic link; resolve it by hand first"
+        src=$(source_of "$src")
+        if [[ -L $src ]]; then
+            die "$src is a symbolic link; resolve it by hand first"
         fi
         # The log holds one tab-separated record per line.
-        if [[ -d $CONFIG_DIR/$src ]]; then
-            odd=$(find "$CONFIG_DIR/$src" \( -name $'*\t*' -o -name $'*\n*' \) -print | head -n 1)
+        if [[ -d $src ]]; then
+            odd=$(find "$src" \( -name $'*\t*' -o -name $'*\n*' \) -print | head -n 1)
             if [[ -n $odd ]]; then
-                die "a name under $CONFIG_DIR/$src contains a tab or a newline; rename it first"
+                die "a name under $src contains a tab or a newline; rename it first"
             fi
         fi
     done < <(manifest)
@@ -2573,14 +3192,29 @@ preflight() {
 }
 
 backup_sources() {
-    local kind src dest
-    local -a sources=()
+    local kind src dest other covered
+    local -a candidates=() sources=()
+    # Only what is in the checkout is archived.  A source under `@data/'
+    # never matches here: it is outside the checkout already, and the move
+    # only renames it.
     while IFS='|' read -r kind src dest; do
-        if [[ $kind == data || $kind == attic ]] &&
+        if [[ $kind == data || $kind == state || $kind == attic ]] &&
             [[ -e $CONFIG_DIR/$src || -L $CONFIG_DIR/$src ]]; then
-            sources+=("$src")
+            candidates+=("$src")
         fi
     done < <(manifest)
+    # A source inside a directory that is archived whole would go in twice.
+    for src in ${candidates[@]+"${candidates[@]}"}; do
+        covered=0
+        for other in "${candidates[@]}"; do
+            if [[ $src == "$other"/* ]]; then
+                covered=1
+            fi
+        done
+        if [[ $covered == 0 ]]; then
+            sources+=("$src")
+        fi
+    done
     if [[ ${#sources[@]} -gt 0 ]]; then
         printf 'Archiving %d sources to %s\n' "${#sources[@]}" "$RUN_DIR/pre-migration.tar"
         tar -cpf "$RUN_DIR/pre-migration.tar" -C "$CONFIG_DIR" -- "${sources[@]}"
@@ -2607,9 +3241,9 @@ walk_manifest() {
     local kind src dest
     while IFS='|' read -r kind src dest; do
         if [[ $kind == prune ]]; then
-            prune_entry "$CONFIG_DIR/$src"
+            prune_entry "$(source_of "$src")"
         else
-            move_entry "$CONFIG_DIR/$src" "$(destination_of "$kind" "$dest")"
+            move_entry "$(source_of "$src")" "$(destination_of "$kind" "$dest")"
         fi
     done < <(manifest)
 }
@@ -2617,8 +3251,8 @@ walk_manifest() {
 migrate() {
     local file
     preflight
-    printf 'Configuration: %s\nData:          %s\nCache:         %s\n' \
-        "$CONFIG_DIR" "$DATA_DIR" "$CACHE_DIR"
+    printf 'Configuration: %s\nData:          %s\nState:         %s\nCache:         %s\n' \
+        "$CONFIG_DIR" "$DATA_DIR" "$STATE_DIR" "$CACHE_DIR"
     if [[ $APPLY == 1 ]]; then
         # Rehearse first: a conflict must stop the run before anything moves.
         APPLY=0
@@ -2626,12 +3260,13 @@ migrate() {
         APPLY=1
         VIRT_FROM=()
         VIRT_TO=()
+        HELD=()
         if [[ $CONFLICTS -gt 0 && -z $PREFER ]]; then
             die "$CONFLICTS destinations already hold a different file; preview to see them, then add --prefer=source or --prefer=destination"
         fi
         CONFLICTS=0
-        mkdir -p "$DATA_DIR" "$CACHE_DIR" "$RUN_DIR/attic"
-        chmod 700 "$DATA_DIR" "$CACHE_DIR" "$RUN_DIR"
+        mkdir -p "$DATA_DIR" "$STATE_DIR" "$CACHE_DIR" "$RUN_DIR/attic"
+        chmod 700 "$DATA_DIR" "$STATE_DIR" "$CACHE_DIR" "$RUN_DIR"
         : >>"$RUN_DIR/moves.tsv"
         backup_sources
         printf 'Moving; the log is %s\n' "$RUN_DIR/moves.tsv"
@@ -2657,7 +3292,7 @@ migrate() {
 }
 
 rollback() {
-    local run=$1 log line op first second
+    local run=$1 log line op first second lost=0
     log=$run/moves.tsv
     [[ -f $log ]] || die "no moves.tsv in $run"
     APPLY=1
@@ -2673,7 +3308,9 @@ rollback() {
                 if [[ -e $first || -L $first ]]; then
                     continue
                 fi
-                die "cannot undo: both $first and $second are missing"
+                printf '  lost   %s (neither it nor %s exists)\n' "$first" "$second"
+                lost=$((lost + 1))
+                continue
             fi
             if [[ -e $first || -L $first ]]; then
                 die "cannot undo: $first exists; move it away and run the rollback again"
@@ -2693,6 +3330,11 @@ rollback() {
                 fi
                 die "cannot undo: $first exists; move it away and run the rollback again"
             fi
+            if [[ ! -e $second && ! -L $second ]]; then
+                printf '  lost   %s (neither it nor %s exists)\n' "$first" "$second"
+                lost=$((lost + 1))
+                continue
+            fi
             mkdir -p "$(dirname "$first")"
             cp -p -- "$second" "$first"
             printf '  copy   %s -> %s\n' "$second" "$first"
@@ -2700,6 +3342,12 @@ rollback() {
         *) die "unreadable line in $log: $line" ;;
         esac
     done < <(awk '{ line[NR] = $0 } END { for (i = NR; i > 0; i--) print line[i] }' "$log")
+    if [[ $lost -gt 0 ]]; then
+        printf 'Rolled back, except for the %d marked "lost": neither the moved file\n' "$lost"
+        printf 'nor its original exists.  The archive in %s may hold them.\n' "$run"
+        printf 'The log stays in place, so this can be run again.\n'
+        exit 1
+    fi
     mv -- "$log" "$log.rolled-back"
     printf 'Rolled back: every file is where it was.  File modes that the move\n'
     printf 'tightened stay tight.  The archive and the log remain in %s\n' "$run"
@@ -2728,15 +3376,15 @@ migrate
 
 Run: `chmod +x xdg/migrate.sh && xdg/migrate-test.sh | tail -1`
 
-Expected: `136 passed, 0 failed`
+Expected: `234 passed, 0 failed`
 
 - [ ] **Step 5: Run the tests under the system bash**
 
-Putting `/bin` first makes `env bash` in the script find the system bash as well, together with the system's `mv`, `cp` and `rm`.
+Putting `/usr/bin` and `/bin` first makes `env bash` in the script find the system bash as well, together with the system's `tar`, `find`, `mv`, `cp` and `rm`, which differ from the GNU tools that Nix puts on `PATH`.
 
-Run: `PATH="/bin:$PATH" /bin/bash xdg/migrate-test.sh 2>/dev/null | tail -1`
+Run: `PATH="/usr/bin:/bin:$PATH" /bin/bash xdg/migrate-test.sh 2>/dev/null | tail -1`
 
-Expected: `136 passed, 0 failed`
+Expected: `234 passed, 0 failed`
 
 - [ ] **Step 6: Lint both scripts**
 
@@ -2757,11 +3405,11 @@ exit=0
 migrate: Emacs is running:
 /Applications/Emacs.app/Contents/MacOS/Emacs
 migrate: this preview can go stale; --apply will refuse until Emacs has quit
-  mv     /Users/johnw/.config/emacs/.lsp-session-v1 -> /Users/johnw/.local/share/emacs/migration/<stamp>/attic/.lsp-session-v1
-  mv     /Users/johnw/.config/emacs/.org-generic-id-locations -> /Users/johnw/.local/share/emacs/migration/<stamp>/attic/.org-generic-id-locations
-  mv     /Users/johnw/.config/emacs/anvil-worker.log -> /Users/johnw/.local/share/emacs/migration/<stamp>/attic/anvil-worker.log
-  mv     /Users/johnw/.config/emacs/%backup%~ -> /Users/johnw/.local/share/emacs/migration/<stamp>/attic/%backup%~
-  rmdir  /Users/johnw/.config/emacs/hash-store
+  mv     /Users/johnw/.config/emacs/gptel-agent -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/gptel-agent
+  mv     /Users/johnw/.config/emacs/.lsp-session-v1 -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/.lsp-session-v1
+  mv     /Users/johnw/.config/emacs/.org-generic-id-locations -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/.org-generic-id-locations
+  mv     /Users/johnw/.config/emacs/anvil-worker.log -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/anvil-worker.log
+  mv     /Users/johnw/.config/emacs/%backup%~ -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/%backup%~
   rmdir  /Users/johnw/.config/emacs/agent
 Left in /Users/johnw/.config/emacs, neither tracked nor expected:
 Done.
@@ -2947,11 +3595,11 @@ Create `xdg/check-litter.sh`:
 #
 # Usage: xdg/check-litter.sh [CHECKOUT]
 #
-# State and caches belong under $XDG_DATA_HOME/emacs and
-# $XDG_CACHE_HOME/emacs; see lisp/user-paths.el.  .gitignore hides most of
-# the places a package would litter, so that a stray cookie jar is never
-# committed by accident.  This script is what makes such litter visible.
-# It lists
+# Data, state and caches belong under $XDG_DATA_HOME/emacs,
+# $XDG_STATE_HOME/emacs and $XDG_CACHE_HOME/emacs; see lisp/user-paths.el.
+# .gitignore hides most of the places a package would litter, so that a
+# stray cookie jar is never committed by accident.  This script is what
+# makes such litter visible.  It lists
 #
 #   - ~/.emacs.d, ~/.emacs and ~/.emacs.el, any of which makes Emacs
 #     ignore this checkout altogether;
@@ -3021,15 +3669,15 @@ exit "$status"
 
 - [ ] **Step 4: Add the safety-net ignore rules**
 
-The test copies the checkout's `.gitignore`, so the rules come before the test can pass. Append to `.gitignore`:
+The test copies the checkout's `.gitignore`, so the rules come before the test can pass. The block below begins with an empty line, which is part of it. Append to `.gitignore`:
 
 ```gitignore
 
-# State and caches live under $XDG_DATA_HOME/emacs and $XDG_CACHE_HOME/emacs
-# (lisp/user-paths.el).  The rules in this file for such paths are a safety
-# net: an Emacs started with -Q still writes to its built-in defaults here,
-# and `git add -A' must never pick that up.  `make check-litter' shows what
-# these rules hide.
+# Data, state and caches live under $XDG_DATA_HOME/emacs,
+# $XDG_STATE_HOME/emacs and $XDG_CACHE_HOME/emacs (lisp/user-paths.el).
+# The rules in this file for such paths are a safety net: an Emacs started
+# with -Q still writes to its built-in defaults here, and `git add -A' must
+# never pick that up.  `make check-litter' shows what these rules hide.
 /auto-save-list/
 /multisession/
 /projects.eld
@@ -3071,7 +3719,7 @@ and replace the last line
 with the following. The recipe lines begin with a tab.
 
 ```make
-# State and caches live outside this checkout; see lisp/user-paths.el.
+# Data, state and caches live outside this checkout; see lisp/user-paths.el.
 
 # Report runtime state that has come back into the checkout.
 check-litter:
@@ -3096,11 +3744,13 @@ audit-xdg:
 In `README.md`, after the paragraph that ends on line 8 with ``source before rebuilding `init.el`.``, add a blank line and this paragraph:
 
 ```markdown
-Only configuration lives in this checkout. Durable state (histories, the
-Org-roam database, tokens, tree-sitter grammars) lives under
-`$XDG_DATA_HOME/emacs`, and caches live under `$XDG_CACHE_HOME/emacs`.
-`lisp/user-paths.el` defines both roots and `early-init.el` loads it first.
-Run `make check-litter` to see whether anything has crept back.
+Only configuration lives in this checkout. What Emacs writes while it runs
+goes to one of three places, by what it is: data (saved choices, tokens,
+tree-sitter grammars) under `$XDG_DATA_HOME/emacs`, state (histories,
+recent files, sessions, backups) under `$XDG_STATE_HOME/emacs`, and caches
+under `$XDG_CACHE_HOME/emacs`. `lisp/user-paths.el` defines the three roots
+and `early-init.el` loads it first. Run `make check-litter` to see whether
+anything has crept back.
 ```
 
 - [ ] **Step 8: Run every test through make**
@@ -3110,9 +3760,9 @@ Run: `make test-xdg 2>&1 | grep -E 'Ran |passed, '`
 Expected:
 
 ```text
-Ran 15 tests, 15 results as expected, 0 unexpected (...)
-Ran 5 tests, 5 results as expected, 0 unexpected (...)
-136 passed, 0 failed
+Ran 17 tests, 17 results as expected, 0 unexpected (...)
+Ran 7 tests, 7 results as expected, 0 unexpected (...)
+234 passed, 0 failed
 25 passed, 0 failed
 ```
 
@@ -3161,13 +3811,13 @@ Expected: `PASS` and `exit=0`. If it reports an offender or a failed form, follo
 
 Run: `emacs --batch -Q -l xdg/apply-init-edits.el -f xdg-init-edits-batch --check ~/org/init.org; echo "exit=$?"`
 
-Expected: ten `pending` lines and `exit=0`. For an `ERROR`, follow Task 2 Step 5.
+Expected: 26 `pending` lines and `exit=0`. For an `ERROR`, follow Task 2 Step 5.
 
 - [ ] **Step 4: Save the preview of the move**
 
 Run: `xdg/migrate.sh >/tmp/emacs-xdg-preview-clio.txt 2>&1; echo "exit=$?"; grep -c '^  ' /tmp/emacs-xdg-preview-clio.txt; grep -E '^  (clash|stays)' /tmp/emacs-xdg-preview-clio.txt; sed -n '/^Left in /,/^Done\./p' /tmp/emacs-xdg-preview-clio.txt`
 
-Expected: `exit=0`; a count near 45; no `clash` or `stays` line; and
+Expected: `exit=0`; a count near 47; no `clash` or `stays` line; and
 
 ```text
 Left in /Users/johnw/.config/emacs, neither tracked nor expected:
@@ -3189,7 +3839,7 @@ Expected: no output. A name here is a file that this branch changes and that als
 
 - [ ] **Step 6: Push the branch**
 
-Hera fetches it in Task 8.
+This keeps a copy of the branch off Clio until the cutover. Hera never fetches it: Hera receives the work through `master` in Task 8, and Task 10 Step 5 deletes the remote branch.
 
 Run: `git push -u origin xdg-layout`
 
@@ -3199,8 +3849,8 @@ Expected: `branch 'xdg-layout' set up to track 'origin/xdg-layout'.`
 
 Give John the results of Steps 1 to 5, the file `/tmp/emacs-xdg-preview-clio.txt`, and these questions. Do not start Task 7 without his answers.
 
-1. Do the departures in Appendix B stand? The ones that matter: tree-sitter grammars and transient files go to the data root; dead leftovers go to an attic, not to the data root.
-2. In ChronoSync, does the task `Home` include `.local/share/emacs` and `.cache`? Should Hera and Clio go on sharing Emacs history files as they do today? Task 9 sets the rule.
+1. Do the departures in Appendix B stand? The ones that matter: tree-sitter grammars go to the data root, as installed things, where the report said cache; `emojis/` goes there too, as downloaded artwork, where the report kept it with the configuration; `org-roam.db` goes to the cache root, as an index that Emacs rebuilds; `backups/` moves from the data root to state; cookies and the transient history go to state, not to the cache; saved transient values stay under data, though their author files them as configuration; dead leftovers go to an attic.
+2. In ChronoSync, does the task `Home` include `.local/share/emacs`, `.local/state/emacs` and `.cache`? State is the per-host kind in the XDG text. Should Hera and Clio go on sharing history files as they do today? Task 9 sets the rule.
 3. Can Hera be reached now, and is Emacs closed there? Tasks 7 and 8 belong in one sitting.
 
 ---
@@ -3209,16 +3859,16 @@ Give John the results of Steps 1 to 5, the file `/tmp/emacs-xdg-preview-clio.txt
 
 **John runs this, or is present while an agent does.** It takes about twenty minutes. Do Task 8 in the same sitting. From Step 7 until Task 8 is done, do not start Emacs on Hera: the new `init.org` arrives there at once, and Hera's state has not moved yet.
 
-The order matters. The new init goes in first and is built once on purpose while the old state is still in place, so that it stops at its guard (Step 8). From then on an Emacs started by mistake stops at the same error, where the old init would have started on empty history and written new files.
+The order matters. The new init goes in first and is built once on purpose while the old state is still in place, so that it stops at its guard (Step 8). From then on an Emacs started by mistake stops loading its init at the same error, where the old init would have started on empty history and written new files. `early-init.el` has by then pointed a few histories at the new roots; Step 9 says how to settle anything such a start writes there.
 
 **Files:**
-- Modify: `~/org/init.org` (ten edits, by `xdg/apply-init-edits.el`)
+- Modify: `~/org/init.org` (26 edits, by `xdg/apply-init-edits.el`)
 - Modify: `~/.config/emacs/init.org`, `~/.config/emacs/init.el` (by `make`)
 - Move: everything in the Task 4 table
 
 **Interfaces:**
 - Consumes: the branch `xdg-layout` with Tasks 1 to 5; John's go from Task 6.
-- Produces: Clio running on the new layout; `master` holding the branch; the run directory under `~/.local/share/emacs/migration/`.
+- Produces: Clio running on the new layout; `master` holding the branch; the run directory under `~/.local/state/emacs/migration/`.
 
 - [ ] **Step 1: Pause ChronoSync**
 
@@ -3257,11 +3907,12 @@ Done.
 - [ ] **Step 5: Keep a copy of init.org, and note where master is**
 
 ```bash
-cp -p ~/org/init.org ~/.local/share/emacs/init.org.before-xdg
+mkdir -p ~/.local/state/emacs/migration
+cp -p ~/org/init.org ~/.local/state/emacs/migration/init.org.before-xdg
 PRE=$(git -C ~/.config/emacs rev-parse HEAD); echo "$PRE"
 ```
 
-Expected: a commit hash. Write it down: the rollback at the end of this task needs it, and the copy.
+Expected: a commit hash. Write it down: the rollback at the end of this task needs it, and the copy. The copy sits beside the records the mover will write, so that Task 10 removes them together.
 
 - [ ] **Step 6: Bring the branch into master**
 
@@ -3278,11 +3929,11 @@ If `comm` prints a name, that file has uncommitted changes and the branch change
 
 If git answers that the branches have diverged and it cannot fast-forward, `master` has moved since the branch was cut. In `$WT` run `git rebase master`, then `make test-xdg`, then repeat this step.
 
-- [ ] **Step 7: Apply the ten edits to the canonical init.org**
+- [ ] **Step 7: Apply the 26 edits to the canonical init.org**
 
 Run: `emacs --batch -Q -l ~/.config/emacs/xdg/apply-init-edits.el -f xdg-init-edits-batch ~/org/init.org; echo "exit=$?"`
 
-Expected: ten lines that begin with `applied`, and `exit=0`.
+Expected: 26 lines that begin with `applied`, and `exit=0`.
 
 - [ ] **Step 8: Build init.el once; it must stop at the guard**
 
@@ -3301,7 +3952,7 @@ Run: `~/.config/emacs/xdg/migrate.sh --apply 2>&1 | tee /tmp/emacs-xdg-apply-cli
 Expected:
 
 ```text
-  rmdir  /Users/johnw/.config/emacs/hash-store
+  mv     /Users/johnw/.config/emacs/%backup%~ -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/%backup%~
   rmdir  /Users/johnw/.config/emacs/agent
 Left in /Users/johnw/.config/emacs, neither tracked nor expected:
 Done.
@@ -3309,15 +3960,21 @@ Done.
 
 Then: `RUN=$(sed -n 's/^Moving; the log is \(.*\)\/moves.tsv$/\1/p' /tmp/emacs-xdg-apply-clio.txt); echo "$RUN"; ls "$RUN"`
 
-Expected: a directory `/Users/johnw/.local/share/emacs/migration/<stamp>` containing `attic`, `moves.tsv` and `pre-migration.tar`.
+Expected: a directory `/Users/johnw/.local/state/emacs/migration/<stamp>` containing `attic`, `moves.tsv` and `pre-migration.tar`.
 
-If the script instead refuses with `destinations already hold a different file`, Emacs was started between Step 6 and Step 8 and wrote new files under the new roots. The copies in the configuration directory are the real ones: run the command again with `--apply --prefer=source`.
+If the script instead refuses with `destinations already hold a different file`, Emacs was started after Step 6. `early-init.el` sent a few of its histories to the new roots, even where the guard then stopped the init. The copies in the configuration directory are the real ones: run the command again with `--apply --prefer=source`.
 
 - [ ] **Step 10: Confirm that the state arrived**
 
-Run: `ls -d ~/.config/emacs/data 2>&1; ls ~/.local/share/emacs; ls ~/.cache/emacs`
+Run: `ls -d ~/.config/emacs/data 2>&1; ls ~/.local/share/emacs; ls ~/.local/state/emacs; ls ~/.cache/emacs`
 
-Expected: `No such file or directory` for the first; then a listing that includes `auto-save-list backups eshell history migration org-id-locations org-roam.db projects recentf transient tree-sitter url`; then one that includes `eln-cache emojis pcache url`.
+Expected: `No such file or directory` for the first. Then three listings:
+
+- data, which includes `emojis hash-store mc-lists.el oauth2-auto.plist persist transient tree-sitter` and no longer has `backups`;
+- state, which includes `auto-save-list backups bm-repository eshell history migration multisession network-security.data org-id-locations persistent-scratch places prescient-save.el projectile-bookmarks.eld projectile-frecency.eld projects recentf request tramp transient url`;
+- cache, which includes `eln-cache org-roam.db pcache url`.
+
+A history file under data, `backups` still under data, or `org-roam.db` anywhere but the cache, means the mover and the init disagree. Stop and compare the Task 4 table with the listing.
 
 - [ ] **Step 11: Build init.el again; now it must succeed**
 
@@ -3337,16 +3994,21 @@ Run:
 
 ```bash
 emacsclient -s /tmp/johnw-emacs/server --eval \
-  '(list user-data-directory user-cache-directory (car native-comp-eln-load-path)
-         savehist-file transient-values-file tramp-persistency-file-name
-         project-list-file url-cache-directory)'
+  '(list user-data-directory user-state-directory user-cache-directory
+         (car native-comp-eln-load-path)
+         savehist-file (cdar backup-directory-alist)
+         transient-history-file transient-values-file
+         user-paths-tree-sitter-directory
+         (bound-and-true-p org-roam-db-location) url-cache-directory)'
 ```
 
 Expected:
 
 ```text
-("/Users/johnw/.local/share/emacs/" "/Users/johnw/.cache/emacs/" "/Users/johnw/.cache/emacs/eln-cache/" "/Users/johnw/.local/share/emacs/history" "/Users/johnw/.local/share/emacs/transient/values.el" "/Users/johnw/.local/share/emacs/tramp" "/Users/johnw/.local/share/emacs/projects" "/Users/johnw/.cache/emacs/url/")
+("/Users/johnw/.local/share/emacs/" "/Users/johnw/.local/state/emacs/" "/Users/johnw/.cache/emacs/" "/Users/johnw/.cache/emacs/eln-cache/" "/Users/johnw/.local/state/emacs/history" "/Users/johnw/.local/state/emacs/backups" "/Users/johnw/.local/state/emacs/transient/history.el" "/Users/johnw/.local/share/emacs/transient/values.el" "/Users/johnw/.local/share/emacs/tree-sitter/" "/Users/johnw/.cache/emacs/org-roam.db" "/Users/johnw/.cache/emacs/url/")
 ```
+
+A `nil` in the tenth place only means that org-roam has not loaded yet; open a note and run the command again.
 
 - [ ] **Step 14: Scan the running session for stray paths**
 
@@ -3380,7 +4042,7 @@ One change to expect: transient now reads the values it saved. `~/.local/share/e
 
 The commit of `init.org` carries whatever else changed in the canonical file since it was last copied here, as every such commit does.
 
-`git status` now shows `multisession/files/emoji/emoji--recent.value` as deleted, because the mover took it to the data root. Leave that uncommitted until Task 9, and do not run `changes` on this checkout before Task 8 is done. Hera must pull a `master` that still tracks the file, or the pull would delete Hera's copy before Hera's mover has moved it.
+`git status` now shows `multisession/files/emoji/emoji--recent.value` as deleted, because the mover took it to the state root. Leave that uncommitted until Task 9, and do not run `changes` on this checkout before Task 8 is done. Hera must pull a `master` that still tracks the file, or the pull would delete Hera's copy before Hera's mover has moved it.
 
 ```bash
 git -C ~/.config/emacs add init.org
@@ -3394,17 +4056,17 @@ Expected: the push reports `master -> master`.
 
 ```bash
 # Quit Emacs first.  Set WT as in Step 3, and PRE to the hash Step 5 printed.
-for log in $(ls -d ~/.local/share/emacs/migration/*/moves.tsv 2>/dev/null | sort -r); do
+for log in $(ls -d ~/.local/state/emacs/migration/*/moves.tsv 2>/dev/null | sort -r); do
   "$WT/xdg/migrate.sh" --rollback "$(dirname "$log")"
 done
-cp ~/.local/share/emacs/init.org.before-xdg ~/org/init.org
+cp ~/.local/state/emacs/migration/init.org.before-xdg ~/org/init.org
 git -C ~/.config/emacs reset --keep "$PRE"
 make -C ~/.config/emacs -B init.el
 ```
 
-The loop undoes every run of the mover, newest first, and does nothing if Step 9 never ran. Each run puts its files back where they were. If one stops with `cannot undo: ... exists`, a file has come back at its old path: move that file away and run the loop again. The copy is made without `-p` on purpose: the restored `init.org` must be newer than the checkout's copy, or `make` will not take it. `reset --keep` moves `master` back and leaves uncommitted work alone. The order matters: the mover has to restore the tracked file under `multisession/` before git looks at it. File modes that the move tightened stay tight, and directories that the new init created under the two roots stay; neither does harm.
+The loop undoes every run of the mover, newest first, and does nothing if Step 9 never ran. Each run puts its files back where they were. If one stops with `cannot undo: ... exists`, a file has come back at its old path: move that file away and run the loop again. The copy is made without `-p` on purpose: the restored `init.org` must be newer than the checkout's copy, or `make` will not take it. `reset --keep` moves `master` back and leaves uncommitted work alone. The order matters: the mover has to restore the tracked file under `multisession/` before git looks at it. What the rollback leaves behind, on purpose: file modes that the move tightened stay tight; directories that the new init or the move created under the three roots stay, empty; and `~/.local/state/emacs/migration` stays, with the copy of `init.org` and each run's archive and retired log, as the record of the attempt. A file that Emacs wrote for the first time after Step 12, at a path the mover never touched, also stays under the new roots, where the old init does not look: check the three roots before deleting anything there. Then resume ChronoSync, which Step 1 paused.
 
-This sequence was rehearsed in a scratch home with the real mover and the real Makefile. It ended with the tree and `git status` exactly as they began.
+This sequence was rehearsed in a scratch home with the real mover and the real Makefile, without an Emacs running in between. It ended with the checkout, `git status` and every file the mover had moved exactly as they began, the `backups/` directory included.
 
 ---
 
@@ -3412,7 +4074,7 @@ This sequence was rehearsed in a scratch home with the real mover and the real M
 
 **John runs this**, in the same sitting as Task 7, with ChronoSync still paused and Emacs closed on Hera. All commands run on Hera. Nothing about Hera could be checked while this plan was written, so each step says what to do when Hera differs.
 
-Hera can only go forward. The edited `init.org` is shared with Clio through Syncthing, so Hera cannot return to the old init by itself. If a step here fails, fix it here; the files the mover moved can still be put back with `xdg/migrate.sh --rollback`.
+Hera can only go forward. The edited `init.org` reaches Hera through Syncthing, and its guard refuses to start while `~/.config/emacs/data` exists, so `xdg/migrate.sh --rollback` on Hera leaves an Emacs that will not start. If a step here fails, fix it here and run `--apply` again. To recover one file, take it from `migration/<stamp>/pre-migration.tar` or follow its line in `moves.tsv`; do not roll the run back.
 
 **Files:** the same as Task 7, on Hera. `~/org/init.org` is already edited: Syncthing delivered it.
 
@@ -3447,15 +4109,17 @@ If the pull refuses, it names the files in the way. Do not force it. This checko
 
 Run: `emacs --batch -Q -l xdg/apply-init-edits.el -f xdg-init-edits-batch --check ~/org/init.org; echo "exit=$?"`
 
-Expected: ten lines that begin with `done`, and `exit=0`. Lines that say `pending` mean Syncthing has not delivered the file yet. Wait for it. Do not apply the edits here: two hosts editing the same file make a Syncthing conflict.
+Expected: 26 lines that begin with `done`, and `exit=0`. Lines that say `pending` mean Syncthing has not delivered the file yet. Wait for it. Do not apply the edits here: two hosts editing the same file make a Syncthing conflict.
 
 - [ ] **Step 4: Build init.el once; it must stop at the guard**
 
-Run: `make init.el 2>&1 | grep -E 'Emacs state is still in|\*\*\*'`
+Run: `rm -f init.org; make init.el 2>&1 | grep -E 'Emacs state is still in|\*\*\*'`
 
 Expected: the same two lines as in Task 7 Step 8, with Hera's paths.
 
-If make succeeds, Hera has no `~/.config/emacs/data`. Either it never had one or ChronoSync has removed it. Go on: the preview in the next step shows what is left to move.
+`init.org` in the checkout is a copy that `make` writes, and `make` replaces it only when the canonical file is newer. The pull in Step 2 has just written the copy, so it is the newer of the two; removing it makes `make` take the canonical file that Step 3 checked.
+
+If make succeeds, Hera has no `~/.config/emacs/data`. It had one before the cutover: ChronoSync reported conflicts on its `recentf`. So the pause did not hold, and ChronoSync has carried Clio's deletion here. Stop, and do not start Emacs on Hera. Run `ls ~/.local/state/emacs/migration`: a run directory from Clio, or `init.org.before-xdg`, proves that ChronoSync ran after the pause. Look in ChronoSync's archive on both hosts for Hera's `data/` directory and put it back at `~/.config/emacs/data`, then run this step again.
 
 - [ ] **Step 5: Preview**
 
@@ -3479,11 +4143,11 @@ Expected: `exit=0`. Then start Emacs.
 
 - [ ] **Step 8: Verify**
 
-Run Task 7 Steps 13, 14, 15 and 16 on Hera. The expected output is the same.
+Run Task 7 Steps 10, 13, 14, 15 and 16 on Hera. Step 10's lists of names will differ in detail. What must hold is the same: no `~/.config/emacs/data`, no `backups` under `~/.local/share/emacs`, and `org-roam.db` only under `~/.cache/emacs`.
 
 ---
 
-### Task 9: Resume sync and confirm the backup
+### Task 9: Resume sync
 
 **John runs this.**
 
@@ -3492,11 +4156,11 @@ Run Task 7 Steps 13, 14, 15 and 16 on Hera. The expected output is the same.
 
 **Interfaces:**
 - Consumes: both hosts on the new layout.
-- Produces: ChronoSync running with rules that fit the layout; evidence that the nightly backup holds the moved state; `master` no longer tracking the runtime file.
+- Produces: ChronoSync running with rules that fit the layout; `master` no longer tracking the runtime file.
 
 - [ ] **Step 1: Record that the runtime file is no longer tracked**
 
-Both movers have taken `multisession/` to the data root, so the file can leave the index. On Clio:
+Both movers have taken `multisession/` to the state root, so the file can leave the index. On Clio:
 
 ```bash
 git -C ~/.config/emacs rm -q --cached multisession/files/emoji/emoji--recent.value
@@ -3510,33 +4174,24 @@ Expected: the push reports `master -> master`, and the pull fast-forwards.
 
 - [ ] **Step 2: Set the ChronoSync rules**
 
-In the task `Home`, decide these three, and note the decision in the task's description:
+In the task `Home`, decide these four, and note the decision in the task's description:
 
 1. `.cache`: exclude. Caches are rebuilt on each host.
-2. `.local/share/emacs`: include it to keep sharing history, recent files and org-id locations between the hosts as today, conflicts and all. Exclude it to give each host its own. Either way, exclude `.local/share/emacs/backups` and `.local/share/emacs/migration`.
-3. `.config/emacs`: unchanged.
-
-Note that Hera's home reaches the backup only through this sync. If `.local/share/emacs` is excluded, Hera's Emacs state is backed up nowhere.
+2. `.local/state/emacs`: state is the kind the XDG text calls not portable enough to be data; the author of that wording meant "bound to the specific machine". A shared `recentf` is what produces the conflicts this task reports today. Exclude the directory, and each host keeps its own history, recent files, backups and org-id index. Include it, and the hosts go on sharing them as they do now, conflicts and all; then still exclude `.local/state/emacs/migration` and `.local/state/emacs/backups`, which holds 200 MB of numbered backup files.
+3. `.local/share/emacs`: include it, so that both hosts have one set of saved choices and tokens. `tree-sitter/` holds compiled code; share it only if both hosts have the same processor architecture.
+4. `.config/emacs`: unchanged.
 
 - [ ] **Step 3: Resume the schedule and watch the first run**
 
-Expected: no deletion under `.local/share/emacs` on either host, and no `data` directory reappearing under `.config/emacs`.
+Expected: no deletion under `.local/share/emacs` or `.local/state/emacs` on either host, and no `data` directory reappearing under `.config/emacs`.
 
-If `~/.config/emacs/data` comes back on a host, Emacs refuses to start there with `Emacs state is still in ...`. What came back is the stale copy; the files under the data root are the ones in use. Quit Emacs and run `xdg/migrate.sh --apply --prefer=destination`. It keeps every file that is in use, moves across only what the data root lacks, and puts the stale copies under `migration/<stamp>/collisions/`. Never use `--prefer=source` for this. Then find the ChronoSync rule that brought the directory back.
+If `~/.config/emacs/data` comes back on a host, Emacs refuses to start there with `Emacs state is still in ...`. What came back is the stale copy; the files under the three roots are the ones in use. Quit Emacs and run `xdg/migrate.sh --apply --prefer=destination`. It keeps every file that is in use, moves across only what the roots lack, and puts the stale copies under `migration/<stamp>/collisions/`. Never use `--prefer=source` for this. Then find the ChronoSync rule that brought the directory back.
 
 - [ ] **Step 4: Check the checkout on both hosts**
 
 Run on each: `make -C ~/.config/emacs check-litter`
 
 Expected: `No litter in ...`
-
-- [ ] **Step 5: After the 03:00 backup, confirm the state is on tank**
-
-Run on Clio, the morning after: `ssh vulcan 'ls -l /tank/Home/.local/share/emacs/history /tank/Home/.local/share/emacs/org-id-locations; ls -d /tank/Home/.config/emacs/data /tank/Home/.cache/emacs 2>&1'`
-
-Expected: the first two files exist with yesterday's or today's date, and the last two paths do not exist.
-
-If the files are missing, first check that the job ran: it is the LaunchAgent `org.nixos.push-tank`. The filters are unlikely to be the cause. The `tank` store in `~/.config/pushme/filesets/Home.yaml` has its own filter list, and nothing in it excludes `.local/share/emacs`. The rule on line 197 that does belongs to the list shared between hosts, which does not apply to `tank`.
 
 ---
 
@@ -3547,7 +4202,7 @@ Do this two weeks after Task 9, once John has looked through the attic and the c
 **Files:**
 - Delete: `xdg/apply-init-edits.el`, `xdg/apply-init-edits-test.el`, `xdg/audit/`
 - Modify: `Makefile` (the lines added in Task 5 Step 6)
-- Delete on each host, by John: `~/.local/share/emacs/migration/`, `~/.local/share/emacs/init.org.before-xdg`
+- Delete on each host, by John: `~/.local/state/emacs/migration/`, which on Clio also holds `init.org.before-xdg`
 
 **Interfaces:**
 - Consumes: both hosts migrated, `make check-litter` clean on both.
@@ -3605,8 +4260,8 @@ Run: `make -C ~/.config/emacs test-xdg 2>&1 | grep -E 'Ran |passed, '`
 Expected:
 
 ```text
-Ran 15 tests, 15 results as expected, 0 unexpected (...)
-136 passed, 0 failed
+Ran 17 tests, 17 results as expected, 0 unexpected (...)
+234 passed, 0 failed
 25 passed, 0 failed
 ```
 
@@ -3617,6 +4272,10 @@ git -C ~/.config/emacs add Makefile
 git -C ~/.config/emacs commit -m "xdg: Remove the one-time editor and audit"
 git -C ~/.config/emacs push
 ```
+
+Then on Hera: `git -C ~/.config/emacs pull --ff-only --no-rebase --no-autostash; git -C ~/.config/emacs status --short xdg Makefile`
+
+Expected: the pull fast-forwards, or says `Already up to date` if ChronoSync carried the repository across; the second command prints nothing.
 
 - [ ] **Step 5: Remove the worktree and the branch**
 
@@ -3630,10 +4289,10 @@ Expected: the first command reports `- [deleted]         xdg-layout`, and the la
 
 - [ ] **Step 6: John deletes the migration records, on each host**
 
-This is the only step in the plan that deletes state, and it is John's to run. Look first: `ls -R ~/.local/share/emacs/migration | head -60`. The attic holds, among other things, `gptel-agent/sessions.db` with its WAL file, and `%backup%~`, an emergency backup of `/etc/hosts` from September 2026.
+This is the only step in the plan that deletes anything of John's, and it is John's to run. Look first: `ls -R ~/.local/state/emacs/migration | head -60`. The attic holds, among other things, `gptel-agent/sessions.db` with its WAL file, `data/workgroups` from 2015, and `%backup%~`, an emergency backup of `/etc/hosts` from September 2026.
 
 ```bash
-rm -r ~/.local/share/emacs/migration ~/.local/share/emacs/init.org.before-xdg
+rm -r ~/.local/state/emacs/migration
 ```
 
 - [ ] **Step 7: Optionally drop stale native code**
@@ -3646,7 +4305,7 @@ Three of the four directories under `~/.cache/emacs/eln-cache/` belong to older 
 
 None of these is needed for the reorganization. Each was found on the way and is worth its own decision.
 
-1. **`make init.el` may erase bm bookmarks.** In a sealed copy, the batch load of the init wrote an empty `bm-repository` over a populated one: bm's save runs on exit, and its load never runs in batch. The real `bm-repository` is empty today. Whether bookmarks were lost this way is not known. A build that only tangles, or that loads with the data root pointed at a scratch directory, would stop it.
+1. **`make init.el` may erase bm bookmarks.** In a sealed copy, the batch load of the init wrote an empty `bm-repository` over a populated one: bm's save runs on exit, and its load never runs in batch. The real `bm-repository` is empty today. Whether bookmarks were lost this way is not known. A build that only tangles, or that loads with the state root pointed at a scratch directory, would stop it.
 2. **`~/src/scripts/syncup` is broken.** Line 24 calls `load-env-emacs$EMACSVER`, which is no longer on `PATH`, so the script stops there.
 3. **`~/src/scripts/changes-all` commits the whole checkout** from `~/.config/emacs/lisp`, which is not a repository of its own.
 4. **Five MCP entries in `~/.config/claude/personal/.claude.json`** name `/Users/johnw/.emacs.d/emacs-mcp-stdio.sh`, which does not exist. The tracked `emacs-mcp-stdio.sh` is stale as well.
@@ -3654,8 +4313,10 @@ None of these is needed for the reorganization. Each was found on the way and is
 6. **Small defects in `init.org`:** the yasnippet `:mode` pattern still names `.emacs.d`; `load-path` has an entry for a `use-package` directory that does not exist; `tramp-remote-path` gains `<cwd>/bin` when `PROFILE_DIR` is unset; `eshell-z-exclude-dirs` names `~/.emacs.d/elpa`.
 7. **`eshell/alias`, `eshell/login` and `certs/vulcan-ca-bundle.pem` are configuration that is not versioned.** Tracking them needs a look at their contents first. The certificate has the same fingerprint as one the Nix configuration already installs.
 8. **The gptel package built by Nix** has `/homeless-shelter/.cache` compiled in as the default for `gptel-crowdsourced-prompts-file`. The table in `lisp/user-paths.el` overrides it; the build is still wrong.
-9. **The tree-sitter grammars could come from Nix**, into the bundle's `lib/` directory, which `nix-packages.el` already adds to the load path and which is empty today.
-10. **`~/.config/pushme/filesets/Home.yaml` line 197** excludes `/.local/share/emacs/` in the filters shared between hosts. It has no effect while host sync is off, and would block the moved state if it were turned on again.
+9. **The tree-sitter grammars could come from Nix**, into the bundle's `lib/` directory, which `nix-packages.el` already adds to the load path and which is empty today. Short of that, four of the thirty have no source recorded anywhere: clojure, haskell, kotlin and scala. No mode that uses them is installed. If they are wanted, an entry each in `treesit-language-source-alist` lets Emacs rebuild them; if not, they can be deleted.
+10. **Three commented-out blocks of `init.org` still say `user-data`,** and this plan leaves them alone. `oauth2-auto` and `org-gcal` hold tokens, which are data. `org-caldav-save-directory` holds sync state, which belongs under the state root; it was not edited because the names of its files cannot be known in advance, so the mover could not route them, and no such file exists on Clio. Whoever revives that block should point it at `(user-state "org-caldav/")`.
+11. **Saved settings that their author files as configuration.** no-littering, which is written by the author of transient, puts `transient/values.el` and `transient/levels.el` under its `etc/`, and pandoc-mode's settings directory as well. This plan keeps them under data: the report rules configuration out for the transient files, and nothing should write into the checkout unasked. If they should be versioned with the configuration after all, each is one row of `user-paths-table` and one decision about `.gitignore`.
+12. **The TCP server's auth file.** The specification's place for it is `XDG_RUNTIME_DIR`, which macOS does not provide; the table sends `server-auth-dir` to state. It matters only with `server-use-tcp`, which this configuration does not set.
 
 ---
 
@@ -3702,58 +4363,105 @@ No changes made. Recommendations:
 Want plan to wire `user-data-directory` → `$XDG_DATA_HOME/emacs`, `cache` → `$XDG_CACHE_HOME/emacs`, plus symlinks for transition?
 ````
 
+John's amendments, in four messages on 2026-11-17 after he had read the first version of this plan, verbatim and in order. The first quotes that version's rule of two roots.
+
+````markdown
+You wrote:
+
+> Two roots only: $XDG_DATA_HOME/emacs and $XDG_CACHE_HOME/emacs. Nothing goes under $XDG_STATE_HOME: ~/.local/state is excluded from every backup on these hosts.
+
+However, I want to use ~/.local/state, but do not exclude this from your plan. Apply this revision, and do not base your planning on what is and what is not backed up.
+````
+
+````markdown
+You should be artfully using:
+
+- ~/.config/emacs
+- ~/.local/share/emacs
+- ~/.local/state/emacs
+- ~/.cache/emacs
+````
+
+````markdown
+Also, do your research on the Web and find out what is the best way to arrange this data in the XDG directories, based on config vs. state vs. share vs. cache.
+````
+
+````markdown
+Putting backups under ~/.local/share/emacs was just something arbitrary that I did a few years ago. If your research reveals a better choice, then do it.
+````
+
 ---
 
 ## Appendix B: Where this plan departs from the report
 
+The report sorted files into two destinations. The amendments add a third and ask for the sorting to rest on research; Appendix D has the sources named here.
+
 | Item | The report says | This plan does | Why |
 |---|---|---|---|
-| `tree-sitter/` | cache | data, `tree-sitter/` | These 30 grammars are the only copy: the Nix bundle supplies none and `init.org` records no sources. Rebuilding needs git, a C compiler and the network. `~/.cache` is excluded from the backups. |
-| `emojis/` | stay, as versioned configuration | cache | It is git-ignored, and it is the image set emojify downloaded. |
+| `data/`, as one directory | data, whole | split file by file among state, data and cache | The old init kept all three kinds in one directory. |
+| `data/history`, `recentf`, `places`, `persistent-scratch`, `projectile-bookmarks.eld`, `prescient-save.el`, `tramp` | data | state | "Actions history (logs, history, recently used files)" and "current state of the application that can be reused on a restart" are the specification's own examples of state. Neovim keeps its history, marks and views there. |
+| `data/org-id-locations` | data | state | It is an index, but `org-id-update-id-locations` rebuilds it only for the files Org already knows, so it is not a cache. The sources split three ways; state is the middle. |
+| `data/network-security.data` | data | state | Remembered trust decisions. The closest analogues are both under state: Neovim's `:trust` database and wget's HSTS file. |
+| `bm-repository`, in `data/` | data | state | Line bookmarks are positions in files on this machine, like Vim's marks, which Neovim keeps under state. |
+| `data/org-roam.db` | data | cache | An index built wholly from the note files. `org-roam-db-sync` rebuilds it, org-roam's own schema upgrade deletes and rebuilds it, and Org's related `org-persist` already defaults to the XDG cache. |
+| `data/workgroups` | data | attic | No setting names it; the file is from 2015. |
+| `backups/` in `~/.local/share/emacs` | "correct" | state, `backups/` | John called the old place arbitrary. Neovim and Vim keep backup files under state, and Doom's definition of state names "autosaves/backup files". Neovim itself kept backups and swap files under data until 0.8, and moved them when it adopted `XDG_STATE_HOME`. `tramp-auto-save-directory` goes with them. |
+| `tree-sitter/` | cache | data | Every installer examined keeps compiled grammars with installed things: nvim-treesitter and Doom under data, Emacs itself beside the configuration. A cache may be deleted at the cost of time alone; a deleted grammar comes back only after a prompt, with git, a C compiler and the network, and four of the thirty have no recorded source. |
+| `emojis/` | stay, as versioned configuration | data | It is git-ignored, not versioned. It is the image set emojify downloaded on request, and emojify asks before it downloads again, so it is installed artwork and not a cache. |
 | `var/` | data | `var/pcache/` to cache; `var/osm/` to the attic | pcache is a font cache that is rebuilt. The osm package is not installed; its tiles date from 2024. |
-| `request/curl-cookie-jar` | cache | data, mode 600 | Cookies are credentials. |
-| `transient/` | cache, merged into one directory | data: history, values and levels together | Values and levels are choices a person saved. The report itself allows "either share or cache". |
-| `url/cache` and "`data/url/cache` duplicate" | consolidate both | the stray top-level `url/cache/` goes to cache | There is no `data/url/cache`. `data/url/` holds only `cookies`. |
+| `request/curl-cookie-jar` | cache | state, mode 600 | A cookie jar holds sign-ins. Emacs cannot rebuild it, so it is not a cache; it belongs to one installation, so it is state. |
+| `transient/` | cache, merged into one directory; values "either share or cache, not config" | history to state; values and levels to data | History is the specification's first example of state. Values and levels are choices John saved. The report rules configuration out for them, which is where their author's own no-littering puts them (Follow-up 11). |
+| `url/cache`, "`data/url/cache` duplicate", cookies to share | consolidate | the stray top-level `url/cache/` to cache; `data/url/` (cookies) to state | There is no `data/url/cache`. Cookies are state, as above. |
+| `persist/`, `multisession/files/` | data | `persist/` to data; `multisession/` to state | `persist/` holds org-drill's learned scheduling matrix and saved play queues. `multisession/` holds one list of recently used emoji. |
+| `eshell/history`, `eshell/lastdir` | data | state | Histories. |
 | `data-MacPort/` | "same shape" as `data/`; merge, or keep the alt logic | attic; the alternate instance, if ever revived, uses `emacs-alt` | It holds one auto-save index from May 2025. Nothing has set `emacsERC` since 2024. |
-| `.lsp-session-v1`, `.org-generic-id-locations`, `gptel-agent/` | data | attic, which is under the data root | Their packages are disabled or gone. |
-| `elpy/rpc-venv` | cache or data | attic; elpy builds its next one under the cache root | The virtualenv is broken: its Python has left the Nix store and its scripts name `~/.emacs.d`. A virtualenv cannot be moved in any case. |
-| `auto-save-list/` | both directories to data, and elsewhere "state or cache" | `data/auto-save-list/` to data; the stray top-level directory to the attic | It is the index `recover-session` needs after a crash, and the state root is excluded from every backup. The top-level directory holds one empty file, written by an Emacs that read no init. |
+| `.lsp-session-v1`, `.org-generic-id-locations`, `gptel-agent/` | data | attic, which is under the state root | Their packages are disabled or gone. |
+| `elpy/rpc-venv` | cache or data | attic; elpy builds its next one under the data root | The virtualenv is broken: its Python has left the Nix store and its scripts name `~/.emacs.d`. A virtualenv cannot be moved in any case. The next one is installed tooling, like a grammar: elpy asks before it fetches the packages. |
+| `auto-save-list/` | both directories to data, and elsewhere "state or cache" | `data/auto-save-list/` to state; the stray top-level directory to the attic | It is the index `recover-session` reads after a crash: one host, one process. Neovim keeps its swap files under state. The top-level directory holds one empty file, written by an Emacs that read no init. |
 | `.#*` lockfiles | state or cache | nothing | None exist: `create-lockfiles` is nil. |
 | `%backup%~` | "already duplicated in share/backups" | attic | It is not a duplicate. It is a 578-byte emergency backup of `/etc/hosts`. |
 | `anvil-worker.log` | state or cache | attic | Anvil has been removed; the log is from July 2026. |
-| `bookmarks`, "bookmark backups" | already external | nothing | `~/doc/bookmarks` is in a Syncthing folder and stays. Its backups are already under `~/.local/share/emacs/backups`. |
-| `eln-cache/` | cache | cache, moved whole | Agreed. Moving keeps the 71 native files the running Emacs uses; `native-comp-jit-compilation` is nil, so they would not be rebuilt. |
+| `bookmarks`, "bookmark backups" | already external | the backups move with `backups/` | `~/doc/bookmarks` is in a Syncthing folder and stays. |
+| `eln-cache/` | cache | cache, moved whole | Agreed. Moving keeps the 71 native files the running Emacs uses; `native-comp-jit-compilation` is nil, so they would not be rebuilt. The Emacs maintainers are divided on whether the directory is a cache (bug#48543); Doom and Neovim treat compiled code as one. |
 | symlinks for the transition | offered | none | Nothing outside Emacs reads the old paths. A link named `data` is not matched by the rule `/data*/`, so `changes` would commit it. |
 | `sits/`, `cache/` | listed with a question mark | nothing | Neither exists. |
 | `certs/`, `init.el`, `settings.el`, `nix-packages.el` | versioned | unchanged | They stay, but they are git-ignored, not versioned. |
-| the reason given: "breaks git status", repository weight, Home Manager purity | | | All of this state is already ignored, none of it is in the repository, and Home Manager owns only two symlinks. The real costs are backup churn and sync conflicts between the hosts. |
+| the reason given: "breaks git status", repository weight, Home Manager purity | | | All of this state is already ignored, none of it is in the repository, and Home Manager owns only two symlinks. What the move buys is a checkout that holds configuration and nothing else, and three directories whose names say what each file is. |
 
-Not in the report, and handled here: `projects` and `projectile-frecency.eld`; the split of `eshell/` into configuration and state; `transient-levels-file`; `pcache-directory`, `persist--directory-location`, `multisession-directory` and `request-storage-directory`; the two defaults that point at `~/.emacs.d`; the load-order defects in the tramp and transient settings; the tracked runtime file under `multisession/`; and Hera.
+Not in the report, and handled here: `projects` and `projectile-frecency.eld`; the split of `eshell/` into configuration and state; `transient-levels-file`; `pcache-directory`, `persist--directory-location`, `multisession-directory` and `request-storage-directory`; the two defaults that point at `~/.emacs.d`; the load-order defects in the tramp and transient settings; the tracked runtime file under `multisession/`; the settings in commented-out blocks; and Hera.
 
 ---
 
 ## Appendix C: What was run while writing this plan
 
-Every file in this plan was built and run before it was written down. The tests and the audit ran against throw-away copies, with Emacs under `sandbox-exec` and writes to the home directory denied.
+Every file in this plan was built and run before it was written down. The tests and the audit ran against throw-away copies, from an empty environment, with writes to the home directory denied by the sandbox.
 
 | Check | Result |
 |---|---|
-| `lisp/user-paths-test.el` | 15 of 15 pass |
-| `xdg/apply-init-edits-test.el` | 5 of 5 pass |
-| `--check` against `~/org/init.org` | all ten edits match exactly once |
-| `xdg/migrate-test.sh` | 136 of 136 pass, under bash 5.3 and with `/bin/bash` 3.2 and the system tools first on `PATH` |
-| `xdg/check-litter-test.sh` | 25 of 25 pass |
+| `lisp/user-paths-test.el` | 17 of 17 pass |
+| `xdg/apply-init-edits-test.el` | 7 of 7 pass |
+| `--check` against `~/org/init.org` | all 26 edits match exactly once |
+| `xdg/migrate-test.sh` | 234 of 234 pass, under bash 5.3 with the GNU tools and under `/bin/bash` 3.2 with the system's tools first on `PATH` |
+| `xdg/check-litter-test.sh` | 25 of 25 pass, both ways |
 | `shellcheck` on all five scripts | clean |
-| `xdg/audit/run.sh` on the full init, from a checkout that holds only this plan's files | 580 forms, 0 failed; 1,674 features; 0 offenders; nothing written inside the configuration directory |
+| `xdg/audit/run.sh` on the full init, from a checkout that holds only this plan's files | 580 forms, 0 failed; 1,674 features; 0 offenders; nothing written inside the configuration directory; every file it wrote lies under the root this plan gives it |
 | the same with `XDG_AUDIT_SELFTEST=1` | fails on the planted variable and the planted file, as it must |
 | the sandbox profile | refuses a write to the home directory, to `~/.config/emacs` and to `/tmp/johnw-emacs`, and refuses the network |
 | every variable in `user-paths-table`, checked against the installed sources | each exists under that name and takes a single path; the one constant, `web-cookie-jar-file`, is handled separately |
-| Tasks 1 to 6, executed from this document's text in a clone, by an agent that had seen nothing else | every extracted file was byte-identical to the tested one and every expected output matched; that was before the last revision, after which all files were extracted and run once more |
-| Task 7 forward and back, rehearsed in a scratch home with the real mover, the real Makefile and a stand-in for Emacs | the first build stops at the guard, the second succeeds after the move, and the rollback restores the tree and `git status` exactly |
+| a preview of the move on the real tree | 47 actions, no clash, nothing left behind; the output is below |
+| Task 7 forward and back, rehearsed in a scratch home with the real mover, the real Makefile and a stand-in for Emacs | the first build stops at the guard, the second succeeds after the move, and the rollback restores the checkout, `git status` and every file under the three roots, the `backups/` directory included |
+| Tasks 1 to 5, carried out from this document's text in a scratch clone by an agent that had seen nothing else | all 43 steps gave the expected output, and every file it produced was byte-identical to the tested one; that was before the last corrections, after which the files were extracted from the final text and the tests, the audit, the preview and the rehearsal run once more |
 
 Not run: the cutover itself, a real GUI start on the new layout, and anything on Hera.
 
-Five reviewers then attacked the plan, and a second agent had to reproduce each finding before it counted. Forty-seven held up. The serious ones were in the rollback, in the advice for a `data/` directory that reappears, in the pull on Hera, and in the mover's own rollback; this text has them fixed. One reviewer's hand-made fixture set `HOME` but left `XDG_CACHE_HOME` pointing at the real `~/.cache`, so the mover it ran set `~/.cache/emacs` to mode 700. The mode was put back to 755, and nothing else was touched. Anyone who runs the mover against a fake home by hand must unset the three XDG variables, as `xdg/migrate-test.sh` does.
+The first version of this plan had two roots. Five reviewers attacked it, and a second agent had to reproduce each finding before it counted; forty-seven held up and were fixed. One reviewer's hand-made fixture set `HOME` but left `XDG_CACHE_HOME` pointing at the real `~/.cache`, so the mover it ran set `~/.cache/emacs` to mode 700. The mode was put back to 755, and nothing else was touched. The mover's tests start it from an empty environment for that reason.
+
+This version follows John's amendments. Beyond rewriting the code and its tests, four things were done for it:
+
+1. Three readers checked the placement of 58 paths against the sources of the packages that write them. They agreed on 57. The one reversal, `org-roam.db` to the cache, held up under a second reader.
+2. Five researchers read what the specification, Doom Emacs, no-littering, Emacs itself, Neovim and a dozen other tools do with files of each kind, and a checker re-opened every citation: 105 of 117 were confirmed, 12 partly, none refuted. Appendix D is the result. It moved `backups/`, the tree-sitter grammars, the language servers, treemacs's workspaces, the line bookmarks and the network-security file.
+3. Three reviewers attacked the revised code in sealed scratch trees, and a second agent reproduced each of their twelve findings; all were fixed. The serious one: with `XDG_STATE_HOME` and `XDG_DATA_HOME` naming one directory, the move of `backups/` compared every file with itself, took it for a duplicate and deleted it. The mover now refuses roots that are not three separate directories, and never takes one file under two names for a duplicate. The others: a preview that missed files moved into a directory earlier in the same run; a rollback that stopped at the first record it could not undo; an archive that stored files twice, which failed a test under the system's `tar`; checks that could not fail; and an edit that a later rewording would have applied twice.
+4. An agent that had seen nothing but this document carried out Tasks 1 to 5 from its text in a scratch clone; the last row of the table has the result. Three more reviewers read the text for consistency, for the logic of the cutover and for fidelity to the sources, opening every URL in Appendix D again, and a second agent re-checked each of their twenty findings. Nineteen held up. The one that mattered was in the instructions for Hera: a build that succeeds there, where it should stop at the guard, means the sync has already deleted Hera's state, and the text said to go on. The rest were corrected as well. `emojis/` and the object store moved to data, a database journal now travels with its database, the rollback's description says what it leaves behind, and Appendix D records where its sources disagree with this plan.
 
 The preview of the move on Clio on 2026-11-17:
 
@@ -3763,52 +4471,55 @@ migrate: Emacs is running:
 migrate: this preview can go stale; --apply will refuse until Emacs has quit
 Configuration: /Users/johnw/.config/emacs
 Data:          /Users/johnw/.local/share/emacs
+State:         /Users/johnw/.local/state/emacs
 Cache:         /Users/johnw/.cache/emacs
 Preview only: nothing is changed.  Run with --apply to move.
   mv     /Users/johnw/.config/emacs/url/cache -> /Users/johnw/.cache/emacs/url
   rmdir  /Users/johnw/.config/emacs/url
-  mv     /Users/johnw/.config/emacs/data/mc-lists.elc -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/data/mc-lists.elc
-  mv     /Users/johnw/.config/emacs/data/auto-save-list -> /Users/johnw/.local/share/emacs/auto-save-list
-  mv     /Users/johnw/.config/emacs/data/bm-repository -> /Users/johnw/.local/share/emacs/bm-repository
-  mv     /Users/johnw/.config/emacs/data/history -> /Users/johnw/.local/share/emacs/history
+  mv     /Users/johnw/.config/emacs/data/org-roam.db -> /Users/johnw/.cache/emacs/org-roam.db
+  mv     /Users/johnw/.config/emacs/data/mc-lists.elc -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/data/mc-lists.elc
+  mv     /Users/johnw/.config/emacs/data/workgroups -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/data/workgroups
+  mv     /Users/johnw/.config/emacs/data/auto-save-list -> /Users/johnw/.local/state/emacs/auto-save-list
+  mv     /Users/johnw/.config/emacs/data/bm-repository -> /Users/johnw/.local/state/emacs/bm-repository
+  mv     /Users/johnw/.config/emacs/data/history -> /Users/johnw/.local/state/emacs/history
+  mv     /Users/johnw/.config/emacs/data/network-security.data -> /Users/johnw/.local/state/emacs/network-security.data
+  mv     /Users/johnw/.config/emacs/data/org-id-locations -> /Users/johnw/.local/state/emacs/org-id-locations
+  mv     /Users/johnw/.config/emacs/data/persistent-scratch -> /Users/johnw/.local/state/emacs/persistent-scratch
+  mv     /Users/johnw/.config/emacs/data/places -> /Users/johnw/.local/state/emacs/places
+  mv     /Users/johnw/.config/emacs/data/prescient-save.el -> /Users/johnw/.local/state/emacs/prescient-save.el
+  mv     /Users/johnw/.config/emacs/data/projectile-bookmarks.eld -> /Users/johnw/.local/state/emacs/projectile-bookmarks.eld
+  mv     /Users/johnw/.config/emacs/data/recentf -> /Users/johnw/.local/state/emacs/recentf
+  mv     /Users/johnw/.config/emacs/data/tramp -> /Users/johnw/.local/state/emacs/tramp
+  mv     /Users/johnw/.config/emacs/data/transient/history.el -> /Users/johnw/.local/state/emacs/transient/history.el
+  mv     /Users/johnw/.config/emacs/data/url -> /Users/johnw/.local/state/emacs/url
   mv     /Users/johnw/.config/emacs/data/mc-lists.el -> /Users/johnw/.local/share/emacs/mc-lists.el
-  mv     /Users/johnw/.config/emacs/data/network-security.data -> /Users/johnw/.local/share/emacs/network-security.data
   mv     /Users/johnw/.config/emacs/data/oauth2-auto.plist -> /Users/johnw/.local/share/emacs/oauth2-auto.plist
-  mv     /Users/johnw/.config/emacs/data/org-id-locations -> /Users/johnw/.local/share/emacs/org-id-locations
-  mv     /Users/johnw/.config/emacs/data/org-roam.db -> /Users/johnw/.local/share/emacs/org-roam.db
-  mv     /Users/johnw/.config/emacs/data/persistent-scratch -> /Users/johnw/.local/share/emacs/persistent-scratch
-  mv     /Users/johnw/.config/emacs/data/places -> /Users/johnw/.local/share/emacs/places
-  mv     /Users/johnw/.config/emacs/data/prescient-save.el -> /Users/johnw/.local/share/emacs/prescient-save.el
-  mv     /Users/johnw/.config/emacs/data/projectile-bookmarks.eld -> /Users/johnw/.local/share/emacs/projectile-bookmarks.eld
-  mv     /Users/johnw/.config/emacs/data/recentf -> /Users/johnw/.local/share/emacs/recentf
-  mv     /Users/johnw/.config/emacs/data/tramp -> /Users/johnw/.local/share/emacs/tramp
   mv     /Users/johnw/.config/emacs/data/transient -> /Users/johnw/.local/share/emacs/transient
-  mv     /Users/johnw/.config/emacs/data/url -> /Users/johnw/.local/share/emacs/url
-  mv     /Users/johnw/.config/emacs/data/workgroups -> /Users/johnw/.local/share/emacs/workgroups
   rmdir  /Users/johnw/.config/emacs/data
-  mv     /Users/johnw/.config/emacs/data-MacPort -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/data-MacPort
-  mv     /Users/johnw/.config/emacs/eshell/history -> /Users/johnw/.local/share/emacs/eshell/history
-  mv     /Users/johnw/.config/emacs/eshell/lastdir -> /Users/johnw/.local/share/emacs/eshell/lastdir
-  mv     /Users/johnw/.config/emacs/projects -> /Users/johnw/.local/share/emacs/projects
-  mv     /Users/johnw/.config/emacs/projectile-frecency.eld -> /Users/johnw/.local/share/emacs/projectile-frecency.eld
-  mv     /Users/johnw/.config/emacs/multisession -> /Users/johnw/.local/share/emacs/multisession
+  mv     /Users/johnw/.local/share/emacs/backups -> /Users/johnw/.local/state/emacs/backups
+  mv     /Users/johnw/.config/emacs/data-MacPort -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/data-MacPort
+  mv     /Users/johnw/.config/emacs/eshell/history -> /Users/johnw/.local/state/emacs/eshell/history
+  mv     /Users/johnw/.config/emacs/eshell/lastdir -> /Users/johnw/.local/state/emacs/eshell/lastdir
+  mv     /Users/johnw/.config/emacs/projects -> /Users/johnw/.local/state/emacs/projects
+  mv     /Users/johnw/.config/emacs/projectile-frecency.eld -> /Users/johnw/.local/state/emacs/projectile-frecency.eld
+  mv     /Users/johnw/.config/emacs/multisession -> /Users/johnw/.local/state/emacs/multisession
   mv     /Users/johnw/.config/emacs/persist -> /Users/johnw/.local/share/emacs/persist
-  mv     /Users/johnw/.config/emacs/request -> /Users/johnw/.local/share/emacs/request
+  mv     /Users/johnw/.config/emacs/hash-store -> /Users/johnw/.local/share/emacs/hash-store
+  mv     /Users/johnw/.config/emacs/request -> /Users/johnw/.local/state/emacs/request
   mv     /Users/johnw/.config/emacs/tree-sitter -> /Users/johnw/.local/share/emacs/tree-sitter
   mv     /Users/johnw/.config/emacs/eln-cache -> /Users/johnw/.cache/emacs/eln-cache
-  mv     /Users/johnw/.config/emacs/emojis -> /Users/johnw/.cache/emacs/emojis
+  mv     /Users/johnw/.config/emacs/emojis -> /Users/johnw/.local/share/emacs/emojis
   mv     /Users/johnw/.config/emacs/var/pcache -> /Users/johnw/.cache/emacs/pcache
-  mv     /Users/johnw/.config/emacs/var/osm -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/var/osm
+  mv     /Users/johnw/.config/emacs/var/osm -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/var/osm
   rmdir  /Users/johnw/.config/emacs/var
-  mv     /Users/johnw/.config/emacs/transient -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/transient
-  mv     /Users/johnw/.config/emacs/auto-save-list -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/auto-save-list
-  mv     /Users/johnw/.config/emacs/elpy -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/elpy
-  mv     /Users/johnw/.config/emacs/gptel-agent -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/gptel-agent
-  mv     /Users/johnw/.config/emacs/.lsp-session-v1 -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/.lsp-session-v1
-  mv     /Users/johnw/.config/emacs/.org-generic-id-locations -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/.org-generic-id-locations
-  mv     /Users/johnw/.config/emacs/anvil-worker.log -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/anvil-worker.log
-  mv     /Users/johnw/.config/emacs/%backup%~ -> /Users/johnw/.local/share/emacs/migration/20261117-112233/attic/%backup%~
-  rmdir  /Users/johnw/.config/emacs/hash-store
+  mv     /Users/johnw/.config/emacs/transient -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/transient
+  mv     /Users/johnw/.config/emacs/auto-save-list -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/auto-save-list
+  mv     /Users/johnw/.config/emacs/elpy -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/elpy
+  mv     /Users/johnw/.config/emacs/gptel-agent -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/gptel-agent
+  mv     /Users/johnw/.config/emacs/.lsp-session-v1 -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/.lsp-session-v1
+  mv     /Users/johnw/.config/emacs/.org-generic-id-locations -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/.org-generic-id-locations
+  mv     /Users/johnw/.config/emacs/anvil-worker.log -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/anvil-worker.log
+  mv     /Users/johnw/.config/emacs/%backup%~ -> /Users/johnw/.local/state/emacs/migration/<stamp>/attic/%backup%~
   rmdir  /Users/johnw/.config/emacs/agent
 Left in /Users/johnw/.config/emacs, neither tracked nor expected:
 Done.
@@ -3840,3 +4551,60 @@ Done.
 /Users/johnw/.config/emacs/agent (empty directory)
 /Users/johnw/.config/emacs/hash-store (empty directory)
 ```
+
+---
+
+## Appendix D: What the placement rests on
+
+John asked for the placement to rest on research. Five researchers read primary sources: the text of the specification, project source on its forge, official manuals, maintainers' own statements. A checker then re-opened every citation behind a principle or a disagreement. Whether a directory is backed up was excluded from the question throughout.
+
+### The specification
+
+- [XDG Base Directory Specification 0.8](https://specifications.freedesktop.org/basedir-spec/latest/): "The $XDG_STATE_HOME contains state data that should persist between (application) restarts, but that is not important or portable enough to the user that it should be stored in $XDG_DATA_HOME. It may contain: actions history (logs, history, recently used files, …) current state of the application that can be reused on a restart (view, layout, open files, undo history, …)". The cache is for "user-specific non-essential (cached) data".
+- The author of that wording, [on the xdg list in February 2021](https://lists.freedesktop.org/archives/xdg/2021-February/014434.html): "With "portable", I was meaning "bound to the specific machine/installation" in the broadest sense."
+- The test for a cache, in [systemd's file-hierarchy(7)](https://raw.githubusercontent.com/systemd/systemd/v255/man/file-hierarchy.xml): "Flushing this directory should have no effect on operation of programs, except for increased runtimes necessary to rebuild these caches." David Faure, who later approved the addition of `XDG_STATE_HOME`, [on the xdg list in 2016](https://lists.freedesktop.org/archives/xdg/2016-December/013805.html): a cache is "anything that only exists for performance reasons and that can be thrown away".
+
+This plan's test for a cache is those two made concrete: what Emacs can make again from what is on this machine, or fetches again unasked. What comes back only after a prompt, a download or a build is installed, and is data.
+
+### Practice
+
+| Kind of file | Where the precedents put it | Sources |
+|---|---|---|
+| histories, recently used lists | state | the specification; Neovim's shada file; less; telescope-frecency |
+| saved positions and views | state in Neovim, data in Vim | Neovim's `viewdir` is under state; Vim's `xdg.vim` puts views and undo files under data, "as they are persistent" |
+| backups, swap files, crash recovery | state | Neovim, where `backupdir` defaults to `.,$XDG_STATE_HOME/nvim/backup//`; Vim's `xdg.vim`; Doom's definition of state |
+| logs | state | the specification; Neovim |
+| trust decisions | state | Neovim's `:trust` database; wget's HSTS file in the Arch Wiki. qutebrowser keeps permissions under data |
+| sessions and layouts | state, with exceptions | the specification; persistence.nvim. auto-session and Zed use data |
+| installed plugins, parsers, language servers | data | nvim-treesitter (`install_dir = vim.fn.stdpath('data') .. '/site'`); mason.nvim; lazy.nvim; Doom |
+| derived indexes, bytecode, native code | cache | the test above; Neovim's Lua bytecode; Org's `org-persist`, which defaults to the XDG cache |
+| sign-in tokens | configuration, in the tools that say | GitHub's `gh`; git. No source keeps them under state on purpose |
+| cookies | data or configuration in browsers, which have no state directory | qutebrowser. The proposal that led to `XDG_STATE_HOME` listed cookies as state |
+
+Doom Emacs is the one Emacs project that defines all three directories. Its definitions, from [`lisp/doom.el`](https://raw.githubusercontent.com/doomemacs/core/759fb66e33132f85e8cb7ac7f0fefeb360d1a8c0/lisp/doom.el):
+
+- data: "Deleting them by hand will cause breakage, and require user intervention (e.g. a `doom sync`) to restore. Use this for: server binaries, package source, pulled module libraries, generated files for profiles, profiles themselves, autoloads/loaddefs, etc."
+- state: "State files contain unessential, non-portable, but persistent data which, if lost won't cause breakage, but may be inconvenient as they cannot be automatically regenerated or restored. [...] Use this for: history, logs, user-saved data, autosaves/backup files, known projects, recent files, bookmarks."
+- cache: "Cache files represent unessential data that shouldn't be problematic when deleted (besides, perhaps, a one-time performance hit), lack portability (and so shouldn't be copied to other systems/configs), and are regenerated when needed, without user input".
+
+Doom's code lags these definitions: state was added in 2022, and most of its history files still sit in the cache directory. Where the two disagree, this plan follows the definitions.
+
+### How to do it in Emacs
+
+- The Emacs manual, [node Find Init](https://raw.githubusercontent.com/emacs-mirror/emacs/master/doc/emacs/custom.texi): "Since `user-emacs-directory`, once determined by Emacs, is used by the rest of the startup code to locate other files and directories, we do not recommend changing its value in your init files, as that could disrupt or break the correct startup of your Emacs sessions." That is the design here: `user-emacs-directory` stays, and each variable is set by name, as no-littering does it. Doom does the opposite and points `user-emacs-directory` at its cache directory; its own comment names the cost, which falls on packages "that read `user-emacs-directory' expecting to find the location of your Emacs config".
+- What setting each variable cannot do is catch a package it has never heard of. The sealed audit (Task 3), the ignore rules and `make check-litter` (Task 5) are the guard for that.
+- Emacs's own `xdg.el` supplies the three directories and treats an unset or relative variable as unset. `startup-redirect-eln-cache` is the supported way to move native code, and its documentation says to call it from the early-init file.
+
+### Where the sources disagree
+
+| File | The sources | This plan |
+|---|---|---|
+| installed tooling: grammars, language servers, virtualenvs, packages | data in nvim-treesitter, mason.nvim, lazy.nvim and Doom; the author of the specification's wording on state, in the same message, would rather keep software installations in the cache and only a registry of them under data | data: they come back only after a prompt and a download |
+| saved positions in files | state in Neovim; data in Vim's `xdg.vim` | state, as "current state of the application that can be reused on a restart" |
+| saved transient values and levels | configuration in no-littering, by transient's own author; data in Doom | data, because the report rules configuration out |
+| bookmarks | state in Doom's definition; data in Doom's code | line bookmarks (`bm`) to state, as positions; eww's bookmarks to data |
+| tokens | configuration in `gh` and git; cache in Doom | data |
+| tramp's persistency file | a cache of connection properties, in the Tramp manual; "connection history", in its own docstring | state |
+| `org-id-locations` | cache, data, or beside the Org files | state |
+| `eln-cache/` | the Emacs maintainers are divided (bug#48543) | cache, as the report says |
+| what an application saves for itself, as a whole | systemd reads `~/.local/share` narrowly, as "Resources shared between multiple packages, such as fonts or artwork", which would send nearly all of this plan's data to state | the specification's own line: state is what is "not important or portable enough" for data |
