@@ -46,7 +46,7 @@ An executor needs these facts; none of them is in the report.
 - **`make init.el` loads the whole init.** The Makefile runs `org-babel-load-file`, which tangles and then loads `init.el` in batch Emacs. `~/src/nix/bin/runemacs` runs `make init.el` at every launch. Batch Emacs never reads `early-init.el`.
 - **`init.org` travels by Syncthing; everything else by ChronoSync.** `~/Documents` is a Syncthing folder shared by Clio, Hera and Vulcan. A ChronoSync task named `Home` synchronizes the whole home directory between Hera and Clio every hour, in both directions, and already reports conflicts on `.config/emacs/data/recentf`. Its include and exclude rules could not be read from disk. Only John can inspect them.
 - **`~/src/scripts/changes` runs `git add -A`, commits and pushes** this repository. That is how `multisession/files/emoji/emoji--recent.value`, a runtime file, came to be tracked.
-- **An Emacs started with `-Q` or `-q` reads no init file** and writes to the built-in defaults under `~/.config/emacs`: `eln-cache/`, `auto-save-list/`, `transient/`, `url/`. No init setting can prevent that. The stray top-level `transient/`, `url/` and `auto-save-list/` most likely come from such runs, or from an init that stopped early.
+- **An Emacs started with `-Q` or `-q` reads no init file** and writes to the built-in defaults under `~/.config/emacs`: `eln-cache/`, `auto-save-list/`, `transient/`, `url/`, and depending on what is done in it `tramp`, `bookmarks`, `network-security.eld`, `elpa/` and more. No init setting can prevent that. The stray top-level `transient/`, `url/` and `auto-save-list/` most likely come from such runs, or from an init that stopped early. Task 5 adds an ignore rule for each built-in name, so that `changes` cannot commit one, and `make check-litter` shows them.
 - **Two package defaults point at `~/.emacs.d`:** `hash-store-directory` and `pandoc-data-dir`. If either package creates that directory, Emacs prefers it to `~/.config/emacs` at the next start and comes up with no configuration.
 - **Two settings do not work today.** `tramp-persistency-file-name` is set in `:config`, after tramp has read the file. The transient files are set in a `:custom` that runs after another package has loaded transient. Going by the order in which the init loads them, both are written on exit and never read back.
 - **The alternate instance is dead code.** Nothing sets `NIX_MYENV_NAME=emacsERC` since 2024. The plan keeps the one line that separates its state and leaves the uses of `alternate-emacs` elsewhere in `init.org` alone. An Emacs started that way gets three roots of its own, named `emacs-alt` and empty at first: it shares neither history nor grammars with the main instance, and the mover fills only the main one.
@@ -55,9 +55,24 @@ An executor needs these facts; none of them is in the report.
 - **Eight blocks of `init.org` that set a path are commented out:** saveplace, prescient, bookmark+, lsp-mode, xeft, oauth2-auto, org-gcal and org-caldav. They are not tangled, so the sealed audit cannot see them. The first five get an edit all the same, so that a revived block names the right root, and the mover takes their old files (`data/places` and `data/prescient-save.el` on Clio) to the place the edited text names. The other three are left alone; see the Follow-ups.
 - **Tree-sitter grammars are installed, not cached.** In Emacs 31 `treesit-auto-install-grammar` defaults to `ask`, and the built-in modes register their grammar sources themselves. A missing grammar therefore comes back only after a prompt, and needs git, a C compiler and the network. That covers 26 of the 30 grammars on Clio. The other four (clojure, haskell, kotlin, scala) have no registered source, and no mode that would use them is installed. `init.org` records no sources of its own. `treesit-ensure-installed` installs into the first writable directory on `treesit-extra-load-path`, which the library sets.
 - **One directory to move is not in the checkout.** The init already keeps numbered backups and tramp auto-saves in `~/.local/share/emacs/backups` (201 MB on Clio). They are state, so the mover takes that directory to the state root. It is the only source outside `~/.config/emacs`.
-- **`org-persist` already follows XDG by itself.** Org keeps that cache in `~/.cache/org-persist`, beside `~/.cache/emacs` and not inside it. The plan leaves it there.
+- **Three caches already followed XDG, each under a name of its own:** Org's `org-persist` at `~/.cache/org-persist`, and the defaults of John's `coq-lookup` and `dired-filetags` at `~/.cache/coq-lookup` and `~/.cache/dired-filetags`. The table brings all three under `~/.cache/emacs`, so that the four directories hold everything Emacs keeps. Only the first exists on Clio (776 KB); being a cache it is rebuilt at the new place, and Task 10 removes the old directory. Org's default also has a trap that the table closes: on a host where `~/.cache` does not exist yet, it falls back to the configuration directory.
+- **One package writes a dotfile into the home directory.** `chess-autosave-file` defaults to `~/.chess-save`. It is crash-recovery state, and the table sends it to the state root. No such file exists on Clio.
 
 ## File Structure
+
+### What changes, by location
+
+John asked for every configuration file under `~/org`, `~/.config/emacs` and `~/.config/emacs/lisp` that needs a change. Each of the three trees was searched for the paths that move, for code that builds a path at run time, and for the names the old init defined; three critics then hunted for anything missed (Appendix C).
+
+| Where | Changes | Needs no change |
+|---|---|---|
+| `~/org` | `init.org`: 26 exact-text edits (Task 2), applied at the cutover (Task 7 Step 7). One adds the section that loads the library and the guard; one drops the block that defined `user-data`; nineteen give a setting its root (fifteen to state, three to the cache, and one that sends the lsp servers to data and the lsp session to state); five remove a setting that the library now makes early enough | Everything else. Of about 14,750 files, `init.org` is the only one Emacs loads as configuration: no other Org file tangles or evaluates Emacs Lisp, and `Makefile`, `org.yaml`, `.gitea/` and `.claude/` there do not name the Emacs configuration. A handful of notes mention the old paths in prose |
+| `~/.config/emacs` | New: `early-init.el`, `xdg/migrate.sh`, `xdg/check-litter.sh` and their tests; for the cutover only, `xdg/apply-init-edits.el` and `xdg/audit/`. Modified: `.gitignore` (22 rules), `Makefile` (three targets), `README.md` (one paragraph). Deleted: `migrate-emacs-xdg.sh`. Untracked: `multisession/files/emoji/emoji--recent.value` | `settings.el` (the Custom file sets no path), `abbrevs.el`, `eshell/alias`, `eshell/login`, `runshell`, `test-emacs`, `emacs-mcp-stdio.sh`, `.claude/`, `prompts/`, `snippets/`, `doc/`. The Makefile's build rules stay as they are: `make init.el`, run in a sealed copy with its own command line, put its native code under the cache root and wrote nothing inside the configuration directory |
+| `~/.config/emacs/lisp` | New: `user-paths.el`, `user-paths-test.el` | Every existing file. None of the 66 tracked `.el` files or the three submodules uses `user-emacs-directory`, `locate-user-emacs-file`, `emacs-path`, `user-data` or `user-data-directory`, and none writes beside itself. Two of them have a cache directory of their own, which the library's table redirects without touching the packages |
+| Directories | Created: `~/.local/state/emacs`. `~/.local/share/emacs` and `~/.cache/emacs` exist already; the first gives up `backups/`. Emptied out of the checkout: `data/`, `data-MacPort/`, `var/`, `persist/`, `multisession/`, `request/`, `transient/`, `url/`, `auto-save-list/`, `tree-sitter/`, `eln-cache/`, `emojis/`, `elpy/`, `gptel-agent/`, `hash-store/`, `agent/`, and eight single files (Task 4 has the destination of each) | `~/.local/share/gnus`, where Gnus keeps its own home (Follow-up 16); `~/.cache/org-persist`, which is abandoned for `~/.cache/emacs/org-persist` and deleted in Task 10 |
+| Elsewhere | Nothing | `~/src/nix`, `~/src/scripts` and `~/Library/LaunchAgents` were searched for every path that moves; none names one |
+
+### The files
 
 | File | Status | Responsibility |
 |---|---|---|
@@ -71,7 +86,7 @@ An executor needs these facts; none of them is in the report.
 | `xdg/apply-init-edits.el` | new, removed in Task 10 | Applies the 26 `init.org` edits by exact text |
 | `xdg/apply-init-edits-test.el` | new, removed in Task 10 | Tests for the editor |
 | `xdg/audit/run.sh`, `sandbox.sb`, `guards.el`, `audit.el` | new, removed in Task 10 | Loads the whole init in a sealed copy and reports paths that still point into the checkout |
-| `.gitignore` | modified | Five more safety-net rules |
+| `.gitignore` | modified | 22 more safety-net rules |
 | `Makefile` | modified | Targets `check-litter`, `test-xdg`, `audit-xdg` |
 | `README.md` | modified | One paragraph on the layout |
 | `migrate-emacs-xdg.sh` | deleted | The earlier script; it was never run and cannot run on the current layout |
@@ -85,7 +100,7 @@ An executor needs these facts; none of them is in the report.
 | `~/.config/emacs` | Configuration: what is versioned, and what is set up once per host | the tracked files, `init.el`, `settings.el`, `nix-packages`, `nix-packages.el`, `certs/`, `eshell/alias`, `eshell/login`, the `*.elc` files under `lisp/`, `.claude/`, `.superpowers/` |
 | `~/.local/share/emacs` | Data: worth carrying to another machine, or installed on request | `mc-lists.el`, `oauth2-auto.plist`, `persist/` (org-drill's learned matrix, play queues), `transient/values.el`, `tree-sitter/`, `emojis/` |
 | `~/.local/state/emacs` | State: what Emacs records about its own use on this machine | `history`, `recentf`, `org-id-locations`, `persistent-scratch`, `places`, `prescient-save.el`, `projects`, `projectile-bookmarks.eld`, `projectile-frecency.eld`, `tramp`, `bm-repository`, `network-security.data`, `eshell/history`, `eshell/lastdir`, `transient/history.el`, `url/cookies`, `request/curl-cookie-jar`, `auto-save-list/`, `multisession/`, `backups/`, and for a while `migration/` |
-| `~/.cache/emacs` | Caches: what Emacs can make again from what is on this machine, or fetches again unasked | `eln-cache/`, `org-roam.db`, `url/`, `pcache/` |
+| `~/.cache/emacs` | Caches: what Emacs can make again from what is on this machine, or fetches again unasked | `eln-cache/`, `org-roam.db`, `url/`, `pcache/`, and once Org writes there `org-persist/` |
 
 Each later variable goes to its root by the same rule. `user-paths-table` and `user-paths-apply-special` in Task 1 and the edit table in Task 2 list them all; the special cases are `TeX-auto-private` (cache), elpy's virtualenv (data), `web-cookie-jar-file` (state) and the tree-sitter directory (data).
 
@@ -256,9 +271,12 @@ names another, so it cannot reach real state either."
                       (transient-history-file . state)
                       (eshell-history-file-name . state)
                       (treemacs-persist-file . state)
+                      (chess-autosave-file . state)
                       (url-configuration-directory . state)
                       (url-cache-directory . cache)
-                      (pcache-directory . cache)))
+                      (pcache-directory . cache)
+                      (org-persist-directory . cache)
+                      (coq-lookup-cache-directory . cache)))
     (should (eq (nth 1 (assq (car expected) user-paths-table))
                 (cdr expected)))))
 
@@ -568,6 +586,7 @@ Create `lisp/user-paths.el`:
     (aria2-cc-file                     state "aria2-controller.eieio")
     (aria2-session-file                state "aria2c.session")
     (auto-save-list-file-prefix        state "auto-save-list/.saves-")
+    (chess-autosave-file               state "chess-save")
     (eshell-history-file-name          state "eshell/history")
     (eshell-last-dir-ring-file-name    state "eshell/lastdir")
     (ido-save-directory-list-file      state "ido.last")
@@ -588,8 +607,11 @@ Create `lisp/user-paths.el`:
     ;; Caches: made again from what is on this machine, or fetched again
     ;; unasked.
     (TeX-auto-global                   cache "auctex/")
+    (coq-lookup-cache-directory        cache "coq-lookup")
+    (dired-filetags-tagtrees-directory cache "dired-filetags/tagtrees/")
     (gptel-crowdsourced-prompts-file   cache "gptel-crowdsourced-prompts.csv")
     (js-js-tmpdir                      cache "js")
+    (org-persist-directory             cache "org-persist/")
     (package-quickstart-file           cache "package-quickstart.el")
     (pcache-directory                  cache "pcache/")
     (url-cache-directory               cache "url/"))
@@ -3542,7 +3564,10 @@ for path in data/history var/pcache/fonts url/cache/a transient/history.el \
     auto-save-list/.saves-1-host~ multisession/files/emoji/x persist/queues \
     request/curl-cookie-jar tree-sitter/libtree-sitter-c.dylib projects \
     projects.eld projectile-frecency.eld elpy/rpc-venv/pyvenv.cfg \
-    emojis/set/1.png gptel-agent/sessions.db '%backup%~' .lsp-session-v1; do
+    emojis/set/1.png gptel-agent/sessions.db '%backup%~' .lsp-session-v1 \
+    tramp network-security.eld .org-id-locations history recentf bookmarks \
+    places ido.last ielm-history.eld org-clock-save.el elpa/archives/x \
+    package-quickstart.el server/server; do
     put "$repo/$path"
     litter "${path%%/*} is reported" "$repo/${path%%/*}"
     rm -rf "${repo:?}/${path%%/*}"
@@ -3583,7 +3608,7 @@ printf '\n%d passed, %d failed\n' "$passed" "$failed"
 
 Run: `chmod +x xdg/check-litter-test.sh && xdg/check-litter-test.sh | tail -1`
 
-Expected: `0 passed, 25 failed`
+Expected: `0 passed, 38 failed`
 
 - [ ] **Step 3: Write the report**
 
@@ -3608,9 +3633,10 @@ Create `xdg/check-litter.sh`:
 #   - every empty directory at the top of the checkout.
 #
 # An Emacs started with -Q or -q reads no init file and writes to the
-# built-in defaults, so an auto-save-list/, transient/ or url/ directory
-# can appear here after such a run; delete it.  eln-cache/ appears for the
-# same reason, cannot be prevented, and is not reported.
+# built-in defaults, so an auto-save-list/, transient/ or url/ directory,
+# or a file such as tramp, bookmarks or network-security.eld, can appear
+# here after such a run; delete it.  eln-cache/ appears for the same
+# reason, cannot be prevented, and is not reported.
 #
 # The exit status is 0 when nothing is listed.
 
@@ -3683,7 +3709,26 @@ The test copies the checkout's `.gitignore`, so the rules come before the test c
 /projects.eld
 /tree-sitter/
 /%backup%~
+/.org-id-locations
+/bookmarks
+/bookmarks.eld
+/elpa/
+/history
+/ido.last
+/ielm-history.eld
+/network-security.data
+/network-security.eld
+/org-clock-save.el
+/package-quickstart.el
+/places
+/places.eld
+/recentf
+/recentf.eld
+/server/
+/tramp
 ```
+
+The first four and the last seventeen are names that Emacs's built-in defaults give to files in the init directory; `%backup%~` is the one leftover with a name no pattern caught. An ignored file is exactly what `xdg/check-litter.sh` reports, so each rule also makes its file visible to `make check-litter`.
 
 - [ ] **Step 5: Run the tests to verify they pass**
 
@@ -3692,7 +3737,7 @@ Run: `chmod +x xdg/check-litter.sh && xdg/check-litter-test.sh | tail -1 && shel
 Expected:
 
 ```text
-25 passed, 0 failed
+38 passed, 0 failed
 exit=0
 ```
 
@@ -3763,7 +3808,7 @@ Expected:
 Ran 17 tests, 17 results as expected, 0 unexpected (...)
 Ran 7 tests, 7 results as expected, 0 unexpected (...)
 234 passed, 0 failed
-25 passed, 0 failed
+38 passed, 0 failed
 ```
 
 - [ ] **Step 9: Run the report on the worktree and on the real checkout**
@@ -4086,7 +4131,7 @@ Hera can only go forward. The edited `init.org` reaches Hera through Syncthing, 
 
 Run: `ls -d ~/.emacs.d ~/.emacs ~/.emacs.el 2>&1`
 
-Expected: three lines ending in `No such file or directory`. If one exists, stop: Emacs on Hera uses it instead of `~/.config/emacs`. Find out why it is there before moving anything.
+Expected: three lines ending in `No such file or directory`. If one exists, stop: Emacs on Hera uses it instead of `~/.config/emacs`. Find out why it is there before moving anything. A `~/.emacs.d` is the likeliest of the three: a README in `lisp/` still gives `/ssh:hera:/Users/johnw/.emacs.d/lisp/` as the place of the sources on Hera. If `ls -l ~/.emacs.d` shows a symbolic link to `~/.config/emacs`, it is a leftover of the old layout: remove the link, and run this step again.
 
 - [ ] **Step 2: Bring the checkout up to date**
 
@@ -4262,7 +4307,7 @@ Expected:
 ```text
 Ran 17 tests, 17 results as expected, 0 unexpected (...)
 234 passed, 0 failed
-25 passed, 0 failed
+38 passed, 0 failed
 ```
 
 - [ ] **Step 4: Commit and push**
@@ -4295,9 +4340,11 @@ This is the only step in the plan that deletes anything of John's, and it is Joh
 rm -r ~/.local/state/emacs/migration
 ```
 
-- [ ] **Step 7: Optionally drop stale native code**
+- [ ] **Step 7: Optionally drop what is stale**
 
 Three of the four directories under `~/.cache/emacs/eln-cache/` belong to older builds. In Emacs: `M-x native-compile-prune-cache`.
+
+`~/.cache/org-persist` is the old place of Org's cache, which Org has rebuilt under `~/.cache/emacs/org-persist`. On each host, John can remove it: `ls ~/.cache/emacs/org-persist | head -3; rm -r ~/.cache/org-persist`. The first command must list something before the second is run.
 
 ---
 
@@ -4310,13 +4357,17 @@ None of these is needed for the reorganization. Each was found on the way and is
 3. **`~/src/scripts/changes-all` commits the whole checkout** from `~/.config/emacs/lisp`, which is not a repository of its own.
 4. **Five MCP entries in `~/.config/claude/personal/.claude.json`** name `/Users/johnw/.emacs.d/emacs-mcp-stdio.sh`, which does not exist. The tracked `emacs-mcp-stdio.sh` is stale as well.
 5. **`~/.config/forge` holds 482 MB** of SQLite for a package whose block is disabled.
-6. **Small defects in `init.org`:** the yasnippet `:mode` pattern still names `.emacs.d`; `load-path` has an entry for a `use-package` directory that does not exist; `tramp-remote-path` gains `<cwd>/bin` when `PROFILE_DIR` is unset; `eshell-z-exclude-dirs` names `~/.emacs.d/elpa`.
+6. **Small defects in `init.org`:** the yasnippet `:mode` pattern still names `.emacs.d`; `load-path` has an entry for a `use-package` directory that does not exist; `tramp-remote-path` gains `<cwd>/bin` when `PROFILE_DIR` is unset; `eshell-z-exclude-dirs` names `~/.emacs.d/elpa`. In the same vein, `lisp/org-agent-deck-README.org` line 41 gives `/ssh:hera:/Users/johnw/.emacs.d/lisp/` as the place to reload from; it should read `.config/emacs/lisp/`. That file has another agent's uncommitted changes, so this plan does not edit it.
 7. **`eshell/alias`, `eshell/login` and `certs/vulcan-ca-bundle.pem` are configuration that is not versioned.** Tracking them needs a look at their contents first. The certificate has the same fingerprint as one the Nix configuration already installs.
 8. **The gptel package built by Nix** has `/homeless-shelter/.cache` compiled in as the default for `gptel-crowdsourced-prompts-file`. The table in `lisp/user-paths.el` overrides it; the build is still wrong.
 9. **The tree-sitter grammars could come from Nix**, into the bundle's `lib/` directory, which `nix-packages.el` already adds to the load path and which is empty today. Short of that, four of the thirty have no source recorded anywhere: clojure, haskell, kotlin and scala. No mode that uses them is installed. If they are wanted, an entry each in `treesit-language-source-alist` lets Emacs rebuild them; if not, they can be deleted.
 10. **Three commented-out blocks of `init.org` still say `user-data`,** and this plan leaves them alone. `oauth2-auto` and `org-gcal` hold tokens, which are data. `org-caldav-save-directory` holds sync state, which belongs under the state root; it was not edited because the names of its files cannot be known in advance, so the mover could not route them, and no such file exists on Clio. Whoever revives that block should point it at `(user-state "org-caldav/")`.
 11. **Saved settings that their author files as configuration.** no-littering, which is written by the author of transient, puts `transient/values.el` and `transient/levels.el` under its `etc/`, and pandoc-mode's settings directory as well. This plan keeps them under data: the report rules configuration out for the transient files, and nothing should write into the checkout unasked. If they should be versioned with the configuration after all, each is one row of `user-paths-table` and one decision about `.gitignore`.
 12. **The TCP server's auth file.** The specification's place for it is `XDG_RUNTIME_DIR`, which macOS does not provide; the table sends `server-auth-dir` to state. It matters only with `server-use-tcp`, which this configuration does not set.
+13. **`make clean` deletes `settings.el`,** the Custom file, together with the files it can rebuild. That is older than this plan and has nothing to do with the layout; dropping `settings.el` from the recipe is one word.
+14. **org-remark can build a path inside the configuration directory.** For a buffer that visits no file it would keep its notes in `<user-emacs-directory>/marginalia.org`. With today's configuration that branch never writes: only its eww, info and nov modes supply such buffers, and none is turned on. Whoever turns one on should set `org-remark-notes-file-name` first.
+15. **Directory shortcuts.** `lisp/dired-ext.el` has a shortcut for `~/.config/emacs`. The three new roots have none; adding them is a matter of taste and of free keys.
+16. **Gnus keeps its own home.** `gnus-home-directory` is `~/.local/share/gnus/`: 783 MB, written every day. It is outside the checkout, and this plan does not touch it. Bringing it under the three roots would mean sorting some two dozen Gnus variables into mail and drafts (data), read marks and the registry (state) and article caches (cache), on a mail store in daily use. That is a plan of its own.
 
 ---
 
@@ -4428,7 +4479,7 @@ The report sorted files into two destinations. The amendments add a third and as
 | `certs/`, `init.el`, `settings.el`, `nix-packages.el` | versioned | unchanged | They stay, but they are git-ignored, not versioned. |
 | the reason given: "breaks git status", repository weight, Home Manager purity | | | All of this state is already ignored, none of it is in the repository, and Home Manager owns only two symlinks. What the move buys is a checkout that holds configuration and nothing else, and three directories whose names say what each file is. |
 
-Not in the report, and handled here: `projects` and `projectile-frecency.eld`; the split of `eshell/` into configuration and state; `transient-levels-file`; `pcache-directory`, `persist--directory-location`, `multisession-directory` and `request-storage-directory`; the two defaults that point at `~/.emacs.d`; the load-order defects in the tramp and transient settings; the tracked runtime file under `multisession/`; the settings in commented-out blocks; and Hera.
+Not in the report, and handled here: `projects` and `projectile-frecency.eld`; the split of `eshell/` into configuration and state; `transient-levels-file`; `pcache-directory`, `persist--directory-location`, `multisession-directory` and `request-storage-directory`; the two defaults that point at `~/.emacs.d`; the load-order defects in the tramp and transient settings; the tracked runtime file under `multisession/`; the settings in commented-out blocks; three caches that followed XDG under names of their own, and one autosave file in the home directory; and Hera.
 
 ---
 
@@ -4442,7 +4493,7 @@ Every file in this plan was built and run before it was written down. The tests 
 | `xdg/apply-init-edits-test.el` | 7 of 7 pass |
 | `--check` against `~/org/init.org` | all 26 edits match exactly once |
 | `xdg/migrate-test.sh` | 234 of 234 pass, under bash 5.3 with the GNU tools and under `/bin/bash` 3.2 with the system's tools first on `PATH` |
-| `xdg/check-litter-test.sh` | 25 of 25 pass, both ways |
+| `xdg/check-litter-test.sh` | 38 of 38 pass, both ways |
 | `shellcheck` on all five scripts | clean |
 | `xdg/audit/run.sh` on the full init, from a checkout that holds only this plan's files | 580 forms, 0 failed; 1,674 features; 0 offenders; nothing written inside the configuration directory; every file it wrote lies under the root this plan gives it |
 | the same with `XDG_AUDIT_SELFTEST=1` | fails on the planted variable and the planted file, as it must |
@@ -4462,6 +4513,7 @@ This version follows John's amendments. Beyond rewriting the code and its tests,
 2. Five researchers read what the specification, Doom Emacs, no-littering, Emacs itself, Neovim and a dozen other tools do with files of each kind, and a checker re-opened every citation: 105 of 117 were confirmed, 12 partly, none refuted. Appendix D is the result. It moved `backups/`, the tree-sitter grammars, the language servers, treemacs's workspaces, the line bookmarks and the network-security file.
 3. Three reviewers attacked the revised code in sealed scratch trees, and a second agent reproduced each of their twelve findings; all were fixed. The serious one: with `XDG_STATE_HOME` and `XDG_DATA_HOME` naming one directory, the move of `backups/` compared every file with itself, took it for a duplicate and deleted it. The mover now refuses roots that are not three separate directories, and never takes one file under two names for a duplicate. The others: a preview that missed files moved into a directory earlier in the same run; a rollback that stopped at the first record it could not undo; an archive that stored files twice, which failed a test under the system's `tar`; checks that could not fail; and an edit that a later rewording would have applied twice.
 4. An agent that had seen nothing but this document carried out Tasks 1 to 5 from its text in a scratch clone; the last row of the table has the result. Three more reviewers read the text for consistency, for the logic of the cutover and for fidelity to the sources, opening every URL in Appendix D again, and a second agent re-checked each of their twenty findings. Nineteen held up. The one that mattered was in the instructions for Hera: a build that succeeds there, where it should stop at the guard, means the sync has already deleted Hera's state, and the text said to go on. The rest were corrected as well. `emojis/` and the object store moved to data, a database journal now travels with its database, the rollback's description says what it leaves behind, and Appendix D records where its sources disagree with this plan.
+5. John then asked for the plan to cover every configuration file under `~/org`, `~/.config/emacs` and `~/.config/emacs/lisp`. The three trees were searched, the Makefile's own build was run in a sealed copy, and three critics, one per tree, hunted for a file the plan misses. They brought seven candidates; a second agent refuted three and upheld four. Those four are in: three caches that sat beside `~/.cache/emacs` now sit inside it, the chess package's autosave file leaves the home directory for the state root, seventeen more ignore rules cover what an Emacs started without its init can write into the checkout, and a stale path in a README is recorded among the follow-ups. The section "What changes, by location" is the result.
 
 The preview of the move on Clio on 2026-11-17:
 
