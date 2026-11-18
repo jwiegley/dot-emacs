@@ -1,0 +1,11 @@
+(version 1)
+;; Profile for xdg/audit/run.sh.  Everything is allowed except writing to the
+;; real home directory, writing to the directory of the live Emacs server
+;; socket, and any use of the network.  The scratch directory is writable
+;; even if it happens to lie below one of the denied directories.
+(allow default)
+(deny file-write*
+      (subpath (param "REAL_HOME"))
+      (subpath (param "SERVER_DIR")))
+(deny network*)
+(allow file-write* (subpath (param "SCRATCH")))
