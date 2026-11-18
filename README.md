@@ -14,8 +14,8 @@ recent files, sessions, backups) under `$XDG_STATE_HOME/emacs`, and caches
 under `$XDG_CACHE_HOME/emacs`. `lisp/user-paths.el` defines the three roots
 and `early-init.el` loads it first. Run `make check-litter` to see whether
 anything has crept back. `make init.el` refuses an `init.org` from before
-this layout, and an `init.el` from before it stops with an error as soon as
-it is loaded.
+this layout, and an `init.el` from before it stops with an error at its own
+definition of the data directory, before it has written anything.
 
 I keep my Emacs file in literate Org mode, so that it's easier to organize and
 also document how things are to be used, since there are enough packages that
