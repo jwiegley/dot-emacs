@@ -96,8 +96,10 @@ if [[ -d $real_home/.config/ai ]]; then
         esac
     done
 fi
-cp "$init_org" "$config/init.org"
+# The checkout's copy of init.org is read-only once make has copied it, and
+# rsync keeps that mode, so make the tree writable before replacing the file.
 chmod -R u+w "$config"
+cp "$init_org" "$config/init.org"
 
 sealed() {
     /usr/bin/sandbox-exec \
