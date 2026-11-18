@@ -9,8 +9,10 @@
 # stray cookie jar is never committed by accident.  This script is what
 # makes such litter visible.  It lists
 #
-#   - ~/.emacs.d, ~/.emacs and ~/.emacs.el, any of which makes Emacs
-#     ignore this checkout altogether;
+#   - ~/.emacs.d and ~/.emacs, either of which makes Emacs ignore this
+#     checkout altogether, and ~/.emacs.el, which changes nothing alone
+#     but is loaded as the init file, ahead of ~/.emacs, once either of
+#     those exists;
 #   - every ignored path in the checkout that is not known configuration,
 #     a build product, or the auto-save or lock file of a file that is
 #     being edited, alone in its directory or not;
@@ -58,11 +60,14 @@ report() {
     status=1
 }
 
-for legacy in "$HOME/.emacs.d" "$HOME/.emacs" "$HOME/.emacs.el"; do
+for legacy in "$HOME/.emacs.d" "$HOME/.emacs"; do
     if [[ -e $legacy || -L $legacy ]]; then
         report "$legacy exists: Emacs uses it instead of $checkout"
     fi
 done
+if [[ -e $HOME/.emacs.el || -L $HOME/.emacs.el ]]; then
+    report "$HOME/.emacs.el exists: Emacs loads it as the init file once ~/.emacs.d or ~/.emacs exists"
+fi
 
 # Ask git once, with the two settings that decide what it lists, so that
 # the report does not depend on status.showUntrackedFiles.  If git cannot

@@ -347,6 +347,12 @@ put "$home/.emacs"
 litter 'a .emacs in the home directory is reported' "$home/.emacs exists"
 rm "$home/.emacs"
 
+# Alone it changes nothing, and the report says what it would do.
+put "$home/.emacs.el"
+exactly 'a .emacs.el in the home directory is reported for what it does' \
+    "$home/.emacs.el exists: Emacs loads it as the init file once ~/.emacs.d or ~/.emacs exists"
+rm "$home/.emacs.el"
+
 clean 'the checkout is clean again afterwards'
 
 error 'a directory that is not a checkout is an error' \
