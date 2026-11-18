@@ -33,3 +33,31 @@ projectile-frecency.eld
 /nix-packages.el
 /certs/
 /url/
+
+# Data, state and caches live under $XDG_DATA_HOME/emacs,
+# $XDG_STATE_HOME/emacs and $XDG_CACHE_HOME/emacs (lisp/user-paths.el).
+# The rules in this file for such paths are a safety net: an Emacs started
+# with -Q still writes to its built-in defaults here, and `git add -A' must
+# never pick that up.  `make check-litter' shows what these rules hide.
+/auto-save-list/
+/multisession/
+/projects.eld
+/tree-sitter/
+/%backup%~
+/.org-id-locations
+/bookmarks
+/bookmarks.eld
+/elpa/
+/history
+/ido.last
+/ielm-history.eld
+/network-security.data
+/network-security.eld
+/org-clock-save.el
+/package-quickstart.el
+/places
+/places.eld
+/recentf
+/recentf.eld
+/server/
+/tramp
