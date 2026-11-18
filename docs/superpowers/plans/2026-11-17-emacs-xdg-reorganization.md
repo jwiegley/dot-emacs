@@ -43,7 +43,7 @@ Four more, lower on the list. An interrupted move must be safe to run again (`a 
 
 An executor needs these facts; none of them is in the report.
 
-- **`make init.el` loads the whole init.** The Makefile runs `org-babel-load-file`, which tangles and then loads `init.el` in batch Emacs. `~/src/nix/bin/runemacs` runs `make init.el` at every launch. Batch Emacs never reads `early-init.el`.
+- **`make init.el` loads the whole init.** The Makefile runs `org-babel-load-file`, which tangles and then loads `init.el` in batch Emacs. `~/src/nix/bin/runemacs` runs `make init.el` at every launch, and `make` rebuilds only when `~/org/init.org` is newer than the checkout's copy: the batch load happens after each change to `init.org`. Batch Emacs never reads `early-init.el`.
 - **`init.org` travels by Syncthing; everything else by ChronoSync.** `~/Documents` is a Syncthing folder shared by Clio, Hera and Vulcan. A ChronoSync task named `Home` synchronizes the whole home directory between Hera and Clio every hour, in both directions, and already reports conflicts on `.config/emacs/data/recentf`. Its include and exclude rules could not be read from disk. Only John can inspect them.
 - **`~/src/scripts/changes` runs `git add -A`, commits and pushes** this repository. That is how `multisession/files/emoji/emoji--recent.value`, a runtime file, came to be tracked.
 - **An Emacs started with `-Q` or `-q` reads no init file** and writes to the built-in defaults under `~/.config/emacs`: `eln-cache/`, `auto-save-list/`, `transient/`, `url/`, and depending on what is done in it `tramp`, `bookmarks`, `network-security.eld`, `elpa/` and more. No init setting can prevent that. The stray top-level `transient/`, `url/` and `auto-save-list/` most likely come from such runs, or from an init that stopped early. Task 5 adds an ignore rule for each built-in name, so that `changes` cannot commit one, and `make check-litter` shows them.
@@ -137,7 +137,7 @@ Each later variable goes to its root by the same rule. `user-paths-table` and `u
   - `(user-paths-check-migrated)`: signals `error` if `<user-emacs-directory>/data` is a directory, and otherwise returns nil.
   - The feature `user-paths`. Loading the file creates the directories, applies the table and redirects the native-compilation cache.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `lisp/user-paths-test.el`:
 
@@ -482,7 +482,7 @@ names another, so it cannot reach real state either."
 ;;; user-paths-test.el ends here
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `emacs --batch -Q -l lisp/user-paths-test.el -f ert-run-tests-batch-and-exit; echo "exit=$?"`
 
@@ -492,7 +492,7 @@ Expected: `exit=255`, and above it
 Cannot open load file: No such file or directory, <WT>/lisp/user-paths.el
 ```
 
-- [ ] **Step 3: Write the library**
+- [x] **Step 3: Write the library**
 
 Create `lisp/user-paths.el`:
 
@@ -713,7 +713,7 @@ and write fresh ones there, which a later migration then has to merge."
 ;;; user-paths.el ends here
 ```
 
-- [ ] **Step 4: Run the tests; all but one pass**
+- [x] **Step 4: Run the tests; all but one pass**
 
 Run: `emacs --batch -Q -l lisp/user-paths-test.el -f ert-run-tests-batch-and-exit 2>&1 | grep -E 'FAILED|Ran '`
 
@@ -727,7 +727,7 @@ Ran 17 tests, 16 results as expected, 1 unexpected (...)
 
 The one failure is the test for the file the next step creates.
 
-- [ ] **Step 5: Write early-init.el**
+- [x] **Step 5: Write early-init.el**
 
 Create `early-init.el` at the root of the worktree:
 
@@ -753,13 +753,13 @@ Create `early-init.el` at the root of the worktree:
 ;;; early-init.el ends here
 ```
 
-- [ ] **Step 6: Run the tests to verify they pass**
+- [x] **Step 6: Run the tests to verify they pass**
 
 Run: `emacs --batch -Q -l lisp/user-paths-test.el -f ert-run-tests-batch-and-exit 2>&1 | grep -E 'FAILED|Ran '`
 
 Expected: `Ran 17 tests, 17 results as expected, 0 unexpected (...)`
 
-- [ ] **Step 7: Check that the library compiles without warnings**
+- [x] **Step 7: Check that the library compiles without warnings**
 
 The library is always loaded as source, so compile a copy elsewhere and leave no `.elc` in the worktree.
 
@@ -770,7 +770,7 @@ copy=$(mktemp -d) && cp lisp/user-paths.el "$copy/" &&
 
 Expected: no output.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add lisp/user-paths.el lisp/user-paths-test.el early-init.el
@@ -827,7 +827,7 @@ The settings this list leaves at `(user-data ...)` are data and stay so: `mc/lis
 
 The first edit carries a `:marker`. Its inserted block sits before a heading that stays in the file, so without the marker a later rewording of the block would make the next run insert a second copy.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 The checkout has no `xdg/` directory yet. Make it, with the one Task 3 needs: `mkdir -p xdg/audit`
 
@@ -971,7 +971,7 @@ file is handled as bytes."
 ;;; apply-init-edits-test.el ends here
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `emacs --batch -Q -l xdg/apply-init-edits-test.el -f ert-run-tests-batch-and-exit; echo "exit=$?"`
 
@@ -981,7 +981,7 @@ Expected: `exit=255`, and above it
 Cannot open load file: No such file or directory, <WT>/xdg/apply-init-edits.el
 ```
 
-- [ ] **Step 3: Write the editor**
+- [x] **Step 3: Write the editor**
 
 Create `xdg/apply-init-edits.el`:
 
@@ -1290,13 +1290,13 @@ The arguments are an optional --check followed by the file."
 ;;; apply-init-edits.el ends here
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `emacs --batch -Q -l xdg/apply-init-edits-test.el -f ert-run-tests-batch-and-exit 2>&1 | grep -E 'FAILED|Ran '`
 
 Expected: `Ran 7 tests, 7 results as expected, 0 unexpected (...)`
 
-- [ ] **Step 5: Check every edit against the canonical file, without writing it**
+- [x] **Step 5: Check every edit against the canonical file, without writing it**
 
 Run: `emacs --batch -Q -l xdg/apply-init-edits.el -f xdg-init-edits-batch --check ~/org/init.org; echo "exit=$?"`
 
@@ -1334,7 +1334,7 @@ exit=0
 
 If a line says `ERROR`, that block of `init.org` has changed since this plan was written. Open `~/org/init.org`, find the block the edit's name describes, and change that edit's `:old` in `xdg/apply-init-edits.el` to the block's current text, byte for byte. Change `:new` to match, keeping what the table above says the edit does. Then repeat Steps 4 and 5.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add xdg/apply-init-edits.el xdg/apply-init-edits-test.el
@@ -1359,7 +1359,7 @@ git commit -m "xdg: Add an anchored editor for the init.org path edits"
 
 This task has no unit test of its own. Its test is the self-test in Step 6, which plants one stray variable and one stray file and requires the run to fail on both.
 
-- [ ] **Step 1: Write the sandbox profile**
+- [x] **Step 1: Write the sandbox profile**
 
 Create `xdg/audit/sandbox.sb`:
 
@@ -1377,7 +1377,7 @@ Create `xdg/audit/sandbox.sb`:
 (allow file-write* (subpath (param "SCRATCH")))
 ```
 
-- [ ] **Step 2: Write the guards**
+- [x] **Step 2: Write the guards**
 
 Create `xdg/audit/guards.el`:
 
@@ -1472,7 +1472,7 @@ Create `xdg/audit/guards.el`:
 ;;; guards.el ends here
 ```
 
-- [ ] **Step 3: Write the audit**
+- [x] **Step 3: Write the audit**
 
 Create `xdg/audit/audit.el`:
 
@@ -1732,7 +1732,7 @@ One failing form therefore cannot hide the forms after it."
 ;;; audit.el ends here
 ```
 
-- [ ] **Step 4: Write the runner**
+- [x] **Step 4: Write the runner**
 
 Create `xdg/audit/run.sh`:
 
@@ -1895,13 +1895,13 @@ fi
 exit "$status"
 ```
 
-- [ ] **Step 5: Make it executable and lint it**
+- [x] **Step 5: Make it executable and lint it**
 
 Run: `chmod +x xdg/audit/run.sh && shellcheck xdg/audit/run.sh; echo "exit=$?"`
 
 Expected: `exit=0` and no other output.
 
-- [ ] **Step 6: Run the self-test; it must fail**
+- [x] **Step 6: Run the self-test; it must fail**
 
 Run: `XDG_AUDIT_SELFTEST=1 xdg/audit/run.sh 2>&1 | grep -E '^(OFFENDER|audit:|Written inside|  \./|FAIL|PASS)'`
 
@@ -1917,7 +1917,7 @@ FAIL (the log is ...; set XDG_AUDIT_KEEP=1 to keep it)
 
 This shows that the run catches a stray variable and a stray file.
 
-- [ ] **Step 7: Run the audit; it must pass**
+- [x] **Step 7: Run the audit; it must pass**
 
 Run: `xdg/audit/run.sh; echo "exit=$?"`
 
@@ -1956,7 +1956,7 @@ If the run reports an offender, `init.org` has gained a package since this plan 
 
 If a form of `init.el` fails, the log names it. A form that needs one of John's documents can be tolerated the way `guards.el` tolerates `org-ext-update-team`.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add xdg/audit
@@ -2005,7 +2005,7 @@ Where each thing goes. The old init kept all three kinds under `data/`, so that 
 
 The tests start the script with an empty environment (`env -i`). That is deliberate: John's shell exports `XDG_STATE_HOME` and its three siblings, and a test that left one of them in place would move its fixture into a real directory.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `xdg/migrate-test.sh`:
 
@@ -2720,13 +2720,13 @@ printf '\n%d passed, %d failed\n' "$passed" "$failed"
 [[ $failed -eq 0 ]]
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `chmod +x xdg/migrate-test.sh && xdg/migrate-test.sh 2>/dev/null | tail -1`
 
 Expected: `65 passed, 169 failed`. The script under test does not exist yet; the checks that pass hold vacuously, such as a configuration file staying where it is.
 
-- [ ] **Step 3: Write the mover**
+- [x] **Step 3: Write the mover**
 
 Create `xdg/migrate.sh`:
 
@@ -3416,13 +3416,13 @@ done
 migrate
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `chmod +x xdg/migrate.sh && xdg/migrate-test.sh | tail -1`
 
 Expected: `234 passed, 0 failed`
 
-- [ ] **Step 5: Run the tests under the system bash**
+- [x] **Step 5: Run the tests under the system bash**
 
 Putting `/usr/bin` and `/bin` first makes `env bash` in the script find the system bash as well, together with the system's `tar`, `find`, `mv`, `cp` and `rm`, which differ from the GNU tools that Nix puts on `PATH`.
 
@@ -3430,13 +3430,13 @@ Run: `PATH="/usr/bin:/bin:$PATH" /bin/bash xdg/migrate-test.sh 2>/dev/null | tai
 
 Expected: `234 passed, 0 failed`
 
-- [ ] **Step 6: Lint both scripts**
+- [x] **Step 6: Lint both scripts**
 
 Run: `shellcheck xdg/migrate.sh xdg/migrate-test.sh; echo "exit=$?"`
 
 Expected: `exit=0` and no other output.
 
-- [ ] **Step 7: Preview the move on the real tree**
+- [x] **Step 7: Preview the move on the real tree**
 
 A preview reads and prints; it changes nothing.
 
@@ -3461,7 +3461,7 @@ Done.
 
 The three `migrate:` lines say that Emacs is running; that is expected here. The whole preview at the time of writing is in Appendix C. Three things must hold: `exit=0`, no `clash` or `stays` line, and nothing listed between `Left in` and `Done.`
 
-- [ ] **Step 8: Remove the earlier script**
+- [x] **Step 8: Remove the earlier script**
 
 `migrate-emacs-xdg.sh` was written for a checkout at `~/src/dot-emacs` exposed as `~/.emacs.d`. It was never run. On the current layout it stops at its first check, and its embedded patches no longer apply.
 
@@ -3469,7 +3469,7 @@ Run: `git rm migrate-emacs-xdg.sh`
 
 Expected: `rm 'migrate-emacs-xdg.sh'`
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add xdg/migrate.sh xdg/migrate-test.sh
@@ -3493,7 +3493,7 @@ git commit -m "xdg: Replace the stale migration script with a tested mover"
   - `xdg/check-litter.sh [CHECKOUT]`: prints one line per finding; exit 0 if there is none, 1 if there is one, 2 if CHECKOUT is not a git checkout. CHECKOUT defaults to the checkout the script is in.
   - `make check-litter`, `make test-xdg`, `make audit-xdg`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `xdg/check-litter-test.sh`:
 
@@ -3626,13 +3626,13 @@ printf '\n%d passed, %d failed\n' "$passed" "$failed"
 [[ $failed -eq 0 ]]
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `chmod +x xdg/check-litter-test.sh && xdg/check-litter-test.sh | tail -1`
 
 Expected: `0 passed, 38 failed`
 
-- [ ] **Step 3: Write the report**
+- [x] **Step 3: Write the report**
 
 Create `xdg/check-litter.sh`:
 
@@ -3715,7 +3715,7 @@ fi
 exit "$status"
 ```
 
-- [ ] **Step 4: Add the safety-net ignore rules**
+- [x] **Step 4: Add the safety-net ignore rules**
 
 The test copies the checkout's `.gitignore`, so the rules come before the test can pass. The block below begins with an empty line, which is part of it. Append to `.gitignore`:
 
@@ -3752,7 +3752,7 @@ The test copies the checkout's `.gitignore`, so the rules come before the test c
 
 The first four and the last seventeen are names that Emacs's built-in defaults give to files in the init directory; `%backup%~` is the one leftover with a name no pattern caught. An ignored file is exactly what `xdg/check-litter.sh` reports, so each rule also makes its file visible to `make check-litter`.
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `chmod +x xdg/check-litter.sh && xdg/check-litter-test.sh | tail -1 && shellcheck xdg/check-litter.sh xdg/check-litter-test.sh; echo "exit=$?"`
 
@@ -3763,7 +3763,7 @@ Expected:
 exit=0
 ```
 
-- [ ] **Step 6: Add the make targets**
+- [x] **Step 6: Add the make targets**
 
 In `Makefile`, replace line 22
 
@@ -3806,7 +3806,7 @@ audit-xdg:
 ### Makefile ends here
 ```
 
-- [ ] **Step 7: Describe the layout in the README**
+- [x] **Step 7: Describe the layout in the README**
 
 In `README.md`, after the paragraph that ends on line 8 with ``source before rebuilding `init.el`.``, add a blank line and this paragraph:
 
@@ -3820,7 +3820,7 @@ and `early-init.el` loads it first. Run `make check-litter` to see whether
 anything has crept back.
 ```
 
-- [ ] **Step 8: Run every test through make**
+- [x] **Step 8: Run every test through make**
 
 Run: `make test-xdg 2>&1 | grep -E 'Ran |passed, '`
 
@@ -3833,7 +3833,7 @@ Ran 7 tests, 7 results as expected, 0 unexpected (...)
 38 passed, 0 failed
 ```
 
-- [ ] **Step 9: Run the report on the worktree and on the real checkout**
+- [x] **Step 9: Run the report on the worktree and on the real checkout**
 
 Run: `make check-litter`
 
@@ -3843,7 +3843,7 @@ Run: `xdg/check-litter.sh ~/.config/emacs; echo "exit=$?"`
 
 Expected: `exit=1` and, above it, the state the cutover removes: 22 lines at the time of writing, from `/Users/johnw/.config/emacs/%backup%~` to `/Users/johnw/.config/emacs/hash-store (empty directory)`. Appendix C has the list. After Task 7 this command must print `No litter in /Users/johnw/.config/emacs`.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add xdg/check-litter.sh xdg/check-litter-test.sh .gitignore Makefile README.md
@@ -3862,25 +3862,25 @@ Nothing in this task writes outside the worktree, apart from one `git push` of t
 - Consumes: `make test-xdg`, `make audit-xdg`, `xdg/migrate.sh`, `xdg/check-litter.sh`, `xdg-init-edits-batch --check`.
 - Produces: a short report for John, and the branch `xdg-layout` on `origin`.
 
-- [ ] **Step 1: Run the unit tests**
+- [x] **Step 1: Run the unit tests**
 
 Run: `make test-xdg 2>&1 | grep -E 'Ran |passed, |FAILED'`
 
 Expected: the four lines of Task 5 Step 8, and no `FAILED`.
 
-- [ ] **Step 2: Run the audit against today's init.org**
+- [x] **Step 2: Run the audit against today's init.org**
 
 Run: `make audit-xdg; echo "exit=$?"`
 
 Expected: `PASS` and `exit=0`. If it reports an offender or a failed form, follow Task 3 Step 7, commit the fix, and run this step again.
 
-- [ ] **Step 3: Check the edits against today's init.org**
+- [x] **Step 3: Check the edits against today's init.org**
 
 Run: `emacs --batch -Q -l xdg/apply-init-edits.el -f xdg-init-edits-batch --check ~/org/init.org; echo "exit=$?"`
 
 Expected: 26 `pending` lines and `exit=0`. For an `ERROR`, follow Task 2 Step 5.
 
-- [ ] **Step 4: Save the preview of the move**
+- [x] **Step 4: Save the preview of the move**
 
 Run: `xdg/migrate.sh >/tmp/emacs-xdg-preview-clio.txt 2>&1; echo "exit=$?"; grep -c '^  ' /tmp/emacs-xdg-preview-clio.txt; grep -E '^  (clash|stays)' /tmp/emacs-xdg-preview-clio.txt; sed -n '/^Left in /,/^Done\./p' /tmp/emacs-xdg-preview-clio.txt`
 
@@ -3893,7 +3893,7 @@ Done.
 
 A `clash` line is a different file that already exists at a destination. A name between `Left in` and `Done.` is something in the checkout that this plan does not know. Report either to John before going on.
 
-- [ ] **Step 5: Check that the merge will not collide with work in progress**
+- [x] **Step 5: Check that the merge will not collide with work in progress**
 
 Run:
 
@@ -3904,7 +3904,7 @@ comm -12 <(git -C ~/.config/emacs diff --name-only HEAD...xdg-layout | sort) \
 
 Expected: no output. A name here is a file that this branch changes and that also has uncommitted changes in the main checkout. Tell John.
 
-- [ ] **Step 6: Push the branch**
+- [x] **Step 6: Push the branch**
 
 This keeps a copy of the branch off Clio until the cutover. Hera never fetches it: Hera receives the work through `master` in Task 8, and Task 10 Step 5 deletes the remote branch.
 
@@ -3912,7 +3912,7 @@ Run: `git push -u origin xdg-layout`
 
 Expected: `branch 'xdg-layout' set up to track 'origin/xdg-layout'.`
 
-- [ ] **Step 7: Report to John and wait**
+- [x] **Step 7: Report to John and wait**
 
 Give John the results of Steps 1 to 5, the file `/tmp/emacs-xdg-preview-clio.txt`, and these questions. Do not start Task 7 without his answers.
 
@@ -3937,11 +3937,11 @@ The order matters. The new init goes in first and is built once on purpose while
 - Consumes: the branch `xdg-layout` with Tasks 1 to 5; John's go from Task 6.
 - Produces: Clio running on the new layout; `master` holding the branch; the run directory under `~/.local/state/emacs/migration/`.
 
-- [ ] **Step 1: Pause ChronoSync**
+- [x] **Step 1: Pause ChronoSync**
 
 In ChronoSync on Clio, suspend the schedule of the task `Home` and confirm that no run is in progress. While it runs it would copy Hera's `data/` back, or delete Hera's while Emacs there still uses it.
 
-- [ ] **Step 2: Quit Emacs on Clio and on Hera**
+- [x] **Step 2: Quit Emacs on Clio and on Hera**
 
 Quit both. Until Step 12, do not start Emacs on Clio, and stop anything else that runs `make` or `emacs` in this checkout, such as another agent's session.
 
@@ -3954,13 +3954,13 @@ ps -u "$(id -u)" -o comm= |
 
 Expected: no output.
 
-- [ ] **Step 3: Find the worktree**
+- [x] **Step 3: Find the worktree**
 
 Run: `WT=~/src/emacs-xdg-layout; ls "$WT/xdg/migrate.sh"`
 
 Expected: the file name. Later steps use `$WT`; set it again in a new shell.
 
-- [ ] **Step 4: Preview once more, now that Emacs has quit**
+- [x] **Step 4: Preview once more, now that Emacs has quit**
 
 Run: `"$WT/xdg/migrate.sh" 2>&1 | grep -E '^  (clash|keep|stays)|^migrate:'; "$WT/xdg/migrate.sh" 2>&1 | sed -n '/^Left in /,/^Done\./p'`
 
@@ -3971,7 +3971,7 @@ Left in /Users/johnw/.config/emacs, neither tracked nor expected:
 Done.
 ```
 
-- [ ] **Step 5: Keep a copy of init.org, and note where master is**
+- [x] **Step 5: Keep a copy of init.org, and note where master is**
 
 ```bash
 mkdir -p ~/.local/state/emacs/migration
@@ -3981,7 +3981,7 @@ PRE=$(git -C ~/.config/emacs rev-parse HEAD); echo "$PRE"
 
 Expected: a commit hash. Write it down: the rollback at the end of this task needs it, and the copy. The copy sits beside the records the mover will write, so that Task 10 removes them together.
 
-- [ ] **Step 6: Bring the branch into master**
+- [x] **Step 6: Bring the branch into master**
 
 ```bash
 comm -12 <(git -C ~/.config/emacs diff --name-only HEAD...xdg-layout | sort) \
@@ -3996,13 +3996,13 @@ If `comm` prints a name, that file has uncommitted changes and the branch change
 
 If git answers that the branches have diverged and it cannot fast-forward, `master` has moved since the branch was cut. In `$WT` run `git rebase master`, then `make test-xdg`, then repeat this step.
 
-- [ ] **Step 7: Apply the 26 edits to the canonical init.org**
+- [x] **Step 7: Apply the 26 edits to the canonical init.org**
 
 Run: `emacs --batch -Q -l ~/.config/emacs/xdg/apply-init-edits.el -f xdg-init-edits-batch ~/org/init.org; echo "exit=$?"`
 
 Expected: 26 lines that begin with `applied`, and `exit=0`.
 
-- [ ] **Step 8: Build init.el once; it must stop at the guard**
+- [x] **Step 8: Build init.el once; it must stop at the guard**
 
 This copies the canonical file into the checkout, tangles `init.el`, and loads it in batch. The load must fail, because the state has not moved yet.
 
@@ -4012,7 +4012,7 @@ Expected: a line that contains `Emacs state is still in /Users/johnw/.config/ema
 
 If make succeeds instead, there is no `~/.config/emacs/data` on this host. Stop and find out why before going on.
 
-- [ ] **Step 9: Move the files**
+- [x] **Step 9: Move the files**
 
 Run: `~/.config/emacs/xdg/migrate.sh --apply 2>&1 | tee /tmp/emacs-xdg-apply-clio.txt | tail -4`
 
@@ -4031,7 +4031,7 @@ Expected: a directory `/Users/johnw/.local/state/emacs/migration/<stamp>` contai
 
 If the script instead refuses with `destinations already hold a different file`, Emacs was started after Step 6. `early-init.el` sent a few of its histories to the new roots, even where the guard then stopped the init. The copies in the configuration directory are the real ones: run the command again with `--apply --prefer=source`.
 
-- [ ] **Step 10: Confirm that the state arrived**
+- [x] **Step 10: Confirm that the state arrived**
 
 Run: `ls -d ~/.config/emacs/data 2>&1; ls ~/.local/share/emacs; ls ~/.local/state/emacs; ls ~/.cache/emacs`
 
@@ -4043,7 +4043,7 @@ Expected: `No such file or directory` for the first. Then three listings:
 
 A history file under data, `backups` still under data, or `org-roam.db` anywhere but the cache, means the mover and the init disagree. Stop and compare the Task 4 table with the listing.
 
-- [ ] **Step 11: Build init.el again; now it must succeed**
+- [x] **Step 11: Build init.el again; now it must succeed**
 
 `-B` makes `make` rebuild a file it considers up to date.
 
@@ -4051,11 +4051,11 @@ Run: `make -C ~/.config/emacs -B init.el; echo "exit=$?"; ls -l ~/.config/emacs/
 
 Expected: `exit=0`, and `init.el` with mode `-r--r--r--` and the current time.
 
-- [ ] **Step 12: Start Emacs**
+- [x] **Step 12: Start Emacs**
 
 Start Emacs the usual way.
 
-- [ ] **Step 13: Check the paths in the running session**
+- [x] **Step 13: Check the paths in the running session**
 
 Run:
 
@@ -4077,7 +4077,7 @@ Expected:
 
 A `nil` in the tenth place only means that org-roam has not loaded yet; open a note and run the command again.
 
-- [ ] **Step 14: Scan the running session for stray paths**
+- [x] **Step 14: Scan the running session for stray paths**
 
 Run:
 
@@ -4089,7 +4089,7 @@ emacsclient -s /tmp/johnw-emacs/server --eval \
 
 Expected: `nil`. A variable that only records which buffers or projects the session has visited is not an offender. For anything else, apply the three rules of Task 3 Step 7, commit, and restart Emacs.
 
-- [ ] **Step 15: Check the checkout**
+- [x] **Step 15: Check the checkout**
 
 Run: `make -C ~/.config/emacs check-litter`
 
@@ -4105,7 +4105,7 @@ Expected: `t`
 
 One change to expect: transient now reads the values it saved. `~/.local/share/emacs/transient/values.el` dates from August 2025 and has not been read since, so a transient command may show a default that was saved then.
 
-- [ ] **Step 17: Commit and push**
+- [x] **Step 17: Commit and push**
 
 The commit of `init.org` carries whatever else changed in the canonical file since it was last copied here, as every such commit does.
 
@@ -4149,13 +4149,13 @@ Hera can only go forward. The edited `init.org` reaches Hera through Syncthing, 
 - Consumes: `master` as pushed in Task 7 Step 17.
 - Produces: Hera running on the new layout.
 
-- [ ] **Step 1: Check for a legacy init directory**
+- [x] **Step 1: Check for a legacy init directory**
 
 Run: `ls -d ~/.emacs.d ~/.emacs ~/.emacs.el 2>&1`
 
 Expected: three lines ending in `No such file or directory`. If one exists, stop: Emacs on Hera uses it instead of `~/.config/emacs`. Find out why it is there before moving anything. A `~/.emacs.d` is the likeliest of the three: a README in `lisp/` still gives `/ssh:hera:/Users/johnw/.emacs.d/lisp/` as the place of the sources on Hera. If `ls -l ~/.emacs.d` shows a symbolic link to `~/.config/emacs`, it is a leftover of the old layout: remove the link, and run this step again.
 
-- [ ] **Step 2: Bring the checkout up to date**
+- [x] **Step 2: Bring the checkout up to date**
 
 ```bash
 cd ~/.config/emacs
@@ -4172,13 +4172,13 @@ Expected: the commit of Task 7 Step 17 from `git log`, and nothing from the last
 
 If the pull refuses, it names the files in the way. Do not force it. This checkout may hold a copy of Clio's working tree that ChronoSync made, including another agent's unfinished edits. The requirement is only that `~/.config/emacs` on Hera is at Task 7's commit, with `xdg/` and `early-init.el` present.
 
-- [ ] **Step 3: Confirm that the edited init.org has arrived**
+- [x] **Step 3: Confirm that the edited init.org has arrived**
 
 Run: `emacs --batch -Q -l xdg/apply-init-edits.el -f xdg-init-edits-batch --check ~/org/init.org; echo "exit=$?"`
 
 Expected: 26 lines that begin with `done`, and `exit=0`. Lines that say `pending` mean Syncthing has not delivered the file yet. Wait for it. Do not apply the edits here: two hosts editing the same file make a Syncthing conflict.
 
-- [ ] **Step 4: Build init.el once; it must stop at the guard**
+- [x] **Step 4: Build init.el once; it must stop at the guard**
 
 Run: `rm -f init.org; make init.el 2>&1 | grep -E 'Emacs state is still in|\*\*\*'`
 
@@ -4188,7 +4188,7 @@ Expected: the same two lines as in Task 7 Step 8, with Hera's paths.
 
 If make succeeds, Hera has no `~/.config/emacs/data`. It had one before the cutover: ChronoSync reported conflicts on its `recentf`. So the pause did not hold, and ChronoSync has carried Clio's deletion here. Stop, and do not start Emacs on Hera. Run `ls ~/.local/state/emacs/migration`: a run directory from Clio, or `init.org.before-xdg`, proves that ChronoSync ran after the pause. Look in ChronoSync's archive on both hosts for Hera's `data/` directory and put it back at `~/.config/emacs/data`, then run this step again.
 
-- [ ] **Step 5: Preview**
+- [x] **Step 5: Preview**
 
 Run: `xdg/migrate.sh 2>&1 | tee /tmp/emacs-xdg-preview-hera.txt | grep -E '^  (clash|stays)|^migrate:'; sed -n '/^Left in /,/^Done\./p' /tmp/emacs-xdg-preview-hera.txt`
 
@@ -4196,19 +4196,19 @@ Expected: Hera's list differs from Clio's in its details. Read each name between
 
 A `clash` line means a destination already holds a different file. ChronoSync was paused before Clio's files moved, so this should not happen. If it does, either the pause did not hold and Clio's moved state has reached Hera, or the new init ran on Hera early. Stop and check ChronoSync before going on. Then John chooses, for all of them at once: `--prefer=source` puts Hera's own file in place, and `--prefer=destination` keeps the one that is there. The other copy is kept under `migration/<stamp>/collisions/` either way. Hera's own files are what Emacs on Hera last saw, so `--prefer=source` changes least.
 
-- [ ] **Step 6: Move the files**
+- [x] **Step 6: Move the files**
 
 Run: `xdg/migrate.sh --apply 2>&1 | tee /tmp/emacs-xdg-apply-hera.txt | tail -3`, adding the preference chosen in Step 5 if there was a `clash` line.
 
 Expected: the last line is `Done.`
 
-- [ ] **Step 7: Build again and start**
+- [x] **Step 7: Build again and start**
 
 Run: `make -B init.el; echo "exit=$?"`
 
 Expected: `exit=0`. Then start Emacs.
 
-- [ ] **Step 8: Verify**
+- [x] **Step 8: Verify**
 
 Run Task 7 Steps 10, 13, 14, 15 and 16 on Hera. Step 10's lists of names will differ in detail. What must hold is the same: no `~/.config/emacs/data`, no `backups` under `~/.local/share/emacs`, and `org-roam.db` only under `~/.cache/emacs`.
 
@@ -4225,7 +4225,7 @@ Run Task 7 Steps 10, 13, 14, 15 and 16 on Hera. Step 10's lists of names will di
 - Consumes: both hosts on the new layout.
 - Produces: ChronoSync running with rules that fit the layout; `master` no longer tracking the runtime file.
 
-- [ ] **Step 1: Record that the runtime file is no longer tracked**
+- [x] **Step 1: Record that the runtime file is no longer tracked**
 
 Both movers have taken `multisession/` to the state root, so the file can leave the index. On Clio:
 
@@ -4370,11 +4370,50 @@ Three of the four directories under `~/.cache/emacs/eln-cache/` belong to older 
 
 ---
 
+## Execution record
+
+Tasks 1 to 8 and Task 9 Step 1 were carried out on 17 November 2026, on Clio and, over ssh, on Hera. The steps above that are ticked were done. What is left is John's: the hands-on checks of Task 7 Step 16 on each host, Task 9 Steps 2 to 4, and Task 10.
+
+| | Clio | Hera |
+|---|---|---|
+| Files moved at | 19:30:33 | 19:35:49 |
+| Run directory | `~/.local/state/emacs/migration/20261117-193031` | `~/.local/state/emacs/migration/20261117-193547` |
+| Files compared by SHA-256 before and after | 11,622: 9,671 moved, 1,951 in place, none missing or changed | 14,502: 12,553 moved, 1,949 in place, none missing or changed |
+| `make -B init.el` after the move | exit 0, no error or warning | exit 0, no error or warning |
+| Task 7 Steps 13, 14 and 15 in a running session | the expected list; `nil`; no litter | the same |
+
+Commits on `master`: `9bbb6fc6e`, `752bebebc`, `2abad7827`, `970426e80` and `446b529e3` for Tasks 1 to 5; `9728bf350` and `71fc781b6` for two corrections to this plan (below); `72d456e0b` for the 26 edits of `init.org`, and nothing else; `0f1e1e61b` for Task 9 Step 1.
+
+Each run directory has an `evidence/` directory: the record of every step with its output, three inventories of the four directories (before the move, after it, and after the first build), the comparison, and the reports of the agents that scouted and verified that host. An independent replay of each log, by an agent that had not run the move, agreed with the comparison, and each archive was unpacked and matched its inventory member by member.
+
+**Two corrections made to this plan while it was executed.** Both checks had only ever been run under the conditions of writing: from scratch checkouts under `/tmp`, with John's Emacs running beside them.
+
+- The path tests failed in a checkout below the home directory. The helper that starts a child Emacs binds `HOME`, and `call-process` then expanded a `default-directory` of `~/...` against it. The helper now starts the child in the scratch root.
+- The sealed audit failed while no Emacs was running. The init makes `/tmp/johnw-emacs` when it is missing, and the sandbox denies that directory. `guards.el` now skips it.
+
+**Where the execution departed from the text.**
+
+- Task 7 Step 17: the commit holds the 26 edits only. Two other changes in the canonical file (an Org face, and a `:custom` block for ob-agent-deck) were left uncommitted, as they had been.
+- Task 8 was run over ssh. The mover ran under `nohup`. Emacs was started on Hera for the live checks and quit again 26 seconds later, because it had not been running there before. Nobody read `*Messages*` of that session.
+- Task 7 Step 16 was checked only as far as a program can: counts of the restored histories, and the Python grammar. The hands-on checks are open on both hosts.
+- Task 9 Step 1 was done the same evening, once both hosts had moved.
+- An accident. At 19:15 an agent inspecting Hera ran `osadecompile` on `org-protocol.app`, which started Emacs.app there with the old init. Nobody used that session, and it was quit at 19:28, before Hera's move. Its start-up clean-up shortened Hera's `recentf` from 1,368 to 1,319 entries, dropping files that do not exist on Hera; Clio's list is whole. Counting that session, Gnus was started on Hera at least four times that evening (the others were the build of Step 7, a batch check and the live check); what it did on the IMAP server was not checked.
+
+**Open, for John.**
+
+- Commit `init.org` in the `~/org` repository; `changes` does it. Until then its `HEAD` holds the old init, and a stash or a reset there would bring it back. The old init has no guard and would start on empty state (Follow-up 21).
+- Task 7 Step 16 by hand on each host. On Hera also run `emacsclient -s /tmp/johnw-emacs/server --eval '(list init-file-had-error (get-buffer "*Warnings*"))'` after the first start; it should print `(nil nil)`.
+- Task 9 Steps 2 to 4. The hourly item of the task `Home` is suspended. The weekly "validate" item is not, and is next due on Monday 23 November at 05:00. The two hosts' `backups/` directories differed before the move, which suggests that the task already excludes `~/.local/share/emacs` and `~/.local/state`: look at the rules before deciding. At the first run both sides will have changed in `~/.local/share/gnus` and in `.config/emacs/.git`; going by its own log, ChronoSync has until now reported such files as conflicts and overwritten neither. Clio's copies are the ones in use.
+- The backup fileset (Follow-up 26).
+- Task 10, two weeks after Task 9. The worktree `~/src/emacs-xdg-layout` and the branch `xdg-layout` stay until its Step 5.
+
+---
+
 ## Follow-ups
 
 None of these is needed for the reorganization. Each was found on the way and is worth its own decision.
 
-1. **`make init.el` may erase bm bookmarks.** In a sealed copy, the batch load of the init wrote an empty `bm-repository` over a populated one: bm's save runs on exit, and its load never runs in batch. The real `bm-repository` is empty today. Whether bookmarks were lost this way is not known. A build that only tangles, or that loads with the state root pointed at a scratch directory, would stop it.
+1. **`make init.el` may erase bm bookmarks.** In a sealed copy, the batch load of the init wrote an empty `bm-repository` over a populated one: bm's save runs on exit, and its load never runs in batch. The real `bm-repository` is empty today. Whether bookmarks were lost this way is not known. A build that only tangles, or that loads with the state root pointed at a scratch directory, would stop it. The execution showed more of the same: that batch load rewrites `recentf` and `projectile-frecency.eld`, and it starts Gnus far enough to open its IMAP connections and to rewrite `~/.local/share/gnus/.newsrc.eld` and the `News/*.ADAPT` files when it exits.
 2. **`~/src/scripts/syncup` is broken.** Line 24 calls `load-env-emacs$EMACSVER`, which is no longer on `PATH`, so the script stops there.
 3. **`~/src/scripts/changes-all` commits the whole checkout** from `~/.config/emacs/lisp`, which is not a repository of its own.
 4. **Five MCP entries in `~/.config/claude/personal/.claude.json`** name `/Users/johnw/.emacs.d/emacs-mcp-stdio.sh`, which does not exist. The tracked `emacs-mcp-stdio.sh` is stale as well.
@@ -4390,6 +4429,17 @@ None of these is needed for the reorganization. Each was found on the way and is
 14. **org-remark can build a path inside the configuration directory.** For a buffer that visits no file it would keep its notes in `<user-emacs-directory>/marginalia.org`. With today's configuration that branch never writes: only its eww, info and nov modes supply such buffers, and none is turned on. Whoever turns one on should set `org-remark-notes-file-name` first.
 15. **Directory shortcuts.** `lisp/dired-ext.el` has a shortcut for `~/.config/emacs`. The three new roots have none; adding them is a matter of taste and of free keys.
 16. **Gnus keeps its own home.** `gnus-home-directory` is `~/.local/share/gnus/`: 783 MB, written every day. It is outside the checkout, and this plan does not touch it. Bringing it under the three roots would mean sorting some two dozen Gnus variables into mail and drafts (data), read marks and the registry (state) and article caches (cache), on a mail store in daily use. That is a plan of its own.
+17. **The litter report lists ignored paths only.** `xdg/check-litter.sh` skips every entry of `git status` that is not ignored, so a runtime file that `.gitignore` does not name is neither reported nor kept out of `changes`. About twenty built-in default names are in that position (`abbrev_defs`, `calc.el`, `games/`, `eww-bookmarks`, `image-dired/`, `diary` and others). Either report untracked entries as well, with a list of what may be untracked, or add the names to `.gitignore`. Two smaller points in the same script: it depends on git's `status.showUntrackedFiles`, and it prints `No litter` if `git status` itself fails.
+18. **Paths that are still built from the configuration directory.** `image-dired-dir` (thumbnails, a cache), `diary-file` (data), `wombag-dir` (it uses `XDG_CACHE_HOME`, and falls back to the configuration directory in an Emacs that has no such variable), and org-remark (Follow-up 14). Each is one row of `user-paths-table`. The fallback `%backup%~` in `files.el` cannot be redirected.
+19. **An interrupted move can get past the guard.** The mover removes `data/` before it has moved `eshell/`, `persist/`, `tree-sitter/` and the other sources that come later in its manifest, and the guard looks only at `data/`. If `--apply` stops in between, the next start is quiet and partly empty. Nothing is lost, and `--apply --prefer=source` puts it right. Moving the `data/` entries to the end of the manifest closes it. In the same script a data root that is a symbolic link is taken for a clash, and the tests have no case for an apply that stops half-way.
+20. **`early-init.el` redirects before the guard can refuse.** Between the arrival of the branch and the first build, an Emacs started from the Dock runs the old `init.el` with the new early paths. Loading the library from `early-init.el` only when `data/` is absent closes it. Also, the library requires `xdg` before it redirects the native-compilation cache, so `xdg.el` is compiled again at every interactive start.
+21. **There is no guard in the other direction.** An old `init.org` on a host that has been moved starts without complaint on empty state and re-creates `data/`. It can come back from the `~/org` repository (a stash, a reset, a checkout) or from the other host. The mover could leave a marker for the library to check, or `early-init.el` could refuse an `init.el` that never calls `user-paths-check-migrated`.
+22. **The one-time tools, if they are kept beyond Task 10.** The audit's reader takes a form cut short by a missing paren for the end of the file. Errors in hooks are logged and not counted. A new empty directory is not reported. `run.sh` stops with rsync's error 23 in a checkout where a tracked file is deleted from the working tree. `mcp-server-lib-install-directory` belongs on the list of allowed variables. `audit.el` runs the whole audit when it is loaded in a batch Emacs. The editor counts an edit as done when the new text is present even if the old text is too, and it overwrites the file in place.
+23. **Emacs starts that bypass `runemacs`.** On Clio two Keyboard Maestro macros (Cmd-Shift-M, and Home in Firefox) and org-protocol links start Emacs.app directly. On Hera `mailto:` links and the default mail client do, and org-protocol goes through an AppleScript applet whose script names Emacs. Such a start skips the build, so it runs whatever `init.el` was tangled last. Reading that applet with `osadecompile` starts Emacs too.
+24. **Other agents' test runs use this checkout as their init directory.** `emacs -Q --batch` takes `~/.config/emacs` from `XDG_CONFIG_HOME` even under a scratch `HOME`, and can leave `eln-cache/` and other default files here. Their scripts should set `XDG_CONFIG_HOME` or pass `--init-directory`.
+25. **Small leftovers.** Four old `tramp.*` temporary files in `~/.cache/emacs` on Clio and six on Hera. Old numbered backups of `oauth2-auto.plist` under `backups/` have mode 0644, below a 0700 root. Inside `pre-migration.tar` three token and cookie files keep mode 0644: unpack it only into a private directory.
+26. **The backup fileset.** `~/.config/pushme/filesets/Home.yaml` excludes `/.local/share/emacs/` and `/.local/state/`. The first rule was written when that directory held only numbered backups; it now holds tokens, saved choices and grammars. Whether the nightly push should carry them is John's decision, and has no bearing on where they live.
+27. **Three places where this plan's text was wrong or thin.** The rollback loop of Task 7 should stop at the first run it cannot undo (`|| break`). Step 9 of Task 7 and Step 6 of Task 8 should say that Emacs must not be started if `--apply` stops with an error. The preview in Task 8 Step 5 shows about 77 actions, not Clio's 47, because Step 4 has already created three directories under the roots.
 
 ---
 
