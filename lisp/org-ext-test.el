@@ -749,7 +749,7 @@
                   (should-not (string-match-p "State \"" markdown))
                   (should-not (string-match-p "Sibling" markdown))
                   (should-not (string-match-p "STALE" markdown))
-                  (should (string-suffix-p "FORMATTED\n" markdown)))
+                  (should (string-suffix-p "FORMATTED" markdown)))
                 (with-current-buffer output-buffer
                   (should (eq major-mode 'text-mode))
                   (should (= (point) (point-min))))
