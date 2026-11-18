@@ -112,7 +112,7 @@ An executor needs these facts; none of them is in the follow-ups.
 - Consumes: `git status --porcelain -z --untracked-files=normal --ignored=traditional`, which prints one record per path, each ending in a NUL: `?? PATH` for an untracked path, `!! PATH` for an ignored one. A directory whose whole content is untracked, or whose whole content is ignored, is one record with a trailing slash.
 - Produces: `xdg/check-litter.sh [CHECKOUT]`. Exit 0 and `No litter in CHECKOUT` when nothing is listed; exit 1 and one line per finding otherwise; exit 2 when CHECKOUT is not the top of a git checkout or git cannot be asked. An ignored path is printed as `CHECKOUT/PATH`, an untracked one as ``CHECKOUT/PATH (untracked: `git add -A' would commit it)``. The test gains the helpers `exactly DESCRIPTION LINE...` (the report must fail and print exactly these lines) and `error DESCRIPTION COMMAND...` (the command must exit with status 2 and must not print `No litter`). Task 2 uses `exactly`, adds one line to the script's list of known names, and adds rules to `.gitignore`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 In `xdg/check-litter-test.sh`, replace
 
@@ -373,7 +373,7 @@ printf '\n%d passed, %d failed\n' "$passed" "$failed"
 
 The first block gives git a scratch home and no configuration, for every command in the test and for the script it runs. The loop over the old names changes from `litter` to `exactly`: now that untracked entries are reported too, a line that merely contains the name would be printed with or without the rule, and the check would no longer show that the rule is there.
 
-- [ ] **Step 2: Run the tests to verify that they fail**
+- [x] **Step 2: Run the tests to verify that they fail**
 
 Run: `xdg/check-litter-test.sh 2>&1 | grep -E '^FAIL|passed, '`
 
@@ -407,7 +407,7 @@ FAIL  only the unknown file is reported as left behind
 
 That is how a git hook would run the mover's test: with `GIT_DIR` set, its `git -C` commands leave the scratch repository alone and go where the variable points. Nothing can be created at the path used here, and git's complaints about it are what `2>/dev/null` hides. The run takes a minute or two.
 
-- [ ] **Step 3: Ignore what agent tools and the Finder leave**
+- [x] **Step 3: Ignore what agent tools and the Finder leave**
 
 Append to `.gitignore`:
 
@@ -423,7 +423,7 @@ Append to `.gitignore`:
 .DS_Store
 ```
 
-- [ ] **Step 4: Change the script**
+- [x] **Step 4: Change the script**
 
 In `xdg/check-litter.sh`, replace
 
@@ -578,7 +578,7 @@ done <"$listing"
 while IFS= read -r directory; do
 ```
 
-- [ ] **Step 5: Keep the mover's test out of the caller's repository**
+- [x] **Step 5: Keep the mover's test out of the caller's repository**
 
 In `xdg/migrate-test.sh`, replace
 
@@ -603,7 +603,7 @@ unset $(git rev-parse --local-env-vars) GIT_TEMPLATE_DIR
 passed=0
 ```
 
-- [ ] **Step 6: Run the tests to verify that they pass**
+- [x] **Step 6: Run the tests to verify that they pass**
 
 Run: `xdg/check-litter-test.sh | tail -1 && PATH="/usr/bin:/bin:$PATH" /bin/bash xdg/check-litter-test.sh | tail -1 && shellcheck xdg/check-litter.sh xdg/check-litter-test.sh xdg/migrate-test.sh; echo "exit=$?"`
 
@@ -617,7 +617,7 @@ exit=0
 
 The second run uses the system's bash 3.2, git and BSD tools.
 
-- [ ] **Step 7: Run both tests as a git hook would**
+- [x] **Step 7: Run both tests as a git hook would**
 
 Run: `GIT_DIR=/nonexistent/.git xdg/check-litter-test.sh 2>/dev/null | tail -1; GIT_DIR=/nonexistent/.git xdg/migrate-test.sh 2>/dev/null | tail -1`
 
@@ -628,7 +628,7 @@ Expected:
 234 passed, 0 failed
 ```
 
-- [ ] **Step 8: Run the report on the worktree and on the live checkout**
+- [x] **Step 8: Run the report on the worktree and on the live checkout**
 
 Run: `xdg/check-litter.sh; echo "exit=$?"; xdg/check-litter.sh ~/.config/emacs; echo "exit=$?"`
 
@@ -643,7 +643,7 @@ exit=0
 
 Both runs only read. The second uses the worktree's script and the live checkout's own `.gitignore`, which does not have the new rules yet. If either prints a path instead, the path is real: leave the script as it is and report the line.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add xdg/check-litter-test.sh .gitignore xdg/check-litter.sh xdg/migrate-test.sh
@@ -663,7 +663,7 @@ git commit -m "xdg: Report untracked files at the top of the checkout"
 - Consumes: the script and the test of Task 1, and the test's helpers `clean DESCRIPTION`, `exactly DESCRIPTION LINE...` and `put FILE`.
 - Produces: nothing that a later task uses.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 In `xdg/check-litter-test.sh`, replace
 
@@ -815,7 +815,7 @@ litter 'eshell history is reported' "$repo/eshell/history"
 
 The table has one line for each new rule that names a file or a directory: the path to create, and the path the report must then print with no remark. `user-lisp` and `auctex` are printed as directories because git prints a directory whose whole content is ignored as one entry.
 
-- [ ] **Step 2: Run the tests to verify that they fail**
+- [x] **Step 2: Run the tests to verify that they fail**
 
 Run: `xdg/check-litter-test.sh 2>&1 | grep -c '^FAIL'; xdg/check-litter-test.sh 2>&1 | tail -1`
 
@@ -828,7 +828,7 @@ Expected:
 
 The forty-nine names of the table are not ignored yet. Neither are the two generated files beside hand-written ones, the three backup files, nor the four auto-save and lock files; the two of those four at the top of the checkout are reported as untracked, and so is the new directory at the top that holds only an auto-save file.
 
-- [ ] **Step 3: Add the rules**
+- [x] **Step 3: Add the rules**
 
 Append to `.gitignore`:
 
@@ -904,7 +904,7 @@ Append to `.gitignore`:
 
 The names come from a sweep of Emacs's own Lisp and of the packages this configuration loads, for every default that is built from `user-emacs-directory`; a reviewer then found the writer of each in the sources. Each was sorted by what its file holds. Not all of them are state or caches in the strict sense. `diary`, `notes`, `quickurls`, `timelog` and `todo/` hold what a person enters through a command. `eww-bookmarks`, `lena-snapshots/`, `org-table-highlight-metadata.el` and `wikipedia.db` are data, which `lisp/user-paths.el` keeps under the data root. `tramp-*.encfs6.xml` holds key configuration that Tramp writes. They get a rule all the same, because none of it belongs in a commit that `changes` pushes.
 
-- [ ] **Step 4: Report backup files everywhere, and leave auto-save and lock files out of the report**
+- [x] **Step 4: Report backup files everywhere, and leave auto-save and lock files out of the report**
 
 In `xdg/check-litter.sh`, replace
 
@@ -988,7 +988,7 @@ with
 
 The first new line of the list has no `continue`: a backup file falls through to the report before `lisp/*` can pass it over.
 
-- [ ] **Step 5: Run the tests to verify that they pass**
+- [x] **Step 5: Run the tests to verify that they pass**
 
 Run: `xdg/check-litter-test.sh | tail -1 && PATH="/usr/bin:/bin:$PATH" /bin/bash xdg/check-litter-test.sh | tail -1 && shellcheck xdg/check-litter.sh xdg/check-litter-test.sh; echo "exit=$?"`
 
@@ -1000,13 +1000,13 @@ Expected:
 exit=0
 ```
 
-- [ ] **Step 6: Check that no rule hides a tracked file**
+- [x] **Step 6: Check that no rule hides a tracked file**
 
 Run: `git ls-files -ci --exclude-from=.gitignore; echo "exit=$?"`
 
 Expected: `exit=0` and no other line. The command lists every tracked file that a rule of `.gitignore` matches.
 
-- [ ] **Step 7: Run the report on the worktree and on the live checkout**
+- [x] **Step 7: Run the report on the worktree and on the live checkout**
 
 Run: `xdg/check-litter.sh; echo "exit=$?"; xdg/check-litter.sh ~/.config/emacs; echo "exit=$?"`
 
@@ -1021,7 +1021,7 @@ exit=0
 
 If either prints a path, leave the script as it is and report the line.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add xdg/check-litter-test.sh .gitignore xdg/check-litter.sh
@@ -1040,7 +1040,7 @@ git commit -m "xdg: Ignore the remaining default state files"
 - Consumes: the constants `user-data-directory`, `user-state-directory` and `user-cache-directory` of `lisp/user-paths.el`, and the test file's `user-paths-test--child ENVIRONMENT FORM`, `user-paths-test--bare` and `user-paths-test-root`.
 - Produces: `(user-paths--keep-root SYMBOL NEWVAL OPERATION WHERE)`, a variable watcher that the library installs on its three roots. Nothing else calls it. Its error message contains the variable's name, `lisp/user-paths.el` and the file being loaded if there is one; when that file is called `init.el` or `init.elc`, it also says to run `make -B init.el`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 In `lisp/user-paths-test.el`, replace
 
@@ -1181,7 +1181,7 @@ with
 
 The third test writes an `init.el` that begins as `init.org` did until the move, and loads it in a fresh Emacs that has loaded the library.
 
-- [ ] **Step 2: Run the tests to verify that they fail**
+- [x] **Step 2: Run the tests to verify that they fail**
 
 Run: `emacs --batch -Q -l lisp/user-paths-test.el -f ert-run-tests-batch-and-exit 2>&1 | grep -E '^Ran |^   FAILED  user'`
 
@@ -1194,7 +1194,7 @@ Ran 20 tests, 17 results as expected, 3 unexpected (...)
    FAILED  user-paths-test-roots-cannot-be-redefined
 ```
 
-- [ ] **Step 3: Guard the roots**
+- [x] **Step 3: Guard the roots**
 
 In `lisp/user-paths.el`, replace
 
@@ -1269,7 +1269,7 @@ run `make -B init.el' there"
 (defconst user-paths-table
 ```
 
-- [ ] **Step 4: Run the tests to verify that they pass**
+- [x] **Step 4: Run the tests to verify that they pass**
 
 Run: `emacs --batch -Q -l lisp/user-paths-test.el -f ert-run-tests-batch-and-exit 2>&1 | grep -E '^Ran |FAILED'`
 
@@ -1279,7 +1279,7 @@ Expected:
 Ran 20 tests, 20 results as expected, 0 unexpected (...)
 ```
 
-- [ ] **Step 5: Check that the library compiles without a warning**
+- [x] **Step 5: Check that the library compiles without a warning**
 
 Run: `d=$(mktemp -d) && cp lisp/user-paths.el "$d/" && emacs --batch -Q -f batch-byte-compile "$d/user-paths.el" 2>&1 | grep -c .; ls "$d"; rm -rf "$d"`
 
@@ -1293,7 +1293,7 @@ user-paths.elc
 
 The `0` is the number of lines the compiler printed. The compiled file stays in the scratch directory: `early-init.el` loads the source by name, and no `user-paths.elc` may ever sit beside it.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lisp/user-paths-test.el lisp/user-paths.el
@@ -1312,7 +1312,7 @@ git commit -m "user-paths: Refuse to give a root another value"
 - Consumes: the Makefile's rules `init.org: ~/org/init.org` and `init.el: init.org`, and the call `(user-paths-check-migrated)` in `init.org`.
 - Produces: the make variable `GUARD`, the phony target `stale-init`, and a `test-xdg` target that runs five test files.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `xdg/make-init-test.sh`:
 
@@ -1564,7 +1564,7 @@ Run: `chmod +x xdg/make-init-test.sh`
 
 The test copies the real Makefile into a scratch home and starts `make` there from an empty environment. `emacs` on its `PATH` is a stand-in that records that it was started and "tangles": it copies what stands in the source blocks of `init.org` to `init.el`, so that the content of `init.el` shows which `init.org` it was built from, and a call outside a source block does not reach it. make compares modification times and a build takes less than a second, so the test gives each version of `init.org` a day of its own.
 
-- [ ] **Step 2: Run the test to verify that it fails**
+- [x] **Step 2: Run the test to verify that it fails**
 
 Run: `xdg/make-init-test.sh | grep -c '^FAIL'; xdg/make-init-test.sh | tail -1`
 
@@ -1577,7 +1577,7 @@ Expected:
 
 Without the checks, every stale file is copied and built, a stale `init.el` is left alone, `init.elc` stays, and an `init.el` without the call is built without a word.
 
-- [ ] **Step 3: Add the checks and the test to the Makefile**
+- [x] **Step 3: Add the checks and the test to the Makefile**
 
 The recipe lines begin with a tab.
 
@@ -1729,7 +1729,7 @@ with
 # Load the whole init in a sealed copy and report paths that still point here.
 ```
 
-- [ ] **Step 4: Run the test to verify that it passes**
+- [x] **Step 4: Run the test to verify that it passes**
 
 Run: `xdg/make-init-test.sh | tail -1 && PATH="/usr/bin:/bin:$PATH" /bin/bash xdg/make-init-test.sh | tail -1 && shellcheck xdg/make-init-test.sh; echo "exit=$?"`
 
@@ -1743,7 +1743,7 @@ exit=0
 
 The second run uses the system's GNU Make 3.81.
 
-- [ ] **Step 5: Run every test**
+- [x] **Step 5: Run every test**
 
 Run: `make test-xdg 2>&1 | grep -E 'Ran |passed, '`
 
@@ -1759,7 +1759,7 @@ Ran 7 tests, 7 results as expected, 0 unexpected (...)
 
 `make test-xdg` is safe in the worktree: it runs the five test files and nothing else. It takes a minute or two.
 
-- [ ] **Step 6: Check that the real files pass**
+- [x] **Step 6: Check that the real files pass**
 
 Run: `grep -c '^[^;]*(user-paths-check-migrated' ~/org/init.org ~/.config/emacs/init.org ~/.config/emacs/init.el | sort`
 
@@ -1773,7 +1773,7 @@ Expected:
 
 This only reads the three files. If a count is 0, stop: with this Makefile `runemacs` would refuse to start Emacs, or would build `init.el` again at every start.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add xdg/make-init-test.sh Makefile
@@ -1792,7 +1792,7 @@ git commit -m "make: Refuse to build init.el from a stale init.org"
 - Consumes: Tasks 1 to 4.
 - Produces: a reorganization plan whose Task 10 quotes the `test-xdg` target as it now is.
 
-- [ ] **Step 1: Say in the README what stops an old init**
+- [x] **Step 1: Say in the README what stops an old init**
 
 In `README.md`, replace
 
@@ -1816,7 +1816,7 @@ definition of the data directory, before it has written anything.
 I keep my Emacs file in literate Org mode, so that it's easier to organize and
 ```
 
-- [ ] **Step 2: Close the follow-ups in the reorganization plan, and bring its Task 10 up to date**
+- [x] **Step 2: Close the follow-ups in the reorganization plan, and bring its Task 10 up to date**
 
 Task 10 of that plan is still to be done. It replaces the `test-xdg` target by exact text and gives the counts to expect, and both have changed. The patch below makes eight changes: three in Task 10's introduction and interfaces, two in the text of its Step 2, one in the counts of its Step 3, one in the note for John, and one hunk that closes Follow-ups 17, 20 and 21. Save it to a file outside the worktree and apply it from the worktree with `git apply FILE`.
 
@@ -1896,7 +1896,7 @@ Task 10 of that plan is still to be done. It replaces the `test-xdg` target by e
  23. **Emacs starts that bypass `runemacs`.** On Clio two Keyboard Maestro macros (Cmd-Shift-M, and Home in Firefox) and org-protocol links start Emacs.app directly. On Hera `mailto:` links and the default mail client do, and org-protocol goes through an AppleScript applet whose script names Emacs. Such a start skips the build, so it runs whatever `init.el` was tangled last. Reading that applet with `osadecompile` starts Emacs too.
 ```
 
-- [ ] **Step 3: Check the edits**
+- [x] **Step 3: Check the edits**
 
 Run: `git diff --stat | tail -1; grep -c 'xdg-litter-report-and-stale-init-guards' docs/superpowers/plans/2026-11-17-emacs-xdg-reorganization.md`
 
@@ -1907,7 +1907,7 @@ Expected:
 4
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add README.md docs/superpowers/plans/2026-11-17-emacs-xdg-reorganization.md
@@ -1927,7 +1927,7 @@ This task is not for a subagent. It pushes to `origin`, changes the main checkou
 - Consumes: the five commits of Tasks 1 to 5 on `xdg-guards`, each reviewed.
 - Produces: both hosts on the same commit, with `make test-xdg` and `make check-litter` passing on each.
 
-- [ ] **Step 1: Check the whole branch in the worktree**
+- [x] **Step 1: Check the whole branch in the worktree**
 
 Run: `make test-xdg 2>&1 | grep -E 'Ran |passed, '`
 
@@ -1948,7 +1948,7 @@ Run: `grep -c '^[^;]*(user-paths-check-migrated' ~/org/init.org ~/.config/emacs/
 
 Expected: six lines that end in `:1`, and twice `No such file or directory`. A count of 0 means that the new Makefile would refuse that host's file or build it again; an `init.elc` would be removed by the next build. Stop and look before going on.
 
-- [ ] **Step 2: Push the branch to origin as master**
+- [x] **Step 2: Push the branch to origin as master**
 
 ```bash
 git -C ~/src/emacs-xdg-guards fetch origin
@@ -1995,7 +1995,7 @@ git status --short
 
 Expected: the fast-forward succeeds, and `git status --short` prints the entries it printed before this step. The copy now has the time stamp of `~/org/init.org`, as after a `make`; the next `runemacs` builds `init.el` from it, which it would have done in any case, because `~/org/init.org` is newer than `init.el`.
 
-- [ ] **Step 4: Bring Hera's checkout up to date**
+- [x] **Step 4: Bring Hera's checkout up to date**
 
 ```bash
 ssh hera 'cd ~/.config/emacs && git fetch origin && git diff --name-only HEAD origin/master | sort >/tmp/guards-incoming && git status --porcelain | cut -c4- | sort >/tmp/guards-dirty && comm -12 /tmp/guards-incoming /tmp/guards-dirty; rm -f /tmp/guards-incoming /tmp/guards-dirty'
@@ -2035,6 +2035,36 @@ emacsclient -s /tmp/johnw-emacs/server --eval '(list init-file-had-error (get-va
 Expected: `(nil (user-paths--keep-root))`.
 
 If `runemacs` prints that `init.org` does not call `(user-paths-check-migrated)`, the message says which file and what to do. If Emacs opens with a warning that a root "is set by lisp/user-paths.el and cannot become" something, the file it names is from before the move: run `make -B init.el` in `~/.config/emacs`.
+
+---
+
+## Execution record
+
+Tasks 1 to 5 were carried out on 17 November 2026 in the worktree, each by an implementer of its own, and each commit was reviewed. The steps above that are ticked were done. `master` on `origin` and Hera's checkout hold the commits listed here and the one that adds this record. Clio's checkout has not been brought up to date; the reason is below.
+
+| | |
+|---|---|
+| Commits of the five tasks | `7a7e7bb53`, `8af292a5f`, `dc3028c5e`, `31834c59e`, `bd8be20c5` |
+| Commits made after the reviews | `bb83d59c7`, `ebf7a6274`, `1666bcd4b`, `6fd8d4bc6`, `0edf54807`, `24e430bde`, `5a69fba1f` |
+| `make test-xdg` at `5a69fba1f` | 20 and 7 ERT tests, and 234, 124 and 57 checks, all passing, in the worktree and on Hera |
+| `make audit-xdg` at `5a69fba1f` | `580 forms, 0 failed`; `0 offenders, 0 failed forms`; `PASS` |
+| `make check-litter` | `No litter` in the worktree and on Hera; the new script says the same of Clio's checkout |
+| The real files | `~/org/init.org`, and `init.org` and `init.el` of the checkout, call the guard on both hosts; neither host has an `init.elc` |
+
+The ledger, the implementers' reports and all the reviews are in `~/.local/state/emacs/migration/guards/` on Clio.
+
+**Where the execution departed from the text.**
+
+- The text of this plan was changed after the reviews, as Appendix B says, so that it shows the files as they are. The commits of the five tasks hold the files as the plan first had them; the seven later commits bring them to what is printed here.
+- Task 5 Step 2: the implementer copied the reference file instead of applying the patch. The result was compared byte for byte with what the patch gives.
+- Task 6 Step 1 was run twice, the second time at the final head.
+- Task 6 Step 3 was not done. At 22:52 John's running Emacs on Clio held an unsaved buffer of `lisp/org-ql-semantic.el`. The other session's commit `b20c11b1a` changes that file, so the fast-forward would have changed it on disk under the buffer, and saving the buffer afterwards would have undone that session's change. Step 5 for Clio, Step 6 and Step 7 wait for it. The worktree `~/src/emacs-xdg-guards` and its branch stay until then.
+
+**Open, for John.**
+
+- Clio's checkout. Save or revert the buffer of `lisp/org-ql-semantic.el` (its unsaved changes were whitespace on three lines), then carry out Task 6 Step 3, or have it carried out. Until then Clio runs the Makefile and the library from before this plan, and nothing is broken by that.
+- Task 6 Step 7 on each host, at the next start of Emacs there.
+- Follow-ups 3, 4 and 5 are decisions for John: the Keyboard Maestro macro, the global ignore file, and whether settings saved on request should be ignored as well.
 
 ---
 
