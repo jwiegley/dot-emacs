@@ -38,7 +38,7 @@ from the checkout that received the update.  For sources loaded from Hera via
 TRAMP, evaluate:
 
 #+begin_src emacs-lisp
-(let ((directory "/ssh:hera:/Users/johnw/.emacs.d/lisp/"))
+(let ((directory "/ssh:hera:/Users/johnw/.config/emacs/lisp/"))
   (load-file (expand-file-name "org-agent-deck.el" directory))
   (load-file (expand-file-name "ob-agent-deck.el" directory)))
 #+end_src
@@ -307,14 +307,25 @@ session requires inspection because the CLI has not confirmed prompt delivery.
 
 * Verification
 
-Run the focused regression suite and byte-compile the changed modules.
-=load-prefer-newer= keeps the suite from loading stale bytecode:
+Run the focused regression suite and byte-compile the changed modules, both
+from the top of the checkout.  =--init-directory= keeps Emacs from taking the
+checkout as its own directory, =load-prefer-newer= keeps the suite from
+loading stale bytecode, and the compiled files go to a scratch directory
+instead of beside the sources:
 
 #+begin_src sh
-emacs --batch -Q -L . --eval '(setq load-prefer-newer t)' \
-  -l org-agent-deck-test.el -f ert-run-tests-batch-and-exit
-emacs --batch -Q -L . --eval '(setq byte-compile-error-on-warn t)' \
-  -f batch-byte-compile org-agent-deck.el ob-agent-deck.el
+emacs --batch -Q --init-directory="$(mktemp -d)" \
+  --eval '(setq load-prefer-newer t)' \
+  -l ~/.config/emacs/nix-packages.el -L lisp -L lisp/llm-setup \
+  -l lisp/org-agent-deck-test.el -f ert-run-tests-batch-and-exit
+o=$(mktemp -d)
+emacs --batch -Q --init-directory="$(mktemp -d)" \
+  --eval '(setq load-prefer-newer t)' \
+  -l ~/.config/emacs/nix-packages.el -L lisp -L lisp/llm-setup \
+  --eval "(setq byte-compile-error-on-warn t
+                byte-compile-dest-file-function
+                (lambda (f) (expand-file-name (concat (file-name-nondirectory f) \"c\") \"$o\")))" \
+  -f batch-byte-compile lisp/org-agent-deck.el lisp/ob-agent-deck.el
 #+end_src
 
 The suite includes a local SSH-shell emulator and a fake agent-deck for the

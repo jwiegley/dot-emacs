@@ -27,4 +27,5 @@ NOTE: I no longer use git-subtree or submodules for most dependencies.
 Instead, packages are built and managed using Nix and Nix overlays:
 https://github.com/jwiegley/nix-config/blob/master/overlays/10-emacs.nix
 
-The sole exception is `lisp/llm-setup`, which remains a development submodule.
+The exceptions are `lisp/llm-setup`, `lisp/dired-filetags` and
+`lisp/org-agents`, which are development submodules.

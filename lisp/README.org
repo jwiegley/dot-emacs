@@ -2,7 +2,7 @@
 #+STARTUP: content
 
 This directory contains Lisp modules I've written, or maintain, and which are
-still actively used.  For older modules, see the ../retired directory.
+still actively used.
 
 * Modules
 
