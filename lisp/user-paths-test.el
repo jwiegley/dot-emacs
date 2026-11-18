@@ -274,7 +274,18 @@ names another, so it cannot reach real state either."
     (load user-paths-test-file nil t)
     (should (equal (list user-data-directory user-state-directory
                          user-cache-directory)
-                   roots))))
+                   roots)))
+  ;; A file that is not an init file is named, and is not taken for an
+  ;; init from before the move.
+  (let ((file (concat user-paths-test-root "package.el"))
+        (value user-cache-directory))
+    (with-temp-file file
+      (insert ";;; -*- lexical-binding: t -*-\n"
+              "(setq user-cache-directory \"/elsewhere/\")\n"))
+    (let ((message (cadr (should-error (load file nil t)))))
+      (should (string-match-p "package\\.el" message))
+      (should-not (string-match-p "make -B" message)))
+    (should (equal user-cache-directory value))))
 
 (ert-deftest user-paths-test-a-root-without-a-value-can-be-given-one ()
   ;; The guard itself, on a variable that is nobody's root.
