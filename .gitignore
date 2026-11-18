@@ -69,3 +69,70 @@ projectile-frecency.eld
 /.claude/worktrees/
 /.superpowers/
 .DS_Store
+
+# More defaults, of Emacs itself and of the packages this configuration
+# loads: state, caches, and what Emacs records as it is used (bookmarks,
+# scores, logs, a diary, notes).  None of it belongs in a commit, and
+# `make check-litter' lists whatever turns up.  Settings that a person
+# saves on request (abbrev_defs, calc.el, eudc-options, shadows, strokes,
+# viper) and code (user-lisp/, auctex/style/, themes) have no rule on
+# purpose: they stay visible, and the report lists them while they are
+# untracked.
+/.emacs.desktop
+/.emacs.desktop.lock
+/.lsp-eslint-choices
+/.mc-lists.el
+/.persistent-scratch
+/aria2-controller.eieio
+/aria2c.session
+/bdfcache.el
+/bm-repository
+/completions
+/diary
+/ecompleterc
+/ede-projects.el
+/eww-bookmarks
+/filesets-cache.el
+/games/
+/idlwave/
+/image-dired/
+/index.sqlite
+/intelephense/
+/kkcrc
+/lena-snapshots/
+/lsp-cache/
+/newsticker/
+/notes
+/nov-places
+/org-persist/
+/org-roam.db
+/org-table-highlight-metadata.el
+/projectile-bookmarks.eld
+/projectile-sessions/
+/quickurls
+/rcirc-log/
+/semanticdb/
+/shadow_todo
+/srecode-map.el
+/thumbs/
+/timelog
+/todo/
+/tramp-*.encfs6.xml
+/tutorial/
+/type-break
+/user-lisp/.user-lisp-autoloads.el
+/vimish-fold/
+/web-cookies
+/wikipedia.db
+/wombag/
+/workspace/
+# What AUCTeX parses is a cache; its style directory holds styles that a
+# person writes.
+/auctex/*
+!/auctex/style/
+# Backup files come from an Emacs without this init, which keeps its own
+# under the state root; `make check-litter' lists them.  Auto-save and lock
+# files belong to an editing session, and it leaves them alone.
+*~
+\#*#
+.#*

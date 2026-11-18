@@ -197,6 +197,117 @@ for path in data/history var/pcache/fonts url/cache/a transient/history.el \
     rm -rf "${repo:?}/${path%%/*}"
 done
 
+# More defaults of Emacs and of the installed packages.  Each line is a
+# file to create, and the path the report must then print.
+while IFS='|' read -r path listed; do
+    put "$repo/$path"
+    exactly "$listed is ignored, and reported" "$repo/$listed"
+    rm -rf "${repo:?}/${path%%/*}"
+done <<'NAMES'
+completions|completions
+idlwave/idlusercat.el|idlwave
+shadow_todo|shadow_todo
+type-break|type-break
+filesets-cache.el|filesets-cache.el
+thumbs/a.png|thumbs
+tramp-host.encfs6.xml|tramp-host.encfs6.xml
+newsticker/feeds/x|newsticker
+image-dired/a.jpg|image-dired
+rcirc-log/channel|rcirc-log
+user-lisp/.user-lisp-autoloads.el|user-lisp
+srecode-map.el|srecode-map.el
+semanticdb/x|semanticdb
+ede-projects.el|ede-projects.el
+kkcrc|kkcrc
+games/snake-scores|games
+tutorial/x|tutorial
+ecompleterc|ecompleterc
+org-persist/index.eld|org-persist
+eww-bookmarks|eww-bookmarks
+bdfcache.el|bdfcache.el
+diary|diary
+notes|notes
+quickurls|quickurls
+timelog|timelog
+todo/todo.todo|todo
+.emacs.desktop|.emacs.desktop
+.emacs.desktop.lock|.emacs.desktop.lock
+wombag/token|wombag
+.mc-lists.el|.mc-lists.el
+projectile-bookmarks.eld|projectile-bookmarks.eld
+projectile-sessions/x|projectile-sessions
+org-table-highlight-metadata.el|org-table-highlight-metadata.el
+lena-snapshots/x|lena-snapshots
+wikipedia.db|wikipedia.db
+auctex/auto/x.el|auctex
+web-cookies|web-cookies
+nov-places|nov-places
+org-roam.db|org-roam.db
+aria2c.session|aria2c.session
+aria2-controller.eieio|aria2-controller.eieio
+.persistent-scratch|.persistent-scratch
+bm-repository|bm-repository
+vimish-fold/x|vimish-fold
+workspace/x|workspace
+lsp-cache/x|lsp-cache
+intelephense/x|intelephense
+index.sqlite|index.sqlite
+.lsp-eslint-choices|.lsp-eslint-choices
+NAMES
+
+# Beside a file that a person wrote, the generated one is still ignored,
+# and the directory is listed for the sake of the other.
+put "$repo/user-lisp/mine.el"
+put "$repo/user-lisp/.user-lisp-autoloads.el"
+exactly 'generated autoloads are ignored beside hand-written Lisp' \
+    "$repo/user-lisp (untracked: \`git add -A' would commit it)" \
+    "$repo/user-lisp/.user-lisp-autoloads.el"
+rm -rf "${repo:?}/user-lisp"
+put "$repo/auctex/style/mine.el"
+put "$repo/auctex/auto/x.el"
+exactly 'parsed TeX files are ignored beside a hand-written style' \
+    "$repo/auctex (untracked: \`git add -A' would commit it)" \
+    "$repo/auctex/auto"
+rm -rf "${repo:?}/auctex"
+
+# Settings that a person saves on request, and code, have no rule: they
+# stay visible to git and to this report.
+for path in abbrev_defs calc.el eudc-options shadows strokes viper \
+    user-lisp/mine.el auctex/style/mine.el; do
+    put "$repo/$path"
+    exactly "${path%%/*} is not ignored" \
+        "$repo/${path%%/*} (untracked: \`git add -A' would commit it)"
+    rm -rf "${repo:?}/${path%%/*}"
+done
+
+# Backup files come from an Emacs without this init, which keeps its own
+# elsewhere.  They are ignored and reported, wherever they are.
+put "$repo/notes.txt~"
+exactly 'a backup file at the top is ignored, and reported' "$repo/notes.txt~"
+rm "$repo/notes.txt~"
+put "$repo/docs/plan.md~"
+exactly 'a backup file below a tracked directory is ignored, and reported' \
+    "$repo/docs/plan.md~"
+rm "$repo/docs/plan.md~"
+
+# Auto-save and lock files belong to an editing session.  Git must ignore
+# them, so that `git add -A' cannot commit one, and they are not litter.
+for path in '#notes#' '.#notes' 'docs/#plan.md#' 'docs/.#plan.md'; do
+    case $path in
+    *'.#'*) ln -s 'someone@host.999:1700000000' "$repo/$path" ;;
+    *) put "$repo/$path" ;;
+    esac
+    if git -C "$repo" check-ignore -q -- "$path"; then
+        passed=$((passed + 1))
+        printf 'ok    %s is ignored\n' "$path"
+    else
+        failed=$((failed + 1))
+        printf 'FAIL  %s is ignored\n' "$path"
+    fi
+    clean "$path is not litter"
+    rm "$repo/$path"
+done
+
 put "$repo/eshell/history"
 litter 'eshell history is reported' "$repo/eshell/history"
 rm "$repo/eshell/history"

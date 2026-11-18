@@ -11,8 +11,9 @@
 #
 #   - ~/.emacs.d, ~/.emacs and ~/.emacs.el, any of which makes Emacs
 #     ignore this checkout altogether;
-#   - every ignored path in the checkout that is not known configuration
-#     or a build product;
+#   - every ignored path in the checkout that is not known configuration,
+#     a build product, or the auto-save or lock file of a file that is
+#     being edited;
 #   - every untracked path at the top of the checkout: `git add -A' would
 #     commit it, and the top is where Emacs's defaults write.  Untracked
 #     files below a tracked directory are work in progress and are left
@@ -96,6 +97,10 @@ while IFS= read -r -d '' entry; do
     certs/ | eln-cache/ | .claude/* | .superpowers/*) continue ;;
     prompts/.prompt-deploy-manifest.json) continue ;;
     lisp/* | *.elc | .DS_Store | */.DS_Store) continue ;;
+    # Auto-save and lock files belong to an editing session, or hold work
+    # to recover after a crash.  .gitignore names them so that `git add -A'
+    # never commits one; they are not state.
+    '#'*'#' | */'#'*'#' | '.#'* | */'.#'*) continue ;;
     eshell/)
         # alias, login and profile are configuration; history is not.
         while IFS= read -r name; do
