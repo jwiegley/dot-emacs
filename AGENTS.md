@@ -1,8 +1,8 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to coding agents working in this repository. `CLAUDE.md` is a symlink to it.
 
-It is kept in `lisp/`, but it covers the whole repository. Paths are relative to the top of the repository unless they begin with `~` or `/`.
+Paths are relative to the top of the repository unless they begin with `~` or `/`.
 
 ## Repository Overview
 
@@ -47,6 +47,7 @@ These are the rules that are easy to break without noticing. The sections below 
 | `nix-packages`, `nix-packages.el` | Home Manager's symlinks to the package bundle; ignored by git |
 | `.gitignore` | Besides build products, the default names of runtime files, as a safety net; `make test-xdg` tests its rules |
 | `README.md` | A short account of the layout, for people |
+| `AGENTS.md`, `CLAUDE.md` | This guide, and the symlink through which Claude Code reads it |
 
 The table leaves out what plays no part in building or testing the configuration.
 
