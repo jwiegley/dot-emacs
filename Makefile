@@ -109,10 +109,10 @@ slow: init.el
 	    --eval "(message \"Hello, world\!\")"
 
 open: init.el
-	@open $$(dirname $$(which emacs))/../Applications/*.app
+	@open /Applications/Emacs.app
 
 open-quick: init.el
-	@open $$(dirname $$(which emacs))/../Applications/*.app
+	@open /Applications/Emacs.app
 
 clean:
 	rm -f init.el *.elc *~ settings.el
