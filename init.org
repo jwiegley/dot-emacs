@@ -11534,6 +11534,7 @@ This is returned as a string."
   (org-agenda-overlay-by-category
    `(;; Bahá’í categories
      ("Council"   face (:background ,palette-green-darker   :foreground "#eeeeee"))
+     ("Ḥuqúq"     face (:background ,palette-green-darker   :foreground "#eeeeee"))
      ;; Family categories
      ("Nasim"     face (:background ,palette-yellow-darker  :foreground "#eeeeee"))
      ;; Personal categories
