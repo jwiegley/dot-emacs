@@ -188,6 +188,12 @@ scratch directory, and so is its init directory unless INIT-DIRECTORY
 names another, so it cannot reach real state either."
   (let* ((home (concat user-paths-test-root "child-home/"))
          (init-directory (or init-directory (concat home ".config/emacs/")))
+         ;; `call-process' starts the child in `default-directory'.  In a
+         ;; checkout below the home directory that begins with "~", which
+         ;; the HOME bound below would expand to a directory that does not
+         ;; exist.  The child needs no particular directory, so it gets the
+         ;; scratch root.
+         (default-directory user-paths-test-root)
          (process-environment
           (append environment
                   (list (concat "HOME=" home))
