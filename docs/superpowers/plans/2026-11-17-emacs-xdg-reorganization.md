@@ -4264,7 +4264,7 @@ Expected: `No litter in ...`
 
 ### Task 10: Remove the one-time tools
 
-Do this two weeks after Task 9, once John has looked through the attic and the collisions on both hosts. Run it on Clio; Hera receives the result by `git pull`. The mover, its tests, the guard and the litter report stay: they are what puts a host right if state ever comes back.
+Do this two weeks after Task 9, once John has looked through the attic and the collisions on both hosts. Run it on Clio; Hera receives the result by `git pull`. The mover, its tests, the guard, the litter report and the Makefile's test stay: they are what puts a host right if state ever comes back.
 
 **Files:**
 - Delete: `xdg/apply-init-edits.el`, `xdg/apply-init-edits-test.el`, `xdg/audit/`
@@ -4273,7 +4273,7 @@ Do this two weeks after Task 9, once John has looked through the attic and the c
 
 **Interfaces:**
 - Consumes: both hosts migrated, `make check-litter` clean on both.
-- Produces: a checkout with only the permanent files of the File Structure table.
+- Produces: a checkout with only the permanent files of the File Structure table, and `xdg/make-init-test.sh`, which `docs/superpowers/plans/2026-11-17-xdg-litter-report-and-stale-init-guards.md` added.
 
 - [ ] **Step 1: Remove the editor and the audit**
 
@@ -4298,12 +4298,13 @@ with
 and replace
 
 ```make
-# Unit tests for the path library and the migration tools.
+# Unit tests for the path library, the migration tools and this Makefile.
 test-xdg:
 	@$(EMACS_BATCH) -Q -l lisp/user-paths-test.el -f ert-run-tests-batch-and-exit
 	@$(EMACS_BATCH) -Q -l xdg/apply-init-edits-test.el -f ert-run-tests-batch-and-exit
 	@xdg/migrate-test.sh
 	@xdg/check-litter-test.sh
+	@xdg/make-init-test.sh
 
 # Load the whole init in a sealed copy and report paths that still point here.
 audit-xdg:
@@ -4313,11 +4314,13 @@ audit-xdg:
 with
 
 ```make
-# Unit tests for the path library, the mover and the litter report.
+# Unit tests for the path library, the mover, the litter report and this
+# Makefile.
 test-xdg:
 	@$(EMACS_BATCH) -Q -l lisp/user-paths-test.el -f ert-run-tests-batch-and-exit
 	@xdg/migrate-test.sh
 	@xdg/check-litter-test.sh
+	@xdg/make-init-test.sh
 ```
 
 - [ ] **Step 3: Run the remaining tests**
@@ -4327,9 +4330,10 @@ Run: `make -C ~/.config/emacs test-xdg 2>&1 | grep -E 'Ran |passed, '`
 Expected:
 
 ```text
-Ran 17 tests, 17 results as expected, 0 unexpected (...)
+Ran 20 tests, 20 results as expected, 0 unexpected (...)
 234 passed, 0 failed
-38 passed, 0 failed
+119 passed, 0 failed
+48 passed, 0 failed
 ```
 
 - [ ] **Step 4: Commit and push**
@@ -4401,7 +4405,7 @@ Each run directory has an `evidence/` directory: the record of every step with i
 
 **Open, for John.**
 
-- Commit `init.org` in the `~/org` repository; `changes` does it. Until then its `HEAD` holds the old init, and a stash or a reset there would bring it back. The old init has no guard and would start on empty state (Follow-up 21).
+- Commit `init.org` in the `~/org` repository; `changes` does it. Until then its `HEAD` holds the old init, and a stash or a reset there would bring it back. The old init has no guard and would start on empty state (Follow-up 21). *Done at 20:24 the same evening. The old init is still in that repository's history; since Follow-up 21 was closed, `make init.el` refuses it.*
 - Task 7 Step 16 by hand on each host. On Hera also run `emacsclient -s /tmp/johnw-emacs/server --eval '(list init-file-had-error (get-buffer "*Warnings*"))'` after the first start; it should print `(nil nil)`.
 - Task 9 Steps 2 to 4. The hourly item of the task `Home` is suspended. The weekly "validate" item is not, and is next due on Monday 23 November at 05:00. The two hosts' `backups/` directories differed before the move, which suggests that the task already excludes `~/.local/share/emacs` and `~/.local/state`: look at the rules before deciding. At the first run both sides will have changed in `~/.local/share/gnus` and in `.config/emacs/.git`; going by its own log, ChronoSync has until now reported such files as conflicts and overwritten neither. Clio's copies are the ones in use.
 - The backup fileset (Follow-up 26).
@@ -4429,11 +4433,11 @@ None of these is needed for the reorganization. Each was found on the way and is
 14. **org-remark can build a path inside the configuration directory.** For a buffer that visits no file it would keep its notes in `<user-emacs-directory>/marginalia.org`. With today's configuration that branch never writes: only its eww, info and nov modes supply such buffers, and none is turned on. Whoever turns one on should set `org-remark-notes-file-name` first.
 15. **Directory shortcuts.** `lisp/dired-ext.el` has a shortcut for `~/.config/emacs`. The three new roots have none; adding them is a matter of taste and of free keys.
 16. **Gnus keeps its own home.** `gnus-home-directory` is `~/.local/share/gnus/`: 783 MB, written every day. It is outside the checkout, and this plan does not touch it. Bringing it under the three roots would mean sorting some two dozen Gnus variables into mail and drafts (data), read marks and the registry (state) and article caches (cache), on a mail store in daily use. That is a plan of its own.
-17. **The litter report lists ignored paths only.** `xdg/check-litter.sh` skips every entry of `git status` that is not ignored, so a runtime file that `.gitignore` does not name is neither reported nor kept out of `changes`. About twenty built-in default names are in that position (`abbrev_defs`, `calc.el`, `games/`, `eww-bookmarks`, `image-dired/`, `diary` and others). Either report untracked entries as well, with a list of what may be untracked, or add the names to `.gitignore`. Two smaller points in the same script: it depends on git's `status.showUntrackedFiles`, and it prints `No litter` if `git status` itself fails.
+17. **The litter report lists ignored paths only.** `xdg/check-litter.sh` skips every entry of `git status` that is not ignored, so a runtime file that `.gitignore` does not name is neither reported nor kept out of `changes`. About twenty built-in default names are in that position (`abbrev_defs`, `calc.el`, `games/`, `eww-bookmarks`, `image-dired/`, `diary` and others). Either report untracked entries as well, with a list of what may be untracked, or add the names to `.gitignore`. Two smaller points in the same script: it depends on git's `status.showUntrackedFiles`, and it prints `No litter` if `git status` itself fails. **Closed on 17 November 2026** by `docs/superpowers/plans/2026-11-17-xdg-litter-report-and-stale-init-guards.md`: the report lists untracked entries at the top of the checkout as well, `.gitignore` names the remaining defaults that are state, caches or records of use, and both smaller points are fixed. Settings that a person saves on request (`abbrev_defs`, `calc.el` and the like) have no rule on purpose; the report lists them while they are untracked.
 18. **Paths that are still built from the configuration directory.** `image-dired-dir` (thumbnails, a cache), `diary-file` (data), `wombag-dir` (it uses `XDG_CACHE_HOME`, and falls back to the configuration directory in an Emacs that has no such variable), and org-remark (Follow-up 14). Each is one row of `user-paths-table`. The fallback `%backup%~` in `files.el` cannot be redirected.
 19. **An interrupted move can get past the guard.** The mover removes `data/` before it has moved `eshell/`, `persist/`, `tree-sitter/` and the other sources that come later in its manifest, and the guard looks only at `data/`. If `--apply` stops in between, the next start is quiet and partly empty. Nothing is lost, and `--apply --prefer=source` puts it right. Moving the `data/` entries to the end of the manifest closes it. In the same script a data root that is a symbolic link is taken for a clash, and the tests have no case for an apply that stops half-way.
-20. **`early-init.el` redirects before the guard can refuse.** Between the arrival of the branch and the first build, an Emacs started from the Dock runs the old `init.el` with the new early paths. Loading the library from `early-init.el` only when `data/` is absent closes it. Also, the library requires `xdg` before it redirects the native-compilation cache, so `xdg.el` is compiled again at every interactive start.
-21. **There is no guard in the other direction.** An old `init.org` on a host that has been moved starts without complaint on empty state and re-creates `data/`. It can come back from the `~/org` repository (a stash, a reset, a checkout) or from the other host. The mover could leave a marker for the library to check, or `early-init.el` could refuse an `init.el` that never calls `user-paths-check-migrated`.
+20. **`early-init.el` redirects before the guard can refuse.** Between the arrival of the branch and the first build, an Emacs started from the Dock runs the old `init.el` with the new early paths. Loading the library from `early-init.el` only when `data/` is absent closes it. Also, the library requires `xdg` before it redirects the native-compilation cache, so `xdg.el` is compiled again at every interactive start. **The first point was closed on 17 November 2026** by `docs/superpowers/plans/2026-11-17-xdg-litter-report-and-stale-init-guards.md`, in another way: the library refuses to give a root another value, so the old `init.el` stops at its own definition of `user-data-directory`. The second point stands.
+21. **There is no guard in the other direction.** An old `init.org` on a host that has been moved starts without complaint on empty state and re-creates `data/`. It can come back from the `~/org` repository (a stash, a reset, a checkout) or from the other host. The mover could leave a marker for the library to check, or `early-init.el` could refuse an `init.el` that never calls `user-paths-check-migrated`. **Closed on 17 November 2026** by `docs/superpowers/plans/2026-11-17-xdg-litter-report-and-stale-init-guards.md`, with neither: `make init.el` refuses an `init.org` that does not call the guard and builds again an `init.el` that does not, and the library refuses to give a root another value, which stops an old `init.el` at its first definition. That plan's Follow-ups say what this leaves open.
 22. **The one-time tools, if they are kept beyond Task 10.** The audit's reader takes a form cut short by a missing paren for the end of the file. Errors in hooks are logged and not counted. A new empty directory is not reported. `run.sh` stops with rsync's error 23 in a checkout where a tracked file is deleted from the working tree. `mcp-server-lib-install-directory` belongs on the list of allowed variables. `audit.el` runs the whole audit when it is loaded in a batch Emacs. The editor counts an edit as done when the new text is present even if the old text is too, and it overwrites the file in place.
 23. **Emacs starts that bypass `runemacs`.** On Clio two Keyboard Maestro macros (Cmd-Shift-M, and Home in Firefox) and org-protocol links start Emacs.app directly. On Hera `mailto:` links and the default mail client do, and org-protocol goes through an AppleScript applet whose script names Emacs. Such a start skips the build, so it runs whatever `init.el` was tangled last. Reading that applet with `osadecompile` starts Emacs too.
 24. **Other agents' test runs use this checkout as their init directory.** `emacs -Q --batch` takes `~/.config/emacs` from `XDG_CONFIG_HOME` even under a scratch `HOME`, and can leave `eln-cache/` and other default files here. Their scripts should set `XDG_CONFIG_HOME` or pass `--init-directory`.
