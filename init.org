@@ -14286,7 +14286,25 @@ registration.
 
 #+begin_src emacs-lisp
 (use-package ob-agent-deck
-  :after org)
+  :after org
+  :custom
+  (org-agent-deck-presets
+   '(("work" . ((:group . "Positron")
+                (:harness . "claude")
+                (:model . "claude-fable-5-2")
+                (:thinking . "medium")))
+     ("work-codex" . ((:group . "Positron")
+                      (:harness . "pi")
+                      (:model . "openai-codex/gpt-6-astra")
+                      (:thinking . "max")))
+     ("claude" . ((:group . "my-sessions")
+                  (:harness . "claude")
+                  (:model . "claude-fable-5-2")
+                  (:thinking . "medium")))
+     ("local" . ((:group . "my-sessions")
+                 (:harness . "pi")
+                 (:model . "omlx-hera/GLM-5.3-Flash-oQ4e-mtp")
+                 (:thinking . "max"))))))
 #+end_src
 
 ** Games
