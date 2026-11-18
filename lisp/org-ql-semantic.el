@@ -138,8 +138,49 @@ Results with a distance greater than this are filtered out as
 irrelevant.  Lower values are stricter (only very similar matches).
 Cosine distance ranges from 0.0 (identical) to ~1.0 (unrelated)
 for normalized embeddings.  Typical useful range: 0.3-0.7."
-  :type 'number
+  :type '(choice (const :tag "No absolute limit" nil)
+                 (number :tag "Cosine distance"))
   :group 'org-ql-semantic)
+
+(defcustom org-ql-semantic-relative-distance 0.07
+  "Margin of cosine distance, past the best hit, that results may lie within.
+A result is kept only if its distance is no more than this much
+greater than that of the closest result.  The distances an
+embedding model reports for one query often span a narrow band
+whose position depends on the query (a short query against long
+entries scores far from all of them), so a margin measured from
+the best hit separates the relevant results more reliably than
+`org-ql-semantic-max-distance' alone, which still applies as a
+ceiling.  When nil, no relative limit is applied."
+  :type '(choice (const :tag "No relative limit" nil)
+                 (number :tag "Cosine distance margin"))
+  :group 'org-ql-semantic)
+
+;;;; Distance filtering
+
+(defun org-ql-semantic--result-distance (result)
+  "Return the cosine distance of RESULT, or 1.0 if it reports none."
+  (or (alist-get 'distance result) 1.0))
+
+(defun org-ql-semantic--filter-by-distance (results)
+  "Return those RESULTS close enough to the query to be worth showing.
+A result is kept if its distance is within both
+`org-ql-semantic-max-distance' and
+`org-ql-semantic-relative-distance' of the best distance in
+RESULTS.  Either limit is skipped when its variable is nil.  The
+order of RESULTS is preserved."
+  (let* ((best (and org-ql-semantic-relative-distance results
+                    (apply #'min (mapcar #'org-ql-semantic--result-distance
+                                         results))))
+         (limits (delq nil (list org-ql-semantic-max-distance
+                                 (and best
+                                      (+ best org-ql-semantic-relative-distance))))))
+    (if (null limits)
+        results
+      (let ((limit (apply #'min limits)))
+        (seq-filter (lambda (result)
+                      (<= (org-ql-semantic--result-distance result) limit))
+                    results)))))
 
 ;;;; Path resolution
 
@@ -535,13 +576,7 @@ PROMPT. With prefix argument ALL, shows all results."
   (let* ((raw-results (org-ql-semantic--run-search query nil))
          (results (if all raw-results
                     (seq-filter #'org-ql-semantic--active-entry-p raw-results)))
-         (results (if org-ql-semantic-max-distance
-                      (seq-filter
-                       (lambda (r)
-                         (<= (or (alist-get 'distance r) 1.0)
-                             org-ql-semantic-max-distance))
-                       results)
-                    results))
+         (results (org-ql-semantic--filter-by-distance results))
          (elements nil)
          (by-file (make-hash-table :test 'equal))
          (unreadable-count 0)

@@ -11643,7 +11643,8 @@ my Org-mode data.
   (org-ql-semantic-api-key "unused")
   (org-ql-semantic-default-limit 2000)
   (org-ql-semantic-dimensions 1024)
-  (org-ql-semantic-max-distance 0.35)
+  (org-ql-semantic-max-distance 0.45)
+  (org-ql-semantic-relative-distance 0.07)
   :config
   (setq org-ql-semantic-db-url
         (format "postgresql://johnw:%s@postgres.vulcan.lan:5432/org"
