@@ -76,18 +76,6 @@
   :model claude-haiku-model
   :temperature (llm-setup-policy "emacs" "temperature"))
 
-(gptel-make-preset 'opus-max
-  :description "Anthropic's Claude Opus, thinking"
-  :backend "vibe-proxy"
-  :model (llm-setup-policy-model "emacs" "presets" "opus-max")
-  :temperature (llm-setup-policy "emacs" "temperature"))
-
-(gptel-make-preset 'sonnet-max
-  :description "Anthropic's Claude Sonnet, thinking"
-  :backend "vibe-proxy"
-  :model (llm-setup-policy-model "emacs" "presets" "sonnet-max")
-  :temperature (llm-setup-policy "emacs" "temperature"))
-
 ;;; Perplexity
 
 (gptel-make-preset 'sonar
@@ -128,7 +116,6 @@
 
 (gptel-make-preset 'default
   :description "Default setup"
-  ;; :parents 'opus-max
   :parents (llm-setup-policy-symbols "emacs" "parents" "default")
   :system 'default
   :confirm-tool-calls nil               ; 'auto

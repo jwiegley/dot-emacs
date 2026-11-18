@@ -108,14 +108,6 @@
     :key (lambda () (auth-source-pass-get 'secret "api.perplexity.ai"))
     :models (llm-setup-policy-symbols "emacs" "providerModels" "perplexity")))
 
-(defun gptel-backends-vibe-proxy ()
-  "Make GPTel backends for models hosted on Clio."
-  (gptel-make-openai "vibe-proxy"
-    :host (llm-setup-host-policy "llmSetup" "gptelEndpoints" "vibeProxy")
-    :protocol "http"
-    :key (lambda () (auth-source-pass-get 'secret "vibe-proxy"))
-    :models (llm-setup-policy-symbols "emacs" "providerModels" "vibe-proxy")))
-
 (defun gptel-backends-rinzler ()
   "Make GPTel backends for Rinzler models."
   (gptel-make-openai "rinzler"
