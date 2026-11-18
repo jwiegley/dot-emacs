@@ -1963,7 +1963,7 @@ git -C ~/src/emacs-xdg-guards push origin xdg-guards:master
 
 This is a fast-forward on the remote. It touches no working tree.
 
-- [ ] **Step 3: Bring Clio's checkout up to date**
+- [x] **Step 3: Bring Clio's checkout up to date**
 
 Clio's `master` is behind `origin/master` by the commit of the other session and by this plan's commits. That other commit changes `init.org`, and the copy of `init.org` in the checkout is modified, so git will not fast-forward over it. The copy is not a file anyone edits: it is what `make` last copied from `~/org/init.org`. Check that it holds nothing that `~/org/init.org` lacks, set it aside, fast-forward, and copy `~/org/init.org` into its place as the Makefile does.
 
@@ -2007,7 +2007,7 @@ Expected: nothing. Hera already has the other session's commit, so only this pla
 ssh hera 'cd ~/.config/emacs && git merge --ff-only origin/master && git log --oneline -1'
 ```
 
-- [ ] **Step 5: Check both hosts**
+- [x] **Step 5: Check both hosts**
 
 Run on each (on Hera through `ssh hera`): `make -C ~/.config/emacs test-xdg 2>&1 | grep -E 'Ran |passed, '; make -C ~/.config/emacs check-litter; git -C ~/.config/emacs status -sb | head -1`
 
@@ -2015,7 +2015,7 @@ Expected on each: the five lines of Task 4 Step 5, `No litter in /Users/johnw/.c
 
 `make test-xdg` is safe in the live checkout: every test works in a scratch directory.
 
-- [ ] **Step 6: Keep the record, then remove the worktree**
+- [x] **Step 6: Keep the record, then remove the worktree**
 
 Copy the ledger and the reviews of this plan from the worktree's `.superpowers/` directory to `~/.local/state/emacs/migration/guards/` on Clio, beside the records of the move, so that Task 10 of the reorganization plan removes them together. Then:
 
@@ -2040,16 +2040,18 @@ If `runemacs` prints that `init.org` does not call `(user-paths-check-migrated)`
 
 ## Execution record
 
-Tasks 1 to 5 were carried out on 17 November 2026 in the worktree, each by an implementer of its own, and each commit was reviewed. The steps above that are ticked were done. `master` on `origin` and Hera's checkout hold the commits listed here and the one that adds this record. Clio's checkout has not been brought up to date; the reason is below.
+Tasks 1 to 5 were carried out on 17 November 2026 in the worktree, each by an implementer of its own, and each commit was reviewed. Task 6 followed the same night. The steps above that are ticked were done. `master` on `origin`, on Clio and on Hera holds the commits listed here and the ones that add this record.
 
 | | |
 |---|---|
 | Commits of the five tasks | `7a7e7bb53`, `8af292a5f`, `dc3028c5e`, `31834c59e`, `bd8be20c5` |
 | Commits made after the reviews | `bb83d59c7`, `ebf7a6274`, `1666bcd4b`, `6fd8d4bc6`, `0edf54807`, `24e430bde`, `5a69fba1f` |
-| `make test-xdg` at `5a69fba1f` | 20 and 7 ERT tests, and 234, 124 and 57 checks, all passing, in the worktree and on Hera |
+| `make test-xdg` | 20 and 7 ERT tests, and 234, 124 and 57 checks, all passing: in the worktree at `5a69fba1f`, and in the checkout of each host after its fast-forward |
 | `make audit-xdg` at `5a69fba1f` | `580 forms, 0 failed`; `0 offenders, 0 failed forms`; `PASS` |
-| `make check-litter` | `No litter` in the worktree and on Hera; the new script says the same of Clio's checkout |
+| `make check-litter` | `No litter` on Clio and on Hera |
 | The real files | `~/org/init.org`, and `init.org` and `init.el` of the checkout, call the guard on both hosts; neither host has an `init.elc` |
+| Hera's checkout | fast-forwarded at 23:05 on 17 November; no Emacs was running there |
+| Clio's checkout | fast-forwarded at 00:00 on 18 November, after John had quit Emacs |
 
 The ledger, the implementers' reports and all the reviews are in `~/.local/state/emacs/migration/guards/` on Clio.
 
@@ -2057,13 +2059,13 @@ The ledger, the implementers' reports and all the reviews are in `~/.local/state
 
 - The text of this plan was changed after the reviews, as Appendix B says, so that it shows the files as they are. The commits of the five tasks hold the files as the plan first had them; the seven later commits bring them to what is printed here.
 - Task 5 Step 2: the implementer copied the reference file instead of applying the patch. The result was compared byte for byte with what the patch gives.
-- Task 6 Step 1 was run twice, the second time at the final head.
-- Task 6 Step 3 was not done. At 22:52 John's running Emacs on Clio held an unsaved buffer of `lisp/org-ql-semantic.el`. The other session's commit `b20c11b1a` changes that file, so the fast-forward would have changed it on disk under the buffer, and saving the buffer afterwards would have undone that session's change. Step 5 for Clio, Step 6 and Step 7 wait for it. The worktree `~/src/emacs-xdg-guards` and its branch stay until then.
+- Task 6 Step 1 was run twice, the second time at `5a69fba1f`.
+- Task 6 Step 3 waited an hour. At 22:52 John's running Emacs on Clio held an unsaved buffer of `lisp/org-ql-semantic.el`, a file that the other session's commit `b20c11b1a` changes. The fast-forward would have changed it on disk under the buffer, and saving the buffer afterwards would have undone that commit. John was asked, and quit Emacs; the step was then done as written. Its two checks gave `init.org` and `same`.
 
 **Open, for John.**
 
-- Clio's checkout. Save or revert the buffer of `lisp/org-ql-semantic.el` (its unsaved changes were whitespace on three lines), then carry out Task 6 Step 3, or have it carried out. Until then Clio runs the Makefile and the library from before this plan, and nothing is broken by that.
-- Task 6 Step 7 on each host, at the next start of Emacs there.
+- `lisp/#org-ql-semantic.el#` is still in Clio's checkout. It is the auto-save file of that buffer, and it holds the file as it was before the other session's commit, with whitespace changed on three lines. Do not recover from it; delete it. git ignores it now, and the report passes over it.
+- Task 6 Step 7 on each host, at the next start of Emacs there. `runemacs` will build `init.el` once on each, because `init.org` is newer than `init.el` on both.
 - Follow-ups 3, 4 and 5 are decisions for John: the Keyboard Maestro macro, the global ignore file, and whether settings saved on request should be ignored as well.
 
 ---
