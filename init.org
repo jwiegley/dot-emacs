@@ -9082,15 +9082,6 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
                (haskell-left-arrows . "\\(\\s-+\\)\\(<-\\|←\\)\\s-+"))))))
 #+end_src
 
-**** haskell-edit
-
-#+begin_src emacs-lisp
-(use-package haskell-edit
-  :after haskell-mode
-  :bind (:map haskell-mode-map
-              ("C-c M-q" . haskell-edit-reformat)))
-#+end_src
-
 **** haskell-eglot
 
 #+begin_src emacs-lisp
