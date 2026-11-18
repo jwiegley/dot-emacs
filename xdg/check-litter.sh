@@ -13,23 +13,41 @@
 #     ignore this checkout altogether;
 #   - every ignored path in the checkout that is not known configuration
 #     or a build product;
+#   - every untracked path at the top of the checkout: `git add -A' would
+#     commit it, and the top is where Emacs's defaults write.  Untracked
+#     files below a tracked directory are work in progress and are left
+#     alone;
 #   - every empty directory at the top of the checkout.
+#
+# What counts as known configuration must be ignored by this checkout's
+# own .gitignore.  A global ignore file differs from one machine to the
+# next, and the report must not.
 #
 # An Emacs started with -Q or -q reads no init file and writes to the
 # built-in defaults, so an auto-save-list/, transient/ or url/ directory,
 # or a file such as tramp, bookmarks or network-security.eld, can appear
-# here after such a run; delete it.  eln-cache/ appears for the same
-# reason, cannot be prevented, and is not reported.
+# here after such a run.  Move it to the place lisp/user-paths.el gives
+# that file, or delete it if it holds nothing worth keeping.  eln-cache/
+# appears for the same reason, cannot be prevented, and is not reported.
 #
-# The exit status is 0 when nothing is listed.
+# The exit status is 0 when nothing is listed, 1 when something is, and 2
+# when CHECKOUT is not the top of a git checkout or git cannot be asked.
 
 set -euo pipefail
 
 checkout=${1:-$(cd "$(dirname "$0")/.." && pwd -P)}
 status=0
 
-if ! git -C "$checkout" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    printf 'check-litter: %s is not a git checkout\n' "$checkout" >&2
+# A git hook exports GIT_DIR and its relatives.  They would send every git
+# command below to the repository of the hook, whatever CHECKOUT is.
+# shellcheck disable=SC2046  # one word for each variable name
+unset $(git rev-parse --local-env-vars 2>/dev/null)
+
+# Paths in git's answer are relative to the top of the checkout, so that is
+# what CHECKOUT must be.
+top=$(git -C "$checkout" rev-parse --show-toplevel 2>/dev/null) || top=
+if [[ -z $top || ! $top -ef $checkout ]]; then
+    printf 'check-litter: %s is not the top of a git checkout\n' "$checkout" >&2
     exit 2
 fi
 
@@ -44,12 +62,38 @@ for legacy in "$HOME/.emacs.d" "$HOME/.emacs" "$HOME/.emacs.el"; do
     fi
 done
 
+# Ask git once, with the two settings that decide what it lists, so that
+# the report does not depend on status.showUntrackedFiles.  If git cannot
+# answer, say so: an empty list would read as a clean checkout.
+listing=$(mktemp "${TMPDIR:-/tmp}/check-litter.XXXXXX") || {
+    printf 'check-litter: cannot create a temporary file\n' >&2
+    exit 2
+}
+trap 'rm -f "$listing"' EXIT
+if ! git --no-optional-locks -C "$checkout" status --porcelain -z \
+    --untracked-files=normal --ignored=traditional >"$listing"; then
+    printf 'check-litter: git status failed in %s\n' "$checkout" >&2
+    exit 2
+fi
+
 while IFS= read -r -d '' entry; do
-    [[ $entry == '!! '* ]] || continue
-    path=${entry#'!! '}
+    case $entry in
+    '?? '*)
+        # Untracked.  Below a tracked directory it is work in progress.
+        path=${entry#'?? '}
+        path=${path%/}
+        if [[ $path != */* ]]; then
+            report "$checkout/$path (untracked: \`git add -A' would commit it)"
+        fi
+        continue
+        ;;
+    '!! '*) path=${entry#'!! '} ;;
+    *) continue ;;
+    esac
+    # Ignored.  Known configuration and build products are passed over.
     case $path in
     init.el | settings.el | nix-packages | nix-packages.el) continue ;;
-    certs/ | eln-cache/ | .claude/ | .superpowers/) continue ;;
+    certs/ | eln-cache/ | .claude/* | .superpowers/*) continue ;;
     prompts/.prompt-deploy-manifest.json) continue ;;
     lisp/* | *.elc | .DS_Store | */.DS_Store) continue ;;
     eshell/)
@@ -64,7 +108,7 @@ while IFS= read -r -d '' entry; do
         ;;
     esac
     report "$checkout/${path%/}"
-done < <(git --no-optional-locks -C "$checkout" status --porcelain --ignored -z)
+done <"$listing"
 
 while IFS= read -r directory; do
     report "$directory (empty directory)"
