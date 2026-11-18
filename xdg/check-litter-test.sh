@@ -253,6 +253,12 @@ lsp-cache/x|lsp-cache
 intelephense/x|intelephense
 index.sqlite|index.sqlite
 .lsp-eslint-choices|.lsp-eslint-choices
+abbrev_defs|abbrev_defs
+calc.el|calc.el
+eudc-options|eudc-options
+shadows|shadows
+strokes|strokes
+viper|viper
 NAMES
 
 # Beside a file that a person wrote, the generated one is still ignored,
@@ -270,10 +276,8 @@ exactly 'parsed TeX files are ignored beside a hand-written style' \
     "$repo/auctex/auto"
 rm -rf "${repo:?}/auctex"
 
-# Settings that a person saves on request, and code, have no rule: they
-# stay visible to git and to this report.
-for path in abbrev_defs calc.el eudc-options shadows strokes viper \
-    user-lisp/mine.el auctex/style/mine.el; do
+# Code has no rule: it stays visible to git and to this report.
+for path in user-lisp/mine.el auctex/style/mine.el; do
     put "$repo/$path"
     exactly "${path%%/*} is not ignored" \
         "$repo/${path%%/*} (untracked: \`git add -A' would commit it)"

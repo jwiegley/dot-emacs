@@ -74,11 +74,9 @@ projectile-frecency.eld
 # More defaults, of Emacs itself and of the packages this configuration
 # loads: state, caches, and what Emacs records as it is used (bookmarks,
 # scores, logs, a diary, notes).  None of it belongs in a commit, and
-# `make check-litter' lists whatever turns up.  Settings that a person
-# saves on request (abbrev_defs, calc.el, eudc-options, shadows, strokes,
-# viper) and code (user-lisp/, auctex/style/, themes) have no rule on
-# purpose: they stay visible, and the report lists them while they are
-# untracked.
+# `make check-litter' lists whatever turns up.  Code (user-lisp/,
+# auctex/style/, themes) has no rule on purpose: it stays visible, and the
+# report lists it while it is untracked.
 /.emacs.desktop
 /.emacs.desktop.lock
 /.lsp-eslint-choices
@@ -131,6 +129,16 @@ projectile-frecency.eld
 # person writes.
 /auctex/*
 !/auctex/style/
+# Settings that a person saves on request.  Like the Custom file they stay
+# in the checkout and out of a commit; unlike it, `make check-litter' lists
+# them.  To keep one under version control, remove its rule and add the
+# file.
+/abbrev_defs
+/calc.el
+/eudc-options
+/shadows
+/strokes
+/viper
 # Backup files come from an Emacs without this init, which keeps its own
 # under the state root; `make check-litter' lists them.  Auto-save and lock
 # files belong to an editing session, and it leaves them alone.
