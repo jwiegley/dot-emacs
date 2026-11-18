@@ -1,1 +1,0 @@
-./src/emacs -batch -L ~/.config/emacs/lisp -l ~/.config/emacs/lisp/condition-variables.el
