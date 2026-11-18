@@ -1411,6 +1411,22 @@ Create `xdg/audit/guards.el`:
                 nil)
               `((name . ,(intern (format "xdg-audit-%s" function))))))
 
+;; The init makes the directory of its server socket when that is missing,
+;; as it is while no Emacs runs.  run.sh denies every write there, so the
+;; attempt is skipped as well.
+(defconst xdg-audit-server-directory
+  (format "/tmp/%s-emacs" (user-login-name))
+  "Directory of the live server socket, which the sandbox denies.")
+
+(dolist (function '(make-directory set-file-modes))
+  (advice-add function :around
+              (lambda (original file &rest arguments)
+                (if (equal (directory-file-name (expand-file-name file))
+                           xdg-audit-server-directory)
+                    (progn (message "guards: left %s alone" file) nil)
+                  (apply original file arguments)))
+              `((name . ,(intern (format "xdg-audit-%s" function))))))
+
 ;; Network.
 (define-advice make-network-process (:override (&rest args) xdg-audit)
   (signal 'file-error
