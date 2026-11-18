@@ -248,7 +248,12 @@ names another, so it cannot reach real state either."
     (let ((value (symbol-value root)))
       (unwind-protect
           (progn
-            (should-error (set root "/elsewhere/"))
+            ;; The message names the variable and the library.  Nothing
+            ;; is being loaded here, so it does not blame an init file.
+            (let ((message (cadr (should-error (set root "/elsewhere/")))))
+              (should (string-match-p (symbol-name root) message))
+              (should (string-match-p "user-paths\\.el" message))
+              (should-not (string-match-p "init\\.el" message)))
             (should (equal (symbol-value root) value))
             (should-error (eval `(defconst ,root "/elsewhere/") t))
             (should (equal (symbol-value root) value)))
@@ -261,7 +266,15 @@ names another, so it cannot reach real state either."
   ;; A binding is not a redefinition.
   (should (equal (let ((user-cache-directory "/elsewhere/"))
                    (user-cache "x"))
-                 "/elsewhere/x")))
+                 "/elsewhere/x"))
+  ;; Nor is loading the library again, which defines each root a second
+  ;; time with the value it has.
+  (let ((roots (list user-data-directory user-state-directory
+                     user-cache-directory)))
+    (load user-paths-test-file nil t)
+    (should (equal (list user-data-directory user-state-directory
+                         user-cache-directory)
+                   roots))))
 
 (ert-deftest user-paths-test-a-root-without-a-value-can-be-given-one ()
   ;; The guard itself, on a variable that is nobody's root.
@@ -283,12 +296,14 @@ names another, so it cannot reach real state either."
   ;; of that init went on to do.  Loaded after early-init.el has loaded
   ;; the library, the file must stop at the definition, with an error that
   ;; names the variable, the library and the file and says what to run.
+  ;; The file is called init.el, as the one it stands for is.
   ;; Nothing may be created in the configuration directory, and the root
   ;; and `user-data' must stay as the library made them.
   (let* ((home (concat user-paths-test-root "child-home/"))
-         (stale (concat user-paths-test-root "stale-init.el"))
+         (stale (concat user-paths-test-root "stale/init.el"))
          (legacy (concat home ".config/emacs/data"))
          result)
+    (make-directory (file-name-directory stale) t)
     (with-temp-file stale
       (insert ";;; -*- lexical-binding: t -*-\n")
       (dolist (form '((eval-and-compile
@@ -328,7 +343,7 @@ names another, so it cannot reach real state either."
     (should (stringp (nth 0 result)))
     (should (string-match-p "user-data-directory" (nth 0 result)))
     (should (string-match-p "user-paths\\.el" (nth 0 result)))
-    (should (string-match-p "stale-init\\.el" (nth 0 result)))
+    (should (string-match-p "stale/init\\.el" (nth 0 result)))
     (should (string-match-p "make -B init\\.el" (nth 0 result)))
     (should (equal (nth 1 result) (concat home ".local/share/emacs/")))
     (should (equal (nth 2 result)

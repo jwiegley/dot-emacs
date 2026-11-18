@@ -89,18 +89,23 @@
 This is a variable watcher; NEWVAL, OPERATION and _WHERE are what
 `add-variable-watcher' passes.  Only assignments are refused: `setq',
 `defconst' and the like arrive as the operation `set'.  A `let'
-binding is left alone, and so is a root that has no value yet."
+binding is left alone, and so is a root that has no value yet.
+The error names the file being loaded, and says what to do when
+that file is an init file."
   (when (and (eq operation 'set)
              (boundp symbol)
              (not (equal newval (symbol-value symbol))))
-    (error "%s is set by lisp/user-paths.el and cannot become %S%s.  \
-An init.el from before the move of state out of %s does this: \
+    (let ((file (and load-file-name
+                     (abbreviate-file-name load-file-name))))
+      (if (and file (equal (file-name-base file) "init"))
+          (error "%s is set by lisp/user-paths.el and cannot become %S \
+\(in %s).  That file is from before the move of state out of %s: \
 run `make -B init.el' there"
-           symbol newval
-           (if load-file-name
-               (format " (in %s)" (abbreviate-file-name load-file-name))
-             "")
-           (abbreviate-file-name user-emacs-directory))))
+                 symbol newval file
+                 (abbreviate-file-name user-emacs-directory))
+        (error "%s is set by lisp/user-paths.el and cannot become %S%s"
+               symbol newval
+               (if file (format " (in %s)" file) ""))))))
 
 (dolist (root '(user-data-directory user-state-directory
                 user-cache-directory))
