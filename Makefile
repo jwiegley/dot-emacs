@@ -28,8 +28,9 @@ all: init.el
 # before state moved out of this directory.  Emacs would start from it on
 # empty histories, and keep its state here again.  Such a file is neither
 # copied here nor tangled, and init.el stays as it was.  It can come back
-# from the ~/org repository or from another host.  The call counts wherever
-# it stands on a line, unless the line is a comment.
+# from the ~/org repository or from another host.  The check reads the text:
+# the call counts wherever it stands on a line that is not a Lisp comment.
+# Whether it is tangled shows in init.el, which is checked once it is built.
 GUARD = ^[^;]*(user-paths-check-migrated
 
 init.org: ~/org/init.org
@@ -41,7 +42,8 @@ init.org: ~/org/init.org
 		echo 'An init.org without that call predates the move'	\
 		     'of state out of this directory, so it is not'	\
 		     'copied here and init.el is left as it was.'	\
-		     'Restore ~/org/init.org.' >&2;			\
+		     'Restore ~/org/init.org; its versions are'		\
+		     'listed by "git -C ~/org log -- init.org".' >&2;	\
 		exit 1;							\
 	    fi;								\
 	    test $$found -eq 0 || exit $$found;				\
@@ -86,6 +88,12 @@ init.el: init.org
 	                  '((emacs-lisp . t) (shell . t)))"	\
 		--eval "(setq org-confirm-babel-evaluate nil)"	\
 		--eval "(org-babel-load-file \"init.org\")"
+	@grep -q '$(GUARD)' $@ || {					\
+	    echo 'init.el was built and does not call'			\
+		 '(user-paths-check-migrated): in init.org the call'	\
+		 'is not in a source block that is tangled.' >&2;	\
+	    exit 1;							\
+	}
 	@chmod 444 $@
 
 %.elc: %.el

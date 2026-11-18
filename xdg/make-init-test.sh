@@ -10,7 +10,8 @@
 # ~/org and in the checkout, and leaves the last init.el in place.
 #
 # The test runs the real Makefile in a throw-away home directory, with a
-# stand-in for Emacs that only records that it was started.
+# stand-in for Emacs that records that it was started and copies the source
+# blocks of init.org to init.el.
 
 set -uo pipefail
 
@@ -52,11 +53,12 @@ check() {
 mkdir -p "$repo/lisp" "$home/org" "$scratch/bin"
 cp "$here/../Makefile" "$repo/Makefile"
 
-# The stand-in "tangles" by copying, and leaves a line for each start.
+# The stand-in leaves a line for each start, and "tangles": what stands
+# between #+begin_src and #+end_src goes to init.el, and nothing else does.
 cat >"$scratch/bin/emacs" <<'EOF'
 #!/bin/sh
 echo started >>"$EMACS_STARTS"
-cp init.org init.el
+sed -n '/^#+begin_src/,/^#+end_src/{/^#+/!p;}' init.org >init.el
 EOF
 chmod +x "$scratch/bin/emacs"
 
@@ -77,10 +79,11 @@ printed() {
 not_printed() {
     ! printed "$1"
 }
-# refused [ARGS...]: make must fail, and with the refusal, not with some
-# other error.
+# refused [ARGS...]: make must fail before it builds anything, and with the
+# refusal, not with some other error.
 refused() {
-    fails "$@" && printed 'does not call (user-paths-check-migrated)'
+    fails "$@" && printed 'does not call (user-paths-check-migrated)' &&
+        not_printed 'was built'
 }
 starts() {
     if [[ -f $scratch/starts ]]; then wc -l <"$scratch/starts" | tr -d ' '; else echo 0; fi
@@ -96,13 +99,15 @@ built_on() {
     touch -t "202601${1}1200" "$repo/init.el"
 }
 
+# current MARK, stale MARK: an init.org of each kind.  MARK is a line of its
+# source block, so that init.el shows which init.org it was built from.
 current() {
     printf '%s\n' '* Init' '#+begin_src emacs-lisp' "(require 'user-paths)" \
-        '(user-paths-check-migrated)' '#+end_src' "$1"
+        '(user-paths-check-migrated)' "$1" '#+end_src'
 }
 stale() {
     printf '%s\n' '* Init' '#+begin_src emacs-lisp' \
-        '(defconst user-data-directory (emacs-path "data"))' '#+end_src' "$1"
+        '(defconst user-data-directory (emacs-path "data"))' "$1" '#+end_src'
 }
 
 # --------------------------------------------------- a current init.org
@@ -162,10 +167,11 @@ check 'init.el is built from it' grep -q '^three$' "$repo/init.el"
 
 # ------------------------ the call counts wherever it stands on a line
 printf '%s\n' '* Init' '#+begin_src emacs-lisp' \
-    '  (unless noninteractive (user-paths-check-migrated))' '#+end_src' 'five' >"$canonical"
+    '  (unless noninteractive (user-paths-check-migrated))' 'five' '#+end_src' >"$canonical"
 day 06
 check 'a call inside another form is the call' build
 built_on 06
+check 'the build started Emacs a fourth time' test "$(starts)" = 4
 check 'init.el holds that build' grep -q '^five$' "$repo/init.el"
 
 # ------------------------------- but not on a line that is a comment
@@ -173,6 +179,7 @@ printf '%s\n' '* Init' '#+begin_src emacs-lisp' ';; (user-paths-check-migrated)'
     '#+end_src' >"$canonical"
 day 07
 check 'a call that is commented out is not the call' refused
+check 'Emacs was not started for it' test "$(starts)" = 4
 check 'init.el is unchanged by that' grep -q '^five$' "$repo/init.el"
 
 # ---------------- a file that cannot be read is an error, not a stale file
@@ -182,8 +189,8 @@ chmod 000 "$canonical"
 check 'make fails on a ~/org/init.org it cannot read' fails
 check 'and does not call that file stale' not_printed 'does not call'
 chmod 644 "$canonical"
+check 'Emacs was not started for it' test "$(starts)" = 4
 check 'init.el is unchanged by that, too' grep -q '^five$' "$repo/init.el"
-check 'Emacs was started for none of the three' test "$(starts)" = 4
 check 'once it can be read, it is built' build
 built_on 08
 check 'init.el holds the build' grep -q '^six$' "$repo/init.el"
@@ -215,6 +222,20 @@ check 'a newer current init.org is built over them' build
 built_on 11
 check 'init.el holds the build' grep -q '^eight$' "$repo/init.el"
 check 'the build removed the compiled init' test ! -e "$repo/init.elc"
+
+# ------ the call is in init.org, but not where it is tangled into init.el
+printf '%s\n' '* Init' 'The first block calls (user-paths-check-migrated).' \
+    '#+begin_src emacs-lisp' 'ten' '#+end_src' >"$canonical"
+day 12
+check 'an init.org that only mentions the call is built, and that fails' fails
+check 'the failure says what init.el lacks' printed 'init.el was built and does not call'
+check 'the build started Emacs for it' test "$(starts)" = 8
+check 'a second try fails in the same way, and is not silent' fails
+check 'it says the same' printed 'init.el was built and does not call'
+current 'eleven' >"$canonical"
+day 13
+check 'with the call back in its block, the build passes' build
+check 'init.el holds that build' grep -q '^eleven$' "$repo/init.el"
 
 printf '\n%d passed, %d failed\n' "$passed" "$failed"
 [[ $failed -eq 0 ]]
