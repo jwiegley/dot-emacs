@@ -2,350 +2,338 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+It is kept in `lisp/`, but it covers the whole repository. Paths are relative to the top of the repository unless they begin with `~` or `/`.
+
 ## Repository Overview
 
-This is John Wiegley's Emacs Lisp personal configuration repository. It contains local configuration modules plus a small number of retained project directories. Most package dependencies that once lived here as git submodules are now supplied by the Nix-managed Emacs environment; `SUBMODULE-AUTHORSHIP.md` at the repository root records that migration.
+This is John Wiegley's Emacs configuration. The checkout at `~/.config/emacs` is the directory his Emacs starts from (`user-emacs-directory`), so its working tree is what the next start of Emacs runs.
 
-## Key Packages and Modules
+- The init file is written in Org. The `Makefile` tangles `init.org` into `init.el`; `early-init.el` runs before it.
+- `lisp/` holds John's own modules and their tests, the git submodules and the local directory `badi-calendar/`.
+- Every other package comes from the Nix-managed Emacs environment, through two symlinks at the top of the checkout that Home Manager owns and git ignores. `nix-packages` is the bundle of packages. `nix-packages.el` puts the bundle on `load-path`, and signals an error in any Emacs other than the build the bundle was compiled for. The sources of those packages are not below `lisp/`. To change one, work in its upstream checkout or in the source that the Nix overlay pins, with that project's own commands.
+- Only configuration lives in the checkout. What Emacs writes while it runs goes to three directories outside it.
 
-The repository contains several major components:
+## Rules
 
-- **Core Modules**: Individual `.el` files in the root directory (e.g., `cl-info.el`, `org-config.el`, `gptel-presets.el`)
-- **Retained Subdirectories**: `badi-calendar/` and the sole remaining git submodule, `llm-setup/`
-- **Nix-managed Dependencies**: External packages such as GPTel, Org extensions, and MCP libraries are installed by Nix rather than checked out below `lisp/`
-- **MCP Integration**: Local adapters such as `mcp-convert.el`
-- **Org-mode Extensions**: Various org-mode enhancements (`org-roam-ext.el`, `org-ql-ext.el`, `org-smart-capture.el`)
+These are the rules that are easy to break without noticing. The sections below explain each.
 
-## Emacs Lisp Development Patterns
+1. **Run no `make` target here except `make check-litter` and `make test-xdg`**, `make audit-xdg` while it exists, and `make init.org` after an edit to `~/org/init.org` that John asked for. The build targets (`make`, `make init.el`, `make -B`, `make speed`, `make slow`, `make open`, `make open-quick`) load John's whole init in a batch Emacs with his real data and state, and `make clean` deletes his Custom file. For the same reason, never load `init.el` or `init.org` yourself (`emacs -l init.el`, `org-babel-load-file`).
+2. **Start every batch Emacs of your own with `--init-directory="$(mktemp -d)"`.** Without it, Emacs takes this checkout as its own directory and writes into it. The option moves that one directory and nothing else; see Running Emacs.
+3. **Check your changes in a batch Emacs, not in the Emacs that is running.** That one is John's working session, with his unsaved buffers, and what is evaluated there stays in it: evaluate nothing in it unless he asks you to.
+4. **Before you edit a file, or let git rewrite one, look for `#NAME#` beside it.** That is the auto-save file of a buffer with unsaved changes. If there is one, stop and ask.
+5. **Edit `~/org/init.org`, not the `init.org` here, and never `init.el`.**
+6. **Whatever Emacs writes on its own account gets a path under one of the three roots** for data, state and caches, never under `user-emacs-directory`. Files that John has Emacs save as configuration, such as `settings.el` and `abbrevs.el`, are the exception.
+7. **Leave no file of yours untracked in the checkout, and commit no plans or specs here.** John's `changes` script commits and pushes whatever `git add -A` finds, anywhere in the tree.
+8. **With git, touch only what is yours.** Stage your own files by name. Before a pull, compare what it brings in with what is changed here. Never drop a stash, and never check out an old commit in this checkout. See Version Control.
+9. **Run `make check-litter` when you start and before you finish**, and `make test-xdg` after any change to `lisp/user-paths.el`, `xdg/`, the `Makefile` or `.gitignore`.
 
-### Code Organization
+## Layout
 
-**Lexical Binding** - All modern packages use lexical binding:
+| Path | What it is |
+|---|---|
+| `init.org` | The literate init: a read-only copy of `~/org/init.org` |
+| `init.el` | Tangled from `init.org`; ignored by git |
+| `early-init.el` | Loads `lisp/user-paths.el` before anything else, and keeps `package.el` from activating packages at startup |
+| `Makefile` | Builds `init.el`, and runs the litter report and the tests of the layout |
+| `lisp/` | John's modules, their tests and the submodules |
+| `xdg/` | The litter report, the tool that moved runtime files out of the checkout, the tests behind `make test-xdg`, and the one-time tools of that move |
+| `prompts/` | gptel directives, one to a file |
+| `snippets/` | Yasnippet snippets by mode; `snippets/org-mode` is a symlink into `~/org` |
+| `abbrevs.el` | Abbrev tables |
+| `settings.el` | The Custom file; ignored by git |
+| `runshell` | The shell that `M-x shell` starts |
+| `certs/`, `eshell/` | Local configuration that git ignores: CA certificates, and Eshell's `alias` and `login` files |
+| `nix-packages`, `nix-packages.el` | Home Manager's symlinks to the package bundle; ignored by git |
+| `.gitignore` | Besides build products, the default names of runtime files, as a safety net; `make test-xdg` tests its rules |
+| `README.md` | A short account of the layout, for people |
+| `AGENTS.md` | How a work session ends: commit and push |
+
+The table leaves out what plays no part in building or testing the configuration.
+
+## Where Emacs Keeps What It Writes
+
+`~/.config/emacs` holds configuration only. Whatever Emacs writes while it runs belongs under one of three roots, chosen by what the file is:
+
+| Root | Helper | Place | What belongs there |
+|---|---|---|---|
+| `user-data-directory` | `(user-data "NAME")` | `$XDG_DATA_HOME/emacs/` (`~/.local/share/emacs/`) | What is worth carrying to another machine, and what was installed on request: saved choices, tokens, learned parameters, tree-sitter grammars, language servers |
+| `user-state-directory` | `(user-state "NAME")` | `$XDG_STATE_HOME/emacs/` (`~/.local/state/emacs/`) | What Emacs records about its own use on this machine: histories, recent files, positions, sessions, cookies, backups |
+| `user-cache-directory` | `(user-cache "NAME")` | `$XDG_CACHE_HOME/emacs/` (`~/.cache/emacs/`) | What Emacs can make again from what is on this machine, or fetches again unasked: compiled code, indexes, web responses |
+
+Something that comes back only when a person agrees to a download or a build is data, not cache. In the alternate instance (`NIX_MYENV_NAME=emacsERC`) each root ends in `emacs-alt/` instead of `emacs/`.
+
+`lisp/user-paths.el` defines the roots and the helpers. `early-init.el` loads it before anything else, so that even the native-compilation cache is redirected before anything is compiled, and by its `.el` name, so that a stale `.elc` is never used. Batch Emacs never reads `early-init.el`, so the top of `init.org` requires the library again. It then calls `(user-paths-check-migrated)`, which stops the init with an error while a directory `data/` is still in the checkout.
+
+### Giving a Package Its Path
+
+Set the path in the package's `use-package` block in `~/org/init.org`, under `:custom`:
+
 ```elisp
-;;; package-name.el --- Description -*- lexical-binding: t; -*-
+(use-package recentf
+  :custom
+  (recentf-save-file (user-state "recentf")))
 ```
 
-**File Structure** - Standard Elisp package layout:
-```elisp
-;;; package-name.el --- Brief description -*- lexical-binding: t; -*-
+Add a row to `user-paths-table` in `lisp/user-paths.el` instead in two cases only. One is a variable that its library reads while it loads, when that library can be loaded before its own block runs (as a dependency of another package, say): the `:custom` would then come too late. The other is a variable that no `use-package` form mentions. A row is `(VARIABLE ROOT NAME)`, with ROOT one of `data`, `state` and `cache`. A trailing slash on NAME is kept, so give one where the library builds file names from the value with `concat`. If the library does not create its directory itself, add the directory to `user-paths-ensure-directories`. Paths that fit no row are set in `user-paths-apply-special`.
 
-;; Package metadata (Author, Version, Package-Requires, URL, Keywords)
+`(emacs-path "NAME")`, which `init.org` defines to expand NAME in `user-emacs-directory`, is for configuration: `abbrevs.el`, `settings.el`, `snippets/` and the like. It is never for something Emacs writes on its own account.
+
+### What Must Stay As It Is
+
+- **The roots cannot be assigned.** A variable watcher signals an error when a `setq`, `defconst`, `setopt` or the like would give a root a different value. A `let` binding is allowed, and that is how a test redirects a root.
+- **The call `(user-paths-check-migrated)` stays at the top of `init.org`**, in a source block that is tangled. The Makefile refuses an `init.org` or an `init.el` without it; see The guards.
+- **Never unload the library.** After `(unload-feature 'user-paths t)` the roots are unbound, and loading the file again fails, because the watchers still call a function that the unload removed. Loading it a second time without unloading is harmless.
+- **Loading the library changes things.** It creates the three roots and a few directories below them, sets every variable in its table, adds advice and redirects the native-compilation cache. A test that loads it must first point `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME` and `user-emacs-directory` at a scratch directory and clear `NIX_MYENV_NAME`, as `lisp/user-paths-test.el` does.
+- **`~/.emacs.d` and `~/.emacs` must not exist.** Either one makes Emacs take `~/.emacs.d` as its directory and ignore this checkout.
+
+### The Safety Net in `.gitignore` and the Litter Report
+
+An Emacs that runs without this init (`-Q`, `-q` or `--batch`) still writes to its built-in defaults, which are inside the checkout. `.gitignore` therefore names those default files and directories, so that `git add -A` cannot commit a cookie jar or a history. A rule hides such a file from git; it does not make the file welcome here. Settings that a person saves on request (`abbrev_defs`, `calc.el` and the like) and code have no rule on purpose, so that they stay visible.
+
+`make check-litter` runs `xdg/check-litter.sh`, which makes the litter visible. It only reads, and it lists:
+
+- `~/.emacs.d`, `~/.emacs` and `~/.emacs.el`;
+- every ignored path outside `lisp/` that is not known configuration (such as `init.el`, `settings.el`, the Nix symlinks, `certs/`, Eshell's files, and what agent tools and the Finder leave), a build product, or an auto-save or lock file;
+- every untracked entry at the top of the checkout;
+- every empty directory at the top of the checkout, and backup files (`*~`), below `lisp/` too.
+
+It prints `No litter in DIR` and exits with 0 when it finds nothing, with 1 when it lists something, and with 2 on an error. It passes over `eln-cache/`, over `.elc` files and whatever else is ignored below `lisp/` (backup files apart), and over untracked files below a tracked directory, which it takes for John's work in progress. `git add -A` takes those all the same, so remove your own scratch files from there yourself, and leave his.
+
+If a run of yours left something, remove it and correct how you started Emacs. Anything that was there before may hold John's data: tell him what the report listed, and let him decide.
+
+### The Tools in `xdg/`
+
+- `xdg/check-litter.sh` and its test: the litter report.
+- `xdg/migrate.sh` and its test: the tool that moved the runtime files out of the checkout in November 2026. Without `--apply` it prints what it would do and changes nothing. `--apply` and `--rollback` move John's files and need every Emacs quit first, so do not run them; if a message calls for one, tell John.
+- `xdg/make-init-test.sh`: tests the Makefile's rules for `init.org` and `init.el`, with a stand-in for Emacs.
+- `xdg/apply-init-edits.el`, its test, and `xdg/audit/`, which `make audit-xdg` runs: tools of the move itself, whose removal is planned. Use `make audit-xdg` while it exists, but make nothing new depend on them.
+
+## `init.org`, `init.el` and the Makefile
+
+The source of the init is `~/org/init.org`, in John's Org repository, which is not this one. The `init.org` here is a tracked copy, which the Makefile replaces (`cp -p`, then `chmod 444`) whenever `~/org/init.org` is newer. `init.el` is tangled from that copy and is ignored by git.
+
+- **To change the init, edit `~/org/init.org`.** `make init.org` then copies it here and loads nothing. It copies the whole file, and with it whatever else John has changed there since the last commit here, so run `cmp init.org ~/org/init.org` before you start and commit only your own hunks. In `~/org`, the file is committed by John's `changes` script; nothing here needs you to commit there.
+- **A change takes effect when John next starts Emacs.** His launcher runs `make init.el` first, and does not open Emacs when that fails. A build that fails while it loads the init leaves its `init.el` behind, though, so the start after that opens Emacs on it, mistake and all. While `make audit-xdg` exists, it fails on a top-level form that signals an error, before he meets it; a mistake inside a deferred block may show only as one more feature that would not load.
+- **Much of `init.org` is switched off.** A heading that begins with `COMMENT` is not tangled, and neither is anything below it. Look at every heading above a block before you conclude that a package is in use.
+- **A `use-package` block cannot load what the Nix bundle lacks.** To see whether the bundle has a library, ask a batch Emacs that has loaded `nix-packages.el` (see Running Emacs): `(locate-library "NAME")`. What the bundle holds is decided in John's Nix configuration (`~/src/nix/config/emacs.nix`), which is another repository. The `:nix` keyword in some blocks does nothing when the init runs: `init.org` defines it to be ignored, and nothing else reads it. Where a block gives a name, it is the package's name in Nix when that differs from the feature's (`bookmark+` is `bookmark-plus`). `:nix nil` tells nothing reliable, so trust `locate-library`.
+
+| Target | What it does | May an agent run it? |
+|---|---|---|
+| `make check-litter` | Lists runtime files that are back in the checkout; reads only | Yes |
+| `make test-xdg` | Tests `lisp/user-paths.el`, the tools in `xdg/`, the rules in `.gitignore` and the Makefile's own rules, all in scratch directories | Yes |
+| `make audit-xdg` | Copies the configuration into a scratch home, tangles a copy of `~/org/init.org` there, and loads the whole init form by form, then every feature that a `use-package` form names, under a sandbox that denies writes below the home directory and all network access. Reports the forms that failed, the variables that still name a path in `user-emacs-directory`, and the files written there, and ends in `PASS` or `FAIL`. Takes about half a minute | Yes, while it exists |
+| `make init.org` | Copies `~/org/init.org` over the tracked copy if it is newer and has the call `(user-paths-check-migrated)` (see The guards); loads nothing | After an edit to `~/org/init.org` that John asked for |
+| `make`, `make init.el`, `make -B` | Copy, tangle, and then **load the whole init** in a batch Emacs with John's real data and state | No |
+| `make speed`, `make slow` | Build as above. `speed` also compiles an `init.elc`, which stays and is loaded in place of `init.el`. Both then load the init once more | No |
+| `make open`, `make open-quick` | Build as above, then try to `open` an application | No |
+| `make clean` | Deletes `init.el`, `settings.el` (the Custom file, which is not in git), and the `.elc` and backup files at the top | No |
+| `make lisp/NAME.elc` | Byte-compiles a module beside its source, without the Nix packages | No; see Byte-Compiling |
+
+There is no `make test` and no `make build`: both names are declared without a rule, so they succeed and do nothing.
+
+**The guards.** An `init.org` or an `init.el` from before this layout can still turn up, from history or from another machine of John's. Loaded, it would put Emacs's state back into the checkout. Three things stand in the way. The Makefile neither copies nor tangles an `init.org` whose text lacks `(user-paths-check-migrated` on a line with no `;` before it. It rebuilds an `init.el` that lacks that text, removes `init.elc` whenever it builds, and fails when the `init.el` it has just built and loaded still lacks the text, which means that the call stands in prose, under a `COMMENT` heading or in a block that is not tangled. And in an interactive Emacs the watcher on the roots stops an old `init.el` at its first definition of a root. Nothing guards a batch `emacs -l init.el`, and nothing guards a checkout of a commit older than the guards themselves (17 November 2026), which has neither the Makefile's rules nor the watcher. The messages of these guards advise restoring `~/org/init.org` from its history, `touch ~/org/init.org` or `make -B init.el`, and that of `(user-paths-check-migrated)` advises `xdg/migrate.sh --apply`. That advice is for John: when one of them stops you, tell him what it printed.
+
+**Time stamps.** `make` copies `~/org/init.org` only when it is the newer of the two files, and git gives a file it rewrites the time of the rewrite. After a pull or a checkout that changes `init.org`, and after any pull while `init.org` shows as modified (the stash rewrites it), the copy here is therefore the newer one, and John's next start builds from it. Run `cmp init.org ~/org/init.org` after every pull. If the two differ, one holds changes that the other lacks: commit nothing that touches `init.org`, and tell John. `touch ~/org/init.org` makes the next build copy that file again, which is right only when it holds everything. Never overwrite `~/org/init.org` from here.
+
+## Running Emacs
+
+A batch Emacs for a check is started from the top of the checkout like this:
+
+```bash
+emacs --batch -Q --init-directory="$(mktemp -d)" \
+  --eval '(setq load-prefer-newer t)' \
+  -l ~/.config/emacs/nix-packages.el -L lisp -L lisp/llm-setup \
+  ...
+```
+
+- **`--init-directory="$(mktemp -d)"`.** Every Emacs takes `~/.config/emacs` as `user-emacs-directory`: batch or not, with `-Q` or without, and, because John's shell exports `XDG_CONFIG_HOME`, even under a scratch `HOME`. A batch Emacs reads neither `early-init.el` nor `init.el`, so nothing has been redirected and the built-in defaults point into the checkout. What tests leave there in practice is `eln-cache/`, with a trampoline that the native compiler makes when a primitive is rebound (running `lisp/org-ql-semantic-test.el` does it). A scratch init directory takes such writes instead. Do not point `XDG_CONFIG_HOME` at a directory that has no `emacs/` in it: Emacs then falls back to `~/.emacs.d`.
+- **`-l ~/.config/emacs/nix-packages.el`.** It puts the Nix packages on `load-path`; without it, half of the test files do not load. It also tells the native compiler where to find a library that trampolines link against: without it, and under a scratch `HOME`, a test that rebinds a primitive fails with `library 'emutls_w' not found`. Give the absolute path, because the file is ignored by git and a worktree has no copy. Use the `emacs` on `PATH`, because the file signals an error in any other build.
+- **`load-prefer-newer`.** `lisp/` holds ignored `.elc` files that nothing keeps fresh. A batch Emacs loads an `.elc` in preference to a newer source, and a test then passes or fails on the old code.
+- **`-L lisp -L lisp/llm-setup`.** `lisp/` is not on `load-path` until the init has run, and the tests of `gptel-backends`, `gptel-model-policy` and `org-drafts-ext` need the `llm-setup` submodule. In a worktree the submodule directories are empty: use `-L ~/.config/emacs/lisp/llm-setup` there.
+
+This Emacs has the packages and none of John's configuration: no `use-package` block has run, and no setting of his is in effect. Load what a check needs. To learn a value in his session, read how `~/org/init.org` sets it, or ask him. The three roots still follow the real `XDG_*_HOME`, so code that loads `lisp/user-paths.el` works on John's real data and state unless those variables point elsewhere as well.
+
+Use these commands also where another file here gives commands of its own. The Verification section of `lisp/org-agent-deck-README.org`, for one, starts Emacs without a scratch directory and compiles beside the source.
+
+### Tests
+
+The tests of the modules are ERT files, `lisp/NAME-test.el`. Run one file with the command above, ending in:
+
+```bash
+  -l lisp/NAME-test.el -f ert-run-tests-batch-and-exit
+```
+
+Run all of them like this:
+
+```bash
+export NIX_MODEL_POLICY_FILE=$HOME/.config/ai/model-policy.json
+export NIX_HOST_POLICY_FILE=$HOME/.config/ai/host-policy.json
+for t in lisp/*-test.el; do
+  log=$(mktemp)
+  emacs --batch -Q --init-directory="$(mktemp -d)" \
+    --eval '(setq load-prefer-newer t)' \
+    -l ~/.config/emacs/nix-packages.el -L lisp -L lisp/llm-setup \
+    -l "$t" -f ert-run-tests-batch-and-exit >"$log" 2>&1
+  echo "== $t: exit $? ($log)"
+  grep -e '^Ran ' -e FAILED "$log"
+done
+make test-xdg
+```
+
+- Each file must show one `Ran N tests` line. A file without one did not load: read its log.
+- The two variables are for `lisp/gptel-model-policy-test.el`, which checks the presets and backends against the model policy that Nix generates, and does not load without them.
+- To run only some tests, end with `--eval '(ert-run-tests-batch-and-exit "REGEXP")'` instead; the regexp is matched against the names of the tests. For one test, name it as a symbol, in double quotes because of the Lisp quote: `--eval "(ert-run-tests-batch-and-exit 'TEST-NAME)"`. A regexp that matches nothing runs no test and still exits with 0, so read the `Ran N tests` line.
+- A suite can fail before you touch anything. Run it on the unchanged tree first, so that you know which failures are yours.
+- Most modules have no test file. To show a fix in one of those, add a test as under Adding a Module, or load the module in a batch Emacs and evaluate the changed code with `--eval`.
+- `lisp/ob-agent-deck.el` has no test file of its own; `lisp/org-agent-deck-test.el` tests it together with `lisp/org-agent-deck.el`.
+- Without `pandoc` on `PATH`, one test of `org-drafts-ext` fails and one of `org-agent-deck` is skipped. `lisp/org-drafts-ext-test.el` also reads the `init.org` at the top of the tree.
+- `make test-xdg` is the suite for `lisp/user-paths.el`, `xdg/`, the `Makefile` and `.gitignore`. It must exit with 0, and each of its summaries (`Ran N tests, N results as expected, 0 unexpected` or `N passed, 0 failed`) must report no failure. The lines that begin with `ERROR` are the output of tests that pass.
+- The submodules carry tests of their own; the guidance at the top of each says how to run them.
+- Nothing runs these tests for you. The workflow under `.gitea/` only checks that the submodules can be cloned.
+
+### Byte-Compiling
+
+```bash
+o=$(mktemp -d)
+emacs --batch -Q --init-directory="$(mktemp -d)" \
+  --eval '(setq load-prefer-newer t)' \
+  -l ~/.config/emacs/nix-packages.el -L lisp -L lisp/llm-setup \
+  --eval "(setq byte-compile-dest-file-function
+            (lambda (f) (expand-file-name (concat (file-name-nondirectory f) \"c\") \"$o\")))" \
+  -f batch-byte-compile lisp/NAME.el
+```
+
+This writes the `.elc` into the scratch directory `$o`, not beside the source. The exit status is 0 even when there are warnings, so read the output.
+
+- Compile the files you changed, not `lisp/*.el`. Many older modules warn already. The measure is that a file gives no warning that it did not give before your change.
+- `.elc` files are not tracked: `*.elc` is the first line of `.gitignore`. In a fresh worktree the modules in `lisp/` are therefore loaded from source, while the Nix packages are compiled already.
+- When a module that has an `.elc` beside it changes, by your edit or by a pull, remove that `.elc`: it is now older than its source, and nothing rebuilds it. John's init sets `load-prefer-newer`, but `john-wiegley-theme` and `org-constants` are loaded before that setting and still take a stale file. An `.elc` in `lisp/` is ignored by git and passed over by the litter report, so nothing else will point it out.
+
+## What Is in `lisp/`
+
+Most of it is single-file modules, and most of those are loaded by a `use-package` block of their own in `init.org`. That a file is here does not mean that it runs. Some modules are named only under a `COMMENT` heading (`erc-alert` and `c-includes`, for instance), a good number are not named in `init.org` at all, and one is loaded only by another module's `require`. Search `init.org` for the name, and look at every heading above the block.
+
+- **Paths**: `user-paths.el`, described above.
+- **Org**: `org-config.el` holds the capture templates, the agenda's custom commands and the search commands they use; Org's own settings are in the `use-package org` block of `init.org`. `org-ext.el`, the largest module, holds extra Org commands, and `org-constants.el` the paths of John's Org files. Extensions of other packages: `org-roam-ext.el`, `org-ql-ext.el`, `org-ql-semantic.el`, `vulpea-ext.el`, `org-review-ext.el`, `org-drafts-ext.el`, `org-smart-capture.el`.
+- **agent-deck**: `org-agent-deck.el` sends an Org entry to a running agent-deck session and inserts a session's latest output; `ob-agent-deck.el` adds the `agent-deck` Babel language, which launches a session. `org-agent-deck-README.org` describes both. The library's default for `org-agent-deck-presets` is not what John runs with: `init.org` sets its own value under `:custom`, so a change to the default changes the tests and the README, not his session.
+- **gptel**: `gptel-presets.el`, `gptel-backends.el`, `gptel-ext.el` and `gptel-tools.el`, an empty stub that `init.org` loads; gptel itself comes from Nix. When gptel loads, each file in `prompts/` becomes a directive named after the file without its extension. `gptel-presets.el` and `gptel-ext.el` refer to directives by those names, so renaming a prompt file is a change to code.
+- **MCP**: `mcp-convert.el` converts MCP JSON configuration to Emacs Lisp, and `mcp-hub` comes from Nix. `mcp-server-lib` and `elisp-dev-mcp` are switched off: they stand under `COMMENT` headings in `init.org` and are left out of the Nix environment.
+- **The rest**: more Org helpers, helpers for Gnus, ERC, Dired, Eshell, editing and proof assistants, John's own commands in `personal.el`, and the theme, `john-wiegley-theme.el`.
+- **`badi-calendar/`**: `cal-bahai.el` and `holidays.el`, tracked here as ordinary files. Both are also the names of libraries in Emacs, and `init.org` puts this directory first on `load-path` (`:load-path`), so these are loaded in their place. The directory has a `.git` of its own inside it, so run git from the top of the checkout, not from there.
+
+The submodules are listed in `.gitmodules`. Each is a repository of John's with guidance of its own at its top (`CLAUDE.md` or `AGENTS.md`), which governs work inside it. Search `init.org` for a submodule's name to see whether and how it is loaded: not every one is.
+
+- A change inside a submodule is committed there, on the branch that is checked out there, and pushed there. The commit in this repository then records the new revision.
+- John's git configuration sets `diff.ignoreSubmodules` to `dirty`, so `git status` at the top does not show uncommitted edits inside a submodule. Run it inside the submodule.
+- A fresh worktree has the submodules as empty directories.
+
+## Emacs Lisp Conventions
+
+**Lexical binding.** Every new file sets `lexical-binding: t` in its first line, as in the layout below. A few old modules do not, and Emacs warns when it loads one of those from source.
+
+**File layout.** The newer modules look like this (`lisp/dired-ext.el` is one):
+
+```elisp
+;;; NAME.el --- Brief description -*- lexical-binding: t; -*-
+
+;; Copyright (C) YEAR John Wiegley
+;; Author: John Wiegley <johnw@gnu.org>
+;; Keywords: keywords
 
 ;;; Commentary:
-;; Detailed usage documentation
+
+;; How to use it.
 
 ;;; Code:
 
-(require 'dependencies)
+(require 'cl-lib)
 
-(defgroup package-name nil ...)
-(defcustom package-name-option t ...)
-
-;;;###autoload
-(defun package-name-command () ...)
-
-(defun package-name--helper () ...)  ; Internal functions use --
-
-(provide 'package-name)
-;;; package-name.el ends here
-```
-
-**Namespace Conventions**:
-- Public API: `package-name-function`
-- Private/internal: `package-name--internal` (double dash)
-- Predicates: `package-name-enabled-p` (ends with -p)
-- Modes: `package-name-mode` (ends with -mode)
-- Hooks: `package-name-mode-hook` (ends with -hook)
-
-### Autoloads
-
-Interactive commands and mode definitions use autoload cookies:
-```elisp
-;;;###autoload
-(defun org-smart-capture ()
-  "Smart capture entry point."
-  (interactive)
-  ...)
+(defgroup NAME nil ...)
+(defcustom NAME-option t ...)
 
 ;;;###autoload
-(define-derived-mode my-mode text-mode "MyMode"
-  "A custom major mode."
-  ...)
+(defun NAME-command () ...)
+
+(defun NAME--helper () ...)
+
+(provide 'NAME)
+
+;;; NAME.el ends here
 ```
 
-Generate autoloads only from a package's own source checkout, using the build
-system documented there. The local single-file modules in this directory are
-loaded by `init.org` and do not share a generated package-autoloads file.
+**Names:**
 
-### Dependencies and Loading
+- Public: `NAME-function`. Internal: `NAME--helper`, with a double dash.
+- Predicates end in `-p`, modes in `-mode`, hooks in `-hook`.
 
-**Package Headers** specify dependencies:
+**Autoloads.** Mark commands and modes with `;;;###autoload`, but nothing in this repository generates an autoloads file. A command becomes available because the module's `use-package` block names it (`:commands`, `:bind`, `:hook`, `:mode`) or loads the module outright.
+
+**Dependencies:**
+
 ```elisp
-;; Package-Requires: ((emacs "27.1") (dash "2.19") (s "1.12"))
-```
+(require 'cl-lib)      ; never the deprecated cl
+(require 'subr-x)      ; thread-first, thread-last and the like
+(require 'seq)         ; sequence operations
 
-**Require Statements** for runtime dependencies:
-```elisp
-(require 'cl-lib)      ; Use cl-lib, not deprecated cl package
-(require 'subr-x)      ; For string-trim, thread-first, etc.
-(require 'seq)         ; For modern sequence operations
-```
+;; A function of a library that is not loaded when this file is compiled
+(declare-function bookmark-jump "bookmark" (bookmark &optional display-func))
 
-**Optional Features** use autoloads or eval-after-load:
-```elisp
+;; An optional feature
 (with-eval-after-load 'org
-  (add-hook 'org-mode-hook #'my-package-setup))
+  (add-hook 'org-mode-hook #'NAME-setup))
 ```
 
-## Development Commands
+A module that is meant to become a package of its own also lists what it needs in a `Package-Requires` header.
 
-### Building and Compilation
+## Adding a Module
 
-The former Eask, Make, and Cask package trees are not repository-local
-development targets anymore. For a Nix-managed dependency, work in its
-upstream checkout or the source pinned by the Nix overlay and use that
-project's own commands. For `llm-setup`, enter the retained submodule and
-follow its `CLAUDE.md` and `flake.nix`.
+1. Create `lisp/NAME.el` with the layout above. In the init, `lisp/` is the last entry on `load-path`: if NAME is also the name of a library in Emacs or in the Nix bundle, the init loads that library and never yours. The test command's `-L lisp` puts `lisp/` first, so the tests do not show such a clash. Look for one with `(locate-library "NAME")` in a batch Emacs that has loaded `nix-packages.el` and has no `-L lisp`.
+2. Create `lisp/NAME-test.el`:
 
-### Byte Compilation
+   ```elisp
+   ;;; NAME-test.el --- Tests for NAME -*- lexical-binding: t; -*-
 
-**Individual files**:
-```bash
-emacs -batch -f batch-byte-compile file.el
-```
+   (require 'ert)
+   (require 'NAME)
 
-**Check for warnings**:
-```bash
-emacs -batch -L . -f batch-byte-compile file.el 2>&1 | grep -i warning
-```
+   (ert-deftest NAME-test-basic ()
+     "Describe what must hold."
+     (should (equal expected actual)))
 
-**Batch compilation** (for multiple files):
-```bash
-emacs -batch -L . -f batch-byte-compile *.el
-```
+   (provide 'NAME-test)
 
-### Testing Workflows
+   ;;; NAME-test.el ends here
+   ```
 
-**ERT Tests** - Test file naming:
-- `*-test.el` or `*-tests.el` (e.g., `mcp-server-lib-test.el`)
-- Located in package root or `test/` subdirectory
-
-**Run tests interactively**:
-```elisp
-;; Load test file
-(load-file "path/to/test-file.el")
-
-;; Run all tests
-(ert t)
-
-;; Run specific test
-(ert "test-name-regexp")
-
-;; Run tests matching pattern
-(ert 'tag)
-
-;; Batch mode
-(ert-run-tests-batch-and-exit)
-```
+3. Add a `use-package NAME` block to `~/org/init.org`, as the section "`init.org`, `init.el` and the Makefile" describes. A module in a subdirectory of `lisp/` needs `:load-path` there. Whatever the module writes gets its path from `user-data`, `user-state` or `user-cache`.
+4. Run the test and the byte-compile check from Running Emacs.
 
 ## Interactive Development
 
-### REPL-driven Development
+These are for when John asks you to work in his session (rule 3). An agent's own checks run in batch.
 
-**Evaluate expressions** during development:
-```elisp
-;; Eval last sexp: C-x C-e
-;; Eval defun: C-M-x
-;; Eval buffer: M-x eval-buffer
-;; Eval region: M-x eval-region
-```
+- **Reload a module** with `M-x eval-buffer` in its buffer, or with `(load "~/.config/emacs/lisp/NAME.el")`. Functions are replaced, while a `defvar` or a `defcustom` keeps the value it has. Do not `unload-feature` first: that resets the module's variables and loses what `init.org` sets under `:custom`, and for `user-paths` it breaks the session.
+- **Evaluate** with `C-x C-e` (last sexp), `C-M-x` (defun), `M-x eval-buffer` or `M-x eval-region`.
+- **Debug** with `(setq debug-on-error t)`, with `debug-on-entry` and `cancel-debug-on-entry`, with `trace-function` and `untrace-function`, or with a `(debug)` form in a function body.
+- **Look up** with `find-function` and `describe-function`, and expand macros with `macroexpand-1`, `macroexpand-all` or `M-x pp-macroexpand-last-sexp`.
+- **Measure** with `elp-instrument-function`, `elp-results` and `elp-restore-all`, or with `(benchmark-run 1000 (FUNCTION))`.
 
-**Reload package** after changes:
-```elisp
-;; Unload feature first to clear old definitions
-(unload-feature 'package-name t)
+Turn off what you turned on before you hand the session back.
 
-;; Load updated version
-(load-file "package-name.el")
-```
+## Debugging Common Issues
 
-**Interactive debugging**:
-```elisp
-;; Set debug-on-error globally
-(setq debug-on-error t)
+- **A module does not load, or a change has no effect.** `(provide 'NAME)` must match the file name. The directory must be on `load-path`: `lisp/` is, once the init has run, and a subdirectory needs `:load-path`. The `use-package` block may stand under a `COMMENT` heading, or wait with `:after` for a feature that never loads. In a session, the module may have been loaded before your change, and `require` does not load it again. In batch, an `.elc` older than its source may be loaded in its place (see Byte-Compiling). Look for circular requires.
+- **Void variable.** The `defvar` or `defcustom` must come before the use. Look for a misspelt name, and for a variable that is dynamic in one file and lexical in another.
+- **Byte-compilation warnings.** A warning usually marks a real fault. Use `cl-lib`, not the deprecated `cl`, and declare the functions of other libraries with `declare-function`.
+- **Test failures.** A batch run prints the form that failed and a backtrace: read them before you change anything. Use `should-error` for an error that is expected. Tests must not depend on one another, and must not write to John's data, state or caches.
 
-;; Debug specific function
-(debug-on-entry 'function-name)
-(cancel-debug-on-entry 'function-name)
+## Version Control
 
-;; Insert debugging breakpoint
-(defun my-function (arg)
-  (debug)  ; Will trigger debugger here
-  ...)
-
-;; Trace function calls
-(trace-function 'function-name)
-(untrace-function 'function-name)
-```
-
-### Development Helpers
-
-**Check function definitions**:
-```elisp
-;; Find function definition
-(find-function 'function-name)
-
-;; Describe function
-(describe-function 'function-name)
-
-;; Show function documentation
-(documentation 'function-name)
-```
-
-**Macro expansion**:
-```elisp
-;; Expand macro once
-(macroexpand-1 '(macro-call args))
-
-;; Fully expand macro
-(macroexpand-all '(macro-call args))
-
-;; Interactive macro expansion
-(pp-macroexpand-last-sexp)
-```
-
-**Performance profiling**:
-```elisp
-;; Profile function
-(elp-instrument-function 'function-name)
-(elp-results)
-(elp-restore-all)
-
-;; Benchmark code
-(benchmark-run 1000
-  (function-to-test))
-```
-
-## Architecture and Code Organization
-
-### Package Structure
-- Most repository-local code is a single `.el` module.
-- `badi-calendar/` is a retained local tree; `llm-setup/` is the sole remaining git submodule and has its own guidance.
-- External package sources are Nix-managed and should not be assumed to exist below `lisp/`.
-
-### MCP (Model Context Protocol) Integration
-The repository includes extensive MCP integration:
-- `mcp-convert.el`: local MCP conversion utilities
-- `mcp-server-lib` and `elisp-dev-mcp`: Nix definitions retained, but excluded from the normal environment and `COMMENT`-disabled in `init.org`
-
-### GPTel Integration
-Significant AI/LLM integration through the `gptel` package:
-- `gptel`: Nix-installed upstream package
-- `gptel-presets.el`, `gptel-ext.el`: Configuration and extensions
-- `gptel-backends.el`, `gptel-tools.el`: Backend and tool configuration
-- Prompt files in the repository-root `prompts/` directory
-
-### Org-mode Ecosystem
-Rich org-mode configuration and extensions:
-- `org-config.el`: Main org configuration (48KB)
-- `org-roam-ext.el`: Org-roam extensions
-- `org-smart-capture.el`: Enhanced capture templates
-- `org-context`, `org-hash`, `org-drafts`: Nix-installed packages, with local extension modules where present
-
-## Testing Strategy
-
-When modifying packages:
-1. Check for existing test files (`*-test.el`)
-2. Run repository-local `*-test.el` suites with ERT
-3. Ensure byte-compilation succeeds without warnings
-4. For a Nix-managed package, run its checks in the source checkout that owns its build metadata
-5. Test interactively with `M-x ert` for immediate feedback
-
-## Common Development Tasks
-
-### Creating a New Package
-
-1. Create package file with proper header:
-```elisp
-;;; package-name.el --- Description -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2025 Author Name
-
-;; Author: Author Name <email>
-;; Version: 0.1.0
-;; Package-Requires: ((emacs "27.1"))
-;; Keywords: keywords
-;; URL: https://github.com/user/package-name
-
-;;; Commentary:
-;;; Code:
-
-(defgroup package-name nil
-  "Group documentation."
-  :group 'applications
-  :prefix "package-name-")
-
-(provide 'package-name)
-;;; package-name.el ends here
-```
-
-2. Create test file `package-name-test.el`:
-```elisp
-;;; package-name-test.el --- Tests -*- lexical-binding: t; -*-
-
-(require 'ert)
-(require 'package-name)
-
-(ert-deftest package-name-test-basic ()
-  "Test basic functionality."
-  (should (equal expected actual)))
-
-(provide 'package-name-test)
-;;; package-name-test.el ends here
-```
-
-3. Create build configuration (Eask recommended):
-```elisp
-;; Eask
-(package "package-name" "0.1.0" "Description")
-(author "Name" "email")
-(license "GPL-3.0")
-(package-file "package-name.el")
-(script "test" "eask test ert package-name-test.el")
-(depends-on "emacs" "27.1")
-```
-
-### Debugging Common Issues
-
-**Package not loading**:
-- Check `(provide 'package-name)` matches filename
-- Verify `load-path` includes package directory
-- Check for circular dependencies
-
-**Void variable errors**:
-- Ensure `defvar`/`defcustom` before use
-- Check for typos in variable names
-- Verify lexical vs dynamic scope
-
-**Byte-compilation warnings**:
-- Fix all warnings - they indicate real issues
-- Use `cl-lib` functions, not deprecated `cl`
-- Declare functions from other packages: `(declare-function fn "file")`
-
-**Test failures**:
-- Run tests interactively to see full error output
-- Use `should-error` for expected errors
-- Check test isolation - tests should not depend on each other
-
-## Important Notes
-
-- This is a personal configuration repository with active development
-- Many packages are maintained by John Wiegley and other contributors
-- Some packages have their own upstream repositories (e.g., `use-package`, `async`)
-- The repository uses Git for version control with regular commits
-- Byte-compiled files (`.elc`) are **not** tracked: `*.elc` is the first line
-  of `.gitignore` and `git ls-files '*.elc'` returns nothing. A fresh worktree
-  therefore compiles every dependency from source, which is why a
-  byte-compile check that gates on "zero warnings" has to build its
-  dependencies first and gate only its own files
-- Always test changes interactively before committing
+- **Subjects.** Most read `area: Sentence`, for example `user-paths: Refuse to give a root another value` or `make: Refuse to build init.el from a stale init.org`. Commits titled `changes` are made by John's script.
+- **`AGENTS.md`** at the top says how a session ends: work is not finished until it is pushed. Read its steps with this repository in mind. There is no build to run among its quality gates (rule 1), and there is no issue tracker: what is left to do goes into your hand-off. The stashes, branches and worktrees to clean up are the ones you made; leave the others. And where this file says to stop and ask, that comes before the push: ask, and finish when John has answered.
+- **Pulling.** John's git configuration sets `pull.rebase` and `rebase.autoStash`, so a pull stashes whatever is uncommitted in the checkout, his changes as well as yours, and puts it back afterwards. Commit your own work first. Then `git fetch`, and compare what comes in (`git diff --name-only HEAD...origin/master`) with what `git status` still shows as changed: if a file is in both, stop and ask. A stash that does not go back cleanly stays in `git stash list`, with conflict markers in the files, and the pull still exits with 0, so read what it prints. If the rebase stops on a conflict with a commit of yours, the stashed changes are held inside `.git` until it ends, and `git rebase --abort` puts them back. Never drop a stash, not even one that your own pull left.
+- **Old versions.** Read an old version of a file with `git show REV:PATH`, or in a worktree. A commit older than the guards has none of them, so do not check one out here.
+- **Committing.** Stage your own files by name. `git add -A` and `git commit -a` take whatever else is changed or untracked in the checkout.
+- **No plans or specs.** John has removed the plans and specs that were committed here. Keep such a document, and your working record of how you carried out a change, outside the checkout: in your reply to John, or where he says. What a later reader needs goes into the commit message or into a comment in the code. This is about new documents in this repository: leave the ones that are here alone, and a submodule follows its own guidance.
+- **Unsaved buffers.** John's init keeps the auto-save file of a local file beside it, as `#NAME#`, and makes no lock files. A `#NAME#` beside a file means that his Emacs holds unsaved edits to it, or held them when it last crashed: stop and ask before you edit that file or let a `git pull`, `checkout` or `stash` rewrite it. The absence of one proves little, because Emacs writes it only after a pause or a few hundred keystrokes.
+- **Worktrees.** Put a `git worktree` outside the checkout, for example under `~/src`, or under `.claude/worktrees/`, which `.gitignore` covers. Anywhere else at the top of the checkout it is litter that `git add -A` would commit. A worktree lacks the ignored files (`init.el`, `settings.el`, `nix-packages.el`, the `.elc` files) and the contents of the submodules, so name those by their paths in the real checkout.
