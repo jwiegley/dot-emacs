@@ -1088,7 +1088,18 @@ with
     (load user-paths-test-file nil t)
     (should (equal (list user-data-directory user-state-directory
                          user-cache-directory)
-                   roots))))
+                   roots)))
+  ;; A file that is not an init file is named, and is not taken for an
+  ;; init from before the move.
+  (let ((file (concat user-paths-test-root "package.el"))
+        (value user-cache-directory))
+    (with-temp-file file
+      (insert ";;; -*- lexical-binding: t -*-\n"
+              "(setq user-cache-directory \"/elsewhere/\")\n"))
+    (let ((message (cadr (should-error (load file nil t)))))
+      (should (string-match-p "package\\.el" message))
+      (should-not (string-match-p "make -B" message)))
+    (should (equal user-cache-directory value))))
 
 (ert-deftest user-paths-test-a-root-without-a-value-can-be-given-one ()
   ;; The guard itself, on a variable that is nobody's root.
@@ -2040,7 +2051,7 @@ What this plan leaves open, most serious first. None of it is needed for the two
 7. **A pull that changes `init.org` hides `~/org/init.org` from make.** git gives the checkout's copy the time of the pull, which is newer than `~/org/init.org`, so `make` does not copy that file again until it changes, and builds `init.el` from the committed copy. When the two differ, as they do while `~/org/init.org` holds changes that are not committed here, the build is without them. This is older than this plan; Task 6 Step 3 works around it once.
 8. **A stale `~/org/init.org` with an old time stamp is not noticed** until that file is next saved. Nothing is built from it in the meantime.
 9. **`wombag-dir` falls back to the configuration directory** in an Emacs that has no `XDG_CACHE_HOME`, which is Follow-up 18 of the reorganization plan. The new rule for `wombag/` keeps it out of a commit, and the report shows it.
-10. **Small points.** A stale `init.elc` beside an `init.el` that make calls up to date stays until the next build; Emacs loads it, the library stops it, and the advice in its message removes it. There is no `init.elc` on either host. In `/bin/sh`, `test -nt` compares whole seconds, so a change to `~/org/init.org` in the same second as the last copy is not seen. A build whose batch load fails leaves an `init.el` that make takes for built. The last two are older than this plan.
+10. **Small points.** A stale `init.elc` beside an `init.el` that make calls up to date stays until the next build; Emacs loads it, the library stops it, and the advice in its message removes it. There is no `init.elc` on either host. Two corners of the report: a backup file that sits alone in a new directory below `lisp/` is passed over, because git lists that directory as one ignored entry and everything ignored below `lisp/` is taken for a build product; and a new directory that holds a `.DS_Store` beside an auto-save file is reported, as is one that holds a `.DS_Store` alone. In `/bin/sh`, `test -nt` compares whole seconds, so a change to `~/org/init.org` in the same second as the last copy is not seen. A build whose batch load fails leaves an `init.el` that make takes for built. The last two are older than this plan.
 
 ---
 
@@ -2065,4 +2076,4 @@ Every change in this plan was first built in a scratch copy of the checkout, wit
 
 What could not be checked: a GUI start of Emacs, which the rules of the review forbade and a terminal Emacs stood in for; Hera, which the reviewers did not reach and Task 6 checks; and what Keyboard Maestro shows when its shell action fails.
 
-The plan was then executed, and each task's commit and the whole branch were reviewed again by six reviewers who had not seen the design work. All approved, with minor findings. Those changed the text of this plan in these places, and the branch carries them as commits of their own after the five tasks: a backup file under `lisp/` is reported like any other; a new directory that holds only an auto-save file is passed over; the library's message blames an old init only when an init file is being loaded; the build fails when the `init.el` it made does not call the guard, which closes a silent rebuild at every start that this plan's own rule for a stale `init.el` had opened; `xdg/migrate-test.sh` clears git's repository variables as the litter test does; and several comments and messages say more exactly what is true.
+The plan was then executed, and each task's commit and the whole branch were reviewed again by six reviewers who had not seen the design work. All approved, with minor findings. Those changed the text of this plan in these places, and the branch carries them as commits of their own after the five tasks: a backup file under `lisp/` is reported like any other; a new directory that holds only an auto-save file is passed over; the library's message blames an old init only when an init file is being loaded; the build fails when the `init.el` it made does not call the guard, which closes a silent rebuild at every start that this plan's own rule for a stale `init.el` had opened; `xdg/migrate-test.sh` clears git's repository variables as the litter test does; and several comments and messages say more exactly what is true. A seventh reviewer then read those commits, and an eighth ran the final Makefile and library against copies of the real files of this host: both approved. The first asked for the test that pins the library's message for a file that is not an init file, which was added, and found the two corners of the report that Follow-up 10 records.
