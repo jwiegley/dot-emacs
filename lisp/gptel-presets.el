@@ -232,7 +232,7 @@
 
 (gptel-make-preset 'cli
   :description "Generate command-line commands"
-  :system 'cli
+  :system 'cli-helper
   :parents (llm-setup-policy-symbols "emacs" "parents" "cli"))
 
 (gptel-make-preset 'emacs
