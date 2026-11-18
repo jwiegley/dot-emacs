@@ -29,6 +29,12 @@
 ;; beside its package in init.org, written as (user-data "..."),
 ;; (user-state "...") or (user-cache "...").
 ;;
+;; The three roots cannot be given another value once this file has set
+;; them.  That is what stops an init.el from before this layout, which
+;; defines `user-data-directory' inside the configuration directory before
+;; it loads any package: it fails at that definition, having written
+;; nothing.
+;;
 ;; An Emacs started with -Q or -q reads neither early-init.el nor init.el
 ;; and still writes to the built-in defaults under `user-emacs-directory'.
 ;; xdg/check-litter.sh reports what such runs leave behind.
@@ -73,6 +79,32 @@
 (defun user-cache (path)
   "Expand PATH below `user-cache-directory'."
   (expand-file-name path user-cache-directory))
+
+;; An init.el tangled from an init.org that predates this file defines
+;; `user-data-directory' itself, near its top, as a directory inside the
+;; configuration directory.  Loaded after early-init.el it would start
+;; Emacs on empty histories there, and say nothing.
+(defun user-paths--keep-root (symbol newval operation _where)
+  "Refuse to give the root SYMBOL a value other than the one it has.
+This is a variable watcher; NEWVAL, OPERATION and _WHERE are what
+`add-variable-watcher' passes.  Only assignments are refused: `setq',
+`defconst' and the like arrive as the operation `set'.  A `let'
+binding is left alone, and so is a root that has no value yet."
+  (when (and (eq operation 'set)
+             (boundp symbol)
+             (not (equal newval (symbol-value symbol))))
+    (error "%s is set by lisp/user-paths.el and cannot become %S%s.  \
+An init.el from before the move of state out of %s does this: \
+run `make -B init.el' there"
+           symbol newval
+           (if load-file-name
+               (format " (in %s)" (abbreviate-file-name load-file-name))
+             "")
+           (abbreviate-file-name user-emacs-directory))))
+
+(dolist (root '(user-data-directory user-state-directory
+                user-cache-directory))
+  (add-variable-watcher root #'user-paths--keep-root))
 
 (defconst user-paths-table
   '(;; Data: worth carrying to another machine, or installed on request.

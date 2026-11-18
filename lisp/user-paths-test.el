@@ -242,6 +242,99 @@ names another, so it cannot reach real state either."
           (should (string-match-p "xdg/migrate\\.sh --apply" message)))
       (delete-directory legacy))))
 
+(ert-deftest user-paths-test-roots-cannot-be-redefined ()
+  (dolist (root '(user-data-directory user-state-directory
+                  user-cache-directory))
+    (let ((value (symbol-value root)))
+      (unwind-protect
+          (progn
+            (should-error (set root "/elsewhere/"))
+            (should (equal (symbol-value root) value))
+            (should-error (eval `(defconst ,root "/elsewhere/") t))
+            (should (equal (symbol-value root) value)))
+        ;; If the guard is missing, the root has moved: put it back, so
+        ;; that this test fails alone.  Setting the value a root already
+        ;; has is no change, which is also what lets the library be
+        ;; loaded twice.
+        (set root value))
+      (should (equal (symbol-value root) value))))
+  ;; A binding is not a redefinition.
+  (should (equal (let ((user-cache-directory "/elsewhere/"))
+                   (user-cache "x"))
+                 "/elsewhere/x")))
+
+(ert-deftest user-paths-test-a-root-without-a-value-can-be-given-one ()
+  ;; The guard itself, on a variable that is nobody's root.
+  (let ((root (make-symbol "root")))
+    (add-variable-watcher root #'user-paths--keep-root)
+    (set root "/first/")
+    (should (equal (symbol-value root) "/first/"))
+    (set root "/first/")
+    (should-error (set root "/second/"))
+    (should (equal (symbol-value root) "/first/"))
+    (makunbound root)
+    (set root "/third/")
+    (should (equal (symbol-value root) "/third/"))))
+
+(ert-deftest user-paths-test-a-stale-init-stops-at-its-first-definition ()
+  ;; The first two forms below stood near the top of init.org until the
+  ;; move: they put `user-data-directory' inside the configuration
+  ;; directory and then replace `user-data'.  The third is what the rest
+  ;; of that init went on to do.  Loaded after early-init.el has loaded
+  ;; the library, the file must stop at the definition, with an error that
+  ;; names the variable, the library and the file and says what to run.
+  ;; Nothing may be created in the configuration directory, and the root
+  ;; and `user-data' must stay as the library made them.
+  (let* ((home (concat user-paths-test-root "child-home/"))
+         (stale (concat user-paths-test-root "stale-init.el"))
+         (legacy (concat home ".config/emacs/data"))
+         result)
+    (with-temp-file stale
+      (insert ";;; -*- lexical-binding: t -*-\n")
+      (dolist (form '((eval-and-compile
+                        (defsubst emacs-path (path)
+                          (expand-file-name path user-emacs-directory)))
+                      (eval-and-compile
+                        (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
+                        (let ((emacs-data-suffix
+                               (and (string= "emacsERC" emacs-environment)
+                                    "alt")))
+                          (defconst alternate-emacs
+                            (string= emacs-data-suffix "alt"))
+                          (defconst user-data-directory
+                            (emacs-path (if emacs-data-suffix
+                                            (format "data-%s" emacs-data-suffix)
+                                          "data"))))
+                        (defun user-data (dir)
+                          (expand-file-name dir user-data-directory)))
+                      (progn
+                        (make-directory user-data-directory t)
+                        (write-region "x" nil (user-data "history")))))
+        (prin1 form (current-buffer))
+        (insert "\n")))
+    (unwind-protect
+        (setq result
+              (user-paths-test--child
+               user-paths-test--bare
+               `(list (condition-case err
+                          (progn (load ,stale nil t) 'no-error)
+                        (error (error-message-string err)))
+                      user-data-directory
+                      (user-data "history")
+                      (file-exists-p ,legacy))))
+      ;; Without the guard the child has made this directory.  Remove it,
+      ;; so that this test fails alone.
+      (delete-directory legacy t))
+    (should (stringp (nth 0 result)))
+    (should (string-match-p "user-data-directory" (nth 0 result)))
+    (should (string-match-p "user-paths\\.el" (nth 0 result)))
+    (should (string-match-p "stale-init\\.el" (nth 0 result)))
+    (should (string-match-p "make -B init\\.el" (nth 0 result)))
+    (should (equal (nth 1 result) (concat home ".local/share/emacs/")))
+    (should (equal (nth 2 result)
+                   (concat home ".local/share/emacs/history")))
+    (should-not (nth 3 result))))
+
 (ert-deftest user-paths-test-early-init-loads-the-library ()
   ;; early-init.el sits beside lisp/ and finds the library from
   ;; `user-emacs-directory', so start the child in the checkout.
