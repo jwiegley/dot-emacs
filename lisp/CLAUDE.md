@@ -24,8 +24,9 @@ These are the rules that are easy to break without noticing. The sections below 
 5. **Edit `~/org/init.org`, not the `init.org` here, and never `init.el`.**
 6. **Whatever Emacs writes on its own account gets a path under one of the three roots** for data, state and caches, never under `user-emacs-directory`. Files that John has Emacs save as configuration, such as `settings.el` and `abbrevs.el`, are the exception.
 7. **Leave no file of yours untracked in the checkout, and commit no plans or specs here.** John's `changes` script commits and pushes whatever `git add -A` finds, anywhere in the tree.
-8. **With git, touch only what is yours.** Stage your own files by name. Before a pull, compare what it brings in with what is changed here. Never drop a stash, and never check out an old commit in this checkout. See Version Control.
+8. **With git, touch only what is yours.** Commit only your own files or hunks (see Committing), and read `git status` first: a file that shows as staged though you did not stage it may be staged in reverse, so leave it alone (see A stale index). Before a pull, compare what it brings in with what is changed here. Never drop a stash that you did not make, and never check out an old commit in this checkout. See Version Control.
 9. **Run `make check-litter` when you start and before you finish**, and `make test-xdg` after any change to `lisp/user-paths.el`, `xdg/`, the `Makefile` or `.gitignore`.
+10. **Work on this repository on one machine at a time.** ChronoSync carries the checkout between Clio and Hera every hour, in both directions, `.git` included. Do not pull in the other host's copy to bring it up to date: ChronoSync's next run does that. See Version Control.
 
 ## Layout
 
@@ -46,7 +47,6 @@ These are the rules that are easy to break without noticing. The sections below 
 | `nix-packages`, `nix-packages.el` | Home Manager's symlinks to the package bundle; ignored by git |
 | `.gitignore` | Besides build products, the default names of runtime files, as a safety net; `make test-xdg` tests its rules |
 | `README.md` | A short account of the layout, for people |
-| `AGENTS.md` | How a work session ends: commit and push |
 
 The table leaves out what plays no part in building or testing the configuration.
 
@@ -88,11 +88,11 @@ Add a row to `user-paths-table` in `lisp/user-paths.el` instead in two cases onl
 
 ### The Safety Net in `.gitignore` and the Litter Report
 
-An Emacs that runs without this init (`-Q`, `-q` or `--batch`) still writes to its built-in defaults, which are inside the checkout. `.gitignore` therefore names those default files and directories, so that `git add -A` cannot commit a cookie jar or a history. A rule hides such a file from git; it does not make the file welcome here. Settings that a person saves on request (`abbrev_defs`, `calc.el` and the like) and code have no rule on purpose, so that they stay visible.
+An Emacs that runs without this init (`-Q`, `-q` or `--batch`) still writes to its built-in defaults, which are inside the checkout. `.gitignore` therefore names those default files and directories, so that `git add -A` cannot commit a cookie jar or a history. A rule hides such a file from git; it does not make the file welcome here. Settings that a person saves on request (`abbrev_defs`, `calc.el`, `eudc-options`, `shadows`, `strokes`, `viper`) have rules as well: such a file stays in the checkout and out of a commit, as `settings.el` does; unlike `settings.el`, the report lists it. Code (`user-lisp/`, a style under `auctex/style/`, a theme) has no rule on purpose, so that it stays visible.
 
 `make check-litter` runs `xdg/check-litter.sh`, which makes the litter visible. It only reads, and it lists:
 
-- `~/.emacs.d`, `~/.emacs` and `~/.emacs.el`;
+- `~/.emacs.d`, `~/.emacs` and `~/.emacs.el` (the last changes nothing alone, but Emacs loads it as the init file once `~/.emacs.d` or `~/.emacs` exists);
 - every ignored path outside `lisp/` that is not known configuration (such as `init.el`, `settings.el`, the Nix symlinks, `certs/`, Eshell's files, and what agent tools and the Finder leave), a build product, or an auto-save or lock file;
 - every untracked entry at the top of the checkout;
 - every empty directory at the top of the checkout, and backup files (`*~`), below `lisp/` too.
@@ -125,7 +125,7 @@ The source of the init is `~/org/init.org`, in John's Org repository, which is n
 | `make init.org` | Copies `~/org/init.org` over the tracked copy if it is newer and has the call `(user-paths-check-migrated)` (see The guards); loads nothing | After an edit to `~/org/init.org` that John asked for |
 | `make`, `make init.el`, `make -B` | Copy, tangle, and then **load the whole init** in a batch Emacs with John's real data and state | No |
 | `make speed`, `make slow` | Build as above. `speed` also compiles an `init.elc`, which stays and is loaded in place of `init.el`. Both then load the init once more | No |
-| `make open`, `make open-quick` | Build as above, then try to `open` an application | No |
+| `make open`, `make open-quick` | Build as above, then open `/Applications/Emacs.app` | No |
 | `make clean` | Deletes `init.el`, `settings.el` (the Custom file, which is not in git), and the `.elc` and backup files at the top | No |
 | `make lisp/NAME.elc` | Byte-compiles a module beside its source, without the Nix packages | No; see Byte-Compiling |
 
@@ -133,7 +133,7 @@ There is no `make test` and no `make build`: both names are declared without a r
 
 **The guards.** An `init.org` or an `init.el` from before this layout can still turn up, from history or from another machine of John's. Loaded, it would put Emacs's state back into the checkout. Three things stand in the way. The Makefile neither copies nor tangles an `init.org` whose text lacks `(user-paths-check-migrated` on a line with no `;` before it. It rebuilds an `init.el` that lacks that text, removes `init.elc` whenever it builds, and fails when the `init.el` it has just built and loaded still lacks the text, which means that the call stands in prose, under a `COMMENT` heading or in a block that is not tangled. And in an interactive Emacs the watcher on the roots stops an old `init.el` at its first definition of a root. Nothing guards a batch `emacs -l init.el`, and nothing guards a checkout of a commit older than the guards themselves (17 November 2026), which has neither the Makefile's rules nor the watcher. The messages of these guards advise restoring `~/org/init.org` from its history, `touch ~/org/init.org` or `make -B init.el`, and that of `(user-paths-check-migrated)` advises `xdg/migrate.sh --apply`. That advice is for John: when one of them stops you, tell him what it printed.
 
-**Time stamps.** `make` copies `~/org/init.org` only when it is the newer of the two files, and git gives a file it rewrites the time of the rewrite. After a pull or a checkout that changes `init.org`, and after any pull while `init.org` shows as modified (the stash rewrites it), the copy here is therefore the newer one, and John's next start builds from it. Run `cmp init.org ~/org/init.org` after every pull. If the two differ, one holds changes that the other lacks: commit nothing that touches `init.org`, and tell John. `touch ~/org/init.org` makes the next build copy that file again, which is right only when it holds everything. Never overwrite `~/org/init.org` from here.
+**Time stamps.** `make` copies `~/org/init.org` only when it is the newer of the two files, and git gives a file it rewrites the time of the rewrite. After a pull or a checkout that changes `init.org`, and after any pull while `init.org` shows as modified (the stash rewrites it), the copy here is therefore the newer one, and John's next start builds from it. Run `cmp init.org ~/org/init.org` after every pull. If the two differ, one holds changes that the other lacks: commit nothing that touches `init.org`, and tell John. If you have committed such a change already, stop and ask before you push it. `touch ~/org/init.org` makes the next build copy that file again, which is right only when it holds everything. Never overwrite `~/org/init.org` from here.
 
 ## Running Emacs
 
@@ -153,7 +153,7 @@ emacs --batch -Q --init-directory="$(mktemp -d)" \
 
 This Emacs has the packages and none of John's configuration: no `use-package` block has run, and no setting of his is in effect. Load what a check needs. To learn a value in his session, read how `~/org/init.org` sets it, or ask him. The three roots still follow the real `XDG_*_HOME`, so code that loads `lisp/user-paths.el` works on John's real data and state unless those variables point elsewhere as well.
 
-Use these commands also where another file here gives commands of its own. The Verification section of `lisp/org-agent-deck-README.org`, for one, starts Emacs without a scratch directory and compiles beside the source.
+Use these commands also where another file here gives commands of its own that start Emacs without a scratch directory or compile beside the source.
 
 ### Tests
 
@@ -217,7 +217,7 @@ Most of it is single-file modules, and most of those are loaded by a `use-packag
 - **Org**: `org-config.el` holds the capture templates, the agenda's custom commands and the search commands they use; Org's own settings are in the `use-package org` block of `init.org`. `org-ext.el`, the largest module, holds extra Org commands, and `org-constants.el` the paths of John's Org files. Extensions of other packages: `org-roam-ext.el`, `org-ql-ext.el`, `org-ql-semantic.el`, `vulpea-ext.el`, `org-review-ext.el`, `org-drafts-ext.el`, `org-smart-capture.el`.
 - **agent-deck**: `org-agent-deck.el` sends an Org entry to a running agent-deck session and inserts a session's latest output; `ob-agent-deck.el` adds the `agent-deck` Babel language, which launches a session. `org-agent-deck-README.org` describes both. The library's default for `org-agent-deck-presets` is not what John runs with: `init.org` sets its own value under `:custom`, so a change to the default changes the tests and the README, not his session.
 - **gptel**: `gptel-presets.el`, `gptel-backends.el`, `gptel-ext.el` and `gptel-tools.el`, an empty stub that `init.org` loads; gptel itself comes from Nix. When gptel loads, each file in `prompts/` becomes a directive named after the file without its extension. `gptel-presets.el` and `gptel-ext.el` refer to directives by those names, so renaming a prompt file is a change to code.
-- **MCP**: `mcp-convert.el` converts MCP JSON configuration to Emacs Lisp, and `mcp-hub` comes from Nix. `mcp-server-lib` and `elisp-dev-mcp` are switched off: they stand under `COMMENT` headings in `init.org` and are left out of the Nix environment.
+- **MCP**: `mcp-convert.el` converts MCP JSON configuration to Emacs Lisp, and `mcp-hub` comes from Nix. `mcp-server-lib` and `elisp-dev-mcp` stand under `COMMENT` headings in `init.org`, and the bundle has neither on `load-path`. `mcp-server-lib` is in use all the same: the Org-wiki MCP service that John's Nix configuration sets up brings a copy of its own and talks to the running Emacs through its server socket, and the `org-wiki-mcp` block in `init.org` waits for that library with `:after`. A block that waits for a feature which the init itself never loads is therefore not proved dead.
 - **The rest**: more Org helpers, helpers for Gnus, ERC, Dired, Eshell, editing and proof assistants, John's own commands in `personal.el`, and the theme, `john-wiegley-theme.el`.
 - **`badi-calendar/`**: `cal-bahai.el` and `holidays.el`, tracked here as ordinary files. Both are also the names of libraries in Emacs, and `init.org` puts this directory first on `load-path` (`:load-path`), so these are loaded in their place. The directory has a `.git` of its own inside it, so run git from the top of the checkout, not from there.
 
@@ -330,10 +330,33 @@ Turn off what you turned on before you hand the session back.
 ## Version Control
 
 - **Subjects.** Most read `area: Sentence`, for example `user-paths: Refuse to give a root another value` or `make: Refuse to build init.el from a stale init.org`. Commits titled `changes` are made by John's script.
-- **`AGENTS.md`** at the top says how a session ends: work is not finished until it is pushed. Read its steps with this repository in mind. There is no build to run among its quality gates (rule 1), and there is no issue tracker: what is left to do goes into your hand-off. The stashes, branches and worktrees to clean up are the ones you made; leave the others. And where this file says to stop and ask, that comes before the push: ask, and finish when John has answered.
-- **Pulling.** John's git configuration sets `pull.rebase` and `rebase.autoStash`, so a pull stashes whatever is uncommitted in the checkout, his changes as well as yours, and puts it back afterwards. Commit your own work first. Then `git fetch`, and compare what comes in (`git diff --name-only HEAD...origin/master`) with what `git status` still shows as changed: if a file is in both, stop and ask. A stash that does not go back cleanly stays in `git stash list`, with conflict markers in the files, and the pull still exits with 0, so read what it prints. If the rebase stops on a conflict with a commit of yours, the stashed changes are held inside `.git` until it ends, and `git rebase --abort` puts them back. Never drop a stash, not even one that your own pull left.
+- **Two hosts.** This checkout exists on Clio and on Hera, and ChronoSync carries it from one to the other every hour, in both directions, `.git` included. Work only in the copy on the machine your session runs on. Do not edit, commit or pull in the other host's copy, not even to bring it up to date: ChronoSync's next run does that. If John asks for something in the other host's copy, tell him that ChronoSync's next run will bring it over, and act there only if he still wants it. If a ref moves on both hosts, or the same objects are written on both (by a commit on one and a fetch on the other), ChronoSync cannot settle it, and John has to resolve the conflict by hand.
+- **A stale index.** The index is the one file under `.git` that git rewrites without an edit: a `git status` or a `git diff` refreshes it. On the machine being worked on, that is of no account, since its index changes with every commit anyway. When it happens on the other host as well, in the same hour, ChronoSync cannot reconcile the two versions and leaves the file out, in both directions, until John resolves the conflict. Each commit or pull then reaches the other host without its index, and the index there still describes the commit before. `git status` shows a file that the commit changed as `MM`, one that it added as `D ` and again as `??`, and one that it deleted as `AD`, though nobody edited them: they are staged in reverse, and a plain `git commit` would undo the commit without a warning. So before every commit, read `git status` and `git diff --cached --name-status`: nothing may be staged that you did not stage. An entry that is not yours is either such a leftover or something John has staged; for a file marked `MM`, `git diff HEAD -- FILE` prints nothing in the first case. Either way, leave the file and its index entry alone. A commit by path leaves them out, so commit your own files that way, and tell John which files show it. If you must change such a file, or pull while one is there, stop and ask first: over such entries a pull either fails, with its stash left inside `.git`, or puts back the wrong thing, such as a deleted file staged as new. `git reset -q -- FILE` clears a stale entry without touching the working file: run it only when he asks. `core.checkStat` is set to `minimal` in `.git/config` here and in the three submodules, so that git does not rewrite a copied index merely because the files' inode numbers differ on the other host. That makes the conflict rare, not impossible, and a fresh clone lacks the setting.
+- **Pulling.** John's git configuration sets `pull.rebase` and `rebase.autoStash`, so a pull stashes whatever is uncommitted in the checkout, his changes as well as yours, and puts it back afterwards. It puts back the working files, not the index as it was: a change that John had staged to a tracked file comes back unstaged. Commit your own work first. Then `git fetch`, and compare what comes in (`git diff --name-only HEAD...origin/master`) with what `git status` still shows as changed: if a file is in both, or if anything is staged that is not yours, stop and ask. A stash that does not go back cleanly stays in `git stash list`, with conflict markers in the files, and the pull still exits with 0, so read what it prints. If it reports a conflict, stop and ask: leave the markers, the index and the stash as they are, do not follow git's advice to drop the stash or to reset, and tell John which files hold markers. A pull that fails, or that prints `Created autostash` and no `Applied autostash`, has left its stash inside `.git`, where `git stash list` does not show it: stop and ask, and tell John what it printed. If the rebase stops on a conflict with a commit of yours, the stashed changes are held inside `.git` until it ends, and `git rebase --abort` puts them back. Never drop a stash that a pull left, not even your own pull's: it holds John's changes as well as yours.
 - **Old versions.** Read an old version of a file with `git show REV:PATH`, or in a worktree. A commit older than the guards has none of them, so do not check one out here.
-- **Committing.** Stage your own files by name. `git add -A` and `git commit -a` take whatever else is changed or untracked in the checkout.
+- **Committing.** Commit your own files by path: `git add` what is new, then `git commit -m "..." -- PATH...`, which takes the working copies of those paths and nothing else that is staged. `git add -A` and `git commit -a` take whatever else is changed or untracked in the checkout. To commit only some hunks of a file, as with `init.org`, stage them without an interactive command, for instance with `git apply --cached` and a patch that holds only your hunks, and run a plain `git commit`. Before that, `git diff --cached --name-only` must show nothing else staged; if it does, stop and ask.
 - **No plans or specs.** John has removed the plans and specs that were committed here. Keep such a document, and your working record of how you carried out a change, outside the checkout: in your reply to John, or where he says. What a later reader needs goes into the commit message or into a comment in the code. This is about new documents in this repository: leave the ones that are here alone, and a submodule follows its own guidance.
 - **Unsaved buffers.** John's init keeps the auto-save file of a local file beside it, as `#NAME#`, and makes no lock files. A `#NAME#` beside a file means that his Emacs holds unsaved edits to it, or held them when it last crashed: stop and ask before you edit that file or let a `git pull`, `checkout` or `stash` rewrite it. The absence of one proves little, because Emacs writes it only after a pause or a few hundred keystrokes.
 - **Worktrees.** Put a `git worktree` outside the checkout, for example under `~/src`, or under `.claude/worktrees/`, which `.gitignore` covers. Anywhere else at the top of the checkout it is litter that `git add -A` would commit. A worktree lacks the ignored files (`init.el`, `settings.el`, `nix-packages.el`, the `.elc` files) and the contents of the submodules, so name those by their paths in the real checkout.
+
+### Ending a Session
+
+Work is not finished until it is committed and pushed, and you push it yourself: do not leave the push to John. Where this file says to stop and ask, that comes first: ask, and finish when John has answered.
+
+1. Run the checks that fit what you changed: the tests under Running Emacs, `make test-xdg` where rule 9 calls for it, and `make check-litter`. There is no build to run (rule 1). What `make check-litter` lists from before your session blocks nothing once you have told John.
+2. Commit your own files or hunks as Committing describes. A change inside a submodule is committed and pushed there first (see What Is in `lisp/`).
+3. Push:
+
+   ```bash
+   git fetch
+   git status                                   # what is still changed here
+   git diff --name-only HEAD...origin/master    # what comes in
+   git pull --rebase                            # read Pulling first
+   cmp init.org ~/org/init.org                  # after a pull; see Time stamps
+   git push
+   git status                                   # the branch must be up to date with origin
+   ```
+
+   If the push fails, find out why and try again.
+4. Remove the stashes, branches and worktrees that you made, and leave all others. A stash that your pull left is not one of them (see Pulling): name it in your hand-off.
+5. Say what you did, what is left open and what the next session needs to know. There is no issue tracker here, so what is left to do goes into that hand-off.
