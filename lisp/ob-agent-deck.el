@@ -31,8 +31,7 @@
                (:harness . "claude")
                (:model . "claude-opus-5-5")
                (:thinking . "max")
-               ;; t once the Nix claude wrapper admits Ultracode (nix-sko41).
-               (:ultracode . nil)))
+               (:ultracode . t)))
     ("work-codex" . ((:group . "Positron")
                      (:harness . "pi")
                      (:model . "openai-codex/gpt-6-astra")

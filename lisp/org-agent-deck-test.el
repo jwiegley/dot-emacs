@@ -519,8 +519,7 @@ nil, yes or no, and headers override them."
                     (((:ultracode . "no") (:preset . "ultra")) "max" nil nil)
                     (((:preset . "off")) "max" nil nil)
                     (((:ultracode . "yes") (:preset . "off")) "max" t t)
-                    (((:preset . "work") (:ultracode . "yes") (:worktree . "yes")
-                      (:title . "fix"))
+                    (((:preset . "work") (:worktree . "yes") (:title . "fix"))
                      "max" t t)
                     (((:harness . "codex") (:thinking . "max") (:ultracode . "yes"))
                      "ultra" nil t)
@@ -556,16 +555,15 @@ nil, yes or no, and headers override them."
         (should (equal (and (string-match-p "^Requested ultracode: yes$" result) t)
                        (nth 3 case)))))))
 
-(ert-deftest org-agent-deck-presets-work-runs-claude-at-max ()
-  "The work preset runs Claude at max effort; its Ultracode waits for the Nix
-claude wrapper that admits it (nix-sko41).  Customize accepts the presets,
-with t or nil allowed only for :ultracode."
+(ert-deftest org-agent-deck-presets-work-runs-claude-at-max-with-ultracode ()
+  "The work preset runs Claude at max effort with Ultracode, and Customize
+accepts the presets, with t or nil allowed only for :ultracode."
   (let ((standard (eval (car (get 'org-agent-deck-presets 'standard-value)) t))
         (widget (widget-convert (get 'org-agent-deck-presets 'custom-type))))
     (should (equal (assoc "work" standard)
                    '("work" . ((:group . "Positron") (:harness . "claude")
                                (:model . "claude-opus-5-5") (:thinking . "max")
-                               (:ultracode . nil)))))
+                               (:ultracode . t)))))
     (should (widget-apply widget :match standard))
     (should (widget-apply widget :match '(("x" (:group . "g") (:ultracode)))))
     (dolist (bad '((("x" (:worktree . t))) (("x" (:harness . t)))
@@ -577,11 +575,9 @@ with t or nil allowed only for :ultracode."
 header or the work preset asks for it, and the error names :ultracode no.
 A preset value other than yes, no, t or nil names the preset."
   (let ((org-agent-deck-presets
-         (append '(("bad" . ((:group . "g") (:harness . "claude")
-                             (:ultracode . "maybe")))
-                   ("ultra" . ((:group . "g") (:harness . "claude")
-                               (:thinking . "max") (:ultracode . t))))
-                 org-agent-deck-presets))
+         (cons '("bad" . ((:group . "g") (:harness . "claude")
+                          (:ultracode . "maybe")))
+               org-agent-deck-presets))
         launched)
     (cl-letf (((symbol-function 'org-agent-deck--call)
                (lambda (&rest _) (setq launched t) (ert-fail "Unexpected launch"))))
@@ -589,16 +585,16 @@ A preset value other than yes, no, t or nil names the preset."
                         ,@(mapcar (lambda (thinking)
                                     `((:harness . "codex") (:thinking . ,thinking)))
                                   '("minimal" "low" "medium" "high" "xhigh"))))
-        ;; Ultracode comes from a header, or from a preset that says t.
-        (dolist (source '(((:ultracode . "yes") (:preset . "work"))
-                          ((:preset . "ultra"))))
+        ;; Without the header, Ultracode comes from the work preset.
+        (dolist (header '(nil ((:ultracode . "yes"))))
           (let ((err (should-error
                       (org-babel-execute:agent-deck
-                       "Prompt" (append params source '((:directory . "/remote"))))
+                       "Prompt" (append params header
+                                        '((:preset . "work") (:directory . "/remote"))))
                       :type 'user-error)))
             (should (string-search ":ultracode no" (error-message-string err))))
           ;; On failure, ERT reports the first parameters that launched.
-          (should-not (and launched (cons source params)))))
+          (should-not (and launched (cons header params)))))
       (let ((err (should-error
                   (org-babel-execute:agent-deck
                    "Prompt" '((:preset . "bad") (:directory . "/remote")))
@@ -626,8 +622,7 @@ bare :worktree does, instead of reading as no under the work preset."
   "A claude wrapper that refuses the Ultracode overlay ends the session at
 once.  That launch fails without a retry, and only a Claude Ultracode
 launch suggests :ultracode no."
-  (dolist (case '((((:ultracode . "yes") (:preset . "work")) t)
-                  (((:preset . "claude")) nil)))
+  (dolist (case '(("work" t) ("claude" nil)))
     (let ((calls 0))
       (cl-letf (((symbol-function 'org-agent-deck--call)
                  (lambda (&rest _)
@@ -635,7 +630,7 @@ launch suggests :ultracode no."
                    "{\"success\":true,\"session_id\":\"s1\",\"status\":\"error\",\"message_pending\":false,\"message\":\"Prompt\"}")))
         (let ((err (should-error
                     (org-babel-execute:agent-deck
-                     "Prompt" (append (car case) '((:directory . "/remote"))))
+                     "Prompt" `((:preset . ,(car case)) (:directory . "/remote")))
                     :type 'user-error)))
           (should (string-search "(status error)" (error-message-string err)))
           (should (equal (and (string-search ":ultracode no" (error-message-string err))
@@ -689,7 +684,7 @@ first; on a remote, every call goes through that remote."
   (dolist (remote '(nil "vulcan"))
     (let* ((run (org-agent-deck-test--mailbox-block
                  (concat (if remote (concat ":remote " remote " ") "")
-                         ":ultracode yes :mailbox ob-agent-deck-mail ++work !+review")))
+                         ":mailbox ob-agent-deck-mail ++work !+review")))
            (prefix (when remote (list "remote" "exec" remote)))
            (send (lambda (hold)
                    (append prefix
@@ -875,8 +870,8 @@ mailbox name, and an explicit title may differ from it only in case."
                         ((:harness . "pi") (:ultracode . "yes"))
                         ((:harness . "gemini") (:ultracode . "yes"))
                         ((:harness . "codex") (:thinking . "high") (:ultracode . "yes"))
-                        ;; Codex's Ultracode needs max reasoning.
-                        ((:harness . "codex") (:thinking . "xhigh") (:ultracode . "yes"))
+                        ;; The work preset's Ultracode needs max reasoning on Codex.
+                        ((:harness . "codex") (:thinking . "xhigh"))
                         ((:harness . "codex") (:thinking . "ultra") (:ultracode . "no"))
                         ((:dir . "/remote"))
                         ((:cache . "yes")) ((:session . "existing"))
