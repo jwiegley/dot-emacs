@@ -34,6 +34,21 @@
           t)
 #+end_src
 
+** Keep data, state and caches out of the configuration directory
+
+#+begin_src emacs-lisp
+;; Data lives under $XDG_DATA_HOME/emacs, state under $XDG_STATE_HOME/emacs
+;; and caches under $XDG_CACHE_HOME/emacs; see lisp/user-paths.el.  An
+;; interactive session has loaded it from early-init.el already.  Batch runs
+;; (make, tests) never read early-init.el, so load it here as well.
+(eval-and-compile
+  (require 'user-paths
+           (expand-file-name "lisp/user-paths.el" user-emacs-directory)))
+
+;; Refuse to run on state that is still inside this checkout.
+(user-paths-check-migrated)
+#+end_src
+
 ** Load Nix-managed packages into the macOS application
 
 #+begin_src emacs-lisp
@@ -107,26 +122,6 @@
 
 (add-hook 'after-init-hook
           (lambda () (setq file-name-handler-alist file-name-handler-alist-old)))
-#+end_src
-
-** Define the "data environment" for this instance of Emacs
-
-#+begin_src emacs-lisp
-(eval-and-compile
-  (defconst emacs-environment (getenv "NIX_MYENV_NAME"))
-
-  (let ((emacs-data-suffix
-         (and (string= "emacsERC" emacs-environment) "alt")))
-
-    (defconst alternate-emacs (string= emacs-data-suffix "alt"))
-
-    (defconst user-data-directory
-      (emacs-path (if emacs-data-suffix
-                      (format "data-%s" emacs-data-suffix)
-                    "data"))))
-
-  (defun user-data (dir)
-    (expand-file-name dir user-data-directory)))
 #+end_src
 
 ** Disable warnings about obsolete functions when compiling
@@ -482,7 +477,6 @@ unto itself.
      "~"))
 
   ;; startup.el
-  (auto-save-list-file-prefix (user-data "auto-save-list/.saves-"))
   (inhibit-startup-echo-area-message "johnw")
   (inhibit-startup-screen t)
   (initial-buffer-choice t)
@@ -495,7 +489,7 @@ unto itself.
 
   ;; files.el
   (auto-save-file-name-transforms '(("\\`/[^/]*:.*" "/tmp" t)))
-  (backup-directory-alist '(("." . "~/.local/share/emacs/backups")))
+  (backup-directory-alist `(("." . ,(user-state "backups"))))
   (confirm-kill-emacs 'yes-or-no-p)
   (delete-old-versions t)
   (directory-free-space-args "-kh")
@@ -553,7 +547,7 @@ unto itself.
   (blink-cursor-mode nil)
 
   ;; nsm.el
-  (nsm-settings-file (user-data "network-security.data"))
+  (nsm-settings-file (user-state "network-security.data"))
 
   ;; facemenu.el
   (list-colors-sort 'hsv)
@@ -1144,7 +1138,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
   (bm-cycle-all-buffers t)
   (bm-highlight-style 'bm-highlight-only-fringe)
   (bm-in-lifo-order t)
-  (bm-repository-file (user-data "bm-repository")))
+  (bm-repository-file (user-state "bm-repository")))
 #+end_src
 
 ** bookmark
@@ -1172,7 +1166,7 @@ automatically fetched from well-curated sources, and formatted as BibTeX.
               ("p" . previous-line))
   :custom
   (bmkp-bmenu-commands-file (user-data "bmk-bmenu-commands.el"))
-  (bmkp-bmenu-state-file (user-data "bmk-bmenu-state.el"))
+  (bmkp-bmenu-state-file (user-state "bmk-bmenu-state.el"))
   (bmkp-crosshairs-flag nil)
   (bmkp-last-as-first-bookmark-file bookmark-default-file))
 #+end_src
@@ -5169,7 +5163,7 @@ writes your namespaces for you.
 (use-package nov
   :mode ("\\.epub\\'" . nov-mode)
   :custom
-  (nov-save-place-file (user-data "nov-places")))
+  (nov-save-place-file (user-state "nov-places")))
 #+end_src
 
 ** COMMENT oauth2-auto
@@ -5534,7 +5528,7 @@ append it to ENTRY."
   :custom
   (persistent-scratch-autosave-interval 30)
   (persistent-scratch-backup-directory nil)
-  (persistent-scratch-save-file (user-data "persistent-scratch"))
+  (persistent-scratch-save-file (user-state "persistent-scratch"))
   :config
   (persistent-scratch-autosave-mode)
   (with-demoted-errors "Error: %S"
@@ -5830,7 +5824,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   :demand t
   :custom
   (prescient-persist-mode t)
-  (prescient-save-file (user-data "prescient-save.el"))
+  (prescient-save-file (user-state "prescient-save.el"))
   :config
   (face-spec-set
    'prescient-primary-highlight '((t (:foreground "magenta"))))
@@ -5882,7 +5876,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
           )
   :bind-keymap ("C-c p" . projectile-command-map)
   :custom
-  (projectile-cache-file (user-data "projectile.cache"))
+  (projectile-cache-file (user-cache "projectile.cache"))
   (projectile-enable-caching t)
   (projectile-file-exists-local-cache-expire 300)
   (projectile-globally-ignored-files '("TAGS"))
@@ -5891,7 +5885,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
      (path)
      (string-match "\\(:?\\`/\\(:?nix\\|tmp\\)\\|/profiles\\|/\\.nix-profile\\)" path)))
   (projectile-keymap-prefix (kbd "C-c p"))
-  (projectile-known-projects-file (user-data "projectile-bookmarks.eld"))
+  (projectile-known-projects-file (user-state "projectile-bookmarks.eld"))
   (projectile-project-search-path '("~/src" "~/doc"))
   (projectile-sort-order 'recentf)
   :preface
@@ -5982,7 +5976,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   (recentf-exclude
    '("~\\'" "\\`out\\'" "\\.log\\'" "^/[^/]*:" "\\.el\\.gz\\'"))
   (recentf-max-saved-items 2000)
-  (recentf-save-file (user-data "recentf"))
+  (recentf-save-file (user-state "recentf"))
   :preface
   (defun recentf-add-dired-directory ()
     "Add directories visit by dired into recentf."
@@ -6073,7 +6067,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
      compile-history
      compile-command))
   (savehist-autosave-interval 60)
-  (savehist-file (user-data "history"))
+  (savehist-file (user-state "history"))
   (savehist-ignored-variables
    '(load-history
      flyspell-auto-correct-ring
@@ -6095,7 +6089,7 @@ windows defined by the user as “popups” by simply calling =display-buffer=.
   :nix nil
   :unless noninteractive
   :custom
-  (save-place-file (user-data "places"))
+  (save-place-file (user-state "places"))
   :config
   (save-place-mode 1))
 #+end_src
@@ -6564,7 +6558,7 @@ A collection of paredit-like functions for editing in =html-mode=.
   :defer t
   :custom
   (tramp-default-method "ssh")
-  (tramp-auto-save-directory "~/.local/share/emacs/backups")
+  (tramp-auto-save-directory (user-state "backups"))
   (tramp-use-scp-direct-remote-copying t)
   (tramp-copy-size-limit (* 1024 1024))
   (tramp-verbose 2)
@@ -6632,12 +6626,12 @@ A collection of paredit-like functions for editing in =html-mode=.
   (add-to-list 'file-name-handler-alist
                '("\\`/hera:" . my-hera-file-handler))
 
+  ;; `tramp-persistency-file-name' is set in lisp/user-paths.el: tramp reads
+  ;; that file while it loads, which is before this form runs.
+
   ;; Without this change, tramp ends up sending hundreds of shell commands to
   ;; the remote side to ask what the temporary directory is.
-  (put 'temporary-file-directory 'standard-value '("/tmp"))
-
-  ;; Setting this with `:custom' does not take effect.
-  (setq tramp-persistency-file-name (user-data "tramp")))
+  (put 'temporary-file-directory 'standard-value '("/tmp")))
 #+end_src
 
 *** COMMENT tramp-sh
@@ -6653,11 +6647,10 @@ A collection of paredit-like functions for editing in =html-mode=.
 ** transient
 
 #+begin_src emacs-lisp
+;; The history, values and levels files are set in lisp/user-paths.el:
+;; transient reads them while it loads, and other packages load it early.
 (use-package transient
-  :defer t
-  :custom
-  (transient-history-file (user-data "transient/history.el"))
-  (transient-values-file (user-data "transient/values.el")))
+  :defer t)
 #+end_src
 
 ** transpose-mark
@@ -6800,19 +6793,17 @@ error prone.
 ** url
 
 #+begin_src emacs-lisp
+;; The url directories are set in lisp/user-paths.el, before any package
+;; that fetches at startup can load the library.
 (use-package url
-  :defer t
-  :custom
-  (url-configuration-directory (user-data "url/")))
+  :defer t)
 #+end_src
 
 *** url-cache
 
 #+begin_src emacs-lisp
 (use-package url-cache
-  :defer t
-  :custom
-  (url-cache-directory (user-data "url/cache")))
+  :defer t)
 #+end_src
 
 *** COMMENT url-irc
@@ -8829,7 +8820,7 @@ enables [[https://github.com/joaotavora/eglot][eglot]] to use it.
   :commands slime
   :custom
   (slime-kill-without-query-p t)
-  (slime-repl-history-file (user-data "slime-history.eld"))
+  (slime-repl-history-file (user-state "slime-history.eld"))
   (slime-startup-animation nil)
   :init
   (setq inferior-lisp-program "sbcl"
@@ -9269,8 +9260,8 @@ environment.
   (lsp-rust-analyzer-server-display-inlay-hints t)
   (lsp-rust-clippy-preference "on")
   (lsp-rust-features ["test"])
-  (lsp-server-install-dir (user-data ".cache/lsp"))
-  (lsp-session-file (user-data ".lsp-session-v1"))
+  (lsp-server-install-dir (user-data "lsp/"))
+  (lsp-session-file (user-state "lsp-session-v1"))
   :config
   (use-package lsp-lens)
   (use-package lsp-headerline)
@@ -11117,7 +11108,7 @@ This is returned as a string."
   (org-clock-out-remove-zero-time-clocks t)
   (org-clock-out-switch-to-state nil)
   (org-clock-persist t)
-  (org-clock-persist-file (user-data "org-clock-save.el"))
+  (org-clock-persist-file (user-state "org-clock-save.el"))
   (org-clock-resolve-expert t)
   (org-clone-delete-id nil)
   (org-columns-default-format "%TODO %64ITEM(Task) %NEXT_REVIEW")
@@ -12617,7 +12608,7 @@ displays the priority part of a heading as your preferred string value.
   :after org
   :custom
   (org-id-link-to-org-use-id 'use-existing)
-  (org-id-locations-file (user-data "org-id-locations"))
+  (org-id-locations-file (user-state "org-id-locations"))
   (org-id-extra-files nil)
   (org-id-search-archives nil))
 #+end_src
@@ -13217,7 +13208,7 @@ stamp to a task, which can be used to schedule a review of the task.
   (org-roam-db-update-on-save nil)
   (org-roam-directory org-directory)
   (org-roam-completion-everywhere t)
-  (org-roam-db-location (user-data "org-roam.db"))
+  (org-roam-db-location (user-cache "org-roam.db"))
   (org-roam-extract-new-file-path "%<%Y%m%d%H%M>-${slug}.org")
   (org-roam-file-exclude-regexp
    '(
@@ -13524,7 +13515,7 @@ resulting in an org-mode checklist.
 (use-package xeft
   :bind (:map my-ctrl-c-n-map ("x" . xeft))
   :custom
-  (xeft-database (user-data "xeft.db"))
+  (xeft-database (user-cache "xeft.db"))
   (xeft-default-extension "org")
   (xeft-directory org-directory)
   (xeft-file-filter 'my-xeft-file-filter)
