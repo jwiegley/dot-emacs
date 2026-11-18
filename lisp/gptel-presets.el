@@ -54,9 +54,16 @@
   :stream t                             ;Streaming responses
   :key gptel-api-key)
 
+(defvar claude-fable-model (llm-setup-policy-model "emacs" "presets" "fable"))
 (defvar claude-opus-model (llm-setup-policy-model "emacs" "presets" "opus"))
 (defvar claude-sonnet-model (llm-setup-policy-model "emacs" "presets" "sonnet"))
 (defvar claude-haiku-model (llm-setup-policy-model "emacs" "presets" "haiku"))
+
+(gptel-make-preset 'fable
+  :description "Anthropic's Claude Fable"
+  :backend "Claude"
+  :model claude-fable-model
+  :temperature (llm-setup-policy "emacs" "temperature"))
 
 (gptel-make-preset 'opus
   :description "Anthropic's Claude Opus, thinking"
