@@ -28,6 +28,11 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# A git hook exports GIT_DIR and its relatives.  They would send the git
+# commands below to the repository of the hook.
+# shellcheck disable=SC2046  # one word for each variable name
+unset $(git rev-parse --local-env-vars) GIT_TEMPLATE_DIR
+
 passed=0
 failed=0
 
