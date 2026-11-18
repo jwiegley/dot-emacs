@@ -62,9 +62,10 @@ projectile-frecency.eld
 /server/
 /tramp
 
-# What agent tools and the Finder leave here.  `make check-litter' passes
-# over them only because this file ignores them: a global ignore file
-# differs from one machine to the next, and the report must not.
+# What agent tools and the Finder leave here.  These rules keep it out of
+# `git add -A' on every machine, and they are why `make check-litter'
+# passes over it: a global ignore file differs from one machine to the
+# next, and the report must not.
 /.claude/settings.local.json
 /.claude/worktrees/
 /.superpowers/

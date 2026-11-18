@@ -13,7 +13,7 @@
 #     ignore this checkout altogether;
 #   - every ignored path in the checkout that is not known configuration,
 #     a build product, or the auto-save or lock file of a file that is
-#     being edited;
+#     being edited, alone in its directory or not;
 #   - every untracked path at the top of the checkout: `git add -A' would
 #     commit it, and the top is where Emacs's defaults write.  Untracked
 #     files below a tracked directory are work in progress and are left
@@ -32,7 +32,8 @@
 # appears for the same reason, cannot be prevented, and is not reported.
 #
 # The exit status is 0 when nothing is listed, 1 when something is, and 2
-# when CHECKOUT is not the top of a git checkout or git cannot be asked.
+# when CHECKOUT is not the top of a git checkout, git cannot be asked, or
+# no temporary file can be made.
 
 set -euo pipefail
 
@@ -45,8 +46,8 @@ status=0
 unset $(git rev-parse --local-env-vars 2>/dev/null)
 
 # Paths in git's answer are relative to the top of the checkout, so that is
-# what CHECKOUT must be.
-top=$(git -C "$checkout" rev-parse --show-toplevel 2>/dev/null) || top=
+# what CHECKOUT must be.  If git refuses, its own reason is printed first.
+top=$(git -C "$checkout" rev-parse --show-toplevel) || top=
 if [[ -z $top || ! $top -ef $checkout ]]; then
     printf 'check-litter: %s is not the top of a git checkout\n' "$checkout" >&2
     exit 2
@@ -93,6 +94,8 @@ while IFS= read -r -d '' entry; do
     esac
     # Ignored.  Known configuration and build products are passed over.
     case $path in
+    # A backup file comes from an Emacs without this init, wherever it is.
+    *'~') ;;
     init.el | settings.el | nix-packages | nix-packages.el) continue ;;
     certs/ | eln-cache/ | .claude/* | .superpowers/*) continue ;;
     prompts/.prompt-deploy-manifest.json) continue ;;
@@ -110,6 +113,13 @@ while IFS= read -r -d '' entry; do
             esac
         done < <(ls -A "$checkout/eshell")
         continue
+        ;;
+    */)
+        # A directory that holds nothing but auto-save and lock files: a
+        # file was visited in a new directory and has not been saved yet.
+        if [[ -z $(find "$checkout/$path" ! -type d ! -name '#*#' ! -name '.#*' -print -quit) ]]; then
+            continue
+        fi
         ;;
     esac
     report "$checkout/${path%/}"

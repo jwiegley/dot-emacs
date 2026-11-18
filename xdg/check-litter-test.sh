@@ -289,6 +289,9 @@ put "$repo/docs/plan.md~"
 exactly 'a backup file below a tracked directory is ignored, and reported' \
     "$repo/docs/plan.md~"
 rm "$repo/docs/plan.md~"
+put "$repo/lisp/a.el~"
+exactly 'a backup file under lisp is ignored, and reported' "$repo/lisp/a.el~"
+rm "$repo/lisp/a.el~"
 
 # Auto-save and lock files belong to an editing session.  Git must ignore
 # them, so that `git add -A' cannot commit one, and they are not litter.
@@ -307,6 +310,22 @@ for path in '#notes#' '.#notes' 'docs/#plan.md#' 'docs/.#plan.md'; do
     clean "$path is not litter"
     rm "$repo/$path"
 done
+
+# A file visited in a new directory, and not saved yet, has only its
+# auto-save file there.  With anything else beside it the directory counts.
+put "$repo/docs/new/#draft.md#"
+clean 'a new directory with only an auto-save file is not litter'
+rm -rf "${repo:?}/docs/new"
+put "$repo/drafts/#draft.md#"
+clean 'nor is one at the top of the checkout'
+put "$repo/drafts/cache.db"
+exactly 'with another file beside the auto-save file it is reported' \
+    "$repo/drafts (untracked: \`git add -A' would commit it)"
+rm -rf "${repo:?}/drafts"
+put "$repo/var/#x#"
+put "$repo/var/y"
+exactly 'a state directory is reported though it holds an auto-save file' "$repo/var"
+rm -rf "${repo:?}/var"
 
 put "$repo/eshell/history"
 litter 'eshell history is reported' "$repo/eshell/history"
