@@ -14282,21 +14282,17 @@ registration.
   :custom
   (org-agent-deck-presets
    '(("work" . ((:group . "Positron")
-                (:harness . "claude")
-                (:model . "claude-fable-5-2")
+                (:harness . "pi")
+                (:model . "smart-router/work")
                 (:thinking . "medium")))
-     ("work-codex" . ((:group . "Positron")
-                      (:harness . "pi")
-                      (:model . "openai-codex/gpt-6-astra")
-                      (:thinking . "max")))
-     ("claude" . ((:group . "my-sessions")
-                  (:harness . "claude")
-                  (:model . "claude-fable-5-2")
-                  (:thinking . "medium")))
-     ("local" . ((:group . "my-sessions")
-                 (:harness . "pi")
-                 (:model . "omlx-hera/GLM-5.3-Flash-oQ4e-mtp")
-                 (:thinking . "max"))))))
+     ("personal" . ((:group . "My Sessions")
+                    (:harness . "pi")
+                    (:model . "smart-router/personal")
+                    (:thinking . "medium")))
+     ("local" . ((:group . "My Sessions")
+                    (:harness . "pi")
+                    (:model . "smart-router/local")
+                    (:thinking . "medium"))))))
 #+end_src
 
 ** Games
