@@ -89,7 +89,7 @@ most 64 characters long, and avoid the names agent-mail reserves."
       (user-error "Unknown agent-deck :preset %S (available: %s)"
                   preset (mapconcat #'car org-agent-deck-presets ", ")))
     (dolist (key '(:directory :group :harness :mailbox :model :remote :thinking
-                              :title))
+                              :title :topics))
       (let ((value (cdr (assq key options))))
         (when (and value
                    (or (not (stringp value))
@@ -152,12 +152,35 @@ most 64 characters long, and avoid the names agent-mail reserves."
           ;; The ultra effort cannot run without Codex's Ultracode.
           (when (and ultracode (equal harness "codex") (equal thinking "ultra"))
             (user-error "Codex's ultra effort is its Ultracode; drop :ultracode no or choose another :thinking")))))
+    (when-let* ((scope (cdr (assq :scope options))))
+      (unless (member scope '("personal" "work"))
+        (user-error "agent-deck :scope must be personal or work")))
+    (when (and (assq :scope options) (not (cdr (assq :scope options))))
+      (user-error "agent-deck :scope needs a value"))
+    (when-let* ((provider (cdr (assq :provider options))))
+      (unless (and (stringp provider)
+                   (string-match-p "\\`[[:alnum:]_-]+\\'" provider))
+        (user-error "agent-deck :provider must be a provider name")))
+    (when (and (assq :provider options) (not (cdr (assq :provider options))))
+      (user-error "agent-deck :provider needs a value"))
+    (when-let* ((tier (cdr (assq :tier options))))
+      (unless (and (stringp tier)
+                   (member (downcase tier) '("super" "high" "medium" "low")))
+        (user-error "agent-deck :tier must be SUPER, HIGH, MEDIUM or LOW")))
+    (when (and (assq :tier options) (not (cdr (assq :tier options))))
+      (user-error "agent-deck :tier needs a value"))
+    (when (and (assq :topics options) (not (cdr (assq :topics options))))
+      (user-error "agent-deck :topics needs a value"))
+    (when (and (assq :topics options) (not (cdr (assq :mailbox options))))
+      (user-error "agent-deck :topics requires :mailbox"))
     (when (and (assq :mailbox options) (not (cdr (assq :mailbox options))))
       (user-error "agent-deck :mailbox needs a name, optionally followed by topics"))
     ;; /mailbox stops to ask John about a name or topic it cannot use, and
     ;; the prompt would then arrive as his answer.  Refuse those here.
     (when-let* ((mailbox (cdr (assq :mailbox options))))
-      (let ((words (split-string mailbox)))
+      (let ((words (append (split-string mailbox)
+                           (when-let* ((topics (cdr (assq :topics options))))
+                             (split-string topics "," nil)))))
         (unless (org-babel-agent-deck--mail-name-p (car words))
           (user-error "agent-deck :mailbox name %S breaks agent-mail's naming standard"
                       (car words)))
@@ -211,6 +234,20 @@ report the outcome then, and never retry."
               :error)))
          (org-babel-agent-deck--send-arguments remote id "30m")))
 
+(defun org-babel-agent-deck--send-setup-later (remote id title commands body)
+  "Send remaining setup COMMANDS and BODY to ID on REMOTE in order."
+  (if (null commands)
+      (org-babel-agent-deck--send-later remote id title body)
+    (let ((command (car commands)))
+      (apply #'org-agent-deck--start command
+             (lambda (output failure)
+               (if (org-babel-agent-deck--sent-p
+                    (and output (ignore-errors (json-parse-string output))) command t)
+                   (org-babel-agent-deck--send-setup-later remote id title (cdr commands) body)
+                 (display-warning 'org-agent-deck
+                                  (format "Session %s: unconfirmed setup %s: %s; inspect before retrying"
+                                          id command (or failure output)) :error)))
+             (org-babel-agent-deck--send-arguments remote id "30m")))))
 ;;;###autoload
 (defun org-babel-execute:agent-deck (body params)
   "Launch a fresh agent-deck session with prompt BODY and Babel PARAMS.
@@ -224,6 +261,9 @@ Return launch details for Org results.  Never retry a failed launch."
   (when (or (string-empty-p (string-trim body)) (string-match-p "\0" body))
     (user-error "agent-deck requires a non-empty prompt without NUL"))
   (let* ((options (org-babel-agent-deck--options params))
+         (body (if-let* ((tier (cdr (assq :tier options))))
+                   (concat (string-trim-right body) " #" (downcase tier))
+                 body))
          (directory (cdr (assq :directory options)))
          (group (cdr (assq :group options)))
          (harness (or (cdr (assq :harness options)) "pi"))
@@ -232,8 +272,16 @@ Return launch details for Org results.  Never retry a failed launch."
          (thinking (cdr (assq :thinking options)))
          (ultracode (member (cdr (assq :ultracode options)) '("yes" t)))
          (mailbox (when-let* ((value (cdr (assq :mailbox options))))
-                    (split-string value)))
-         (command (and mailbox (string-join (cons "/mailbox" mailbox) " ")))
+                    (append (split-string value)
+                            (when-let* ((topics (cdr (assq :topics options))))
+                              (split-string topics ",")))))
+         (commands (append (when-let* ((scope (cdr (assq :scope options))))
+                             (list (concat "/smart-router scope " scope)))
+                           (when-let* ((provider (cdr (assq :provider options))))
+                             (list (concat "/smart-router prefer " provider)))
+                           (when mailbox
+                             (list (string-join (cons "/mailbox" mailbox) " ")))))
+         (command (car commands))
          (title (or (cdr (assq :title options))
                     ;; Agent-mail binds a session under its title.
                     (car mailbox)
@@ -332,7 +380,7 @@ Return launch details for Org results.  Never retry a failed launch."
             (user-error "Session %s was created, but agent-deck did not see it take up %s: %S; inspect it before retrying"
                         id command sent)))
         (condition-case err
-            (org-babel-agent-deck--send-later remote id title body)
+            (org-babel-agent-deck--send-setup-later remote id title (cdr commands) body)
           (error
            (user-error "Session %s took up %s, but its prompt was not sent: %s\nSend the prompt yourself"
                        id command (error-message-string err)))))
@@ -348,8 +396,11 @@ Return launch details for Org results.  Never retry a failed launch."
                   (format "\nBranch: %s" (or (gethash "worktree_branch" reply) title))
                 "")
               (if command
-                  (format "\nMailbox: %s\nPrompt: pending until /mailbox finishes"
-                          command)
+                  (if mailbox
+                      (format "\nMailbox: %s\nPrompt: pending until /mailbox finishes"
+                              (string-join (cons "/mailbox" mailbox) " "))
+                    (format "\nSetup: %s\nPrompt: pending until setup finishes"
+                            (string-join commands "; ")))
                 "")
               (if-let* ((warning (gethash "warning" reply)))
                   (concat "\nWarning: " warning)

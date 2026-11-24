@@ -168,7 +168,8 @@ Add =:mailbox= to have the session join the shared agent-mail mailbox before it
 starts work.  The value is the session's mailbox name, optionally followed by
 topic specs in the =/mailbox= skill's syntax: =+topic= subscribes quietly,
 =++topic= wakes the session, and =!+topic= or =!++topic= also makes the topic a
-write target.
+write target.  Alternatively, give comma-separated topic specs in a separate
+=:topics= header.  Existing topic specs in =:mailbox= still work.
 
 #+begin_src agent-deck :preset work :directory ~/src/project :mailbox fix-capture ++nix-config
 Fix the capture issue.
@@ -268,6 +269,14 @@ its replies.
 | =:title=     | Exact title; defaults to the basename of =:directory=      |
 | =:worktree=  | =yes= creates a new worktree and branch named =:title=; default =no= |
 | =:mailbox=   | =NAME [TOPICS]=: run =/mailbox NAME [TOPICS]= before the prompt     |
+| =:topics=    | Comma-separated topic specs, requires =:mailbox=           |
+| =:tier=      | =SUPER=, =HIGH=, =MEDIUM= or =LOW=: append router tag      |
+| =:scope=     | =personal= or =work=: send router scope command before prompt |
+| =:provider=  | Provider name: send router preference before prompt         |
+
+Router setup is best effort: command delivery does not verify that a scope or
+provider was accepted.  A confirmation dialog may need intervention, and the
+follow-up may arrive while it is open.  Check the session if setup fails.
 
 Directory paths are never expanded or checked on Clio.  Use =:directory=,
 not Babel's =:dir=, which refers to Emacs's working directory.  Spaces,

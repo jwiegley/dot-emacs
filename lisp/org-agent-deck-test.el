@@ -273,6 +273,8 @@ case \" $* \" in
     echo '{\"success\":true,\"id\":\"fresh-session\",\"session_id\":\"fresh-session\",\"title\":\"ob-agent-deck-mail\",\"group\":\"Positron\",\"path\":\"~/src/project/\",\"tool\":\"claude\",\"profile\":\"default\",\"status\":\"starting\"}' ;;
   *' session send '*)
     case $(cat \"$log/$n.stdin\") in
+      /smart-router*)
+        printf '{\"success\":true,\"message\":\"%s\",\"submitted\":true,\"confirmation\":\"confirmed\"}\n' \"$(cat \"$log/$n.stdin\")\" ;;
       /mailbox*)
         echo '{\"success\":true,\"session_id\":\"fresh-session\",\"session_title\":\"ob-agent-deck-mail\",\"message\":\"/mailbox ob-agent-deck-mail ++work !+review\",\"delivery\":\"submitted\",\"submitted\":true,\"confirmation\":\"confirmed\"}' ;;
       *)
@@ -716,6 +718,35 @@ first; on a remote, every call goes through that remote."
       (should (seq-some (lambda (text) (string-search "fresh-session" text))
                         (plist-get run :messages))))))
 
+(ert-deftest org-agent-deck-babel-router-and-mailbox-order ()
+  "Send scope, provider, mailbox and routed prompt in order."
+  (let* ((run (org-agent-deck-test--mailbox-block
+               ":scope work :provider claude-code :mailbox ob-agent-deck-mail :topics ++work,!+review :tier HIGH"))
+         (messages (mapcar #'cdr (plist-get run :calls))))
+    (should (equal messages '("" "/smart-router scope work"
+                              "/smart-router prefer claude-code"
+                              "/mailbox ob-agent-deck-mail ++work !+review"
+                              "Fix the capture issue. #high")))))
+
+(ert-deftest org-agent-deck-babel-topics-and-tier ()
+  "Separate topics and tier reach the mailbox command and follow-up."
+  (let* ((run (org-agent-deck-test--mailbox-block
+               ":mailbox ob-agent-deck-mail :topics ++work,!+review :tier HIGH"))
+         (calls (plist-get run :calls)))
+    (should (equal (cdr (nth 1 calls)) "/mailbox ob-agent-deck-mail ++work !+review"))
+    (should (equal (cdr (nth 2 calls)) "Fix the capture issue. #high"))))
+
+(ert-deftest org-agent-deck-babel-topics-and-tier-validation ()
+  "Reject orphan topics, malformed topic lists and invalid tiers."
+  (let ((base '((:directory . "/tmp") (:group . "test"))))
+    (dolist (params '(((:topics . "+work"))
+                      ((:mailbox . "review") (:topics . "+work,"))
+                      ((:tier . "invalid"))
+                      ((:tier))
+                      ((:scope . "invalid"))
+                      ((:provider . "bad provider"))))
+      (should-error (org-babel-agent-deck--options (append params base))
+                    :type 'user-error))))
 (ert-deftest org-agent-deck-babel-mailbox-warns-when-prompt-undelivered ()
   "A background prompt send that fails, answers for another message, or
 cannot confirm that the agent took the prompt raises one warning naming
