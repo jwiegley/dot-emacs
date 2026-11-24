@@ -223,13 +223,13 @@ report the outcome then, and never retry."
            (if (org-babel-agent-deck--sent-p
                 (and output (ignore-errors (json-parse-string output)))
                 body)
-               (message "Agent-deck sent the prompt to %s (%s) after /mailbox"
+               (message "Agent-deck sent the prompt to %s (%s) after setup"
                         title id)
              ;; A lost SSH connection can leave the remote send running, so
              ;; an unconfirmed prompt may still arrive.
              (display-warning
               'org-agent-deck
-              (format "Agent-deck could not confirm the prompt for %s (%s) after /mailbox: %s\nCheck the session before sending the prompt yourself; nothing was retried."
+              (format "Agent-deck could not confirm the prompt for %s (%s) after setup: %s\nCheck the session before sending the prompt yourself; nothing was retried."
                       title id (or failure (string-trim output)))
               :error)))
          (org-babel-agent-deck--send-arguments remote id "30m")))
@@ -370,7 +370,7 @@ Return launch details for Org results.  Never retry a failed launch."
                     (apply #'org-agent-deck--call command
                            ;; Emacs waits for this send, so its hold is short.
                            (org-babel-agent-deck--send-arguments remote id "10m"))
-                    "Agent-deck /mailbox send")
+                    "Agent-deck setup send")
                  ((error quit)
                   (user-error "Session %s was created, but sending %s stopped: %s\nInspect it before retrying"
                               id command (error-message-string err))))))
