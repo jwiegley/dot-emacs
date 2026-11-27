@@ -1789,8 +1789,14 @@ This =:= replaces EasyPG's Dired prefix; its commands remain on M-x.
 
 *** dired-filter
 
+Use =/ t= to keep files with a tag.  Repeat to require another tag;
+=/ != negates the most recent filter and =/ |= combines the two most recent
+filters with OR.  =/ p= removes the most recent filter.
 #+begin_src emacs-lisp
 (use-package dired-filter)
+
+(use-package dired-filter-filetags
+  :after (dired-filter dired-filetags))
 #+end_src
 
 *** dired-follow
