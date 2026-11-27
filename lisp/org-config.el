@@ -1070,8 +1070,16 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
        (org-overriding-columns-format ,org-config-standard-columns)))
      ))
 
-   ("j" "Lab notebook TODOs" alltodo ""
-    ((org-agenda-files (list (org-file "journal/")))))
+   ;; The `org-todo-list' advice refreshes `org-agenda-files', so use a
+   ;; TODO-only tags view to preserve the filtered and sorted file list.
+   ("j" "Lab notebook TODOs" tags-todo "TODO<>\"\""
+    ((org-agenda-files
+      (sort (cl-remove-if-not (lambda (file) (string-match-p "journal" file))
+                              (org-agenda-files))
+            #'string<))
+     (org-agenda-sorting-strategy nil)
+     (org-agenda-tags-todo-honor-ignore-options nil)
+     (org-super-agenda-groups nil)))
 
    ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending\\|Drafts}&TODO<>\"SCRAP\"&LEVEL=2")
    ("n" "Notes"   todo "NOTE")
