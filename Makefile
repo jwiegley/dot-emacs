@@ -19,7 +19,7 @@ SUBDIRS = $(shell find $(DIRS) -maxdepth 2	\
 MY_LOADPATH = -L . $(patsubst %,-L %, $(SUBDIRS))
 BATCH_LOAD  = $(EMACS_BATCH) $(MY_LOADPATH)
 
-.PHONY: test build clean check-litter test-xdg audit-xdg
+.PHONY: test build clean test-xdg audit-xdg
 
 # Main rule
 all: init.el
@@ -119,9 +119,6 @@ clean:
 
 # Data, state and caches live outside this checkout; see lisp/user-paths.el.
 
-# Report runtime state that has come back into the checkout.
-check-litter:
-	@xdg/check-litter.sh
 
 # Unit tests for the path library, the migration tools and this Makefile.
 test-xdg:

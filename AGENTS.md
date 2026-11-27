@@ -17,7 +17,7 @@ This is John Wiegley's Emacs configuration. The checkout at `~/.config/emacs` is
 
 These are the rules that are easy to break without noticing. The sections below explain each.
 
-1. **Run no `make` target here except `make check-litter` and `make test-xdg`**, `make audit-xdg` while it exists, and `make init.org` after an edit to `~/org/init.org` that John asked for. The build targets (`make`, `make init.el`, `make -B`, `make speed`, `make slow`, `make open`, `make open-quick`) load John's whole init in a batch Emacs with his real data and state, and `make clean` deletes his Custom file. For the same reason, never load `init.el` or `init.org` yourself (`emacs -l init.el`, `org-babel-load-file`).
+1. **Run no `make` target here except `make test-xdg`**, `make audit-xdg` while it exists, and `make init.org` after an edit to `~/org/init.org` that John asked for. The build targets (`make`, `make init.el`, `make -B`, `make speed`, `make slow`, `make open`, `make open-quick`) load John's whole init in a batch Emacs with his real data and state, and `make clean` deletes his Custom file. For the same reason, never load `init.el` or `init.org` yourself (`emacs -l init.el`, `org-babel-load-file`).
 2. **Start every batch Emacs of your own with `--init-directory="$(mktemp -d)"`.** Without it, Emacs takes this checkout as its own directory and writes into it. The option moves that one directory and nothing else; see Running Emacs.
 3. **Check your changes in a batch Emacs, not in the Emacs that is running.** That one is John's working session, with his unsaved buffers, and what is evaluated there stays in it: evaluate nothing in it unless he asks you to.
 4. **Before you edit a file, or let git rewrite one, look for `#NAME#` beside it.** That is the auto-save file of a buffer with unsaved changes. If there is one, stop and ask.
@@ -25,7 +25,7 @@ These are the rules that are easy to break without noticing. The sections below 
 6. **Whatever Emacs writes on its own account gets a path under one of the three roots** for data, state and caches, never under `user-emacs-directory`. Files that John has Emacs save as configuration, such as `settings.el` and `abbrevs.el`, are the exception.
 7. **Leave no file of yours untracked in the checkout, and commit no plans or specs here.** John's `changes` script commits and pushes whatever `git add -A` finds, anywhere in the tree.
 8. **With git, touch only what is yours.** Commit only your own files or hunks (see Committing), and read `git status` first: a file that shows as staged though you did not stage it may be staged in reverse, so leave it alone (see A stale index). Before a pull, compare what it brings in with what is changed here. Never drop a stash that you did not make, and never check out an old commit in this checkout. See Version Control.
-9. **Run `make check-litter` when you start and before you finish**, and `make test-xdg` after any change to `lisp/user-paths.el`, `xdg/`, the `Makefile` or `.gitignore`.
+9. **Run `xdg/check-litter.sh` when you start and before you finish**, and `make test-xdg` after any change to `lisp/user-paths.el`, `xdg/`, the `Makefile` or `.gitignore`.
 10. **Work on this repository on one machine at a time.** ChronoSync carries the checkout between Clio and Hera every hour, in both directions, `.git` included. Do not pull in the other host's copy to bring it up to date: ChronoSync's next run does that. See Version Control.
 
 ## Layout
@@ -91,7 +91,7 @@ Add a row to `user-paths-table` in `lisp/user-paths.el` instead in two cases onl
 
 An Emacs that runs without this init (`-Q`, `-q` or `--batch`) still writes to its built-in defaults, which are inside the checkout. `.gitignore` therefore names those default files and directories, so that `git add -A` cannot commit a cookie jar or a history. A rule hides such a file from git; it does not make the file welcome here. Settings that a person saves on request (`abbrev_defs`, `calc.el`, `eudc-options`, `shadows`, `strokes`, `viper`) have rules as well: such a file stays in the checkout and out of a commit, as `settings.el` does; unlike `settings.el`, the report lists it. Code (`user-lisp/`, a style under `auctex/style/`, a theme) has no rule on purpose, so that it stays visible.
 
-`make check-litter` runs `xdg/check-litter.sh`, which makes the litter visible. It only reads, and it lists:
+`xdg/check-litter.sh` makes the litter visible. It only reads, and it lists:
 
 - `~/.emacs.d`, `~/.emacs` and `~/.emacs.el` (the last changes nothing alone, but Emacs loads it as the init file once `~/.emacs.d` or `~/.emacs` exists);
 - every ignored path outside `lisp/` that is not known configuration (such as `init.el`, `settings.el`, the Nix symlinks, `certs/`, Eshell's files, and what agent tools and the Finder leave), a build product, or an auto-save or lock file;
@@ -120,7 +120,6 @@ The source of the init is `~/org/init.org`, in John's Org repository, which is n
 
 | Target | What it does | May an agent run it? |
 |---|---|---|
-| `make check-litter` | Lists runtime files that are back in the checkout; reads only | Yes |
 | `make test-xdg` | Tests `lisp/user-paths.el`, the tools in `xdg/`, the rules in `.gitignore` and the Makefile's own rules, all in scratch directories | Yes |
 | `make audit-xdg` | Copies the configuration into a scratch home, tangles a copy of `~/org/init.org` there, and loads the whole init form by form, then every feature that a `use-package` form names, under a sandbox that denies writes below the home directory and all network access. Reports the forms that failed, the variables that still name a path in `user-emacs-directory`, and the files written there, and ends in `PASS` or `FAIL`. Takes about half a minute | Yes, while it exists |
 | `make init.org` | Copies `~/org/init.org` over the tracked copy if it is newer and has the call `(user-paths-check-migrated)` (see The guards); loads nothing | After an edit to `~/org/init.org` that John asked for |
@@ -344,7 +343,7 @@ Turn off what you turned on before you hand the session back.
 
 Work is not finished until it is committed and pushed, and you push it yourself: do not leave the push to John. Where this file says to stop and ask, that comes first: ask, and finish when John has answered.
 
-1. Run the checks that fit what you changed: the tests under Running Emacs, `make test-xdg` where rule 9 calls for it, and `make check-litter`. There is no build to run (rule 1). What `make check-litter` lists from before your session blocks nothing once you have told John.
+1. Run the checks that fit what you changed: the tests under Running Emacs, `make test-xdg` where rule 9 calls for it, and `xdg/check-litter.sh`. There is no build to run (rule 1). What `xdg/check-litter.sh` lists from before your session blocks nothing once you have told John.
 2. Commit your own files or hunks as Committing describes. A change inside a submodule is committed and pushed there first (see What Is in `lisp/`).
 3. Push:
 

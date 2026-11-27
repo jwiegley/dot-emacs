@@ -56,6 +56,10 @@ waits for the CLI to start the session and deliver the prompt, but not for
 the task to finish.  With =:mailbox=, Emacs waits for delivery of =/mailbox=
 instead, and the prompt follows in the background; see [[*Mailbox][Mailbox]].
 
+The body is Org by default (=:format org=), and is
+exported to Markdown before sending.  Use =:format md= or =:format markdown=
+to send Markdown unchanged.  Org export runs without evaluating Babel blocks.
+
 ** Work
 
 #+begin_src agent-deck :preset work :directory ~/src/project :title "Design review"

@@ -355,6 +355,28 @@ messages shown so far."
                 :buffer (buffer-string) :messages messages :warnings warnings))
       (delete-directory directory t))))
 
+(ert-deftest org-agent-deck-babel-org-format ()
+  (let (sent)
+    (cl-letf (((symbol-function 'org-agent-deck--call)
+               (lambda (body &rest args)
+                 (setq sent body)
+                 (org-agent-deck-test--launch-reply body args))))
+      (dolist (format '(nil "org"))
+        (org-babel-execute:agent-deck
+         "* Heading\n\nUse =code= and *bold*."
+         `((:preset . "local") (:directory . "/tmp") ,@(when format `((:format . ,format)))))
+        (should (string-match-p "# Heading" sent))
+        (should (string-match-p "`code`" sent))
+        (should (string-match-p "\\*\\*bold\\*\\*" sent))
+        (should-not (string-match-p "Table of Contents" sent)))
+      (dolist (format '("md" "markdown"))
+        (org-babel-execute:agent-deck
+         "*raw* `code`\n" `((:preset . "local") (:directory . "/tmp") (:format . ,format)))
+        (should (equal sent "*raw* `code`\n")))
+      (should-error
+       (org-babel-execute:agent-deck
+        "Prompt" '((:preset . "local") (:directory . "/tmp") (:format . "bad")))))))
+
 (ert-deftest org-agent-deck-babel-presets ()
   (dolist (case '(("work-codex" "Positron" "openai-codex/gpt-6-astra" "max")
                   ("local" "my-sessions" "omlx-hera/GLM-5.3-Flash-oQ4e-mtp" "max")
@@ -370,7 +392,7 @@ messages shown so far."
               (org-babel-execute:agent-deck
                body (append (nth 4 case)
                             `((:preset . ,(nth 0 case))
-                              (:directory . "~/remote only/project"))))))
+                              (:directory . "~/remote only/project") (:format . "md"))))))
       (should (= (length calls) 1))
       (let* ((args (cdar calls))
              (wrapper (cadr (member "--wrapper" args))))
@@ -668,7 +690,7 @@ launch suggests :ultracode no."
                      (org-agent-deck-test--launch-reply input args))))
           (setq result
                 (org-babel-execute:agent-deck
-                 body (append (car case) '((:directory . "~/src/project"))))))
+                 body (append (car case) '((:directory . "~/src/project") (:format . "markdown"))))))
         (should (= (length calls) 1))
         (pcase-let ((`(,input . ,args) (car calls)))
           (should (equal input body))
