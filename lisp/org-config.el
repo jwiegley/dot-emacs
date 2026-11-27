@@ -1070,6 +1070,9 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
        (org-overriding-columns-format ,org-config-standard-columns)))
      ))
 
+   ("j" "Lab notebook TODOs" alltodo ""
+    ((org-agenda-files (list (org-file "journal/")))))
+
    ("u" "Unfiled" tags "CATEGORY={Inbox\\|Pending\\|Drafts}&TODO<>\"SCRAP\"&LEVEL=2")
    ("n" "Notes"   todo "NOTE")
    ("l" "Links"   todo "LINK")
