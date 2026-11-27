@@ -18,7 +18,7 @@
                             nil nil))
   (member qualifier (dired-filetags-tags file-name)))
 
-(define-key dired-filter-map "t" #'dired-filter-by-filetags)
+(define-key dired-filter-map ":" #'dired-filter-by-filetags)
 
 (provide 'dired-filter-filetags)
 ;;; dired-filter-filetags.el ends here

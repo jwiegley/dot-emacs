@@ -1076,7 +1076,7 @@ SCHEDULED: <`(created-stamp t 'no-brackets)` .+1d/3d>
     ((org-agenda-files
       (sort (cl-remove-if-not (lambda (file) (string-match-p "journal" file))
                               (org-agenda-files))
-            #'string<))
+            #'string>))
      (org-agenda-sorting-strategy nil)
      (org-agenda-tags-todo-honor-ignore-options nil)
      (org-super-agenda-groups nil)))
